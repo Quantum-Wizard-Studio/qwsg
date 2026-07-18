@@ -5,7 +5,7 @@
 - Date: `2026-07-18` UTC
 - Responsible agent: Aikó/Codex
 - Human authority: project owner request titled “QWSG — Engineering Standard Update”
-- Status: complete, subject to final Git recording
+- Status: complete and verified
 
 ## Objective and exclusions
 
@@ -54,14 +54,14 @@ Updated `01_CONSTITUTION.md`, `03_AGENTS.md`, `06_ENGINEERING_STANDARDS.md`, `07
 
 ## Unresolved issues and delivery result
 
-No known policy conflict is unresolved. Delivery result: **complete**, subject to final verification and Git commit details being appended to this record.
+No known policy conflict is unresolved. Delivery result: **complete**. Verification passed and the documentation-standard commit was created.
 
 ## Git record
 
-Branch: `main`. Commit subject and full hash: pending final verification and commit. Final working-tree status: pending.
+Branch: `main`. Engineering-standard commit: `cd334dd3e6f177ecf968fac24b7b0bf46ab5cfc0` (`docs: establish definitive engineering task standard`). A follow-up audit commit records this immutable hash. Final working-tree status: clean after the audit commit.
 
 ## Owner delivery
 
-The final owner-facing outcome, verification, rollback information, and completion state will be communicated in Hungarian after the Git record is complete.
+The final owner-facing outcome, verification, rollback information, and completion state are communicated in Hungarian after the Git record is complete.
 
 This report belongs to chronological engineering history. Secrets, application design, and future milestone work do not. The policy documentation will evolve during development through explicit human approval.
