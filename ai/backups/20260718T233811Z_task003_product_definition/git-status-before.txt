@@ -1,0 +1,9 @@
+Captured at 2026-07-18T23:38:11Z
+
+## main
+ D ai/prompts/002_CURRENT_TASK.md
+?? ai/archive_prompts/002_2026-07-18_task-workflow-automation.md
+?? ai/history/003_2026-07-18_product-architecture.md
+?? ai/prompts/003_CURRENT_TASK.md
+
+HEAD: 4b4a0ac97fe3ac21ef1fae4beec70870cd53cad5

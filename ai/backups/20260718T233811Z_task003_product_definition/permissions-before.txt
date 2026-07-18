@@ -1,0 +1,14 @@
+Captured at 2026-07-18T23:38:11Z
+
+Project root and ai/: mode 2775, owner attila:qwdev
+ai/prompts, ai/history, ai/backups: mode 2771, owner attila:qwdev
+ai/prompts/003_CURRENT_TASK.md: mode 0600, owner attila:qwdev
+ai/history/003_2026-07-18_product-architecture.md: mode 0600, owner attila:qwdev
+ai/archive_prompts/002_2026-07-18_task-workflow-automation.md: mode 0660, owner attila:qwdev
+
+Sampled default ACL:
+default:user::rwx
+default:user:attila:rwx
+default:group::rwx
+default:mask::rwx
+default:other::--x

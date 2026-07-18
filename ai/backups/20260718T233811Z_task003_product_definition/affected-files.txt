@@ -1,0 +1,11 @@
+Task 003 authorized targets:
+docs/PRODUCT_DEFINITION.md
+README.md
+ai/projects/QWSG.md
+ai/core/07_ENGINEERING_HISTORY.md
+ai/core/13_ROADMAP.md
+ai/prompts/003_CURRENT_TASK.md
+ai/history/003_2026-07-18_product-definition.md
+
+Pre-task rotation record renamed during Task 003:
+ai/history/003_2026-07-18_product-architecture.md
