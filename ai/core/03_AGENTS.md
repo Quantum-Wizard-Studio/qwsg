@@ -18,5 +18,8 @@ Mandatory collaboration baseline for `0.0.1-prealpha`.
 - Every agent must read the relevant core documents before modifying the project.
 - The human project owner has final authority.
 - Every task must end with a delivery report.
+- Every agent must use English for engineering artifacts and Hungarian for all communication addressed to the project owner.
+- Owner-facing technical decisions must be explained in Hungarian without assuming English fluency; accurate engineering terms must be retained where translation would reduce precision.
+- Every implementation or documentation task must follow the workflow and required record fields in `08_JOB_TEMPLATE.md`.
 
 Role boundaries, verification duties, and delivery expectations belong here. Prompts, secrets, unverified claims, and implementation-specific design do not. These rules will evolve during development with human approval.

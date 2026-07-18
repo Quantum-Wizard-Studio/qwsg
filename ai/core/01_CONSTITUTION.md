@@ -22,6 +22,11 @@ Binding from the `0.0.1-prealpha` bootstrap onward.
 10. Update documentation with every completed task.
 11. Record milestones chronologically.
 12. Stop and report when the environment differs materially from expectations.
+13. Use English for all engineering artifacts, including source code, comments, documentation, architecture, API specifications, commit messages, changelogs, issue records, and engineering reports.
+14. Use Hungarian for every message intended for the human project owner, including progress reports, explanations, recommendations, summaries, warnings, and completion reports.
+15. Explain technical decisions to the owner in Hungarian without assuming English fluency, while preserving accurate engineering terminology.
+16. Design all user-facing content for localization from the beginning; the Web Console, Installer, and future end-user documentation must support multiple languages without changing the English engineering language.
+17. Execute and document engineering tasks according to `08_JOB_TEMPLATE.md`, the definitive task standard.
 
 ## Scope
 
