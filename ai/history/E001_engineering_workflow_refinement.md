@@ -7,7 +7,7 @@
 - Responsible agent: Aikó/Codex
 - Human authority: current project owner
 - Preferred owner communication language for this task: Hungarian, established by current project context
-- Status: complete, subject to final verification and Git recording
+- Status: complete and verified
 
 ## Summary
 
@@ -45,6 +45,6 @@ No application code, software, operating-system setting, or product architecture
 
 ## Completion Criteria
 
-E001 is complete when documentation consistency and safety verification pass, the full engineering commit hash is recorded here, and the final working tree is clean. Git record: pending.
+E001 completion criteria passed. Engineering commit: `9df2e7069f931e03c052687311a439a821934244` (`docs: refine engineering workflow E001`). A follow-up audit commit records this immutable hash. Final working-tree status: clean after the audit commit.
 
 This English record belongs to chronological engineering history. Owner-facing completion communication is delivered separately in the preferred language.
