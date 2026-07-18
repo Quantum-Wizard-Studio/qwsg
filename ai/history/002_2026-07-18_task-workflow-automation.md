@@ -14,7 +14,7 @@ Opened `2026-07-18` UTC.
 
 ## Status
 
-`complete — awaiting Git record`; Aikó/Codex updated this record during implementation and delivery.
+`complete and verified`; Aikó/Codex updated this record during implementation and delivery.
 
 ## Starting state
 
@@ -83,7 +83,7 @@ From the exact QWSG root, run the snapshot `restore.sh`, review its bounded chan
 
 ## Git commit hash
 
-Pending creation. The full E002 engineering commit hash will be recorded here, followed by a separate audit commit so the final worktree can be clean.
+E002 engineering commit: `ccae1e51257c1fa3f8588af44366091f454da32c` (`feat: automate engineering task rotation E002`). A separate audit commit records this immutable hash. Final Git status: clean on `main` after the audit commit.
 
 ## Open questions
 
