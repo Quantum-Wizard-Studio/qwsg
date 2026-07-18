@@ -1,9 +1,17 @@
 # Engineering Task Prompt 001: Product Architecture
 
+## Archive Status
+
+- Semantic status: `archived without execution`
+- Archived: `2026-07-18`
+- Reason: Engineering Update E002 changed active-prompt storage to the one-active-file convention.
+- Execution: not authorized, not started, and not completed.
+- Reuse: this document remains source material for a future, separately authorized active Product Architecture task.
+
 ## Task Metadata
 
 - Identifier: `001_PRODUCT_ARCHITECTURE`
-- Status: `draft — not authorized for execution`
+- Status: `archived without execution — draft source material`
 - Engineering language: English
 - Owner or lead-developer communication language: verify at execution time
 - Human authority: required before execution

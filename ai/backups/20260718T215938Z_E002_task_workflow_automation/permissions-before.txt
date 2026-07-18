@@ -1,0 +1,11 @@
+Captured at 2026-07-18T21:59:38Z
+
+Root and ai/: mode 2775, owner attila:qwdev
+ai/core, ai/prompts, ai/history, ai/backups: mode 2771, owner attila:qwdev
+
+Sampled default ACL:
+default:user::rwx
+default:user:attila:rwx
+default:group::rwx
+default:mask::rwx
+default:other::--x

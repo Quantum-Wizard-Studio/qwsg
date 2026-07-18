@@ -98,7 +98,9 @@ The Web Console, Installer, and future end-user documentation must support multi
 
 ## Prompt workflow
 
-Every future engineering task should have one reusable English prompt under `ai/prompts/`. The prompt follows the required task structure above, declares whether it is draft, approved, active, complete, or superseded, and separates task definition from execution. Prompt creation never grants execution authority. Detailed file naming, lifecycle, and content rules are maintained in `ai/prompts/README.md`.
+Every engineering task has exactly one active English prompt named `NNN_CURRENT_TASK.md` and one independent history file. The prompt follows the required task structure above, uses the semantic states `draft`, `approved`, `active`, `complete`, `superseded`, or `archived without execution`, and separates definition from execution. Prior prompts move to `ai/archive_prompts/`; archived prompts and histories remain committed. Prompt creation or archiving never grants execution authority. Detailed numbering, naming, rotation, and compatibility rules are maintained in `14_PROMPT_WORKFLOW.md`.
+
+The general Engineering History remains a concise milestone index. It must not become an infinitely growing task log; detailed evidence belongs in the independent task history record.
 
 ## Completion gate
 
