@@ -1,0 +1,54 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Environment, credentials, and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials/
+secrets/
+
+# Logs and local runtime output
+*.log
+logs/
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Build and coverage output
+/build/*
+!/build/.gitkeep
+/dist/
+/coverage/
+
+# Laravel runtime files (future compatibility)
+/storage/app/private/
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/bootstrap/cache/*.php
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Generated backups; keep QWSG audit documentation tracked
+*.bak
+*.backup
+*.tar
+*.tar.gz
+*.tgz
+*.zip

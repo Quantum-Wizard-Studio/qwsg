@@ -1,0 +1,18 @@
+Captured at 2026-07-18T19:29:02Z
+
+drwxrwsr-x 2775 attila:qwdev /home/qws/web/qwsg.quantumwizard.hu/qwsg
+drwxrwsr-x 2775 attila:qwdev /home/qws/web/qwsg.quantumwizard.hu/qwsg/ai
+
+Root ACL:
+user::rwx
+user:attila:rwx
+group::rwx
+mask::rwx
+other::r-x
+default:user::r-x
+default:user:attila:rwx
+default:group::rwx
+default:mask::rwx
+default:other::--x
+
+The project root had setgid inheritance and group `qwdev`. No ownership or permission changes had been made before snapshot creation.

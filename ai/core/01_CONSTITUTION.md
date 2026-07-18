@@ -1,0 +1,28 @@
+# Project Constitution
+
+## Purpose
+
+This constitution sets mandatory rules for every human and AI contributor to Quantum Wizard Server Guardian.
+
+## Status
+
+Binding from the `0.0.1-prealpha` bootstrap onward.
+
+## Mandatory rules
+
+1. Inspect before changing.
+2. Snapshot before changing.
+3. Define rollback before implementation.
+4. Make the smallest safe change.
+5. Never silently alter infrastructure.
+6. Never install dependencies without documenting them.
+7. Never remove legacy data automatically.
+8. Never expose secrets or write credentials into the repository.
+9. Verify after every meaningful change.
+10. Update documentation with every completed task.
+11. Record milestones chronologically.
+12. Stop and report when the environment differs materially from expectations.
+
+## Scope
+
+Non-negotiable contributor safeguards belong here. Temporary preferences, implementation recipes, and task-specific exceptions do not. This constitution will evolve during development only with explicit human approval.
