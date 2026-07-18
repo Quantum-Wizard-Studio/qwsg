@@ -14,7 +14,7 @@ QWSG Product Definition.
 
 ## Status
 
-`complete — owner review required for strategic proposals`; final Git recording pending.
+`complete and verified — owner review required for strategic proposals`.
 
 ## Starting state
 
@@ -84,7 +84,7 @@ From the exact project root, run `ai/backups/20260718T233811Z_task003_product_de
 
 ## Git commit hash
 
-Pending. The full Task 003 engineering commit hash will be recorded here, followed by a separate audit commit so the final worktree can be clean.
+Task 003 engineering commit: `b165f288720802695e0c5d5622515855d5c31be9` (`docs: define QWSG product scope task 003`). A separate audit commit records this immutable hash. Final Git status: clean on `main` after the audit commit.
 
 ## Open questions
 
