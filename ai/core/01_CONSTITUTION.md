@@ -23,10 +23,11 @@ Binding from the `0.0.1-prealpha` bootstrap onward.
 11. Record milestones chronologically.
 12. Stop and report when the environment differs materially from expectations.
 13. Use English for all engineering artifacts, including source code, comments, documentation, architecture, API specifications, commit messages, changelogs, issue records, and engineering reports.
-14. Use Hungarian for every message intended for the human project owner, including progress reports, explanations, recommendations, summaries, warnings, and completion reports.
-15. Explain technical decisions to the owner in Hungarian without assuming English fluency, while preserving accurate engineering terminology.
+14. Use the configured preferred communication language of the current project owner or lead developer for every message intended for that person, including progress reports, explanations, recommendations, summaries, warnings, and completion reports.
+15. Verify or request the current communication-language preference instead of assuming it. Explain technical decisions in that language while preserving accurate engineering terminology.
 16. Design all user-facing content for localization from the beginning; the Web Console, Installer, and future end-user documentation must support multiple languages without changing the English engineering language.
 17. Execute and document engineering tasks according to `08_JOB_TEMPLATE.md`, the definitive task standard.
+18. Before implementation work, read `00_PROJECT_PHILOSOPHY.md`, `01_CONSTITUTION.md`, `03_AGENTS.md`, and `08_JOB_TEMPLATE.md`.
 
 ## Scope
 
