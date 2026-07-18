@@ -2,7 +2,7 @@
 
 ## Purpose and status
 
-This report records delivery of the recoverable documentation and repository foundation for Quantum Wizard Server Guardian. Status: foundation complete and verified on `2026-07-18`; repository-local Git identity is configured and the bootstrap commit is ready to be created.
+This report records delivery of the recoverable documentation and repository foundation for Quantum Wizard Server Guardian. Status: foundation complete, verified, and committed on `2026-07-18`.
 
 ## Date
 
@@ -49,12 +49,12 @@ From exactly `/home/qws/web/qwsg.quantumwizard.hu/qwsg`, run `ai/backups/2026071
 
 ## Unresolved issues
 
-- Repository-local Git identity is configured by the owner. Exact bootstrap commit hash: **pending creation**.
+- Repository-local Git identity is configured by the owner. Exact bootstrap commit hash: `213f3ba69570a47af48e63cc584b854c2997bcf0` (`chore: bootstrap QWSG project foundation`).
 - The original ACL variance is resolved and verified. Future tasks must continue checking inheritance rather than assuming it remains unchanged.
 - Empty structural directories are present in the working tree but cannot be represented by Git without adding meaningful content later.
 
 ## Recommended next task
 
-After this bootstrap is committed and its hash recorded, the owner may separately authorize the next task. No architecture or second development task is included in this delivery.
+The owner may separately authorize the next task. No architecture or second development task is included in this delivery.
 
 This report belongs to the chronological delivery record; secrets and future work do not. It will remain historical while later reports evolve the project documentation.
