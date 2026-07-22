@@ -11,7 +11,7 @@ Initial directory model; directories contain no application implementation yet.
 ## What belongs here
 
 - `ai/`: governance, coordination, snapshots, and delivery history.
-- `ai/prompts/`: exactly one active engineering task prompt.
+- `ai/prompts/`: zero or one active engineering task prompt; empty is the canonical idle state after completion and archival.
 - `ai/archive_prompts/`: immutable prior and unexecuted-draft prompt records.
 - `ai/history/`: one independent history file per task plus concise milestone records retained for backward compatibility.
 - `ai/scripts/`: bounded engineering workflow automation.
@@ -19,4 +19,4 @@ Initial directory model; directories contain no application implementation yet.
 - `installer/`, `agent/`, `console/`, `modules/`: future approved product components.
 - `tests/`, `scripts/`, `tools/`, `build/`: future verification and engineering support.
 
-Credentials, runtime state, vendored dependencies, generated binary backups, and undocumented binaries do not belong in version control. Active prompts, archived prompts, task histories, and Markdown audit records must remain committed. This map will evolve as architecture is approved during development.
+Credentials, runtime state, vendored dependencies, full backup payloads, host-state evidence, generated binary backups, and undocumented binaries do not belong in version control. Active prompts, archived prompts, task histories, sanitized backup manifests/checksums/restore documentation, and Markdown audit records may remain committed under the Engineering Backup Policy. This map will evolve as architecture is approved during development.

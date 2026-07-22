@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly EXIT_USAGE=2
+readonly EXIT_ROOT=3
+readonly EXIT_PROMPT=4
+readonly EXIT_TASK=5
+readonly EXIT_HISTORY=6
+
+fail() {
+    local code="$1"
+    shift
+    printf 'Hiba: %s\n' "$*" >&2
+    exit "$code"
+}
+
+usage() {
+    cat <<'EOF'
+Használat: bin/job [--check|--prepared-check|--show|--path|--history|--help]
+
+  (nincs opció)  Ellenőrzi az aktív feladatot, rövid összefoglalót ír, majd megjeleníti.
+  --check        Csak ellenőrzi az aktív promptot és a history fájlt.
+  --prepared-check Ellenőrzi a tulajdonosi jóváhagyásra előkészített draft prompt/history párt.
+  --show         Ellenőrzés után megjeleníti a teljes aktív promptot.
+  --path         Csak az aktív prompt abszolút útvonalát írja ki.
+  --history      Csak a kapcsolódó history abszolút útvonalát írja ki.
+  --help         Megjeleníti ezt a segítséget.
+
+Kilépési kódok: 0 siker; 2 argumentumhiba; 3 projektgyökér-hiba;
+4 prompt-hiba; 5 Task ID vagy szerkesztési marker hiba; 6 history-hiba.
+A parancs csak olvas: nem hajtja végre és nem módosítja a prompt tartalmát.
+EOF
+}
+
+mode='default'
+if (( $# > 1 )); then
+    fail "$EXIT_USAGE" 'egyszerre pontosan egy opció használható'
+fi
+if (( $# == 1 )); then
+    case "$1" in
+        --check) mode='check' ;;
+        --prepared-check) mode='prepared' ;;
+        --show) mode='show' ;;
+        --path) mode='path' ;;
+        --history) mode='history' ;;
+        --help) usage; exit 0 ;;
+        *) fail "$EXIT_USAGE" "ismeretlen opció: $1" ;;
+    esac
+fi
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+project_root="$(cd -- "$script_dir/.." && pwd -P)"
+prompts_dir="$project_root/ai/prompts"
+archive_dir="$project_root/ai/archive_prompts"
+history_dir="$project_root/ai/history"
+
+[[ "$script_dir" == "$project_root/bin" ]] || fail "$EXIT_ROOT" 'a parancs nem a projekt bin könyvtárában található'
+[[ -f "$project_root/VERSION" && -f "$project_root/ai/core/00_PROJECT_PHILOSOPHY.md" && -f "$project_root/ai/core/08_JOB_TEMPLATE.md" ]] || \
+    fail "$EXIT_ROOT" 'a QWSG projektazonosító fájlok hiányoznak'
+[[ -d "$prompts_dir" && -d "$archive_dir" && -d "$history_dir" ]] || fail "$EXIT_ROOT" 'a prompt-, archive- vagy history-könyvtár hiányzik'
+
+mapfile -d '' prompt_files < <(find -P "$prompts_dir" -maxdepth 1 -type f -name '*.md' -print0)
+(( ${#prompt_files[@]} <= 1 )) || fail "$EXIT_PROMPT" "legfeljebb egy aktív Markdown prompt engedélyezett; találat: ${#prompt_files[@]}"
+
+if (( ${#prompt_files[@]} == 0 )); then
+    [[ "$mode" == check ]] || fail "$EXIT_PROMPT" 'nincs aktív QWSG task; csak a --check használható idle lifecycle állapotban'
+    mapfile -t archived_names < <(find -P "$archive_dir" -maxdepth 1 -type f -name '[0-9][0-9][0-9]_????-??-??_*.md' -printf '%f\n' | LC_ALL=C sort)
+    (( ${#archived_names[@]} > 0 )) || fail "$EXIT_PROMPT" 'nincs aktív és nincs archived task prompt'
+    archived_name="${archived_names[${#archived_names[@]}-1]}"
+    [[ "$archived_name" =~ ^([0-9]{3})_[0-9]{4}-[0-9]{2}-[0-9]{2}_([a-z0-9]+(-[a-z0-9]+)*)\.md$ ]] || fail "$EXIT_PROMPT" 'a legutóbbi archived prompt neve hibás'
+    task_id="${BASH_REMATCH[1]}"
+    task_slug="${BASH_REMATCH[2]}"
+    archived_path="$archive_dir/$archived_name"
+    grep -Fxq -- "- Task ID: \`$task_id\`" "$archived_path" || fail "$EXIT_TASK" 'az archived prompt Task ID metaadata hibás'
+    grep -Fxq -- "- Task slug: \`$task_slug\`" "$archived_path" || fail "$EXIT_TASK" 'az archived prompt slug metaadata hibás'
+    grep -Eq '^- Status: `?complete' "$archived_path" || fail "$EXIT_TASK" 'a legutóbbi archived prompt nem complete állapotú'
+    mapfile -d '' idle_histories < <(find -P "$history_dir" -maxdepth 1 -type f -name "${task_id}_????-??-??_${task_slug}.md" -print0)
+    (( ${#idle_histories[@]} == 1 )) || fail "$EXIT_HISTORY" "az archived Task $task_id pontosan egy history fájlt igényel; találat: ${#idle_histories[@]}"
+    grep -Fxq -- "- Task ID: \`$task_id\`" "${idle_histories[0]}" || fail "$EXIT_HISTORY" 'az archived task history Task ID metaadata hibás'
+    grep -Fxq -- "- Task slug: \`$task_slug\`" "${idle_histories[0]}" || fail "$EXIT_HISTORY" 'az archived task history slug metaadata hibás'
+    grep -Eq '^- Status: `?complete' "${idle_histories[0]}" || fail "$EXIT_HISTORY" 'az archived task history nem complete állapotú'
+    printf 'A QWSG lifecycle érvényes: nincs aktív task; legutóbbi lezárt task: %s (%s)\n' "$task_id" "$archived_name"
+    exit 0
+fi
+
+prompt_path="${prompt_files[0]}"
+prompt_name="${prompt_path##*/}"
+[[ "$prompt_name" =~ ^([0-9]{3})_CURRENT_TASK\.md$ ]] || fail "$EXIT_PROMPT" "hibás aktív promptfájlnév: $prompt_name"
+task_id="${BASH_REMATCH[1]}"
+
+mapfile -t internal_ids < <(sed -nE 's/^- Task ID: `([0-9]{3})`$/\1/p' "$prompt_path")
+(( ${#internal_ids[@]} == 1 )) || fail "$EXIT_TASK" 'az aktív prompt pontosan egy szabályos Task ID metaadatot igényel'
+[[ "${internal_ids[0]}" == "$task_id" ]] || fail "$EXIT_TASK" "a fájlnév Task ID-ja ($task_id) és a belső Task ID (${internal_ids[0]}) eltér"
+
+if [[ "$mode" != prepared ]] && awk 'index($0, "[REQUIRES HUMAN EDITING]") && $0 !~ /`\[REQUIRES HUMAN EDITING\]`/ { found=1 } END { exit !found }' "$prompt_path"; then
+    fail "$EXIT_TASK" 'az aktív prompt megoldatlan [REQUIRES HUMAN EDITING] mezőt tartalmaz'
+fi
+
+mapfile -t prompt_slugs < <(sed -nE 's/^- Task slug: `([a-z0-9]+(-[a-z0-9]+)*)`$/\1/p' "$prompt_path")
+(( ${#prompt_slugs[@]} == 1 )) || fail "$EXIT_TASK" 'az aktív prompt pontosan egy szabályos Task slug metaadatot igényel'
+task_slug="${prompt_slugs[0]}"
+
+mapfile -d '' history_files < <(find -P "$history_dir" -maxdepth 1 -type f -name "${task_id}_????-??-??_*.md" -print0)
+(( ${#history_files[@]} == 1 )) || fail "$EXIT_HISTORY" "pontosan egy kapcsolódó Task $task_id history fájl szükséges; találat: ${#history_files[@]}"
+history_path="${history_files[0]}"
+history_name="${history_path##*/}"
+[[ "$history_name" =~ ^${task_id}_[0-9]{4}-[0-9]{2}-[0-9]{2}_[a-z0-9]+(-[a-z0-9]+)*\.md$ ]] || \
+    fail "$EXIT_HISTORY" "nem biztonságos vagy hibás history fájlnév: $history_name"
+[[ "$history_name" =~ ^${task_id}_[0-9]{4}-[0-9]{2}-[0-9]{2}_${task_slug}\.md$ ]] || \
+    fail "$EXIT_HISTORY" 'a history fájlnév slugja nem egyezik a prompt metaadatával'
+
+mapfile -t history_ids < <(sed -nE 's/^- Task ID: `([0-9]{3})`$/\1/p' "$history_path")
+mapfile -t history_slugs < <(sed -nE 's/^- Task slug: `([a-z0-9]+(-[a-z0-9]+)*)`$/\1/p' "$history_path")
+(( ${#history_ids[@]} == 1 && ${#history_slugs[@]} == 1 )) || fail "$EXIT_HISTORY" 'a history pontosan egy Task ID és Task slug metaadatot igényel'
+[[ "${history_ids[0]}" == "$task_id" && "${history_slugs[0]}" == "$task_slug" ]] || fail "$EXIT_HISTORY" 'a prompt és history metaadatai eltérnek'
+
+if [[ "$mode" == prepared ]]; then
+    grep -Eq '^- Status: `draft — requires human editing and approval`$' "$prompt_path" || fail "$EXIT_TASK" 'az előkészített prompt nem draft állapotú'
+    grep -Eq '^- Status: `prepared — not approved, task not started`$' "$history_path" || fail "$EXIT_HISTORY" 'az előkészített history állapota hibás'
+fi
+
+case "$mode" in
+    check)
+        printf 'A QWSG aktív feladata érvényes: %s (%s)\n' "$task_id" "$prompt_name"
+        ;;
+    prepared)
+        printf 'A QWSG előkészített feladatpárja érvényes: %s (%s) — READY FOR OWNER REVIEW\n' "$task_id" "$prompt_name"
+        ;;
+    path)
+        printf '%s\n' "$prompt_path"
+        ;;
+    history)
+        printf '%s\n' "$history_path"
+        ;;
+    show)
+        cat -- "$prompt_path"
+        ;;
+    default)
+        printf 'QWSG aktív feladat: %s\nPrompt: %s\nHistory: %s\n\n' "$task_id" "$prompt_path" "$history_path"
+        cat -- "$prompt_path"
+        ;;
+esac

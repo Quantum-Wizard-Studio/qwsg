@@ -1,5 +1,6 @@
 # Operating system and editor files
 .DS_Store
+/build/
 Thumbs.db
 *~
 *.swp
@@ -27,10 +28,12 @@ logs/
 /node_modules/
 
 # Build and coverage output
-/build/*
-!/build/.gitkeep
 /dist/
 /coverage/
+*.cover
+*.coverage
+coverage.out
+*.test
 
 # Laravel runtime files (future compatibility)
 /storage/app/private/
@@ -52,3 +55,16 @@ logs/
 *.tar.gz
 *.tgz
 *.zip
+
+# Engineering backup payloads and host-specific evidence
+/ai/backups/**/current-state/
+/ai/backups/**/preserved/
+/ai/backups/**/payload/
+/ai/backups/**/*-before.patch
+/ai/backups/**/git-diff-before.patch
+/ai/backups/**/git-status-before.txt
+/ai/backups/**/git-log-before.txt
+/ai/backups/**/permissions-before.txt
+/ai/backups/**/tree-before.txt
+/ai/backups/**/host-state*
+/ai/backups/**/pre-task-evidence*

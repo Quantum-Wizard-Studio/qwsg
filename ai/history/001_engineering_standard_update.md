@@ -17,7 +17,7 @@ The project philosophy, constitution, agent rules, engineering standards, existi
 
 ## Verified starting state
 
-Git was clean on `main` at `ac164d41bd8ef951cf3a4eecc307dd834b5d750d`. Relevant paths were owned by `attila:qwdev`, directories retained setgid, and default ACLs granted owner and group write inheritance.
+Git was clean on `main` at `ac164d41bd8ef951cf3a4eecc307dd834b5d750d`. Relevant paths were owned by `<repository-owner>:<repository-group>`, directories retained setgid, and default ACLs granted owner and group write inheritance.
 
 ## Snapshot location
 

@@ -37,7 +37,7 @@ QWSG application functionality, dependency installation, server or operating-sys
 
 ## Starting State Verification
 
-Verified clean `main` at `fa156697198a2230c938fb6780e9b8e42c860f57`, `attila:qwdev` ownership, setgid directories, owner/group write ACL inheritance, one governance README, and one unexecuted Product Architecture draft under `ai/prompts/`.
+Verified clean `main` at `fa156697198a2230c938fb6780e9b8e42c860f57`, `<repository-owner>:<repository-group>` ownership, setgid directories, owner/group write ACL inheritance, one governance README, and one unexecuted Product Architecture draft under `ai/prompts/`.
 
 ## Snapshot Requirements
 

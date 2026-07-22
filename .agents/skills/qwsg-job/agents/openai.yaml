@@ -1,0 +1,4 @@
+interface:
+  display_name: "QWSG Job"
+  short_description: "Load and execute the active QWSG task"
+  default_prompt: "Use $qwsg-job to validate and execute the active QWSG engineering task."

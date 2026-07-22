@@ -28,6 +28,7 @@ Binding from the `0.0.1-prealpha` bootstrap onward.
 16. Design all user-facing content for localization from the beginning; the Web Console, Installer, and future end-user documentation must support multiple languages without changing the English engineering language.
 17. Execute and document engineering tasks according to `08_JOB_TEMPLATE.md`, the definitive task standard.
 18. Before implementation work, read `00_PROJECT_PHILOSOPHY.md`, `01_CONSTITUTION.md`, `03_AGENTS.md`, and `08_JOB_TEMPLATE.md`.
+19. Follow the authoritative task lifecycle in `11_ENGINEERING_LIFECYCLE.md`, including No Task Without History and the separation of preparation from approval and execution.
 
 ## Scope
 

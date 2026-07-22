@@ -11,7 +11,7 @@ This report records delivery of the recoverable documentation and repository fou
 
 ## Original state
 
-The root contained an empty `ai/` directory, environment-managed `.agents/` and `.codex/` directories, and an initialized Git repository with no commits on `master`. The root was `attila:qwdev`, mode `2775`, with setgid and default ACL inheritance. PHP, Composer, Node.js, and npm were present before this task; none were installed or changed. Git identity was absent.
+The root contained an empty `ai/` directory, environment-managed `.agents/` and `.codex/` directories, and an initialized Git repository with no commits on `master`. The root was `<repository-owner>:<repository-group>`, mode `2775`, with setgid and default ACL inheritance. PHP, Composer, Node.js, and npm were present before this task; none were installed or changed. Git identity was absent.
 
 ## Snapshot
 
@@ -38,14 +38,14 @@ The rollback-capable baseline is `ai/backups/20260718T192902Z_project_bootstrap/
 - `VERSION` is exactly `0.0.1-prealpha`; the changelog contains the `2026-07-18` bootstrap entry.
 - Required philosophy, constitution, and agent rules were found by content checks.
 - `restore.sh` passes `bash -n`, uses exact paths, requires a typed confirmation, checks the expected root, and refuses rollback over later Git history.
-- Created content is owned by `attila:qwdev`; directories are mode `2771` with setgid, regular documents are mode `0660`, and the restore script is mode `0770`.
-- ACL samples show `default:user::rwx` and `default:group::rwx`. A reversible creation probe produced a directory owned by `attila:qwdev` with mode `2771` and a file with mode `0660`, proving both owner and group write inheritance; the probe was removed afterward.
+- Created content is owned by `<repository-owner>:<repository-group>`; directories are mode `2771` with setgid, regular documents are mode `0660`, and the restore script is mode `0770`.
+- ACL samples show `default:user::rwx` and `default:group::rwx`. A reversible creation probe produced a directory owned by `<repository-owner>:<repository-group>` with mode `2771` and a file with mode `0660`, proving both owner and group write inheritance; the probe was removed afterward.
 - No project file is world-writable.
 - No Laravel application, application code, dependency, package, database, service, job, unit, or server configuration was installed or modified.
 
 ## Rollback procedure
 
-From exactly `/home/qws/web/qwsg.quantumwizard.hu/qwsg`, run `ai/backups/20260718T192902Z_project_bootstrap/restore.sh`, review its stated effects, and type `ROLLBACK-QWSG-BOOTSTRAP`. It removes only explicitly listed bootstrap files and empty directories, restores the unborn `master` branch state (or removes the sole expected bootstrap commit), removes the bootstrap index, and restores `.git/` owner mode. The snapshot and unreachable Git objects remain for audit and recovery.
+From exactly `<repository-root>`, run `ai/backups/20260718T192902Z_project_bootstrap/restore.sh`, review its stated effects, and type `ROLLBACK-QWSG-BOOTSTRAP`. It removes only explicitly listed bootstrap files and empty directories, restores the unborn `master` branch state (or removes the sole expected bootstrap commit), removes the bootstrap index, and restores `.git/` owner mode. The snapshot and unreachable Git objects remain for audit and recovery.
 
 ## Unresolved issues
 

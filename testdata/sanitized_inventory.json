@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "snapshot_id": "00000000000000000000000000000000",
+  "request_id": "00000000000000000000000000000000",
+  "instance_id": "00000000000000000000000000000000",
+  "observed_at": "2026-07-20T00:00:00Z",
+  "completed_at": "2026-07-20T00:00:00Z",
+  "fresh_until": "2026-07-20T00:05:00Z",
+  "duration_ms": 0,
+  "status": "partial",
+  "categories": [
+    {
+      "category_id": "cpu", "contract_version": "1.0", "status": "available",
+      "observed_at": "2026-07-20T00:00:00Z", "completed_at": "2026-07-20T00:00:00Z", "fresh_until": "2026-07-20T00:05:00Z",
+      "duration_ms": 0, "collector_id": "cpu-linux", "privilege_used": "ordinary_user",
+      "source_summary": ["sanitized fixture"], "items": [], "errors": [], "redactions": []
+    },
+    {
+      "category_id": "services", "contract_version": "1.0", "status": "unavailable",
+      "observed_at": "2026-07-20T00:00:00Z", "completed_at": "2026-07-20T00:00:00Z", "fresh_until": "2026-07-20T00:05:00Z",
+      "duration_ms": 0, "collector_id": "services-linux", "privilege_used": "ordinary_user",
+      "source_summary": [], "items": [], "errors": [{"code":"collection_failed","category_id":"services","class":"unavailable","safe_message_key":"collector.collection_failed","retryable":false,"occurred_at":"2026-07-20T00:00:00Z"}], "redactions": []
+    }
+  ],
+  "errors": [],
+  "redactions": ["hostnames", "network addresses", "hardware addresses", "mount paths", "service identities"],
+  "producer": {"tool_version": "0.0.1-prealpha", "contract_version": "1.0"}
+}

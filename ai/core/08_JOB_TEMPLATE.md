@@ -23,7 +23,7 @@ The original job fields remain required with their original meanings: Objective 
 7. **Implement:** make only authorized changes. Engineering artifacts are English; user-facing content is localization-ready.
 8. **Verify:** verify every meaningful change and the complete deliverable. Check scope, content, tests where applicable, security, permissions, ownership, ACLs, Git diff, and rollback validity in proportion to risk.
 9. **Document:** update affected engineering documents and create a chronological English delivery report.
-10. **Deliver:** report the outcome in the current owner or lead developer's preferred language, including verification, rollback, unresolved issues, Git state, and the explicit completion status. Do not start the next task.
+10. **Deliver and hand off:** report the outcome in the current owner or lead developer's preferred language, including verification, rollback, unresolved issues, Git state, and explicit completion status. When required by the active task, prepare the next unapproved task under `11_ENGINEERING_LIFECYCLE.md`; never start it.
 
 ## Required task structure
 
@@ -98,9 +98,13 @@ The Web Console, Installer, and future end-user documentation must support multi
 
 ## Prompt workflow
 
-Every engineering task has exactly one active English prompt named `NNN_CURRENT_TASK.md` and one independent history file. The prompt follows the required task structure above, uses the semantic states `draft`, `approved`, `active`, `complete`, `superseded`, or `archived without execution`, and separates definition from execution. Prior prompts move to `ai/archive_prompts/`; archived prompts and histories remain committed. Prompt creation or archiving never grants execution authority. Detailed numbering, naming, rotation, and compatibility rules are maintained in `14_PROMPT_WORKFLOW.md`.
+The authoritative state-transition, completion-gate, transactional preparation, and No Task Without History rules are defined in `11_ENGINEERING_LIFECYCLE.md`.
+
+Every current engineering task has one active English prompt named `NNN_CURRENT_TASK.md` and one independent history file. When the latest task is complete and archived and no next task is authorized, `ai/prompts/` is empty; this is the canonical idle state, not a missing record. The prompt follows the required task structure above, uses the semantic states `draft`, `approved`, `active`, `complete`, `superseded`, or `archived without execution`, and separates definition from execution. Prior prompts move to `ai/archive_prompts/`; archived prompts and histories remain committed. Prompt creation or archiving never grants execution authority. Detailed numbering, naming, rotation, and compatibility rules are maintained in `14_PROMPT_WORKFLOW.md`.
 
 The general Engineering History remains a concise milestone index. It must not become an infinitely growing task log; detailed evidence belongs in the independent task history record.
+
+The official creation path is `ai/scripts/task-builder.sh`. It collects or reads structured owner-authored fields, generates metadata and approval text, validates the complete documents, and installs the prompt/history pair transactionally. Its deterministic input-directory mode keeps every field in a separate text file so content is read as data and multi-line values remain lossless. The older `next-task.sh` draft-preparation path remains supported when approval must occur in a later, separate review step; its generated placeholders must never be manually assembled into an executable task without the required owner review and validation.
 
 ## Completion gate
 

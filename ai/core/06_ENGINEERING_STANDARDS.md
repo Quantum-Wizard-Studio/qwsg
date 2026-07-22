@@ -20,6 +20,6 @@ Active standard: follow the constitution and `08_JOB_TEMPLATE.md`, prefer small 
 
 `08_JOB_TEMPLATE.md` is the definitive engineering task standard. Its required sequence and record fields apply to documentation, code, infrastructure, release, and operational tasks unless a stricter approved policy applies. Deviations require explicit human approval and must be recorded.
 
-Exactly one active task prompt is stored under `ai/prompts/` as `NNN_CURRENT_TASK.md`. Prior prompts are retained under `ai/archive_prompts/`, and every task receives a separate history file under `ai/history/`. Sequential numbering, lifecycle states, rotation safety, and naming rules are defined in `14_PROMPT_WORKFLOW.md`. Creating or archiving a prompt does not authorize or prove execution.
+At most one active task prompt is stored under `ai/prompts/` as `NNN_CURRENT_TASK.md`. The directory is empty in the valid idle state after the latest completed task is archived and before a separately authorized next task is created. Prior prompts are retained under `ai/archive_prompts/`, and every task receives a separate history file under `ai/history/`. Sequential numbering, lifecycle states, rotation safety, and naming rules are defined in `14_PROMPT_WORKFLOW.md`. Creating or archiving a prompt does not authorize or prove execution.
 
 Approved coding, testing, review, localization, and compatibility rules belong here. Product requirements, secrets, and one-off task notes do not. Standards will evolve during development as the technology stack is approved.

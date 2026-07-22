@@ -6,20 +6,21 @@ This document defines the permanent lifecycle, storage, numbering, rotation, and
 
 ## Status
 
-Active governance refined by Engineering Update E002. `ai/scripts/next-task.sh` implements the bounded prompt rotation described here.
+Active governance refined by Engineering Update E002 and Task 013. `ai/scripts/task-builder.sh` implements official approved task generation; `ai/scripts/next-task.sh` preserves the bounded unapproved-draft workflow.
 
 ## Directory model
 
-- `ai/prompts/` contains exactly one active Markdown task file named `NNN_CURRENT_TASK.md`.
+- `ai/prompts/` contains zero or one active Markdown task file named `NNN_CURRENT_TASK.md`. Zero is the canonical idle state after a completed task is archived without an authorized successor.
 - `ai/archive_prompts/` permanently stores prior prompts as `NNN_YYYY-MM-DD_task-slug.md`.
 - `ai/history/` stores one independent history file per task as `NNN_YYYY-MM-DD_task-slug.md`.
-- `ai/scripts/next-task.sh` performs guarded rotation and initialization.
+- `ai/scripts/task-builder.sh` is the official structured, approved task-generation workflow.
+- `ai/scripts/next-task.sh` remains the guarded compatibility workflow for preparing an unapproved draft.
 
 Task numbers are sequential, zero-padded, and never reused: `001`, `002`, `003`, and so on. Prompt archives and task histories may share filenames because they occupy different directories. Both are engineering records and must remain committed to Git. Generated binary backup archives may remain ignored where appropriate; Markdown audit records must remain trackable.
 
 ## One active prompt
 
-Exactly one active Markdown prompt may exist in `ai/prompts/`. Governance documentation does not belong there. A prompt defines one bounded task; unrelated work and multiple milestones do not belong in one file. A completed or replaced prompt remains the sole active record only until the next authorized rotation; `next-task.sh` archives it before creating the next active prompt. No next task may start before that rotation succeeds.
+At most one active Markdown prompt may exist in `ai/prompts/`. Governance documentation does not belong there. A prompt defines one bounded task; unrelated work and multiple milestones do not belong in one file. A completed prompt may be archived without creating a successor. In that idle state the highest-numbered archive and its matching history are the complete lifecycle baseline. No next task may start until a separately authorized prompt/history pair is installed transactionally.
 
 ## Required structure
 
@@ -29,8 +30,10 @@ Task Metadata declares one semantic status: `draft`, `approved`, `active`, `comp
 
 ## Lifecycle
 
-1. Initialize or rotate with `ai/scripts/next-task.sh` from the exact project root.
-2. Edit every `[REQUIRES HUMAN EDITING]` field and obtain explicit human approval before implementation.
+The authoritative lifecycle and transaction semantics are defined in `11_ENGINEERING_LIFECYCLE.md`; this document owns prompt storage and naming details.
+
+1. Validate the current lifecycle. After verified completion, either archive the completed prompt and enter the idle state, or—only with separate owner authority—run `ai/scripts/task-builder.sh` from the exact project root and provide every structured owner field. Use `--input-dir` for deterministic automation or no arguments for interactive multi-line input.
+2. Explicitly approve the complete structured definition. The builder generates an approved prompt/history pair with no editing markers. If a separate review cycle is needed, use `next-task.sh`; its draft must remain unexecuted until owner approval.
 3. Read `00_PROJECT_PHILOSOPHY.md`, `01_CONSTITUTION.md`, `03_AGENTS.md`, and `08_JOB_TEMPLATE.md`; verify the environment and snapshot before changes.
 4. Update the task's independent pending history file during work and at delivery.
 5. Set the prompt's semantic status accurately. Archiving does not by itself mean completion or execution.
@@ -38,4 +41,31 @@ Task Metadata declares one semantic status: `draft`, `approved`, `active`, `comp
 
 The general Engineering History is a milestone index, not an infinitely growing task log. Detailed work belongs only in independent task history files. Existing valid historical records keep their original names and meaning for backward compatibility; they must not be rewritten to imply execution.
 
+## Engineering Task Builder
+
+The builder owns Task ID incrementing, UTC creation date, approved status, prompt/history filenames, required-reading insertion, approval text, and transaction ordering. Owner input owns the title, authority, communication language, objective, scope, exclusions, starting checks, snapshot requirements, risks, planned work, rollback, deliverables, verification, documentation, and completion criteria.
+
+Interactive multi-line fields end with a line containing only `.`. Deterministic mode reads the documented one-file-per-field input directory without sourcing or evaluating any file. The exact `APPROVE` token is mandatory. The builder first renders and validates same-directory temporary documents, then archives the completed prompt and installs the new pair with no-clobber moves. Post-install `bin/job --check` and lifecycle consistency validation are mandatory; any failure performs bounded automatic rollback.
+
 Creating, archiving, or reviewing a prompt does not authorize execution. Prompts contain instructions and acceptance criteria, not secrets, credentials, unverified environment claims, application output, or completed architecture decisions. This workflow will evolve through approved engineering-governance updates.
+
+## Project-local job access
+
+`bin/job` provides installation-free, read-only access to an active prompt and validates the canonical idle state. It validates project markers, prompt count and filename, internal Task ID, unresolved human-editing fields, and matching history before producing output. It never executes engineering work or interprets Markdown as shell code.
+
+Use it from the repository without global installation:
+
+```bash
+./bin/job
+./bin/job --check
+./bin/job --show
+./bin/job --path
+./bin/job --history
+./bin/job --help
+```
+
+The default mode validates, summarizes, and displays an executable prompt. `--check` validates executable state or the idle state; `--prepared-check` validates the explicitly unapproved generated draft pair; `--show`, `--path`, and `--history` require an active prompt. Multiple, malformed, inconsistent, incomplete, or ambiguously recorded tasks fail without changing files. The command does not rotate or generate prompts and does not replace either lifecycle generator.
+
+The repository skill `.agents/skills/qwsg-job/SKILL.md` tells Codex how to apply the full governed workflow after requests such as `job`, `/job`, `Új feladat`, `aktuális feladat`, or `indítsd a feladatot`. The shell command only validates and displays task data; the Codex skill governs how an authorized task is read and carried out. `/job` is human shorthand and may not be a built-in Codex slash command.
+
+For the current shell session only, a user may optionally run `export PATH="$PWD/bin:$PATH"` from the verified project root and then invoke `job`. This is neither required nor a global shell change. The one-active-prompt rule and all Constitution, authority, snapshot, rollback, verification, and history requirements remain unchanged.

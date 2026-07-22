@@ -66,7 +66,7 @@ Verification results before commit:
 - `04_ARCHITECTURE.md` remains foundation-only, and the earlier Product Architecture prompt remains archived without execution.
 - README, project record, roadmap, Engineering History, active prompt, and independent history references resolve consistently.
 - The snapshot `SHA256SUMS` check passed for all eight recorded files; rollback syntax and baseline commit validation passed.
-- Product Definition, Prompt 003, and History 003 are `attila:qwdev`, mode `0660`; rollback is mode `0770`; directory ACLs retain owner/group write and setgid inheritance; no checked file is world-writable.
+- Product Definition, Prompt 003, and History 003 are `<repository-owner>:<repository-group>`, mode `0660`; rollback is mode `0770`; directory ACLs retain owner/group write and setgid inheritance; no checked file is world-writable.
 - No application manifest, dependency directory, installer, service, database, code, or server configuration was created.
 - Exactly one active Markdown prompt exists: `003_CURRENT_TASK.md`.
 - Markdown whitespace and final Git checks are rerun at commit and delivery.
