@@ -52,3 +52,25 @@ The builder preserves the existing `next-task.sh` workflow for compatibility. Th
 - Exact approval is mandatory and recorded in both lifecycle state and prompt approval text.
 - Existing file ownership and inherited ACL behavior are preserved through same-directory creation.
 - Generated task content remains English engineering documentation; the configured owner communication language is metadata for later owner-facing messages.
+
+## Aborted-test diversion boundary
+
+The Engineering Task Builder continues to accept only a completed production
+baseline. It does not weaken completion gates or divert tasks.
+
+`ai/scripts/divert-task-to-test.sh` is the separate controlled failure
+containment and production-sequence recovery boundary. With explicit Project
+Owner authority, reason, `aborted-test` disposition, production-ID release, and
+the exact `DIVERT-TO-TEST` token, it can preserve an incomplete active prompt
+and history under `ai/test_tasks/NNN_TEST_TASK/`. The move is transactional,
+hash-audited, and reversible. Test identifiers never enter builder numbering.
+
+Normal production checks ignore `ai/test_tasks/`; `bin/job --check-test-tasks`
+audits it explicitly. A diverted record remains `incomplete`, cannot provide
+completion evidence to a replacement task, and permits the released production
+number to be generated again from the latest completed production archive.
+
+Execution agents should record each failed attempt, reject a materially
+unchanged method after no more than three failures by default, and switch to
+another approved method. If no method remains, they stop for Project Owner
+deferment or diversion rather than looping indefinitely.

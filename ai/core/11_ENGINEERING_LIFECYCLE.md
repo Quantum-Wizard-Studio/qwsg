@@ -9,7 +9,11 @@ This document is the authoritative lifecycle specification for QWSG engineering 
 1. **No Task Without History:** every active task prompt has exactly one matching history record with the same Task ID and slug.
 2. A prepared task is not approved, active, or executed. Preparation stops at `READY FOR OWNER REVIEW`.
 3. Only the Project Owner can approve a prepared task or expand its authority.
-4. Task numbers are sequential and never reused.
+4. Production task numbers are sequential and never reused after a completed,
+   superseded, or normally archived production task. An incomplete active task
+   may release its number only through the explicit Project Owner-authorized
+   aborted-test diversion protocol below; the diverted record retains the
+   original identity and proves that production completion was not claimed.
 5. Lifecycle transitions are transactional: either prompt archive, next prompt, matching history, and validation all succeed, or the original state is restored.
 6. Zero active prompts is valid only as the idle state: the highest-numbered archived prompt and its unique matching history must both be complete and consistent, and no next-task prompt or history may exist.
 
@@ -27,11 +31,50 @@ This document is the authoritative lifecycle specification for QWSG engineering 
 10. **Idle closure or next-task generation:** after completion, the prompt may be archived without creating a successor, producing the canonical idle state. When a new task is separately authorized, invoke `./ai/scripts/task-builder.sh` and complete its structured owner workflow; it uses the latest completed archived task as the numbering baseline when idle. If an active completed prompt still exists, it is archived in the same transaction. For a separate review cycle, `./ai/scripts/next-task.sh --prepare --slug <slug>` remains available and stops with an unapproved draft.
 11. **Handoff:** a builder-generated task reports `APPROVED AND READY FOR IMPLEMENTATION` but does not execute it. A compatibility draft reports `READY FOR OWNER REVIEW` and remains unapproved and unexecuted.
 
+## Controlled failure containment and production-sequence recovery
+
+Normal production completion gates remain strict. Failed attempts and rejected
+methods are recorded inside the active history and do not by themselves change
+task identity:
+
+- `attempt-failed`: one execution attempt failed; record its inputs, outputs,
+  and evidence before another attempt.
+- `method-rejected`: the method is abandoned after evidence shows that retrying
+  it materially unchanged is not useful.
+- `experimental`: work is isolated from production authority and evidence.
+- `superseded`: a separately authorized definition replaces prior intent without
+  rewriting its record.
+- `owner-deferred`: the Project Owner pauses work without claiming completion.
+- `aborted-test`: an incomplete active production task is diverted into the
+  independent test-task namespace by explicit Project Owner override.
+
+The same materially unchanged failing method must not be repeated more than
+three times by default. A different command label does not make a new method
+when commands, inputs, assumptions, and expected outcome remain materially
+unchanged. At the limit, record the evidence, mark the method rejected, and use
+another approved method. If none remains, stop and request owner deferment or
+aborted-test diversion. Critical safety failures always stop immediately.
+
+`ai/scripts/divert-task-to-test.sh` is the only canonical diversion command. It
+requires Project Owner authority, a nonempty reason, disposition
+`aborted-test`, explicit production-ID release, and the exact
+`DIVERT-TO-TEST` override token. It rejects complete tasks. The transaction
+moves the unchanged prompt and history into `ai/test_tasks/NNN_TEST_TASK/`,
+adds disposition and hash manifests, validates both namespaces, and restores
+the original active files on every failure.
+
+Test-task numbering is independent. A diversion truthfully records
+`incomplete`, consumes no production number, and permits a new clean task to
+reuse the released ID. It never makes failed work complete and never supplies
+completion evidence to the replacement task.
+
 ## Validation modes
 
 - `next-task.sh --check` validates either current prompt/history identity or the canonical idle state without mutation.
 - `bin/job --check` validates an executable active task, or reports a valid idle state after checking the latest completed archived prompt/history pair; active-task display modes still require an active prompt.
 - `bin/job --prepared-check` validates a generated draft prompt/history pair while requiring their explicit unapproved states.
+- `bin/job --check-test-tasks` audits the separate test-task namespace without
+  treating any test task as active production work.
 
 These modes prevent a correct draft from being mistaken for an executable task while preserving strict execution validation.
 

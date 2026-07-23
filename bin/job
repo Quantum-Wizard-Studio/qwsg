@@ -16,10 +16,11 @@ fail() {
 
 usage() {
     cat <<'EOF'
-Használat: bin/job [--check|--prepared-check|--show|--path|--history|--help]
+Használat: bin/job [--check|--check-test-tasks|--prepared-check|--show|--path|--history|--help]
 
   (nincs opció)  Ellenőrzi az aktív feladatot, rövid összefoglalót ír, majd megjeleníti.
   --check        Csak ellenőrzi az aktív promptot és a history fájlt.
+  --check-test-tasks Ellenőrzi az elkülönített aborted/test task namespace-t.
   --prepared-check Ellenőrzi a tulajdonosi jóváhagyásra előkészített draft prompt/history párt.
   --show         Ellenőrzés után megjeleníti a teljes aktív promptot.
   --path         Csak az aktív prompt abszolút útvonalát írja ki.
@@ -39,6 +40,7 @@ fi
 if (( $# == 1 )); then
     case "$1" in
         --check) mode='check' ;;
+        --check-test-tasks) mode='test-tasks' ;;
         --prepared-check) mode='prepared' ;;
         --show) mode='show' ;;
         --path) mode='path' ;;
@@ -58,6 +60,12 @@ history_dir="$project_root/ai/history"
 [[ -f "$project_root/VERSION" && -f "$project_root/ai/core/00_PROJECT_PHILOSOPHY.md" && -f "$project_root/ai/core/08_JOB_TEMPLATE.md" ]] || \
     fail "$EXIT_ROOT" 'a QWSG projektazonosító fájlok hiányoznak'
 [[ -d "$prompts_dir" && -d "$archive_dir" && -d "$history_dir" ]] || fail "$EXIT_ROOT" 'a prompt-, archive- vagy history-könyvtár hiányzik'
+
+if [[ "$mode" == test-tasks ]]; then
+    diversion_script="$project_root/ai/scripts/divert-task-to-test.sh"
+    [[ -x "$diversion_script" ]] || fail "$EXIT_ROOT" 'a test-task audit parancs hiányzik vagy nem futtatható'
+    exec "$diversion_script" --check
+fi
 
 mapfile -d '' prompt_files < <(find -P "$prompts_dir" -maxdepth 1 -type f -name '*.md' -print0)
 (( ${#prompt_files[@]} <= 1 )) || fail "$EXIT_PROMPT" "legfeljebb egy aktív Markdown prompt engedélyezett; találat: ${#prompt_files[@]}"

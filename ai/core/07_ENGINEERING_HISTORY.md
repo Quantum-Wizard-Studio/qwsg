@@ -25,5 +25,10 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
 - `2026-07-21`: Task 012 implemented the internal Collector Framework with validated descriptors, capabilities and dependencies, duplicate-safe registration, deterministic dependency-aware execution, availability checks, bounded contexts, cancellation, structured results, and collector failure isolation while preserving the existing Inventory output contract. See `ai/history/012_2026-07-21_core-collector-framework.md`.
 - `2026-07-21`: Task 013 implemented the official Engineering Task Builder with structured interactive and deterministic multi-line input, automatic metadata and approval generation, validated transactional lifecycle installation, bounded rollback, architecture documentation, and dedicated tests. See `ai/history/013_2026-07-21_engineering-task-builder.md`.
 - `2026-07-21`: Task 014 implemented Canonical System Inventory v1: nine bounded Linux collectors, canonical layers/resources/facts and collector results, deterministic validated aggregation, privacy-safe identity/redaction, Registry output-limit enforcement, and additive Inventory 1.0 compatibility. See `ai/history/014_2026-07-21_canonical-system-inventory.md`.
+- `2026-07-23`: A Project Owner-authorized aborted-test diversion preserved the
+  incomplete Forgejo Task 015 attempt as `001_TEST_TASK`, introduced
+  transactional failure containment and independent test-task auditing, and
+  released production ID 015 without claiming completion. See
+  `ai/audits/2026-07-23_ABORTED_TEST_TASK_DIVERSION.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.
