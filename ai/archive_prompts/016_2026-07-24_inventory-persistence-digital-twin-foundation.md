@@ -4,7 +4,7 @@
 
 - Task ID: `016`
 - Task slug: `inventory-persistence-digital-twin-foundation`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-07-24` UTC
 - Human authority: Attila — Project Owner
 - Owner or lead-developer communication language: Hungarian

@@ -4,7 +4,7 @@
 
 - Task ID: `016`
 - Task slug: `inventory-persistence-digital-twin-foundation`
-- Status: `active — baseline verified and implementation started`
+- Status: `complete — accepted by Project Owner`
 - Date generated: `2026-07-24` UTC
 - Human authority: Attila — Project Owner
 - Preferred owner communication language: Hungarian
@@ -118,4 +118,11 @@ operator store deletion are prohibited.
 
 ## Completion state
 
-`active — implementation and mandatory verification complete; Project Owner acceptance pending`
+`complete — implementation and mandatory verification passed; formally accepted by Attila — Project Owner on 2026-07-24 UTC`
+
+## Project Owner acceptance
+
+Attila — Project Owner provided the explicit acceptance statement
+`Project Owner Acceptance = APPROVED` on `2026-07-24` UTC after reviewing the
+Task 016 Final Owner Review Package. This satisfies the final completion gate.
+No successor task was authorized or created by this acceptance.

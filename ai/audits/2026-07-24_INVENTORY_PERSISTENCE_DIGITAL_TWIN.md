@@ -4,8 +4,8 @@
 
 Task 016 implemented and verified the first QWSG file-backed Inventory Store
 and persisted Digital Twin foundation. Technical implementation and mandatory
-validation are complete. Final Project Owner review and acceptance remain the
-lifecycle completion gate; Task 016 remains active and Task 017 was not created.
+validation completed, and Attila — Project Owner formally accepted the delivery
+on `2026-07-24` UTC. Task 017 was not created.
 
 ## Starting state and snapshot
 
@@ -187,4 +187,4 @@ rewriting.
   not a separate list command.
 - Task tests use synthetic temporary fixtures; no raw live-host Inventory was
   persisted as task evidence.
-- Project Owner acceptance is still required before lifecycle completion.
+- Project Owner acceptance was recorded before lifecycle completion.
