@@ -11,8 +11,10 @@ make DESTDIR="$stage" PREFIX=/usr/local install
 export PATH="$stage/usr/local/bin:$PATH"
 ```
 
-The equivalent reviewed system installation is `sudo make install`; it may be
-used only after the exact `/usr/local/bin/qwsg` target has been inspected and a
+The equivalent reviewed system installation is `make build` as the normal user,
+followed by `sudo make install`. The install target copies the existing
+artifact and never invokes Go in the privileged environment. It may be used
+only after the exact `/usr/local/bin/qwsg` target has been inspected and a
 bounded rollback is available.
 
 ## Explicit session configuration

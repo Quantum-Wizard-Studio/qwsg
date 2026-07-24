@@ -106,6 +106,14 @@ Project Owner must execute the documented `sudo make install` step locally
 before final acceptance; all isolated install and installed staging-binary
 acceptance evidence remains successful.
 
+The Project Owner then confirmed a second acceptance defect: interactive
+`sudo make install` found the Makefile's `install: build` dependency, but Go at
+`/usr/local/go/bin/go` was not present in sudo's restricted `PATH`. The command
+failed before installation with `go: not found`; no system target changed.
+The corrected contract builds as the ordinary user and makes `install` validate
+and copy only the existing executable artifact. The privileged step no longer
+invokes Go or depends on the normal user's toolchain environment.
+
 ## Rollback
 
 Restore only exact modified paths from the snapshot and remove only new paths

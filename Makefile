@@ -15,7 +15,11 @@ build:
 	mkdir -p build
 	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go build -trimpath -ldflags "$(LDFLAGS)" -o build/qwsg ./cmd/qwsg
 
-install: build
+install:
+	@test -f build/qwsg -a -x build/qwsg || { \
+		printf '%s\n' 'Error: build/qwsg is missing or not executable; run make build as the normal user first.' >&2; \
+		exit 1; \
+	}
 	$(INSTALL) -d -m 0755 "$(DESTDIR)$(BINDIR)"
 	$(INSTALL) -m 0755 build/qwsg "$(DESTDIR)$(BINDIR)/qwsg"
 

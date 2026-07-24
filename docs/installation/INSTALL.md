@@ -37,13 +37,19 @@ the binary with mode `0755`.
 ## System installation
 
 The default destination is `/usr/local/bin/qwsg`. Inspect and back up an
-existing target before replacement:
+existing target before replacement. Build as the normal user, then elevate only
+the artifact-copy step:
 
 ```bash
+make build
 test ! -e /usr/local/bin/qwsg
 sudo make install
 qwsg version
 ```
+
+`make install` never invokes Go and fails if the normal-user build artifact
+`build/qwsg` is missing or not executable. The privileged environment therefore
+does not need the Go compiler or the normal user's Go `PATH`.
 
 If the target exists, record its owner, mode, and SHA-256 and copy it to a
 private rollback location before installation. `make install` does not create a
@@ -53,6 +59,7 @@ listener. QWSG runtime commands must be run as an ordinary user.
 For another prefix:
 
 ```bash
+make build
 make PREFIX=/opt/qwsg install
 /opt/qwsg/bin/qwsg version
 ```

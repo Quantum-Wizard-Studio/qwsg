@@ -109,6 +109,15 @@ system target was modified. Final owner acceptance therefore requires the
 Project Owner to execute `sudo make install` locally and verify `qwsg version`;
 the isolated install and installed staging-binary sequence already passed.
 
+During Project Owner acceptance, interactive `sudo make install` exposed that
+the original `install: build` dependency incorrectly repeated compilation in
+sudo's restricted environment, where `/usr/local/go/bin/go` was not on
+`PATH`. It failed with exit `127` before changing the system target. The
+corrected workflow removes the build prerequisite: `make build` runs as the
+ordinary user, while `make install` verifies and copies only the existing
+executable. Verification explicitly runs install with a PATH that contains GNU
+Make and install but no Go compiler.
+
 ## Rollback
 
 Restore only exact modified files from the snapshot. Remove only new Task 017
