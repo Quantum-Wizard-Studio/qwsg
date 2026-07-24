@@ -7,8 +7,7 @@
 - Human authority: Attila — Project Owner
 - Starting commit: `2428d013c3316faf2feb9220f2edcffecf65c760`
 - Framework: Reusable Engineering Framework `1.0.0`
-- Delivery state: implementation and mandatory local verification passed;
-  Project Owner acceptance pending
+- Delivery state: complete — accepted by the Project Owner
 
 ## Starting state and snapshot
 
@@ -143,5 +142,7 @@ manager artifacts or broader platform guarantees. Build date remains `unknown`
 unless controlled release automation supplies it. Stored snapshot checksums
 detect corruption but do not authenticate data.
 
-Implementation is ready for Project Owner review. Task 017 must not be marked
-complete or archived until explicit acceptance is recorded.
+Attila — Project Owner supplied
+`Project Owner Acceptance = APPROVED` on `2026-07-24` UTC after reviewing the
+delivery and corrected privileged-install workflow. Task 017 satisfies its
+completion gate; no Task 018 was authorized.

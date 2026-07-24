@@ -4,7 +4,7 @@
 
 - Task ID: `017`
 - Task slug: `qwsg-user-cli-and-snapshot-explorer`
-- Status: `approved`
+- Status: `complete`
 - Date opened: `2026-07-24` UTC
 - Human authority: Attila — Project Owner
 - Owner or lead-developer communication language: Hungarian

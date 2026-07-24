@@ -4,7 +4,7 @@
 
 - Task ID: `017`
 - Task slug: `qwsg-user-cli-and-snapshot-explorer`
-- Status: `active — implementation in progress`
+- Status: `complete — accepted by Project Owner`
 - Date generated: `2026-07-24` UTC
 - Human authority: Attila — Project Owner
 - Preferred owner communication language: Hungarian
@@ -125,6 +125,11 @@ The complete exact acceptance sequence was then rerun through the system
 exited `2`; every command produced meaningful stdout and empty stderr; and the
 private store retained `0700` directories and `0600` files.
 
+Install separation fix commit `f02de2d` and final system acceptance evidence
+commit `1d4808e` passed dry-run and normal HTTPS push. At formal acceptance,
+local and remote `main` were synchronized and all mandatory validation gates
+remained successful.
+
 ## Rollback
 
 Restore only exact modified paths from the snapshot and remove only new paths
@@ -135,4 +140,12 @@ wildcard deletion, or recursive prefix removal is prohibited.
 
 ## Completion state
 
-`active — implementation and system installation verified; final Project Owner acceptance pending`
+`complete — implementation, system installation, and mandatory verification passed; formally accepted by Attila — Project Owner on 2026-07-24 UTC`
+
+## Project Owner acceptance
+
+Attila — Project Owner provided the explicit acceptance statement
+`Project Owner Acceptance = APPROVED` on `2026-07-24` UTC after reviewing the
+Task 017 Final Owner Review Package and the corrected privileged-install
+workflow. This satisfies the final completion gate. No successor task was
+authorized or created by this acceptance.
