@@ -124,6 +124,29 @@ The following passed:
 
 No mandatory validation failed after the baseline fixture blocker was corrected.
 
+## Git delivery
+
+Targeted staging contained exactly 19 reviewed Task 016 source, test,
+architecture, English/Hungarian documentation, active prompt/history, and
+delivery-report paths. It excluded all pre-existing backup directories,
+`current-task-job.txt`, `current-task-maker.md`, build output, and unrelated
+untracked content.
+
+The implementation commit is:
+
+```text
+c792ba6c10097031104e10a00c9cf30730985dcb
+Implement inventory persistence foundation
+```
+
+`git push --dry-run origin main` reported only the expected
+`16fcafa..c792ba6` update. The normal HTTPS push succeeded. Post-push
+verification confirmed `HEAD == origin/main`, ahead/behind `0 0`, no tracked or
+staged diff, all mandatory suites passing, and no Task 017.
+
+The separate delivery-evidence finalization commit is reported in the
+owner-facing handoff because a commit cannot contain its own hash.
+
 ## Documentation
 
 The canonical Inventory Architecture now defines persistence as a validated
