@@ -4,7 +4,7 @@
 
 - Task ID: `015`
 - Task slug: `reusable-engineering-framework`
-- Status: `active — baseline verified and snapshot complete`
+- Status: `complete — accepted by Project Owner`
 - Date generated: `2026-07-23` UTC
 - Human authority: Attila — Project Owner
 - Preferred owner communication language: Hungarian
@@ -12,7 +12,7 @@
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded; implementation has not started.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded, the authorized implementation and verification completed, and the Project Owner formally accepted the result on `2026-07-24` UTC.
 
 ## Starting state
 
@@ -96,7 +96,15 @@ untracked-file changes, and production infrastructure changes are prohibited.
 
 ## Completion state
 
-`active — implementation and verification complete; Project Owner acceptance pending`
+`complete — implementation and verification passed; formally accepted by Attila — Project Owner on 2026-07-24 UTC`
 
 Detailed delivery evidence:
 `ai/audits/2026-07-24_REUSABLE_ENGINEERING_FRAMEWORK.md`.
+
+## Project Owner acceptance
+
+Attila — Project Owner provided the explicit acceptance statement
+`Project Owner Acceptance: APPROVED` on `2026-07-24` UTC after reviewing the
+final Owner Review package. This acceptance satisfies the final Task 015
+completion gate. No successor task was authorized or created by this
+acceptance.

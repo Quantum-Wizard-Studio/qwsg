@@ -4,7 +4,7 @@
 
 - Task ID: `015`
 - Task slug: `reusable-engineering-framework`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-07-23` UTC
 - Human authority: Attila — Project Owner
 - Owner or lead-developer communication language: Hungarian
