@@ -29,14 +29,16 @@ selection, explicit selection, deterministic JSON, human output, insufficient
 history, and invalid selectors. Repository-wide tests, race checks, formatting,
 vet, engineering-framework validation, lifecycle validation, and the Ubuntu
 24.04 normal-user build and clean private-store acceptance demonstration pass.
-Repeated canonical output was byte-identical. Project Owner acceptance and
-lifecycle completion remain outstanding.
+Repeated canonical output was byte-identical.
 
 The post-commit binary was also installed into an isolated staging root with
 `PATH=/usr/bin:/bin`; installation succeeded without Go and the installed
 artifact was byte-identical. System installation remains an owner-operated
 `sudo make install` step because this non-interactive session has no sudo
-credential. The currently installed Task 017 binary is not claimed as Task 018.
+credential. The Project Owner subsequently installed and formally accepted the
+artifact. `/usr/local/bin/qwsg` reports `eec367f3d775`, supports compare, has
+mode `0755`, and exactly matches the normal-user build with SHA-256
+`216ce0aad0991cb9d3a554a7876798a7f3821f2255f53bf22357d6a353f50b7d`.
 
 ## Rollback
 

@@ -52,7 +52,7 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
 - `2026-07-24`: Task 018 implemented and verified the canonical Snapshot
   Comparison Engine, deterministic Change Record 1.0 contract, latest/previous
   and explicit CLI comparison, and record-derived JSON/human presentation.
-  Project Owner acceptance remains required before lifecycle completion. See
+  The Project Owner accepted the installed and verified delivery. See
   `ai/history/018_2026-07-24_snapshot-comparison-engine.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

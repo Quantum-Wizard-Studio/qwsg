@@ -4,7 +4,7 @@
 
 - Task ID: `018`
 - Task slug: `snapshot-comparison-engine`
-- Status: `approved`
+- Status: `complete`
 - Date opened: `2026-07-24` UTC
 - Human authority: Attila — Project Owner
 - Owner or lead-developer communication language: Hungarian

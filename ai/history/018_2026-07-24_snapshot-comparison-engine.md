@@ -4,7 +4,7 @@
 
 - Task ID: `018`
 - Task slug: `snapshot-comparison-engine`
-- Status: `active — implementation and verification in progress`
+- Status: `complete — implementation, system installation, and mandatory verification passed; formally accepted`
 - Date generated: `2026-07-24` UTC
 - Human authority: Attila — Project Owner
 - Preferred owner communication language: Hungarian
@@ -36,7 +36,7 @@ Builder input, metadata, prompt/history identity, approval state, and lifecycle 
 
 On Ubuntu 24.04, a normal-user build produced the one-shot binary. Two fresh private-store observations exited truthfully with partial Inventory code `2`; default and explicit comparisons both exited `0`. Repeating the same default comparison produced identical SHA-256 `ccfd1b23f66a0441c473f6ce6efa6f80eb05fe39ea6e9ad644029c98d3982e7c`. Canonical JSON reported `qwsg.comparison` `1.0`; human output grouped all four record types. The temporary store retained modes `0700`/`0600`.
 
-After delivery commit `eec367f`, the normal-user build embedded commit `eec367f3d775`. With `PATH=/usr/bin:/bin`, artifact-only `make install DESTDIR=<isolated-stage>` succeeded without Go, the staged binary exposed compare help, and `cmp` proved it identical to `build/qwsg`. The real `sudo make install` correctly reached the privileged boundary but this non-interactive engineering session could not provide the Project Owner's sudo password. `/usr/local/bin/qwsg` therefore truthfully remains the Task 017 build `b0f4dd4e9fe5` until the owner runs the documented single local install command; installed compare acceptance remains pending.
+After delivery commit `eec367f`, the normal-user build embedded commit `eec367f3d775`. With `PATH=/usr/bin:/bin`, artifact-only `make install DESTDIR=<isolated-stage>` succeeded without Go, the staged binary exposed compare help, and `cmp` proved it identical to `build/qwsg`. The real `sudo make install` correctly reached the privileged boundary but this non-interactive engineering session could not provide the Project Owner's sudo password. The Project Owner subsequently installed the artifact. `/usr/local/bin/qwsg` reports `eec367f3d775`, exposes compare help, has mode `0755`, and exactly matches `build/qwsg`.
 
 ## Rollback
 
@@ -44,4 +44,14 @@ Restore Task 018-owned pre-existing targets from `/tmp/qwsg-task018-implementati
 
 ## Completion state
 
-`active — implementation and verification in progress`
+`complete — implementation, system installation, and mandatory verification passed; formally accepted by Attila — Project Owner on 2026-07-24 UTC`
+
+## Project Owner acceptance
+
+Attila — Project Owner provided the explicit acceptance statement
+`Project Owner Acceptance = APPROVED` on `2026-07-24` UTC after reviewing the
+Task 018 Final Owner Review and installing the normal-user-built artifact.
+The installed binary is byte-identical to `build/qwsg` with SHA-256
+`216ce0aad0991cb9d3a554a7876798a7f3821f2255f53bf22357d6a353f50b7d`.
+This satisfies the final completion gate. No successor task was authorized or
+created by this acceptance.
