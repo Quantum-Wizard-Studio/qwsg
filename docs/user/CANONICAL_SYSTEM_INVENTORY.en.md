@@ -21,6 +21,7 @@ The command writes JSON to standard output. Exit code `0` means complete, `2` me
 For contextual help, human-readable output, installation, Snapshot Explorer
 list/info/load commands, and the exact acceptance demonstration, see the
 [QWSG User CLI and Snapshot Explorer](CLI_AND_SNAPSHOT_EXPLORER.en.md) guide.
+For system-evolution facts, see [Snapshot Comparison](SNAPSHOT_COMPARISON.en.md).
 
 ## Privacy and interpretation
 

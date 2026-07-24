@@ -1,6 +1,7 @@
 # QWSG User CLI Demonstration
 
-This walkthrough is the Task 017 Ubuntu 24.04 acceptance sequence.
+This walkthrough covers the Task 017 CLI installation and the Task 018
+Snapshot Comparison Engine acceptance sequence on Ubuntu 24.04.
 
 ## Build and isolated install
 
@@ -38,6 +39,7 @@ qwsg inventory save
 qwsg inventory list
 qwsg inventory info
 qwsg inventory load
+qwsg compare
 ```
 
 Expected observations:
@@ -62,3 +64,39 @@ but usable Inventory exits `2`; this is an accepted result, not command failure.
 
 The temporary demonstration store may be removed only after confirming it was
 created by this walkthrough and is not operator data.
+## Snapshot comparison acceptance
+
+Ensure the store contains at least two observations:
+
+```sh
+QWSG_FORMAT=json qwsg inventory save >/tmp/qwsg-observation-1.json
+QWSG_FORMAT=json qwsg inventory save >/tmp/qwsg-observation-2.json
+qwsg inventory list
+```
+
+Compare previous versus latest twice and verify deterministic JSON:
+
+```sh
+QWSG_FORMAT=json qwsg compare > /tmp/qwsg-compare-1.json
+QWSG_FORMAT=json qwsg compare > /tmp/qwsg-compare-2.json
+cmp /tmp/qwsg-compare-1.json /tmp/qwsg-compare-2.json
+```
+
+Copy two exact names from `qwsg inventory list`, oldest first:
+
+```sh
+QWSG_FORMAT=json qwsg compare --from SNAPSHOT_1.json --to SNAPSHOT_2.json
+QWSG_FORMAT=human qwsg compare --from SNAPSHOT_1.json --to SNAPSHOT_2.json
+```
+
+Expected results:
+
+- JSON has `schema_name: "qwsg.comparison"` and version `1.0`;
+- repeat output for the same pair is byte-identical;
+- human output groups Added, Removed, Modified, and Unchanged;
+- identical semantic state has zero Added, Removed, and Modified counts;
+- every displayed item is derived from a canonical Change Record;
+- output contains no health, drift, alert, score, or recommendation judgement.
+
+The comparison step is read-only. It needs no root privilege, compiler,
+network access, daemon, scheduler, database, or collector modification.

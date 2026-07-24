@@ -7,7 +7,7 @@ This document explains ownership and intended use of the repository's top-level 
 ## Status
 
 The repository contains the pre-alpha one-shot Inventory application, validated
-Inventory Store, user CLI and Snapshot Explorer, tests, installation workflow,
+Inventory Store, user CLI, Snapshot Explorer, Comparison Engine, tests, installation workflow,
 and governed engineering framework.
 
 ## What belongs here
@@ -28,6 +28,8 @@ and governed engineering framework.
 - `internal/inventory/`: Inventory 1.0 and canonical model assembly/validation.
 - `internal/inventorystore/`: explicitly invoked file-backed Digital Twin
   persistence, integrity, atomicity, and retention.
+- `internal/comparison/`: deterministic canonical Snapshot Comparison Engine
+  and Change Record validation; the sole system-evolution boundary.
 - `docs/`: audience-focused architecture, installation, administration, development, security, release, and history guidance.
 - `installer/`, `agent/`, `console/`, `modules/`: future approved product components.
 - `tests/`, `scripts/`, `tools/`, `build/`: future verification and engineering support.

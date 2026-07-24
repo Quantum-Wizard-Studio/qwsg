@@ -28,6 +28,9 @@ Exit status `0` means every requested category was available, `2` means a valid 
 - `internal/inventory`: Inventory 1.0 compatibility model, canonical domain model, deterministic assembly, and validation.
 - `internal/app`: one-shot coordination and synchronized legacy/canonical aggregation.
 - `internal/inventorystore`: validated file-backed Digital Twin envelope,
+- `internal/comparison`: deterministic semantic comparison and canonical
+  Change Record validation. Future evolution consumers use this package rather
+  than comparing snapshots.
   atomic save/load/list behavior, integrity checking, and bounded retention.
 - `cmd/qwsg`: CLI serialization and exit policy only; it does not discover host state.
 
@@ -80,6 +83,11 @@ Add a collector by implementing `collector.Collector`, declaring a complete fini
 ## Compatibility rules
 
 Do not add a second host model or direct discovery path. New consumers use `Snapshot.Canonical`; compatibility code alone may use legacy `Snapshot.Categories`. A contract change follows `ai/core/12_INVENTORY_ARCHITECTURE.md` versioning rules. Removing or renaming an existing Inventory 1.0 field requires a separately authorized major-version migration.
+
+For comparison development, run `go test ./internal/comparison ./cmd/qwsg`.
+The public contract and semantic inclusion/exclusion rules are documented in
+`docs/architecture/CHANGE_RECORD_SCHEMA.md` and
+`docs/architecture/SNAPSHOT_COMPARISON_ENGINE.md`.
 
 ## Test fixtures and troubleshooting
 

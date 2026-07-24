@@ -7,7 +7,7 @@ Quantum Wizard Server Guardian (QWSG) is an independent, modular Linux server pr
 ## Status
 
 Version `0.0.1-prealpha` now provides a user-installable one-shot Linux
-Inventory CLI and Snapshot Explorer. It remains a pre-alpha release and does
+Inventory CLI, Snapshot Explorer, and canonical Snapshot Comparison Engine. It remains a pre-alpha release and does
 not provide monitoring, comparison, health evaluation, daemon mode, services,
 alerts, an API, or a Web UI.
 
@@ -32,6 +32,9 @@ CLI and Snapshot Explorer guides are available in
 [English](docs/user/CLI_AND_SNAPSHOT_EXPLORER.en.md) and
 [Hungarian](docs/user/CLI_AND_SNAPSHOT_EXPLORER.hu.md), with a complete
 [demonstration walkthrough](docs/user/DEMONSTRATION.md).
+[English snapshot comparison](docs/user/SNAPSHOT_COMPARISON.en.md) and
+[Hungarian snapshot comparison](docs/user/SNAPSHOT_COMPARISON.hu.md) document
+the factual Change Record workflow.
 
 System installation deliberately separates privilege: run `make build` as the
 normal user, then use `sudo make install` only to copy the verified artifact.

@@ -121,6 +121,11 @@ verdict. An operator may explicitly provide the store and format through
 command options or the session-scoped `QWSG_STORE` and `QWSG_FORMAT`
 environment variables; there is no automatic global store discovery.
 
+Task 018 adds a read-only Comparison Engine above this store. It selects the
+previous/latest or an exact pair, loads both through the existing integrity and
+Inventory validation path, and emits canonical Change Records. The store format
+and Inventory schema remain unchanged.
+
 ## Recovery and deferred work
 
 Store errors do not authorize deletion. Preserve the directory and record safe
@@ -128,6 +133,6 @@ error evidence. A stale `.write.lock` or `.retire-*` artifact requires review
 and is not removed automatically. Task rollback removes only temporary test
 fixtures and never an operator-selected store.
 
-Comparison, drift analysis, health evaluation, monitoring, scheduling, alerts,
+Independent snapshot comparison, drift analysis, health evaluation, monitoring, scheduling, alerts,
 notifications, API/Console access, databases, signing, encryption-at-rest,
 migrations, and remote synchronization are deferred.

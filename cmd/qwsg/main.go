@@ -13,6 +13,7 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/app"
 	"quantumwizard.hu/qwsg/internal/collector"
+	"quantumwizard.hu/qwsg/internal/comparison"
 	"quantumwizard.hu/qwsg/internal/inventory"
 	"quantumwizard.hu/qwsg/internal/inventorystore"
 	"quantumwizard.hu/qwsg/internal/runner"
@@ -34,6 +35,14 @@ type storeOptions struct {
 	snapshotName string
 	format       string
 	retention    int
+}
+
+type compareOptions struct {
+	storePath string
+	from      string
+	to        string
+	format    string
+	retention int
 }
 
 type snapshotSummary struct {
@@ -70,6 +79,8 @@ func run(args []string, out, errout io.Writer) int {
 		return 0
 	case "inventory":
 		return runInventory(args[1:], out, errout)
+	case "compare":
+		return runCompare(args[1:], out, errout)
 	default:
 		return usageError(errout, "unknown command: %s", safeText(args[0]))
 	}
@@ -84,10 +95,178 @@ func runHelp(args []string, out, errout io.Writer) int {
 		writeVersionHelp(out)
 		return 0
 	}
+	if args[0] == "compare" {
+		if len(args) != 1 {
+			return usageError(errout, "compare help does not accept a subcommand")
+		}
+		writeCompareHelp(out)
+		return 0
+	}
 	if args[0] != "inventory" {
 		return usageError(errout, "unknown help topic: %s", safeText(strings.Join(args, " ")))
 	}
 	return writeInventoryHelp(args[1:], out, errout)
+}
+
+func runCompare(args []string, out, errout io.Writer) int {
+	if len(args) > 0 && isHelp(args[0]) {
+		if len(args) != 1 {
+			return usageError(errout, "compare help does not accept options")
+		}
+		writeCompareHelp(out)
+		return 0
+	}
+	options, err := parseCompareArgs(args)
+	if err != nil {
+		return usageError(errout, "%v", err)
+	}
+	store, err := inventorystore.Open(options.storePath, options.retention)
+	if err != nil {
+		fmt.Fprintf(errout, "comparison store configuration failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	fromName, toName := options.from, options.to
+	if fromName == "" {
+		names, err := store.List()
+		if err != nil {
+			fmt.Fprintf(errout, "comparison snapshot selection failed: %s\n", safeText(err.Error()))
+			return 1
+		}
+		if len(names) < 2 {
+			fmt.Fprintln(errout, "comparison requires at least two stored snapshots")
+			return 1
+		}
+		fromName, toName = names[len(names)-2], names[len(names)-1]
+	}
+	from, err := store.Load(fromName)
+	if err != nil {
+		fmt.Fprintf(errout, "comparison from snapshot load failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	to, err := store.Load(toName)
+	if err != nil {
+		fmt.Fprintf(errout, "comparison to snapshot load failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	result, err := comparison.Compare(from, to, fromName, toName)
+	if err != nil {
+		fmt.Fprintf(errout, "snapshot comparison failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	if options.format == formatJSON {
+		return writeJSON(out, errout, result)
+	}
+	return writeHumanComparison(out, result)
+}
+
+func parseCompareArgs(args []string) (compareOptions, error) {
+	options := compareOptions{format: formatJSON, retention: inventorystore.DefaultRetention}
+	if configured := os.Getenv("QWSG_FORMAT"); configured != "" {
+		if !validFormat(configured) {
+			return compareOptions{}, fmt.Errorf("QWSG_FORMAT must be json or human")
+		}
+		options.format = configured
+	}
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--store":
+			i++
+			if i >= len(args) || options.storePath != "" {
+				return compareOptions{}, fmt.Errorf("--store requires one value")
+			}
+			options.storePath = args[i]
+		case "--from":
+			i++
+			if i >= len(args) || options.from != "" {
+				return compareOptions{}, fmt.Errorf("--from requires one snapshot name")
+			}
+			options.from = args[i]
+		case "--to":
+			i++
+			if i >= len(args) || options.to != "" {
+				return compareOptions{}, fmt.Errorf("--to requires one snapshot name")
+			}
+			options.to = args[i]
+		case "--retention":
+			i++
+			if i >= len(args) {
+				return compareOptions{}, fmt.Errorf("--retention requires one value")
+			}
+			value, err := strconv.Atoi(args[i])
+			if err != nil {
+				return compareOptions{}, fmt.Errorf("--retention must be an integer")
+			}
+			options.retention = value
+		case "--format":
+			i++
+			if i >= len(args) || !validFormat(args[i]) {
+				return compareOptions{}, fmt.Errorf("--format must be json or human")
+			}
+			options.format = args[i]
+		default:
+			return compareOptions{}, fmt.Errorf("unknown compare option: %s", safeText(args[i]))
+		}
+	}
+	if options.storePath == "" {
+		options.storePath = os.Getenv("QWSG_STORE")
+	}
+	if options.storePath == "" {
+		return compareOptions{}, fmt.Errorf("--store is required (or set QWSG_STORE)")
+	}
+	if (options.from == "") != (options.to == "") {
+		return compareOptions{}, fmt.Errorf("--from and --to must be provided together")
+	}
+	return options, nil
+}
+
+func writeHumanComparison(out io.Writer, result comparison.Result) int {
+	fmt.Fprintf(out, "Snapshot comparison\nFrom: %s\nTo: %s\nCompared: %s\n",
+		safeText(result.From.Selector), safeText(result.To.Selector),
+		result.ComparisonTimestamp.UTC().Format(time.RFC3339Nano))
+	groups := []struct {
+		name       string
+		changeType comparison.ChangeType
+		count      int
+	}{
+		{"Added", comparison.Added, result.Counts.Added},
+		{"Removed", comparison.Removed, result.Counts.Removed},
+		{"Modified", comparison.Modified, result.Counts.Modified},
+		{"Unchanged", comparison.Unchanged, result.Counts.Unchanged},
+	}
+	for _, group := range groups {
+		fmt.Fprintf(out, "\n%s (%d)\n", group.name, group.count)
+		if group.count == 0 {
+			fmt.Fprintln(out, "- none")
+			continue
+		}
+		for _, record := range result.Changes {
+			if record.Type != group.changeType {
+				continue
+			}
+			fmt.Fprintf(out, "- [%s] %s", safeText(record.Layer), safeText(record.Path))
+			switch record.Type {
+			case comparison.Added:
+				fmt.Fprintf(out, " = %s", humanValue(record.Current))
+			case comparison.Removed:
+				fmt.Fprintf(out, " (was %s)", humanValue(record.Previous))
+			case comparison.Modified:
+				fmt.Fprintf(out, ": %s -> %s", humanValue(record.Previous), humanValue(record.Current))
+			}
+			fmt.Fprintln(out)
+		}
+	}
+	return 0
+}
+
+func humanValue(value *comparison.TypedValue) string {
+	if value == nil {
+		return "null"
+	}
+	document, err := json.Marshal(value.Value)
+	if err != nil {
+		return "<unavailable>"
+	}
+	return safeText(string(document))
 }
 
 func runInventory(args []string, out, errout io.Writer) int {
@@ -372,18 +551,35 @@ Usage:
   qwsg version
   qwsg inventory [--format json|human]
   qwsg inventory <save|list|info|load> [options]
+  qwsg compare [--store DIR] [--from SNAPSHOT --to SNAPSHOT] [--format json|human]
 
 Commands:
   inventory  Collect Inventory 1.0 or browse an explicit private snapshot store
+  compare    Compare canonical Inventory snapshots without making a health judgement
   version    Show version and build information
   help       Show root or contextual help
 
-JSON remains the compatibility default for inventory, save, and load.
-Run 'qwsg help inventory' for store options and exit semantics.`)
+JSON remains the compatibility default for inventory, save, load, and compare.
+Run 'qwsg help inventory' or 'qwsg help compare' for options and exit semantics.`)
 }
 
 func writeVersionHelp(out io.Writer) {
 	fmt.Fprintln(out, "Usage: qwsg version\n\nShows the QWSG version, build commit, and controlled build date.")
+}
+
+func writeCompareHelp(out io.Writer) {
+	fmt.Fprintln(out, `Usage:
+  qwsg compare --store DIR [--retention N] [--format json|human]
+  qwsg compare --store DIR --from SNAPSHOT --to SNAPSHOT [--retention N] [--format json|human]
+
+Without selectors, compare uses the previous and latest snapshots in the store.
+--from and --to select exact names returned by 'qwsg inventory list'. QWSG_STORE
+and QWSG_FORMAT may provide the store and format; command-line options take
+precedence. JSON is the canonical default.
+
+Exit 0 means comparison succeeded. Exit 1 means usage, selection, store,
+integrity, compatibility, or output failure. Change Records report facts only:
+they are not drift, health, alert, scoring, or recommendation results.`)
 }
 
 func writeInventoryHelp(args []string, out, errout io.Writer) int {

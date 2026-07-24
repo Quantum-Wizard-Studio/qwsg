@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"quantumwizard.hu/qwsg/internal/comparison"
 	"quantumwizard.hu/qwsg/internal/inventory"
 	"quantumwizard.hu/qwsg/internal/inventorystore"
 )
@@ -185,6 +186,106 @@ func TestJSONCompatibilityOutput(t *testing.T) {
 	if got.SnapshotID != snapshot.SnapshotID || got.Canonical.SchemaName != inventory.CanonicalSchemaName {
 		t.Fatalf("compatibility envelope changed: %#v", got)
 	}
+}
+
+func TestCompareCLIDefaultExplicitAndHuman(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "store")
+	store, err := inventorystore.Open(root, 3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	from := cliFixtureSnapshot()
+	fromName, err := store.Save(from)
+	if err != nil {
+		t.Fatal(err)
+	}
+	to := laterCLIFixtureSnapshot(from)
+	toName, err := store.Save(to)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var first, second, errout bytes.Buffer
+	args := []string{"compare", "--store", root, "--retention", "3"}
+	if code := run(args, &first, &errout); code != 0 {
+		t.Fatalf("default compare: code=%d error=%q", code, errout.String())
+	}
+	errout.Reset()
+	if code := run(args, &second, &errout); code != 0 || first.String() != second.String() {
+		t.Fatalf("repeat compare: code=%d equal=%v error=%q", code, first.String() == second.String(), errout.String())
+	}
+	var result comparison.Result
+	if err := json.Unmarshal(first.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.From.Selector != fromName || result.To.Selector != toName || result.Counts.Added != 2 {
+		t.Fatalf("unexpected comparison: %#v", result)
+	}
+
+	var human bytes.Buffer
+	errout.Reset()
+	explicit := []string{"compare", "--store", root, "--retention", "3", "--from", fromName, "--to", toName, "--format", "human"}
+	if code := run(explicit, &human, &errout); code != 0 {
+		t.Fatalf("human compare: code=%d error=%q", code, errout.String())
+	}
+	for _, expected := range []string{"Added (2)", "Removed (0)", "Modified (0)", "Unchanged (", ` = "changed"`} {
+		if !strings.Contains(human.String(), expected) {
+			t.Fatalf("human output %q lacks %q", human.String(), expected)
+		}
+	}
+}
+
+func TestCompareCLIRejectsIncompleteSelectionAndInsufficientHistory(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "store")
+	store, err := inventorystore.Open(root, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	name, err := store.Save(cliFixtureSnapshot())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		args     []string
+		contains string
+	}{
+		{[]string{"compare", "--store", root, "--retention", "2"}, "at least two"},
+		{[]string{"compare", "--store", root, "--retention", "2", "--from", name}, "must be provided together"},
+		{[]string{"compare", "--store", root, "--retention", "2", "--from", name, "--to", "missing.json"}, "to snapshot load failed"},
+	} {
+		var out, errout bytes.Buffer
+		if code := run(tc.args, &out, &errout); code != 1 || !strings.Contains(errout.String(), tc.contains) {
+			t.Fatalf("%v: code=%d output=%q", tc.args, code, out.String()+errout.String())
+		}
+	}
+}
+
+func laterCLIFixtureSnapshot(snapshot inventory.Snapshot) inventory.Snapshot {
+	snapshot.SnapshotID = "cli-fixture-later"
+	snapshot.RequestID = "cli-fixture-later"
+	snapshot.CompletedAt = snapshot.CompletedAt.Add(time.Minute)
+	snapshot.FreshUntil = snapshot.FreshUntil.Add(time.Minute)
+	snapshot.Canonical.SnapshotID = snapshot.SnapshotID
+	snapshot.Canonical.RequestID = snapshot.RequestID
+	snapshot.Canonical.CompletedAt = snapshot.CompletedAt
+	snapshot.Canonical.FreshUntil = snapshot.FreshUntil
+	layer := &snapshot.Canonical.Layers[0]
+	layer.Resources = append(layer.Resources, inventory.Resource{
+		ResourceID: "task018:fixture", Kind: "fixture", LayerID: layer.LayerID,
+		LifecycleState: "observed", CollectorID: "host", ObservedAt: snapshot.ObservedAt,
+		Facts: map[string]inventory.CanonicalFact{
+			"task_018_fixture": {
+				Value: "changed", ValueType: "string", Quality: "observed", Sensitivity: "public",
+				ObservedAt: snapshot.ObservedAt,
+				Provenance: inventory.Provenance{
+					SourceType: "fixture", SourceLabel: "fixture", ObservedAt: snapshot.ObservedAt,
+				},
+			},
+		},
+		Relationships: []inventory.Relationship{}, Labels: map[string]string{},
+		Metadata: map[string]string{},
+	})
+	return snapshot
 }
 
 func cliFixtureSnapshot() inventory.Snapshot {

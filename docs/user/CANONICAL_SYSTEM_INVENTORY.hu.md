@@ -21,7 +21,8 @@ A parancs JSON-t ír a szabványos kimenetre. A `0` kilépési kód teljes, a `2
 A contextual help, a human-readable kimenet, a telepítés, a Snapshot Explorer
 list/info/load parancsai és a pontos acceptance demonstráció a
 [QWSG felhasználói CLI és Snapshot Explorer](CLI_AND_SNAPSHOT_EXPLORER.hu.md)
-útmutatóban található.
+útmutatóban található. A rendszerváltozások tényszerű nézetét a
+[Snapshot összehasonlítás](SNAPSHOT_COMPARISON.hu.md) ismerteti.
 
 ## Adatvédelem és értelmezés
 

@@ -370,6 +370,11 @@ Platform support claims require declared matrix evidence. Documentation review v
 
 Task 014 implements profile `canonical-system-inventory-v1` for Linux through the existing Collector Registry. The authoritative representation is emitted as the additive `canonical_inventory` member of the Inventory 1.0 envelope so existing consumers retain their category/item projection. Host, operating-system, kernel, CPU, memory, storage, filesystem, network, and virtualization capabilities are implemented; mapping and operational details are defined in `docs/architecture/CANONICAL_SYSTEM_INVENTORY_V1.md`.
 
+Task 018 adds no Inventory schema field. It consumes two validated canonical
+snapshots through the dedicated Comparison Engine and emits the separately
+versioned `qwsg.comparison` Change Record contract. Future consumers of system
+evolution use that contract and do not compare snapshots directly.
+
 The Collector Framework, Platform Hardening, Configuration Engine, Policy Engine, Reporting Engine, REST API, and later Console or AI integrations MUST import or implement these contracts. Each task identifies the Inventory schema range it consumes or produces, adds no competing host model, and treats contract changes as governed schema evolution.
 
 The enduring boundary is:
