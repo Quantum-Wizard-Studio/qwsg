@@ -93,6 +93,28 @@ The remote fetch dry-run passed after sandbox-approved network access. No
 force-push, history rewrite, branch/tag mutation, or unrelated untracked-file
 operation occurred.
 
+## Git delivery
+
+Targeted staging contained exactly 29 Task 015 framework, configuration,
+policy, documentation, test, active prompt/history, and delivery-record files.
+No backup directory, build output, `current-task-job.txt`, or
+`current-task-maker.md` was staged.
+
+The implementation commit is:
+
+```text
+5ad9bad88209449176a2bd65378b2801c711b7bc
+Implement reusable engineering framework v1.0.0
+```
+
+`git push --dry-run origin main` reported the expected
+`1f6d4c3..5ad9bad` update. The subsequent normal HTTPS push succeeded. Post-push
+verification confirmed `HEAD == origin/main`, ahead/behind `0 0`, clean tracked
+and staged diffs, and all framework/lifecycle regression gates passing.
+
+The separate delivery-evidence finalization commit is reported in the
+owner-facing handoff because a commit cannot contain its own hash.
+
 ## Portability evidence
 
 `ai/tests/test-framework.sh` creates a unique temporary Git fixture with a

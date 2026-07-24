@@ -74,6 +74,14 @@ Baseline and final checks passed:
 - Canonical HTTPS remote fetch dry-run.
 - No Task 016 or Task 017.
 
+Targeted staging contained exactly the 29 reviewed Task 015 paths and excluded
+all pre-existing backup directories, `current-task-job.txt`, and
+`current-task-maker.md`. Implementation commit
+`5ad9bad88209449176a2bd65378b2801c711b7bc` was created with message
+`Implement reusable engineering framework v1.0.0`. HTTPS dry-run push and normal
+push to `origin/main` succeeded. Post-push `HEAD` and `origin/main` matched with
+ahead/behind `0 0`; tracked and staged diffs were clean.
+
 The synthetic portability fixture used a different identity, branch, HTTPS
 remote, language, required reading, validation command, and lifecycle paths. It
 did not create or alter any live QWSG task state and was removed automatically.
