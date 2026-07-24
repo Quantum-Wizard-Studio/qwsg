@@ -32,6 +32,12 @@ vet, engineering-framework validation, lifecycle validation, and the Ubuntu
 Repeated canonical output was byte-identical. Project Owner acceptance and
 lifecycle completion remain outstanding.
 
+The post-commit binary was also installed into an isolated staging root with
+`PATH=/usr/bin:/bin`; installation succeeded without Go and the installed
+artifact was byte-identical. System installation remains an owner-operated
+`sudo make install` step because this non-interactive session has no sudo
+credential. The currently installed Task 017 binary is not claimed as Task 018.
+
 ## Rollback
 
 The pre-implementation rollback snapshot is
