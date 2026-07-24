@@ -92,6 +92,11 @@ produced meaningful stdout, stderr remained empty, store directories were
 Detailed delivery evidence:
 `ai/audits/2026-07-24_QWSG_USER_CLI_SNAPSHOT_EXPLORER.md`.
 
+Targeted staging included exactly 19 Task 017 paths and excluded every
+pre-existing backup directory, task-maker input, and build artifact.
+Implementation commit `5d34849` (`Implement user CLI and snapshot explorer`)
+passed the HTTPS dry-run push and normal push to `origin/main`.
+
 ## Rollback
 
 Restore only exact modified paths from the snapshot and remove only new paths

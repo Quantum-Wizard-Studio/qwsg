@@ -95,6 +95,11 @@ engine, alert, notification, API, Web UI, database, listener, telemetry,
 external dependency, privilege escalation, or collector modification was
 introduced.
 
+Exactly 19 reviewed Task 017 paths were staged. Implementation commit
+`5d34849` (`Implement user CLI and snapshot explorer`) passed the canonical
+HTTPS dry-run push and normal push to `origin/main`. Pre-existing untracked
+backup, task-maker, and binary paths remained unstaged and unchanged.
+
 ## Rollback
 
 Restore only exact modified files from the snapshot. Remove only new Task 017
