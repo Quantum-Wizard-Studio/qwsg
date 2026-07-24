@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Quantum Wizard Server Guardian (QWSG) is an independent, modular Linux server protection project. This repository currently provides its safe engineering and governance foundation.
+Quantum Wizard Server Guardian (QWSG) is a Professional Linux Server
+Engineering Toolkit: an independent, modular system for trustworthy Linux
+evidence, change understanding, and controlled protection.
 
 ## Status
 
@@ -20,6 +22,14 @@ Start with [`ai/core/00_PROJECT_PHILOSOPHY.md`](ai/core/00_PROJECT_PHILOSOPHY.md
 The owner-review Product Definition is maintained in [`docs/PRODUCT_DEFINITION.md`](docs/PRODUCT_DEFINITION.md). Established constraints in that document apply now; strategic proposals remain subject to explicit owner approval.
 
 The authoritative product-level relationship between QWSG's identity, boundaries, Agent, Installer, Console, MVP, future direction, and deferred architecture decisions is maintained in [`docs/PRODUCT_SYSTEM_BLUEPRINT.md`](docs/PRODUCT_SYSTEM_BLUEPRINT.md).
+
+The canonical long-term Product Architecture is maintained in
+[`docs/PRODUCT_ARCHITECTURE.md`](docs/PRODUCT_ARCHITECTURE.md). It defines one
+deterministic engineering core shared by the complete Community toolkit, the
+automation-focused Professional Edition, and the operations-focused Provider
+Edition, together with workspace, terminal, Web Dashboard, licensing, privacy,
+deployment, automation, AI, ecosystem, and roadmap principles. Described future
+capabilities are architecture, not claims of current implementation.
 
 The authoritative observable behavior and acceptance boundary for QWSG Core Alpha is maintained in [`docs/FUNCTIONAL_SPECIFICATION.md`](docs/FUNCTIONAL_SPECIFICATION.md).
 

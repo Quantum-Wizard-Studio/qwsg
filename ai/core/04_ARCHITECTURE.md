@@ -6,6 +6,15 @@ This document will record approved system boundaries, components, interfaces, da
 
 ## Status
 
+The canonical ecosystem and edition architecture is defined in
+`docs/PRODUCT_ARCHITECTURE.md`. It governs the shared deterministic engineering
+core; complete Community toolkit; automation-focused Professional Edition;
+operations-focused Provider Edition; product identity; workspace and interface
+philosophy; licensing, privacy, deployment, automation, AI, ecosystem, and
+roadmap boundaries. Capability architecture documents refine that product
+architecture and must not introduce an edition-specific correctness tier or a
+mandatory cloud or AI dependency.
+
 The platform-wide Inventory Architecture is defined by `12_INVENTORY_ARCHITECTURE.md` and is the canonical system-description contract for future collectors and consumers. The Core Alpha architecture and `Core Alpha Slice 1: Read-only Server Discovery and System Inventory` architecture were approved under Task 008; their narrower `1.x` inventory envelope is a bounded implementation profile subject to the platform-wide compatibility and migration rules. The authoritative Core Alpha package begins at `docs/architecture/CORE_ALPHA_ARCHITECTURE.md` and links its data model, security model, gate register, requirements mapping, implementation plan, and accepted Slice 1 ADRs.
 
 The architecture establishes a digital-twin object model, extensible canonical layers and relationships, a common collector contract, canonical JSON, schema evolution rules, resource limits, localization boundaries, and consumer separation. The internal implementation realizes that contract through `internal/collector`: validated descriptors, explicit capabilities and dependencies, duplicate-safe registration, availability checks, deterministic dependency-aware execution, bounded per-collector contexts, cancellation, panic isolation, and structured results. `internal/app` obtains collector contributions only through this Registry and preserves the legacy `1.0` Inventory projection until a separately authorized canonical-model migration.

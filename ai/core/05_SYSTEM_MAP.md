@@ -10,7 +10,27 @@ A supported pre-alpha one-shot user CLI and Snapshot Explorer now fronts the
 implemented Inventory boundaries. The product map remains
 `docs/PRODUCT_SYSTEM_BLUEPRINT.md`, observable behavior remains
 `docs/FUNCTIONAL_SPECIFICATION.md`, and technical allocation is documented
-under `docs/architecture/`.
+under `docs/architecture/`. The canonical long-term ecosystem, edition, user
+experience, deployment, licensing, privacy, automation, and AI boundaries are
+defined in `docs/PRODUCT_ARCHITECTURE.md`.
+
+All editions share one deterministic engineering flow:
+
+```text
+Collectors -> Canonical Inventory -> Snapshot Store -> Comparison Engine
+                                              |
+                                              v
+                future Drift / Health / Policy / Report contracts
+                                              |
+                 +----------------------------+---------------------------+
+                 |                            |                           |
+        Community local tools       Professional automation      Provider operations
+```
+
+Community, Professional, and Provider are orchestration and operating-context
+layers above the same versioned core. No dashboard, control plane, notification
+service, license service, ecosystem service, or AI adapter may become an
+alternative source of engineering truth.
 
 For Slice 1, a local operator invokes the non-root Agent boundary. The discovery coordinator runs bounded read-only collectors, followed by normalization, redaction, validation, inventory assembly, optional latest-envelope persistence, and CLI/JSON presentation. A future Console consumes an Agent-owned redacted contract and cannot access collectors, shell execution, or privilege directly. Installer, remediation, network Console, e-mail, and update boundaries remain outside Slice 1.
 

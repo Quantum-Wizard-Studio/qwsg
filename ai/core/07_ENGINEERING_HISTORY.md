@@ -54,5 +54,11 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   and explicit CLI comparison, and record-derived JSON/human presentation.
   The Project Owner accepted the installed and verified delivery. See
   `ai/history/018_2026-07-24_snapshot-comparison-engine.md`.
+- `2026-07-24`: Task 019 established the canonical QWSG Product Architecture:
+  one deterministic core shared by the complete Community engineering toolkit,
+  the automation-focused Professional Edition, and the operations-focused
+  Provider Edition, with durable workspace, interface, licensing, privacy,
+  deployment, automation, AI-separation, ecosystem, and roadmap boundaries.
+  See `ai/history/019_2026-07-24_product-architecture.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

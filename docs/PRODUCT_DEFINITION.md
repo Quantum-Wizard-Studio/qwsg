@@ -16,6 +16,11 @@ It intentionally does not define implementation, internal architecture, modules,
 
 This document becomes fully authoritative when the owner explicitly approves or resolves the proposed strategic decisions. Until then, it is authoritative only as a consolidated statement of the established constraints it cites.
 
+Task 019 approved the edition philosophy, offline and privacy principles, and
+long-term ecosystem boundaries in `docs/PRODUCT_ARCHITECTURE.md`. That canonical
+architecture resolves the corresponding earlier proposals below; unrelated
+open pricing, legal, distribution, and service commitments remain open.
+
 ## Decision labels
 
 - **Established:** already mandated by approved project governance and may guide future work.
@@ -232,23 +237,41 @@ The following principles are **Proposed — owner approval required**, consisten
 - Default behavior should minimize privilege and corrective authority.
 - Trust boundaries and limitations should be visible to operators.
 - Security findings should distinguish evidence, interpretation, uncertainty, and recommended action.
-- Commercial edition boundaries should never make the Free edition deceptively unsafe.
+- Commercial edition boundaries must never make the Community Edition unsafe,
+  incomplete, or less correct.
 
 ## Product editions
 
-**Open decision.** QWSG currently has no approved edition names, feature matrix, pricing, distribution rights, or public licensing model. The repository remains under its temporary proprietary notice; the word “Free” in this proposal grants no redistribution or modification permission.
+**Approved product direction under Task 019.** QWSG uses Community,
+Professional, and Provider edition identities. Every edition shares the same
+deterministic engineering core. The canonical boundary and comparison are
+defined in `docs/PRODUCT_ARCHITECTURE.md`. Pricing, distribution rights, public
+license terms, and service commitments remain open. “Community” is a product
+edition name and does not by itself grant redistribution or modification
+permission.
 
-### Proposed Free edition — owner approval required
+### Community Edition
 
-Position QWSG Free as a genuinely useful single-operator entry point that demonstrates the Guardian's core trust principles: understandable local findings, warnings, transparent history, localization-ready interaction, and human control. It should not be an intentionally unsafe demonstration product.
+Community is a complete professional Linux engineering toolkit for unlimited
+manual local operation. It provides the full deterministic engineering
+capability, transparent history, reports and exports, local terminal
+experiences, offline operation, privacy-first behavior, and human control
+without requiring an account.
 
-### Proposed Professional edition — owner approval required
+### Professional Edition
 
-Position QWSG Professional around operational scale, governance, collaboration, advanced history and reporting, policy management, professional workflows, and commercial support. Professional value should come from greater coordination, efficiency, accountability, and service—not from withholding explanations or creating hidden dependence.
+Professional is the automation and management platform around the same core. It
+adds supported scheduling, background operation, notifications, managed
+history, dashboards, multi-server coordination, updates, licensing, and support
+as separately implemented. Its value is time saved, not better engineering
+correctness.
 
-### Edition boundary recommendation
+### Provider Edition
 
-Keep core transparency, explicit authorization, privacy disclosure, and safe behavior common to every edition. The owner must approve final names, eligibility, distribution, feature allocation, licensing, pricing, support, upgrade paths, and any service commitments before public release.
+Provider adds tenant-aware fleet, customer-portal, integration, white-label,
+and provider-control-plane operations. Tenant isolation and audit are security
+properties. Provider uses the same core and does not establish a private
+correctness tier.
 
 ## Commercial philosophy
 
@@ -261,11 +284,15 @@ The following is **Proposed — owner approval required**.
 - Product independence should be preserved; bundling with another Quantum Wizard product must not become a dependency.
 - The final licensing model remains an owner decision before public release.
 
-## Free versus Professional positioning
+## Community, Professional, and Provider positioning
 
-**Proposed — owner approval required.** Free should answer, “Can QWSG provide trustworthy, transparent protection value for an independently operated server?” Professional should answer, “Can QWSG provide the governance, coordination, depth, and support required for sustained professional operations?”
+**Approved product direction under Task 019.** Community earns trust through
+complete local engineering. Professional saves time through supported
+automation and management. Provider enables tenant-aware operations at scale.
 
-The distinction should not be “unsafe versus safe,” “opaque versus explainable,” or “operator-controlled versus vendor-controlled.” Those principles define QWSG itself and must not be premium-only.
+The distinction is never “unsafe versus safe,” “incorrect versus correct,”
+“opaque versus explainable,” or “operator-controlled versus vendor-controlled.”
+Those principles define QWSG itself and are not premium-only.
 
 ## Long-term evolution
 
@@ -304,18 +331,22 @@ The following decisions remain open and must not be silently converted into engi
 | Decision | Current status | Engineering recommendation |
 |---|---|---|
 | Target-user and persona positioning | Owner approval required | Approve the four proposed personas as initial product audiences. |
-| Offline product promise | Owner approval required | Keep fundamental protection useful without mandatory vendor cloud connectivity. |
-| Cloud product role | Open | Keep future cloud services optional and additive if approved. |
-| Edition names | Open | Use “Free” and “Professional” as working names only. |
-| Edition feature boundary | Open | Monetize scale, governance, collaboration, depth, and support rather than basic safety or transparency. |
+| Offline product promise | Approved by Task 019 | Local deterministic engineering remains useful without Internet, account, cloud, telemetry, or remote licensing checks. |
+| Cloud product role | Approved boundary; service details open | Future services are optional adapters and never prerequisites for the local core. |
+| Edition names | Approved by Task 019 | Community, Professional, and Provider. |
+| Edition feature boundary | Approved by Task 019 | Community is complete engineering; Professional adds automation; Provider adds operational scale. |
 | Commercial model and pricing | Open | Decide only after product scope and cost assumptions are verified. |
 | Final license and distribution rights | Open | Resolve before public release; the temporary proprietary notice remains controlling. |
-| Privacy and telemetry commitments | Owner approval required | Approve minimization, transparency, local processing preference, and no undisclosed data monetization. |
+| Privacy and telemetry commitments | Approved boundary; implementation details open | Privacy first, local by default, explicit minimized transfers, and opt-in telemetry. |
 | Agent and Console product roles | Owner approval required | Approve the responsibility split without treating it as architecture. |
 
-## Relationship to future architecture
+## Relationship to Product Architecture
 
-Product Architecture has not started. When separately authorized, it must treat established statements and owner-approved proposals in this document as parent requirements. It must not infer approval for open decisions, and it must document any conflict rather than silently redefining the product.
+The canonical Product Architecture is
+`docs/PRODUCT_ARCHITECTURE.md`. It refines this product definition into approved
+ecosystem, edition, experience, deployment, licensing, privacy, automation, AI,
+and roadmap boundaries. It does not silently resolve the pricing, legal,
+distribution, or service-level decisions that remain open here.
 
 ## Maintenance and change control
 
