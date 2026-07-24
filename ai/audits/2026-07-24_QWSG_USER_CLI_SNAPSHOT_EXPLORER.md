@@ -118,6 +118,14 @@ ordinary user, while `make install` verifies and copies only the existing
 executable. Verification explicitly runs install with a PATH that contains GNU
 Make and install but no Go compiler.
 
+The corrected no-Go privileged-environment simulation passed and installed
+exactly one mode-`0755` artifact. The Project Owner's subsequent installation
+created `/usr/local/bin/qwsg`; it is a regular mode-`0755` file whose SHA-256
+matches `build/qwsg`. The entire exact acceptance command sequence was rerun
+through the system binary with the established `0` and truthful partial `2`
+statuses, meaningful stdout, empty stderr, and private `0700`/`0600` store
+objects.
+
 ## Rollback
 
 Restore only exact modified files from the snapshot. Remove only new Task 017

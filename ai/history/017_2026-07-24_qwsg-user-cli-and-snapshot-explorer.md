@@ -114,6 +114,17 @@ The corrected contract builds as the ordinary user and makes `install` validate
 and copy only the existing executable artifact. The privileged step no longer
 invokes Go or depends on the normal user's toolchain environment.
 
+The corrected install contract passed with `PATH=/usr/bin:/bin`, where `go`
+was confirmed unavailable: it installed exactly one mode-`0755` binary from
+the normal-user build artifact. The Project Owner's subsequent system install
+created `/usr/local/bin/qwsg`; it is a regular mode-`0755` file and its SHA-256
+exactly matches `build/qwsg`.
+
+The complete exact acceptance sequence was then rerun through the system
+`qwsg`. Version/help/list exited `0`; Inventory/save/info/load truthfully
+exited `2`; every command produced meaningful stdout and empty stderr; and the
+private store retained `0700` directories and `0600` files.
+
 ## Rollback
 
 Restore only exact modified paths from the snapshot and remove only new paths
@@ -124,4 +135,4 @@ wildcard deletion, or recursive prefix removal is prohibited.
 
 ## Completion state
 
-`active — implementation verified; final owner-executed system install and acceptance pending`
+`active — implementation and system installation verified; final Project Owner acceptance pending`
