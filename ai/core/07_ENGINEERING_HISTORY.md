@@ -33,8 +33,15 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
 - `2026-07-24`: Task 015 delivered and verified Reusable Engineering Framework
   `1.0.0`: validated project identity/configuration, canonical Git policy,
   direct-argv validation commands, framework-aware lifecycle entry points, and
-  isolated portability/regression coverage. Final lifecycle completion remains
-  subject to Project Owner acceptance. See
+  isolated portability/regression coverage. The Project Owner accepted the
+  delivery and Task 015 was completed and archived. See
   `ai/audits/2026-07-24_REUSABLE_ENGINEERING_FRAMEWORK.md`.
+- `2026-07-24`: Task 016 implemented and verified the first file-backed
+  Inventory Store and Digital Twin persistence foundation with versioned
+  envelopes, atomic save/load, integrity validation, private storage, bounded
+  retention, Inventory 1.0 compatibility, explicit one-shot CLI integration,
+  and no monitoring or background execution. Final lifecycle completion remains
+  subject to Project Owner acceptance. See
+  `ai/audits/2026-07-24_INVENTORY_PERSISTENCE_DIGITAL_TWIN.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

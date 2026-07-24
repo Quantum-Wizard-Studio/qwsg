@@ -13,6 +13,12 @@ The existing Collector Registry is the only host-discovery entry point. `interna
 
 No canonical consumer performs direct Linux discovery. The canonical projection is validated before output and cannot silently repair invalid evidence.
 
+The optional Task 016 Inventory Store is a post-validation consumer. It
+persists the complete synchronized legacy/canonical envelope and never invokes
+or modifies collectors. Its format, atomicity, integrity, permissions, and
+retention contract is defined in
+`INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md`.
+
 ## Implemented collectors
 
 | Collector | Capability | Primary bounded Linux evidence | Canonical layer | Dependency |
@@ -46,6 +52,10 @@ Layers and resources are sorted by stable machine identifiers. Go JSON map seria
 ## Privacy and evidence
 
 Stable subject, block-device, mount, and interface identifiers are one-way namespaced SHA-256 derivatives truncated to 128 bits. Raw machine IDs, hostnames, interface names, network and hardware addresses, mount paths, raw device names, and service identities are not emitted. Redacted facts have no value and include locale-independent reason tokens. Collection reads bounded kernel interfaces and does not elevate privilege, recurse through the filesystem, access the network, persist data, or mutate the host.
+
+Persistence is a separate explicitly invoked post-validation adapter. It stores
+no raw collector evidence and rejects a prohibited-secret fact in either the
+compatibility or canonical representation.
 
 ## Compatibility
 

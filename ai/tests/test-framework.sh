@@ -6,6 +6,13 @@ work="$(mktemp -d /tmp/qw-engineering-framework-test.XXXXXX)"
 trap 'rm -rf -- "$work"' EXIT
 passes=0
 
+reference_task="$(find "$repo_root/ai/prompts" -maxdepth 1 -type f -name '[0-9][0-9][0-9]_CURRENT_TASK.md' -print | LC_ALL=C sort | tail -n 1)"
+if [[ -z "$reference_task" ]]; then
+    reference_task="$(find "$repo_root/ai/archive_prompts" -maxdepth 1 -type f -name '[0-9][0-9][0-9]_????-??-??_*.md' -print | LC_ALL=C sort | tail -n 1)"
+fi
+[[ -n "$reference_task" && -f "$reference_task" ]] ||
+    { printf 'FAIL no canonical task fixture is available\n' >&2; exit 1; }
+
 new_fixture() {
     local name="$1" root="$work/$1" reading
     mkdir -p "$root/ai/scripts" "$root/ai/framework" "$root/ai/config" \
@@ -144,12 +151,12 @@ EOF
 expect_failure "$root" ./ai/scripts/framework-check.sh
 
 root="$(new_fixture missing-task-section)"
-cp "$repo_root/ai/prompts/015_CURRENT_TASK.md" "$root/ai/prompts/001_CURRENT_TASK.md"
+cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
 sed -i '/^## Snapshot Requirements$/d' "$root/ai/prompts/001_CURRENT_TASK.md"
 expect_failure "$root" ./ai/scripts/framework-check.sh
 
 root="$(new_fixture unsafe-task-git)"
-cp "$repo_root/ai/prompts/015_CURRENT_TASK.md" "$root/ai/prompts/001_CURRENT_TASK.md"
+cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
 sed -i '/^## Owner Approval Requirements$/i git add .' \
     "$root/ai/prompts/001_CURRENT_TASK.md"
 expect_failure "$root" ./ai/scripts/framework-check.sh

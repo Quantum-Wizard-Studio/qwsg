@@ -23,3 +23,12 @@ history, and delivery boundaries. QWSG remains the reference implementation;
 product architecture and runtime behavior remain separate.
 
 Task 014 implements Canonical System Inventory v1 as the authoritative read-only host model. The existing Collector Registry is the sole acquisition boundary; `internal/app` produces the validated canonical layers/resources/facts representation and the legacy Inventory 1.0 projection from the same Results. Implementation details and compatibility rules are defined in `docs/architecture/CANONICAL_SYSTEM_INVENTORY_V1.md`.
+
+Task 016 adds the first explicitly invoked file-backed Inventory Store after
+canonical validation. It retains the complete compatibility/canonical envelope
+as a versioned Digital Twin observation with deterministic naming, integrity
+verification, restrictive permissions, atomic installation, validated loading,
+and bounded retention. It remains outside collectors and introduces no daemon,
+scheduler, comparison, health, alert, API, database, or network boundary. The
+profile is defined in
+`docs/architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md`.

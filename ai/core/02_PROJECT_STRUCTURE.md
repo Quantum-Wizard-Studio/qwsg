@@ -20,6 +20,11 @@ Initial directory model; directories contain no application implementation yet.
 - `ai/framework/`: reusable engineering core version identity.
 - `ai/config/`: validated project identity and non-executable validation argv.
 - `ai/scripts/`: bounded engineering workflow automation.
+- `cmd/qwsg/`: the one-shot QWSG command boundary.
+- `internal/collector/`: bounded read-only evidence acquisition.
+- `internal/inventory/`: Inventory 1.0 and canonical model assembly/validation.
+- `internal/inventorystore/`: explicitly invoked file-backed Digital Twin
+  persistence, integrity, atomicity, and retention.
 - `docs/`: audience-focused architecture, installation, administration, development, security, release, and history guidance.
 - `installer/`, `agent/`, `console/`, `modules/`: future approved product components.
 - `tests/`, `scripts/`, `tools/`, `build/`: future verification and engineering support.

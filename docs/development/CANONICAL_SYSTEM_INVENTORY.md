@@ -22,7 +22,40 @@ Exit status `0` means every requested category was available, `2` means a valid 
 - `internal/collector`: Collector contract, Registry orchestration, Linux evidence acquisition, privacy transformations, and legacy Category contributions.
 - `internal/inventory`: Inventory 1.0 compatibility model, canonical domain model, deterministic assembly, and validation.
 - `internal/app`: one-shot coordination and synchronized legacy/canonical aggregation.
+- `internal/inventorystore`: validated file-backed Digital Twin envelope,
+  atomic save/load/list behavior, integrity checking, and bounded retention.
 - `cmd/qwsg`: CLI serialization and exit policy only; it does not discover host state.
+
+## Explicit persistence
+
+Create or use a private store with an explicit absolute path:
+
+```bash
+build/qwsg inventory save --store /absolute/private/qwsg-inventory
+build/qwsg inventory load --store /absolute/private/qwsg-inventory
+```
+
+The default retention is 10. A different value is fixed at store creation and
+must be supplied consistently:
+
+```bash
+build/qwsg inventory save --store /absolute/private/qwsg-inventory --retention 5
+build/qwsg inventory load --store /absolute/private/qwsg-inventory --retention 5
+```
+
+Use `--snapshot <filename>` with `inventory load` for an explicit stored
+snapshot. The store accepts only one safe base filename returned by its
+deterministic listing.
+
+Save performs one collection, validates and atomically persists it, emits the
+same JSON, and retains its status exit code. Load performs no collection,
+revalidates the envelope and Inventory, emits JSON, and returns the stored
+status exit code. Exit `2` remains a truthful partial-but-usable result.
+
+Store roots and directories require mode `0700`; metadata and snapshots require
+`0600`. Symlinks, permissive modes, corruption, duplicate JSON keys,
+unsupported versions, integrity mismatches, stale transaction artifacts, and
+retention mismatch fail closed.
 
 Add a collector by implementing `collector.Collector`, declaring a complete finite descriptor, returning one structured Result, and registering it through the Registry. Collectors must use bounded read-only evidence, observe cancellation, avoid user-facing prose, redact before returning, and never call other collectors. Add parser fixtures, error-state tests, Registry/integration coverage, privacy review, and documentation with every capability.
 
@@ -33,3 +66,9 @@ Do not add a second host model or direct discovery path. New consumers use `Snap
 ## Test fixtures and troubleshooting
 
 Parser tests use synthetic evidence and must never contain real host identifiers. When a collector is unavailable, inspect its structured `health_status` and safe error code. `permission_denied`, `timeout`, `cancelled`, `resource_limit`, and `error` are explicit collector outcomes; they are not host-health verdicts. Never work around missing evidence with privilege escalation or unbounded scanning.
+
+Persistence tests use `t.TempDir` only. A store checksum detects corruption but
+does not authenticate data. Do not delete a stale lock, retirement artifact, or
+operator store automatically; preserve it and review the interrupted
+transaction. There is no daemon, scheduler, database, comparison, monitoring,
+alerting, or migration tool in this foundation.

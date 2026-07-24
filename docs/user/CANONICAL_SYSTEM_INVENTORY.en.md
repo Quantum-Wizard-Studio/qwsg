@@ -24,8 +24,34 @@ Hostnames, network and hardware addresses, interface names, mount paths, raw dev
 
 ## Configuration and budgets
 
-Task 014 introduces no user configuration or collector-selection interface. Collection is one-shot, has finite per-collector timeouts and output limits, and performs no historical storage. Scheduling and persistence are separate future capabilities.
+Collection remains one-shot and has finite per-collector timeouts and output
+limits. To persist one validated result explicitly, provide an absolute private
+directory:
+
+```bash
+build/qwsg inventory save --store /absolute/private/qwsg-inventory
+build/qwsg inventory load --store /absolute/private/qwsg-inventory
+```
+
+The store defaults to retaining the latest 10 snapshots. Set a fixed value from
+1 through 1000 with `--retention N` on creation and use the same value when
+opening it. Directories must be private (`0700`), and files are written as
+`0600`. Saving and loading emit the same Inventory JSON and preserve status
+exit codes, including `2` for a partial but usable snapshot.
+
+Persistence is manual. It introduces no monitoring, comparison, health
+scoring, daemon, scheduler, alert, notification, network service, database, or
+upload.
 
 ## Troubleshooting and upgrades
 
-`permission_denied`, `unavailable`, `unsupported`, `timeout`, `cancelled`, `resource_limit`, and `error` describe evidence collection, not server health. Correct the host access boundary only when appropriate; never run as root merely to hide a partial result. Schema upgrades follow explicit versioned migrations. QWSG does not remove retained inventory because this version does not persist it.
+`permission_denied`, `unavailable`, `unsupported`, `timeout`, `cancelled`,
+`resource_limit`, and `error` describe evidence collection, not server health.
+Correct the host access boundary only when appropriate; never run as root
+merely to hide a partial result.
+
+Stored data is rejected on unsafe permissions or paths, unsupported versions,
+malformed JSON, duplicate keys, integrity mismatch, or Inventory validation
+failure. The checksum detects corruption but is not a cryptographic signature.
+Do not manually delete stale lock or transaction files without reviewing the
+store. Schema migration and authenticated storage are future capabilities.

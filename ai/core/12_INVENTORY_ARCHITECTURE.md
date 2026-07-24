@@ -252,6 +252,28 @@ Whitespace and object-member ordering are not semantic for consumers. When hashi
 
 YAML, MessagePack, Protocol Buffers, and future encodings MAY be adapters over the same logical model. They MUST round-trip all supported types and explicit states without semantic loss and MUST NOT introduce an alternative object model. JSON remains the required interoperability baseline.
 
+## Persistence and Digital Twin storage
+
+Persistence is an authorized state adapter after redaction, assembly, and
+validation. It MUST NOT occur inside a collector, retain raw evidence, repair an
+invalid object, broaden collection authority, or create an alternative host
+model. Stored Inventory remains a timestamped observation and never becomes a
+health verdict, desired state, monitoring stream, or mutation authorization.
+
+The initial QWSG persistence profile is the versioned file-backed Inventory
+Store defined in
+`docs/architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md`. It stores the
+complete Inventory 1.0 compatibility envelope together with its synchronized
+canonical representation, verifies semantic payload integrity, uses restrictive
+permissions and atomic no-clobber installation, and applies bounded retention
+without deleting the last valid snapshot. Loading repeats compatibility,
+integrity, privacy, and Inventory validation and fails closed without silent
+migration.
+
+Persistence remains explicitly operator-invoked. Scheduling, monitoring,
+comparison, drift analysis, health evaluation, alerting, network access,
+databases, and background maintenance require separate approved contracts.
+
 ## Versioning and compatibility
 
 Inventory schema versions use `major.minor`:
