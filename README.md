@@ -9,8 +9,9 @@ evidence, change understanding, and controlled protection.
 ## Status
 
 Version `0.0.1-prealpha` now provides a user-installable one-shot Linux
-Inventory CLI, Snapshot Explorer, and canonical Snapshot Comparison Engine. It remains a pre-alpha release and does
-not provide monitoring, comparison, health evaluation, daemon mode, services,
+Inventory CLI, Snapshot Explorer, canonical Snapshot Comparison Engine, and
+internal Canonical Drift Engine contract. It remains a pre-alpha release and
+does not provide monitoring, health evaluation, daemon mode, services,
 alerts, an API, or a Web UI.
 
 ## Scope
@@ -51,6 +52,11 @@ normal user, then use `sudo make install` only to copy the verified artifact.
 The privileged step does not require Go in root's `PATH`.
 
 Canonical System Inventory v1 now provides the authoritative internal Linux host model through the Collector Registry while preserving the Inventory 1.0 compatibility envelope. Its explicitly invoked file-backed [Inventory Persistence and Digital Twin foundation](docs/architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md) can save and reload validated snapshots without monitoring or background execution. See the [developer guide](docs/development/CANONICAL_SYSTEM_INVENTORY.md); user guidance is available in [English](docs/user/CANONICAL_SYSTEM_INVENTORY.en.md) and [Hungarian](docs/user/CANONICAL_SYSTEM_INVENTORY.hu.md).
+
+The [Canonical Drift Engine](docs/architecture/CANONICAL_DRIFT_ENGINE.md) is
+the deterministic, offline semantic layer above the Snapshot Comparison Engine.
+It emits one versioned Drift Record per Change Record and makes no health, risk,
+or policy judgement.
 
 Engineering tasks follow [`ai/core/11_ENGINEERING_LIFECYCLE.md`](ai/core/11_ENGINEERING_LIFECYCLE.md). The official `ai/scripts/task-builder.sh` workflow generates an approved prompt/history pair from structured owner input after a completed task; `ai/scripts/next-task.sh` remains available when a separate unapproved draft/review cycle is required. Explicitly owner-authorized incomplete-task diversion uses `ai/scripts/divert-task-to-test.sh` to preserve failed evidence under the independent `ai/test_tasks/` namespace without weakening production completion gates. See [`docs/architecture/ENGINEERING_TASK_BUILDER.md`](docs/architecture/ENGINEERING_TASK_BUILDER.md).
 

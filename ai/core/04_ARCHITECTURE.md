@@ -50,9 +50,13 @@ existing Inventory Store validation boundary. Build and installation remain
 one binary with no service, daemon, scheduler, network listener, database, or
 external dependency.
 
-Task 018 establishes `internal/comparison` as the exclusive system-evolution
-boundary. Future drift, health, alert, reporting, and interface modules consume
-canonical Change Records and must not compare Inventory snapshots directly.
-The contract is defined in
+Task 018 establishes `internal/comparison` as the exclusive factual
+system-evolution boundary. Task 020 establishes `internal/drift` as the first
+semantic layer above it: one versioned Drift Record per canonical Change Record,
+without health, risk, policy, or remediation judgement. Future Health, Rules,
+Policies, Reports, Automation, alerts, and interfaces consume Drift and Health
+contracts and must not compare Inventory snapshots or reclassify Change
+Records. The contracts are defined in
 `docs/architecture/SNAPSHOT_COMPARISON_ENGINE.md` and
-`docs/architecture/CHANGE_RECORD_SCHEMA.md`.
+`docs/architecture/CHANGE_RECORD_SCHEMA.md`; the permanent semantic boundary is
+defined in `docs/architecture/CANONICAL_DRIFT_ENGINE.md`.

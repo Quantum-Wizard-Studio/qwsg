@@ -24,10 +24,13 @@ The Foundation Phase is complete:
   Comparison Engine with canonical Change Records.
 - Task 019 establishes the complete QWSG Product Architecture and edition
   strategy. It introduces no runtime or behavioral change.
+- Task 020 establishes the deterministic Canonical Drift Engine and versioned
+  Drift Records as the semantic boundary above Change Records.
 
 The repository remains `0.0.1-prealpha`. The implemented product is a
 user-installable, one-shot local Inventory, Snapshot Explorer, and Comparison
-workflow. Monitoring, Drift, Health, alerts, daemon mode, scheduler, Web
+workflow plus an internal canonical Drift contract. Monitoring, Health, alerts,
+daemon mode, scheduler, Web
 Dashboard, licensing, remote agents, fleet management, Provider operations,
 and AI adapters are not implemented.
 
@@ -53,22 +56,21 @@ and AI adapters are not implemented.
 - Collector Framework and Canonical System Inventory;
 - validated Snapshot Store and Digital Twin envelopes;
 - exclusive Snapshot Comparison Engine and canonical Change Records;
+- canonical Drift taxonomy, engine, and Drift Records;
 - versioned schemas, deterministic output, privacy-safe identity, resource
   bounds, and failure isolation.
 
 ### Next architectural outcomes
 
-1. **Drift contract** — distinguish factual change from policy-relevant drift
-   without bypassing Change Records.
-2. **Health contract** — deterministic findings, severity, completeness,
+1. **Health contract** — deterministic findings, severity, completeness,
    aggregation, evidence links, and unknown/unsupported behavior.
-3. **Rule and policy contract** — versioned declarative evaluation with
+2. **Rule and policy contract** — versioned declarative evaluation with
    provenance, validation, profiles, and conflict behavior.
-4. **Report contract** — canonical structured report data from which terminal,
+3. **Report contract** — canonical structured report data from which terminal,
    file, Web, and notification views derive.
-5. **Configuration contract** — layered, validated, explainable configuration
+4. **Configuration contract** — layered, validated, explainable configuration
    and secret references without hidden defaults.
-6. **Core hardening and release gates** — platform matrix, performance and
+5. **Core hardening and release gates** — platform matrix, performance and
    resource envelopes, migrations, packaging, security review, and support
    evidence.
 

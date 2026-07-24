@@ -5,12 +5,15 @@
 The Comparison Engine is the only supported source of system-change facts:
 
 ```text
-Inventory -> Snapshot Store -> Comparison Engine -> future policy consumers
+Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine
+                                                     |
+                                   future Health / Rules / Policy
 ```
 
-Future Configuration Drift, Health, Alert, Reporting, CLI, e-mail, and Web UI
-components consume validated Change Records. They must not compare Inventory
-snapshots directly or maintain a competing change model.
+The Canonical Drift Engine consumes validated Change Records and classifies
+their semantic type. Future Health, Rule, Policy, Alert, Reporting, CLI,
+e-mail, and Web UI components consume Drift and Health contracts. They must not
+compare Inventory snapshots directly or maintain a competing change model.
 
 `internal/comparison` imports the Inventory domain model. It accepts two
 validated Inventory 1.0 snapshots containing canonical
@@ -61,6 +64,10 @@ reported in comparison metadata and never converted into a health judgement.
 Human output groups Added, Removed, Modified, and Unchanged records. It is
 generated only from the canonical result, escapes terminal control characters,
 and contains no diagnosis, recommendation, severity, or score.
+
+The permanent Compare-to-Drift boundary and its compatibility rules are defined
+in `CANONICAL_DRIFT_ENGINE.md`. Comparison remains factual and does not assign a
+Drift category.
 
 ## Security and resource properties
 
