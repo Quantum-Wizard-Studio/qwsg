@@ -107,6 +107,20 @@ established status code. Load performs no collection, revalidates and emits the
 stored Inventory, and returns its status code. A partial usable snapshot remains
 exit code `2`; persistence does not relabel it complete.
 
+Task 017 adds a user-facing consumer boundary without changing this store
+contract. `inventory list` obtains deterministic names from `Store.List` and
+validates every displayed entry through `Store.Load`. `inventory info` and
+`inventory load` validate the latest or an explicitly named snapshot through
+the same load boundary. These read operations never repair, migrate, compare,
+prune, or rewrite store data.
+
+JSON remains the compatibility default for collect, save, and load. The
+separate human renderer exposes status, timestamps, counts, and privacy-safe
+metadata without presenting stored evidence as current state or a health
+verdict. An operator may explicitly provide the store and format through
+command options or the session-scoped `QWSG_STORE` and `QWSG_FORMAT`
+environment variables; there is no automatic global store discovery.
+
 ## Recovery and deferred work
 
 Store errors do not authorize deletion. Preserve the directory and record safe

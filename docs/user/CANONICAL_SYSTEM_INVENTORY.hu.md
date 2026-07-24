@@ -18,6 +18,11 @@ build/qwsg inventory
 
 A parancs JSON-t ír a szabványos kimenetre. A `0` kilépési kód teljes, a `2` részleges, de használható, az `1` sikertelen leltárt jelent. A felső szintű Inventory 1.0 nézet kompatibilitási céllal megmarad. Az új integrációk a `canonical_inventory` mezőt használják.
 
+A contextual help, a human-readable kimenet, a telepítés, a Snapshot Explorer
+list/info/load parancsai és a pontos acceptance demonstráció a
+[QWSG felhasználói CLI és Snapshot Explorer](CLI_AND_SNAPSHOT_EXPLORER.hu.md)
+útmutatóban található.
+
 ## Adatvédelem és értelmezés
 
 A gazdagépnevek, hálózati és hardvercímek, interfésznevek, csatolási útvonalak, nyers eszköznevek, gépazonosítók és szolgáltatásazonosítók kimaradnak, maszkoltak, vagy adatvédelmi szempontból biztonságos azonosítót kapnak. A hiányzó vagy maszkolt érték nem jelent üres, hamis vagy egészséges állapotot. Minden collector és réteg státuszát, valamint a strukturált problémákat is ellenőrizni kell.

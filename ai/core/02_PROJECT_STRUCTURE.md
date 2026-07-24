@@ -6,7 +6,9 @@ This document explains ownership and intended use of the repository's top-level 
 
 ## Status
 
-Initial directory model; directories contain no application implementation yet.
+The repository contains the pre-alpha one-shot Inventory application, validated
+Inventory Store, user CLI and Snapshot Explorer, tests, installation workflow,
+and governed engineering framework.
 
 ## What belongs here
 
@@ -20,7 +22,8 @@ Initial directory model; directories contain no application implementation yet.
 - `ai/framework/`: reusable engineering core version identity.
 - `ai/config/`: validated project identity and non-executable validation argv.
 - `ai/scripts/`: bounded engineering workflow automation.
-- `cmd/qwsg/`: the one-shot QWSG command boundary.
+- `cmd/qwsg/`: the one-shot user CLI, help, safe rendering, JSON compatibility,
+  Snapshot Explorer, and exit-policy boundary.
 - `internal/collector/`: bounded read-only evidence acquisition.
 - `internal/inventory/`: Inventory 1.0 and canonical model assembly/validation.
 - `internal/inventorystore/`: explicitly invoked file-backed Digital Twin

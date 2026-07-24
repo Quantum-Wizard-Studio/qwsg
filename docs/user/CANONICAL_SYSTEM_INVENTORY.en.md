@@ -18,6 +18,10 @@ build/qwsg inventory
 
 The command writes JSON to standard output. Exit code `0` means complete, `2` means partial but usable, and `1` means failed. The top-level Inventory 1.0 view remains available for compatibility. New integrations should consume `canonical_inventory`.
 
+For contextual help, human-readable output, installation, Snapshot Explorer
+list/info/load commands, and the exact acceptance demonstration, see the
+[QWSG User CLI and Snapshot Explorer](CLI_AND_SNAPSHOT_EXPLORER.en.md) guide.
+
 ## Privacy and interpretation
 
 Hostnames, network and hardware addresses, interface names, mount paths, raw device names, machine IDs, and service identities are omitted, redacted, or replaced by privacy-safe identifiers. A missing or redacted value does not mean empty, false, or healthy. Check each collector and layer status plus structured issues.

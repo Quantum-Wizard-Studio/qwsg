@@ -6,7 +6,10 @@ Quantum Wizard Server Guardian (QWSG) is an independent, modular Linux server pr
 
 ## Status
 
-Version `0.0.1-prealpha`: project bootstrap only. No application, installer, service, dependency, or operational automation has been implemented.
+Version `0.0.1-prealpha` now provides a user-installable one-shot Linux
+Inventory CLI and Snapshot Explorer. It remains a pre-alpha release and does
+not provide monitoring, comparison, health evaluation, daemon mode, services,
+alerts, an API, or a Web UI.
 
 ## Scope
 
@@ -22,7 +25,13 @@ The authoritative observable behavior and acceptance boundary for QWSG Core Alph
 
 The authoritative Core Alpha technical design and `Core Alpha Slice 1: Read-only Server Discovery and System Inventory` are maintained in [`docs/architecture/CORE_ALPHA_ARCHITECTURE.md`](docs/architecture/CORE_ALPHA_ARCHITECTURE.md) and [`docs/architecture/CORE_ALPHA_SLICE_1.md`](docs/architecture/CORE_ALPHA_SLICE_1.md).
 
-Slice 1 now has an internal, unsupported Go CLI implementation. Build and test it with `make build` and `make test`, then run `build/qwsg inventory`. See [`docs/development/SLICE_1_DEVELOPMENT.md`](docs/development/SLICE_1_DEVELOPMENT.md). It is not a supported public release.
+Build and test with `make build` and `make test`, then run
+`build/qwsg help`. Installation guidance is in
+[`docs/installation/INSTALL.md`](docs/installation/INSTALL.md). The supported
+CLI and Snapshot Explorer guides are available in
+[English](docs/user/CLI_AND_SNAPSHOT_EXPLORER.en.md) and
+[Hungarian](docs/user/CLI_AND_SNAPSHOT_EXPLORER.hu.md), with a complete
+[demonstration walkthrough](docs/user/DEMONSTRATION.md).
 
 Canonical System Inventory v1 now provides the authoritative internal Linux host model through the Collector Registry while preserving the Inventory 1.0 compatibility envelope. Its explicitly invoked file-backed [Inventory Persistence and Digital Twin foundation](docs/architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md) can save and reload validated snapshots without monitoring or background execution. See the [developer guide](docs/development/CANONICAL_SYSTEM_INVENTORY.md); user guidance is available in [English](docs/user/CANONICAL_SYSTEM_INVENTORY.en.md) and [Hungarian](docs/user/CANONICAL_SYSTEM_INVENTORY.hu.md).
 

@@ -32,3 +32,11 @@ and bounded retention. It remains outside collectors and introduces no daemon,
 scheduler, comparison, health, alert, API, database, or network boundary. The
 profile is defined in
 `docs/architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md`.
+
+Task 017 establishes `cmd/qwsg` as the first supported user application
+boundary. It provides contextual help, controlled build/version data,
+terminal-safe human summaries, explicit JSON compatibility, and Snapshot
+Explorer list/info/load commands. Every explorer result passes through the
+existing Inventory Store validation boundary. Build and installation remain
+one binary with no service, daemon, scheduler, network listener, database, or
+external dependency.

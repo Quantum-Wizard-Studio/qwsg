@@ -1,11 +1,23 @@
-.PHONY: build test vet fmt-check framework-check engineering-test
+.PHONY: build install test vet fmt-check framework-check engineering-test
 
 GOCACHE ?= /tmp/qwsg-go-cache
 GOMODCACHE ?= /tmp/qwsg-go-modcache
+PREFIX ?= /usr/local
+DESTDIR ?=
+BINDIR ?= $(PREFIX)/bin
+INSTALL ?= install
+VERSION := $(shell tr -d '\r\n' < VERSION)
+BUILD_COMMIT ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null || printf unknown)
+BUILD_DATE ?= unknown
+LDFLAGS := -X main.version=$(VERSION) -X main.buildCommit=$(BUILD_COMMIT) -X main.buildDate=$(BUILD_DATE)
 
 build:
 	mkdir -p build
-	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go build -trimpath -o build/qwsg ./cmd/qwsg
+	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go build -trimpath -ldflags "$(LDFLAGS)" -o build/qwsg ./cmd/qwsg
+
+install: build
+	$(INSTALL) -d -m 0755 "$(DESTDIR)$(BINDIR)"
+	$(INSTALL) -m 0755 build/qwsg "$(DESTDIR)$(BINDIR)/qwsg"
 
 test:
 	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go test ./...

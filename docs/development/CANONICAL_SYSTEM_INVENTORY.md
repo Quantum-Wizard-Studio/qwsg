@@ -15,6 +15,11 @@ Run one read-only observation with:
 build/qwsg inventory
 ```
 
+The command preserves JSON as its compatibility default. Use
+`--format human` for the terminal summary. Parsing, human rendering, JSON
+serialization, and exit policy remain in `cmd/qwsg`; domain and collection
+packages contain no user-facing prose.
+
 Exit status `0` means every requested category was available, `2` means a valid partial inventory, and `1` means no usable inventory or a fatal error. A partial result is expected on hosts where an optional legacy collector such as systemd service discovery is unavailable.
 
 ## Package responsibilities
@@ -46,6 +51,19 @@ build/qwsg inventory load --store /absolute/private/qwsg-inventory --retention 5
 Use `--snapshot <filename>` with `inventory load` for an explicit stored
 snapshot. The store accepts only one safe base filename returned by its
 deterministic listing.
+
+Snapshot Explorer adds:
+
+```bash
+build/qwsg inventory list --store /absolute/private/qwsg-inventory
+build/qwsg inventory info --store /absolute/private/qwsg-inventory
+```
+
+List validates every displayed entry through the store load boundary. Info and
+load accept `--snapshot`, otherwise they select the validated latest entry.
+`QWSG_STORE` and `QWSG_FORMAT` are explicit session configuration equivalents;
+command-line values take precedence. Human rendering escapes terminal control
+characters and shows only status, times, schema identity, and aggregate counts.
 
 Save performs one collection, validates and atomically persists it, emits the
 same JSON, and retains its status exit code. Load performs no collection,

@@ -43,5 +43,12 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   and no monitoring or background execution. Final lifecycle completion remains
   subject to Project Owner acceptance. See
   `ai/audits/2026-07-24_INVENTORY_PERSISTENCE_DIGITAL_TWIN.md`.
+- `2026-07-24`: Task 017 implemented and verified the first user-installable
+  QWSG CLI and Snapshot Explorer with contextual help, human and JSON output,
+  validated snapshot list/info/load commands, controlled build information,
+  prefix-aware installation, Ubuntu 24.04 demonstration, and English/Hungarian
+  user guidance. Final lifecycle completion remains subject to Project Owner
+  acceptance. See
+  `ai/audits/2026-07-24_QWSG_USER_CLI_SNAPSHOT_EXPLORER.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.
