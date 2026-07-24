@@ -97,6 +97,15 @@ pre-existing backup directory, task-maker input, and build artifact.
 Implementation commit `5d34849` (`Implement user CLI and snapshot explorer`)
 passed the HTTPS dry-run push and normal push to `origin/main`.
 
+Post-push HEAD and `origin/main` matched at delivery-evidence commit `15a9115`
+with ahead/behind `0 0`. A final system-prefix acceptance attempt stopped
+safely because `/usr/local/bin` is not writable by `attila` and `sudo -n`
+requires an interactive password. No password was requested or handled,
+`/usr/local/bin/qwsg` remains absent, and no system target changed. The
+Project Owner must execute the documented `sudo make install` step locally
+before final acceptance; all isolated install and installed staging-binary
+acceptance evidence remains successful.
+
 ## Rollback
 
 Restore only exact modified paths from the snapshot and remove only new paths
@@ -107,4 +116,4 @@ wildcard deletion, or recursive prefix removal is prohibited.
 
 ## Completion state
 
-`active — implementation and verification in progress`
+`active — implementation verified; final owner-executed system install and acceptance pending`

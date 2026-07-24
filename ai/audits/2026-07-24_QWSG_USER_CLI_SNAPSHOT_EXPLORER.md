@@ -100,6 +100,15 @@ Exactly 19 reviewed Task 017 paths were staged. Implementation commit
 HTTPS dry-run push and normal push to `origin/main`. Pre-existing untracked
 backup, task-maker, and binary paths remained unstaged and unchanged.
 
+Post-push repository validation passed at delivery-evidence commit `15a9115`,
+with local and remote `main` identical. The final default-prefix installation
+attempt stopped safely: `/usr/local/bin` is not writable by the ordinary user
+and `sudo -n make install` requires an interactive password. Codex did not
+request or handle a password. `/usr/local/bin/qwsg` remains absent and no
+system target was modified. Final owner acceptance therefore requires the
+Project Owner to execute `sudo make install` locally and verify `qwsg version`;
+the isolated install and installed staging-binary sequence already passed.
+
 ## Rollback
 
 Restore only exact modified files from the snapshot. Remove only new Task 017
