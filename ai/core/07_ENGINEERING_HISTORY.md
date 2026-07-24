@@ -30,5 +30,11 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   transactional failure containment and independent test-task auditing, and
   released production ID 015 without claiming completion. See
   `ai/audits/2026-07-23_ABORTED_TEST_TASK_DIVERSION.md`.
+- `2026-07-24`: Task 015 delivered and verified Reusable Engineering Framework
+  `1.0.0`: validated project identity/configuration, canonical Git policy,
+  direct-argv validation commands, framework-aware lifecycle entry points, and
+  isolated portability/regression coverage. Final lifecycle completion remains
+  subject to Project Owner acceptance. See
+  `ai/audits/2026-07-24_REUSABLE_ENGINEERING_FRAMEWORK.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

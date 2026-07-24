@@ -85,8 +85,10 @@ grep -Fq -- '- Status: `approved`' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq 'First objective line.' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq 'Second objective line.' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq 'Approved by Project Owner' "$root/ai/prompts/014_CURRENT_TASK.md"
+grep -Fq -- '- `ai/core/16_GIT_POLICY.md`' "$root/ai/prompts/014_CURRENT_TASK.md"
+grep -Fq -- '- `ai/config/engineering-project.conf`' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq -- '- Status: `approved — task not started`' "$root/ai/history/014_${today}_next-engineering-task.md"
-passes=$((passes + 5))
+passes=$((passes + 7))
 
 root="$(new_fixture idle-install)"; input="$(new_input idle-install)"
 mv "$root/ai/prompts/013_CURRENT_TASK.md" "$root/ai/archive_prompts/013_${today}_engineering-task-builder.md"

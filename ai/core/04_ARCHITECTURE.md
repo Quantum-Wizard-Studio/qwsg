@@ -16,4 +16,10 @@ Verified design decisions and their rationale belong here. Speculation, credenti
 
 The Engineering Task Builder architecture is defined in `docs/architecture/ENGINEERING_TASK_BUILDER.md`. It is an engineering-governance component, separate from the QWSG runtime, that converts owner-authored structured input into deterministic approved prompt/history pairs through a validated rollback-capable transaction.
 
+The versioned Reusable Engineering Framework is defined in
+`docs/architecture/REUSABLE_ENGINEERING_FRAMEWORK.md`. It owns reusable task,
+approval, lifecycle, configuration-validation, Git-safety, snapshot, rollback,
+history, and delivery boundaries. QWSG remains the reference implementation;
+product architecture and runtime behavior remain separate.
+
 Task 014 implements Canonical System Inventory v1 as the authoritative read-only host model. The existing Collector Registry is the sole acquisition boundary; `internal/app` produces the validated canonical layers/resources/facts representation and the legacy Inventory 1.0 projection from the same Results. Implementation details and compatibility rules are defined in `docs/architecture/CANONICAL_SYSTEM_INVENTORY_V1.md`.

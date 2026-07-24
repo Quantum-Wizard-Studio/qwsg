@@ -27,3 +27,8 @@ Slice 1 now has an internal, unsupported Go CLI implementation. Build and test i
 Canonical System Inventory v1 now provides the authoritative internal Linux host model through the Collector Registry while preserving the Inventory 1.0 compatibility envelope. See [`docs/architecture/CANONICAL_SYSTEM_INVENTORY_V1.md`](docs/architecture/CANONICAL_SYSTEM_INVENTORY_V1.md) and the [developer guide](docs/development/CANONICAL_SYSTEM_INVENTORY.md). User guidance is available in [English](docs/user/CANONICAL_SYSTEM_INVENTORY.en.md) and [Hungarian](docs/user/CANONICAL_SYSTEM_INVENTORY.hu.md).
 
 Engineering tasks follow [`ai/core/11_ENGINEERING_LIFECYCLE.md`](ai/core/11_ENGINEERING_LIFECYCLE.md). The official `ai/scripts/task-builder.sh` workflow generates an approved prompt/history pair from structured owner input after a completed task; `ai/scripts/next-task.sh` remains available when a separate unapproved draft/review cycle is required. Explicitly owner-authorized incomplete-task diversion uses `ai/scripts/divert-task-to-test.sh` to preserve failed evidence under the independent `ai/test_tasks/` namespace without weakening production completion gates. See [`docs/architecture/ENGINEERING_TASK_BUILDER.md`](docs/architecture/ENGINEERING_TASK_BUILDER.md).
+
+The versioned [Reusable Engineering Framework](docs/architecture/REUSABLE_ENGINEERING_FRAMEWORK.md)
+validates project identity, canonical Git state, lifecycle paths, required
+reading, and project-specific validation commands through
+`ai/scripts/framework-check.sh`. QWSG is its reference implementation.

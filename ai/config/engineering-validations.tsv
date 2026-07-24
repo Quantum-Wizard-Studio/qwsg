@@ -1,0 +1,7 @@
+# id	executable	arguments...
+job-check	bin/job	--check
+lifecycle-check	ai/scripts/next-task.sh	--check
+test-task-check	bin/job	--check-test-tasks
+go-test	make	test
+go-vet	make	vet
+go-format	make	fmt-check

@@ -38,6 +38,12 @@ require_root() {
         fail 'QWSG project markers are missing'
     [[ -d "$prompts_dir" && -d "$archive_dir" && -d "$history_dir" ]] ||
         fail 'production lifecycle directories are missing'
+    if [[ -e "$project_root/ai/framework/VERSION" ]]; then
+        [[ -x "$project_root/ai/scripts/framework-check.sh" ]] ||
+            fail 'framework validator is missing or not executable'
+        "$project_root/ai/scripts/framework-check.sh" --quiet ||
+            fail 'reusable framework validation failed'
+    fi
 }
 
 extract_one() {

@@ -15,7 +15,7 @@ The original job fields remain required with their original meanings: Objective 
 ## Mandatory task lifecycle
 
 1. **Authority and scope:** identify the human-authorized objective, deliverables, exclusions, and stop conditions. Do not broaden scope by assumption.
-2. **Read governing documents:** read the constitution, agent rules, relevant standards, policies, system records, and prior task history before changing the project.
+2. **Read governing documents:** read the constitution, agent rules, relevant standards, policies, system records, and prior task history before changing the project. Validate the versioned project configuration and canonical Git policy; never source configuration or treat project-overridable data as authority to weaken mandatory safeguards.
 3. **Inspect:** record the exact relevant environment, Git, ownership, permission, ACL, dependency, and file state. Stop and report material differences.
 4. **Snapshot:** create and verify a rollback-capable snapshot before modifying task targets.
 5. **Plan and rollback:** document what will change, the smallest safe method, risks, verification, and an exact bounded rollback procedure before implementation.
@@ -105,6 +105,14 @@ Every current engineering task has one active English prompt named `NNN_CURRENT_
 The general Engineering History remains a concise milestone index. It must not become an infinitely growing task log; detailed evidence belongs in the independent task history record.
 
 The official creation path is `ai/scripts/task-builder.sh`. It collects or reads structured owner-authored fields, generates metadata and approval text, validates the complete documents, and installs the prompt/history pair transactionally. Its deterministic input-directory mode keeps every field in a separate text file so content is read as data and multi-line values remain lossless. The older `next-task.sh` draft-preparation path remains supported when approval must occur in a later, separate review step; its generated placeholders must never be manually assembled into an executable task without the required owner review and validation.
+
+Project identity, canonical remote and branch, communication and documentation
+languages, required reading, lifecycle directories, and project-specific
+validation argv are declared in `ai/config/engineering-project.conf` and its
+referenced validation file. `ai/scripts/framework-check.sh` validates them.
+Explicit approval, one-active-task enforcement, snapshots, rollback, targeted
+staging, history, and completion evidence are mandatory core rules and cannot be
+disabled by project configuration.
 
 ## Completion gate
 

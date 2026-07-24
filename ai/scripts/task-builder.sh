@@ -33,6 +33,12 @@ require_root() {
     [[ "$(pwd -P)" == "$project_root" ]] || fail "run from the project root: $project_root"
     [[ -f "$project_root/VERSION" && -x "$project_root/bin/job" ]] || fail 'QWSG project markers are missing'
     [[ -d "$prompts_dir" && -d "$archive_dir" && -d "$history_dir" ]] || fail 'lifecycle directories are missing'
+    if [[ -e "$project_root/ai/framework/VERSION" ]]; then
+        [[ -x "$project_root/ai/scripts/framework-check.sh" ]] ||
+            fail 'framework validator is missing or not executable'
+        "$project_root/ai/scripts/framework-check.sh" --quiet ||
+            fail 'reusable framework validation failed'
+    fi
 }
 
 extract_one() {
@@ -187,6 +193,9 @@ EOF
 - `ai/core/03_AGENTS.md`
 - `ai/core/08_JOB_TEMPLATE.md`
 - `ai/core/11_ENGINEERING_LIFECYCLE.md`
+- `ai/core/14_PROMPT_WORKFLOW.md`
+- `ai/core/16_GIT_POLICY.md`
+- `ai/config/engineering-project.conf`
 EOF
     append_section 'Starting State Verification' starting-state
     append_section 'Snapshot Requirements' snapshot

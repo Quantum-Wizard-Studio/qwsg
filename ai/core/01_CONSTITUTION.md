@@ -29,6 +29,12 @@ Binding from the `0.0.1-prealpha` bootstrap onward.
 17. Execute and document engineering tasks according to `08_JOB_TEMPLATE.md`, the definitive task standard.
 18. Before implementation work, read `00_PROJECT_PHILOSOPHY.md`, `01_CONSTITUTION.md`, `03_AGENTS.md`, and `08_JOB_TEMPLATE.md`.
 19. Follow the authoritative task lifecycle in `11_ENGINEERING_LIFECYCLE.md`, including No Task Without History and the separation of preparation from approval and execution.
+20. Validate project identity and configuration through the versioned Reusable
+    Engineering Framework; project configuration may not weaken mandatory
+    safety, approval, snapshot, rollback, targeted-staging, history, validation,
+    or completion-evidence rules.
+21. Follow `16_GIT_POLICY.md` for repository verification, synchronization,
+    staging, commit, push, branch, tag, untracked-file, and recovery safety.
 
 ## Scope
 

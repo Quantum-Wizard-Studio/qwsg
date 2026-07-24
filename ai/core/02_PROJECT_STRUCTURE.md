@@ -17,6 +17,8 @@ Initial directory model; directories contain no application implementation yet.
 - `ai/test_tasks/`: independently numbered, owner-authorized experimental or
   aborted task evidence isolated from production task numbering and active-task
   selection.
+- `ai/framework/`: reusable engineering core version identity.
+- `ai/config/`: validated project identity and non-executable validation argv.
 - `ai/scripts/`: bounded engineering workflow automation.
 - `docs/`: audience-focused architecture, installation, administration, development, security, release, and history guidance.
 - `installer/`, `agent/`, `console/`, `modules/`: future approved product components.

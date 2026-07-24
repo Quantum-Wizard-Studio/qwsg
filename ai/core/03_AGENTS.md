@@ -24,5 +24,10 @@ Mandatory collaboration baseline for `0.0.1-prealpha`.
 - Every implementation or documentation task must follow the workflow and required record fields in `08_JOB_TEMPLATE.md`.
 - Before any implementation work, every agent must read `00_PROJECT_PHILOSOPHY.md`, `01_CONSTITUTION.md`, `03_AGENTS.md`, and `08_JOB_TEMPLATE.md`.
 - Every agent follows `11_ENGINEERING_LIFECYCLE.md`; after verified completion it prepares, but never approves or executes, the next task when the active prompt requires it.
+- Every agent validates `ai/config/engineering-project.conf` with
+  `ai/scripts/framework-check.sh` before relying on project identity, remote,
+  branch, lifecycle paths, required reading, or validation commands.
+- Validation command configuration is data and must never be sourced or
+  evaluated. Mandatory safety rules remain non-configurable.
 
 Role boundaries, verification duties, and delivery expectations belong here. Prompts, secrets, unverified claims, and implementation-specific design do not. These rules will evolve during development with human approval.

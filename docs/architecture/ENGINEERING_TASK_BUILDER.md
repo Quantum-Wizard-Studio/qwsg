@@ -12,6 +12,10 @@ The Engineering Task Builder is the official creation boundary between Project O
 - deterministic `--input-dir <directory>` generation;
 - read-only `--check-input <directory>` validation.
 
+When `ai/framework/VERSION` is present, the builder first requires successful
+Reusable Engineering Framework project validation. The interactive and
+deterministic field contracts remain unchanged.
+
 The input-directory contract uses one regular text file per field:
 
 ```text
@@ -25,6 +29,11 @@ completion approval
 ## Ownership of information
 
 The Project Owner supplies every substantive and authority-bearing value. The builder generates only mechanical lifecycle data: the next sequential Task ID, UTC date, approved state, filenames, mandatory required-reading section, approval record, and initial history lifecycle text. It does not invent scope, acceptance criteria, risks, or implementation work.
+
+Generated Required Reading includes the canonical lifecycle, prompt workflow,
+Git policy, and project configuration references. Project configuration cannot
+replace owner-authored task scope or weaken builder approval and transaction
+rules.
 
 ## Generation pipeline
 

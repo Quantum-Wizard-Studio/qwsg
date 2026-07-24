@@ -59,6 +59,13 @@ history_dir="$project_root/ai/history"
 [[ "$script_dir" == "$project_root/bin" ]] || fail "$EXIT_ROOT" 'a parancs nem a projekt bin könyvtárában található'
 [[ -f "$project_root/VERSION" && -f "$project_root/ai/core/00_PROJECT_PHILOSOPHY.md" && -f "$project_root/ai/core/08_JOB_TEMPLATE.md" ]] || \
     fail "$EXIT_ROOT" 'a QWSG projektazonosító fájlok hiányoznak'
+if [[ -e "$project_root/ai/framework/VERSION" ]]; then
+    framework_check="$project_root/ai/scripts/framework-check.sh"
+    [[ -x "$framework_check" ]] ||
+        fail "$EXIT_ROOT" 'a reusable framework validator hiányzik vagy nem futtatható'
+    "$framework_check" --quiet ||
+        fail "$EXIT_ROOT" 'a reusable framework validáció sikertelen'
+fi
 [[ -d "$prompts_dir" && -d "$archive_dir" && -d "$history_dir" ]] || fail "$EXIT_ROOT" 'a prompt-, archive- vagy history-könyvtár hiányzik'
 
 if [[ "$mode" == test-tasks ]]; then

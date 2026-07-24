@@ -18,6 +18,9 @@ Active governance refined by Engineering Update E002 and Task 013. `ai/scripts/t
 - `ai/test_tasks/` stores explicitly diverted experimental or aborted task
   evidence under independent identifiers such as `001_TEST_TASK`. It is not a
   production prompt, archive, or history directory.
+- `ai/framework/VERSION` identifies the reusable framework release.
+- `ai/config/engineering-project.conf` declares validated project identity and
+  lifecycle configuration without becoming executable shell input.
 
 Production task numbers are sequential and zero-padded: `001`, `002`, `003`,
 and so on. Completed or normally archived numbers are never reused. The sole
@@ -73,6 +76,12 @@ test-task identifier. A replacement task must use a clean owner-approved
 definition and may reference, but must not inherit, incomplete evidence.
 
 Interactive multi-line fields end with a line containing only `.`. Deterministic mode reads the documented one-file-per-field input directory without sourcing or evaluating any file. The exact `APPROVE` token is mandatory. The builder first renders and validates same-directory temporary documents, then archives the completed prompt and installs the new pair with no-clobber moves. Post-install `bin/job --check` and lifecycle consistency validation are mandatory; any failure performs bounded automatic rollback.
+
+When the versioned framework is present, builder, lifecycle, diversion, and job
+entry points require `framework-check.sh` to validate project configuration,
+repository identity, canonical branch and remote, required reading, lifecycle
+paths, and configured validation argv. Older isolated compatibility fixtures
+without `ai/framework/VERSION` retain their bounded legacy validation behavior.
 
 Creating, archiving, or reviewing a prompt does not authorize execution. Prompts contain instructions and acceptance criteria, not secrets, credentials, unverified environment claims, application output, or completed architecture decisions. This workflow will evolve through approved engineering-governance updates.
 
