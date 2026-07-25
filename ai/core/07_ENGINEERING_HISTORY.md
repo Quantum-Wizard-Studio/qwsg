@@ -74,5 +74,10 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   explicit evaluation outcomes, and permanent Health-to-Rule boundary without
   Policy, alerting, remediation, execution, networking, or AI. See
   `ai/history/022_2026-07-24_canonical-rule-engine.md`.
+- `2026-07-24`: Task 023 implemented the Canonical Report Engine, Canonical
+  Report 1.0, deterministic taxonomy and text rendering, exact Rule Evaluation
+  source traceability, and the permanent presentation boundary without Policy,
+  monitoring, alerting, delivery, export, remediation, networking, or AI. See
+  `ai/history/023_2026-07-24_canonical-report-engine.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

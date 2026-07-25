@@ -17,10 +17,10 @@ defined in `docs/PRODUCT_ARCHITECTURE.md`.
 All editions share one deterministic engineering flow:
 
 ```text
-Collectors -> Canonical Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine -> Health Engine -> Rule Engine
-                                                                                                    |
-                                                                                                    v
-                                                                 future Policy / Report contracts
+Collectors -> Canonical Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine -> Health Engine -> Rule Engine -> Report Engine
+                                                                                                    |                    |
+                                                                                                    v                    v
+                                                                                          future Policy        future views / exports
                                               |
                  +----------------------------+---------------------------+
                  |                            |                           |
@@ -31,9 +31,10 @@ Comparison owns facts about change, Drift owns semantic change classification,
 and Health owns deterministic engineering-condition evaluation. Each Health
 Record preserves its Drift and Change references. Rule owns deterministic
 matching of predefined conditions and preserves Health evidence references.
-Health and Rule are pure offline libraries and introduce no scheduler,
-monitoring, alert, report, policy, remediation, process, network, or AI
-boundary.
+Report owns deterministic presentation contracts and preserves Rule Evaluation
+and Health evidence references. Health, Rule, and Report are pure offline
+libraries and introduce no scheduler, monitoring, alert, policy, remediation,
+process, delivery, network, or AI boundary.
 
 Community, Professional, and Provider are orchestration and operating-context
 layers above the same versioned core. No dashboard, control plane, notification
@@ -45,11 +46,12 @@ For Slice 1, a local operator invokes the non-root Agent boundary. The discovery
 The Canonical System Inventory is now the single internal host-information boundary. Host, OS, kernel, CPU, memory, storage, filesystem, network, and virtualization collectors register through the Collector Registry. The coordinator assembles both the authoritative canonical representation and its Inventory 1.0 compatibility projection from the same structured Results. The explicitly invoked Inventory Store can persist and revalidate that synchronized envelope after collection; it has no collector, scheduler, monitoring, or network responsibility. Future Health, Rule, Alert, Policy, Automation, Console, API, and reporting components consume validated canonical inventory and do not query Linux directly.
 
 System evolution follows the permanent boundary:
-`Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine`. Comparison
+`Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine -> Health Engine -> Rule Engine -> Report Engine`. Comparison
 emits deterministic factual Change Records. Drift emits deterministic semantic
-Drift Records without judging them. No downstream module may independently diff
-Inventory snapshots or reclassify Change Records; future Health, Rules, Policy,
-Reports, and Automation consume Drift and Health contracts.
+Drift Records without judging them. Health evaluates engineering condition,
+Rule matches fixed conditions, and Report presents their canonical evidence.
+No downstream module may independently diff Inventory snapshots, reclassify
+Change Records, re-evaluate Health or Rules, or rebuild engineering summaries.
 
 The local administrator invokes `qwsg`. JSON is the machine-compatibility
 boundary; the separate terminal renderer exposes safe summaries. Snapshot

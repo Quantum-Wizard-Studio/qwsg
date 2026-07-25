@@ -10,8 +10,8 @@ evidence, change understanding, and controlled protection.
 
 Version `0.0.1-prealpha` now provides a user-installable one-shot Linux
 Inventory CLI, Snapshot Explorer, canonical Snapshot Comparison Engine,
-Canonical Drift Engine, deterministic Canonical Health Engine, and Canonical
-Rule Engine contracts.
+Canonical Drift Engine, deterministic Canonical Health Engine, Canonical Rule
+Engine, and Canonical Report Engine contracts.
 It remains a pre-alpha release and does not provide monitoring, daemon mode, services,
 alerts, an API, or a Web UI.
 
@@ -68,6 +68,12 @@ The [Canonical Rule Engine](docs/architecture/CANONICAL_RULE_ENGINE.md)
 evaluates bounded Rule Definition 1.0 data against validated Health Records and
 emits explainable, versioned Rule Evaluation Records. It performs no Policy,
 alerting, reporting, remediation, command execution, networking, or AI work.
+
+The [Canonical Report Engine](docs/architecture/CANONICAL_REPORT_ENGINE.md)
+transforms validated Rule Evaluation Records into presentation-neutral,
+traceable Canonical Reports 1.0 with deterministic text rendering. It does not
+re-evaluate upstream evidence or implement Policy, monitoring, alerts,
+Dashboard, export, delivery, remediation, networking, or AI.
 
 Engineering tasks follow [`ai/core/11_ENGINEERING_LIFECYCLE.md`](ai/core/11_ENGINEERING_LIFECYCLE.md). The official `ai/scripts/task-builder.sh` workflow generates an approved prompt/history pair from structured owner input after a completed task; `ai/scripts/next-task.sh` remains available when a separate unapproved draft/review cycle is required. Explicitly owner-authorized incomplete-task diversion uses `ai/scripts/divert-task-to-test.sh` to preserve failed evidence under the independent `ai/test_tasks/` namespace without weakening production completion gates. See [`docs/architecture/ENGINEERING_TASK_BUILDER.md`](docs/architecture/ENGINEERING_TASK_BUILDER.md).
 

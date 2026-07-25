@@ -30,10 +30,12 @@ The Foundation Phase is complete:
   1.0, explicit evidence semantics, and the evaluation boundary above Drift.
 - Task 022 establishes the deterministic Canonical Rule Engine, Rule Definition
   1.0, Rule Evaluation Record 1.0, and matching boundary above Health.
+- Task 023 establishes the deterministic Canonical Report Engine, Canonical
+  Report 1.0, source traceability, and presentation boundary above Rule.
 
 The repository remains `0.0.1-prealpha`. The implemented product is a
 user-installable, one-shot local Inventory, Snapshot Explorer, and Comparison
-workflow plus internal canonical Drift, Health, and Rule contracts. Monitoring,
+workflow plus internal canonical Drift, Health, Rule, and Report contracts. Monitoring,
 alerts, daemon mode, scheduler, Web
 Dashboard, licensing, remote agents, fleet management, Provider operations,
 and AI adapters are not implemented.
@@ -64,6 +66,8 @@ and AI adapters are not implemented.
 - canonical Health taxonomy, engine, and Health Records;
 - canonical Rule definitions, deterministic operator model, engine, and Rule
   Evaluation Records;
+- canonical Report taxonomy, engine, Canonical Report 1.0, rendering model, and
+  source traceability;
 - versioned schemas, deterministic output, privacy-safe identity, resource
   bounds, and failure isolation.
 
@@ -71,11 +75,9 @@ and AI adapters are not implemented.
 
 1. **Policy contract** — versioned governance interpretation over immutable
    Health and Rule outcomes, with provenance, profiles, and conflict behavior.
-2. **Report contract** — canonical structured report data from which terminal,
-   file, Web, and notification views derive.
-3. **Configuration contract** — layered, validated, explainable configuration
+2. **Configuration contract** — layered, validated, explainable configuration
    and secret references without hidden defaults.
-4. **Core hardening and release gates** — platform matrix, performance and
+3. **Core hardening and release gates** — platform matrix, performance and
    resource envelopes, migrations, packaging, security review, and support
    evidence.
 
