@@ -64,5 +64,10 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   Drift Record 1.0 contract, extensible deterministic taxonomy, and permanent
   Compare-to-Drift boundary without Health or Policy judgement. See
   `ai/history/020_2026-07-24_canonical-drift-engine.md`.
+- `2026-07-24`: Task 021 implemented the Canonical Health Engine, versioned
+  Health Record 1.0 contract, explicit deterministic status and evidence
+  taxonomy, stable Drift-to-Health evaluation, and future Rule, Policy, and
+  Report boundaries without monitoring, alerting, remediation, or AI. See
+  `ai/history/021_2026-07-24_canonical-health-engine.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

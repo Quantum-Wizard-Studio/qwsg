@@ -26,11 +26,13 @@ The Foundation Phase is complete:
   strategy. It introduces no runtime or behavioral change.
 - Task 020 establishes the deterministic Canonical Drift Engine and versioned
   Drift Records as the semantic boundary above Change Records.
+- Task 021 establishes the deterministic Canonical Health Engine, Health Record
+  1.0, explicit evidence semantics, and the evaluation boundary above Drift.
 
 The repository remains `0.0.1-prealpha`. The implemented product is a
 user-installable, one-shot local Inventory, Snapshot Explorer, and Comparison
-workflow plus an internal canonical Drift contract. Monitoring, Health, alerts,
-daemon mode, scheduler, Web
+workflow plus internal canonical Drift and Health contracts. Monitoring,
+alerts, daemon mode, scheduler, Web
 Dashboard, licensing, remote agents, fleet management, Provider operations,
 and AI adapters are not implemented.
 
@@ -57,20 +59,19 @@ and AI adapters are not implemented.
 - validated Snapshot Store and Digital Twin envelopes;
 - exclusive Snapshot Comparison Engine and canonical Change Records;
 - canonical Drift taxonomy, engine, and Drift Records;
+- canonical Health taxonomy, engine, and Health Records;
 - versioned schemas, deterministic output, privacy-safe identity, resource
   bounds, and failure isolation.
 
 ### Next architectural outcomes
 
-1. **Health contract** — deterministic findings, severity, completeness,
-   aggregation, evidence links, and unknown/unsupported behavior.
-2. **Rule and policy contract** — versioned declarative evaluation with
+1. **Rule and policy contract** — versioned declarative evaluation with
    provenance, validation, profiles, and conflict behavior.
-3. **Report contract** — canonical structured report data from which terminal,
+2. **Report contract** — canonical structured report data from which terminal,
    file, Web, and notification views derive.
-4. **Configuration contract** — layered, validated, explainable configuration
+3. **Configuration contract** — layered, validated, explainable configuration
    and secret references without hidden defaults.
-5. **Core hardening and release gates** — platform matrix, performance and
+4. **Core hardening and release gates** — platform matrix, performance and
    resource envelopes, migrations, packaging, security review, and support
    evidence.
 

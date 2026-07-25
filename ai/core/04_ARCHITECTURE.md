@@ -52,11 +52,16 @@ external dependency.
 
 Task 018 establishes `internal/comparison` as the exclusive factual
 system-evolution boundary. Task 020 establishes `internal/drift` as the first
-semantic layer above it: one versioned Drift Record per canonical Change Record,
-without health, risk, policy, or remediation judgement. Future Health, Rules,
+semantic layer above it: one versioned Drift Record per canonical Change
+Record, without health, risk, policy, or remediation judgement. Task 021
+establishes `internal/health` as the deterministic engineering-condition layer:
+one versioned Health Record per validated Drift Record, with explicit
+unknown, unsupported, and insufficient-evidence semantics. Future Rules,
 Policies, Reports, Automation, alerts, and interfaces consume Drift and Health
-contracts and must not compare Inventory snapshots or reclassify Change
-Records. The contracts are defined in
+contracts and must not compare Inventory snapshots, reclassify Change Records,
+or create competing Health semantics. The contracts are defined in
 `docs/architecture/SNAPSHOT_COMPARISON_ENGINE.md` and
 `docs/architecture/CHANGE_RECORD_SCHEMA.md`; the permanent semantic boundary is
-defined in `docs/architecture/CANONICAL_DRIFT_ENGINE.md`.
+defined in `docs/architecture/CANONICAL_DRIFT_ENGINE.md`, and the Health
+evaluation boundary is defined in
+`docs/architecture/CANONICAL_HEALTH_ENGINE.md`.

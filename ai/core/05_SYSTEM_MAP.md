@@ -17,15 +17,21 @@ defined in `docs/PRODUCT_ARCHITECTURE.md`.
 All editions share one deterministic engineering flow:
 
 ```text
-Collectors -> Canonical Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine
-                                                                    |
-                                                                    v
-                                      future Health / Rule / Policy / Report contracts
+Collectors -> Canonical Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine -> Health Engine
+                                                                                     |
+                                                                                     v
+                                                        future Rule / Policy / Report contracts
                                               |
                  +----------------------------+---------------------------+
                  |                            |                           |
         Community local tools       Professional automation      Provider operations
 ```
+
+Comparison owns facts about change, Drift owns semantic change classification,
+and Health owns deterministic engineering-condition evaluation. Each Health
+Record preserves its Drift and Change references. Health is a pure offline
+library and introduces no scheduler, monitoring, alert, report, policy,
+remediation, network, or AI boundary.
 
 Community, Professional, and Provider are orchestration and operating-context
 layers above the same versioned core. No dashboard, control plane, notification

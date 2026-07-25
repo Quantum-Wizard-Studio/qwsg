@@ -14,8 +14,9 @@ Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine
 ```
 
 Inventory defines what exists. Snapshots preserve what existed. Comparison
-produces factual Change Records. Drift classifies those records. Health may
-later decide whether a Drift Record represents a problem. Rules, Policy,
+produces factual Change Records. Drift classifies those records. The canonical
+Health Engine evaluates the engineering condition represented by validated
+Drift Records. Rules, Policy,
 Reports, interfaces, and Automation consume Drift and Health contracts; they
 must not compare snapshots or recreate drift classification.
 
@@ -111,8 +112,9 @@ Change Record 1.0 behavior is not modified by Drift evolution.
 
 ## Future consumers
 
-Health may consume Drift Records plus separately authorized evidence and emit
-versioned health findings. Rules may match public Drift and Health fields
+Health consumes validated Drift Results and emits one versioned Health Record
+per Drift Record under the contract defined in
+`CANONICAL_HEALTH_ENGINE.md`. Rules may match public Drift and Health fields
 without reaching back to snapshots. Policy may select or combine Rules and
 Health outcomes without changing Drift classification. Reports and Automation
 must preserve the originating Drift ID and Change ID. None of these consumers

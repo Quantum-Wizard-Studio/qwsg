@@ -7,11 +7,13 @@ The Comparison Engine is the only supported source of system-change facts:
 ```text
 Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine
                                                      |
-                                   future Health / Rules / Policy
+                                   Health / future Rules / Policy
 ```
 
 The Canonical Drift Engine consumes validated Change Records and classifies
-their semantic type. Future Health, Rule, Policy, Alert, Reporting, CLI,
+their semantic type. The Canonical Health Engine consumes validated Drift
+Records and evaluates their engineering condition. Future Rule, Policy, Alert,
+Reporting, CLI,
 e-mail, and Web UI components consume Drift and Health contracts. They must not
 compare Inventory snapshots directly or maintain a competing change model.
 

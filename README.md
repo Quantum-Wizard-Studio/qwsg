@@ -9,9 +9,9 @@ evidence, change understanding, and controlled protection.
 ## Status
 
 Version `0.0.1-prealpha` now provides a user-installable one-shot Linux
-Inventory CLI, Snapshot Explorer, canonical Snapshot Comparison Engine, and
-internal Canonical Drift Engine contract. It remains a pre-alpha release and
-does not provide monitoring, health evaluation, daemon mode, services,
+Inventory CLI, Snapshot Explorer, canonical Snapshot Comparison Engine,
+Canonical Drift Engine, and deterministic Canonical Health Engine contracts.
+It remains a pre-alpha release and does not provide monitoring, daemon mode, services,
 alerts, an API, or a Web UI.
 
 ## Scope
@@ -57,6 +57,11 @@ The [Canonical Drift Engine](docs/architecture/CANONICAL_DRIFT_ENGINE.md) is
 the deterministic, offline semantic layer above the Snapshot Comparison Engine.
 It emits one versioned Drift Record per Change Record and makes no health, risk,
 or policy judgement.
+
+The [Canonical Health Engine](docs/architecture/CANONICAL_HEALTH_ENGINE.md)
+evaluates validated Drift Records through a deterministic Health taxonomy and
+emits one versioned Health Record per Drift Record. It performs no monitoring,
+alerting, policy, compliance, reporting, remediation, networking, or AI work.
 
 Engineering tasks follow [`ai/core/11_ENGINEERING_LIFECYCLE.md`](ai/core/11_ENGINEERING_LIFECYCLE.md). The official `ai/scripts/task-builder.sh` workflow generates an approved prompt/history pair from structured owner input after a completed task; `ai/scripts/next-task.sh` remains available when a separate unapproved draft/review cycle is required. Explicitly owner-authorized incomplete-task diversion uses `ai/scripts/divert-task-to-test.sh` to preserve failed evidence under the independent `ai/test_tasks/` namespace without weakening production completion gates. See [`docs/architecture/ENGINEERING_TASK_BUILDER.md`](docs/architecture/ENGINEERING_TASK_BUILDER.md).
 
