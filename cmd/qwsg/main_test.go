@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	canonicalcommand "quantumwizard.hu/qwsg/internal/command"
 	"quantumwizard.hu/qwsg/internal/comparison"
 	"quantumwizard.hu/qwsg/internal/inventory"
 	"quantumwizard.hu/qwsg/internal/inventorystore"
@@ -30,6 +31,90 @@ func TestCLIHelpVersionAndInvalid(t *testing.T) {
 		code := run(tc.args, &out, &err)
 		if code != tc.code || !strings.Contains(out.String()+err.String(), tc.contains) {
 			t.Fatalf("%v: %d %q", tc.args, code, out.String()+err.String())
+		}
+	}
+}
+
+func TestCanonicalProfilesAndAdvancedGrammarUseSamePipeline(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "store")
+	store, err := inventorystore.Open(root, inventorystore.DefaultRetention)
+	if err != nil {
+		t.Fatal(err)
+	}
+	from := cliFixtureSnapshot()
+	fromName, err := store.Save(from)
+	if err != nil {
+		t.Fatal(err)
+	}
+	to := laterCLIFixtureSnapshot(from)
+	toName, err := store.Save(to)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("QWSG_STORE", root)
+
+	for _, profile := range []string{"changes", "health", "report"} {
+		var out, errout bytes.Buffer
+		if code := run([]string{profile, "--output", "json", "--presentation", "structured"}, &out, &errout); code != 0 {
+			t.Fatalf("%s: code=%d error=%q", profile, code, errout.String())
+		}
+		var execution canonicalcommand.Execution
+		if err := json.Unmarshal(out.Bytes(), &execution); err != nil {
+			t.Fatal(err)
+		}
+		if execution.SchemaName != canonicalcommand.ExecutionSchema ||
+			execution.CommandID == "" || execution.PlanID == "" || len(execution.Stages) == 0 {
+			t.Fatalf("%s returned invalid execution: %#v", profile, execution)
+		}
+	}
+
+	var simple, advanced, errout bytes.Buffer
+	simpleArgs := []string{"health", "--output", "json", "--presentation", "structured"}
+	advancedArgs := []string{
+		"analyze", "--source", "store", "--store", root, "--pipeline", "health",
+		"--output", "json", "--presentation", "structured",
+	}
+	if code := run(simpleArgs, &simple, &errout); code != 0 {
+		t.Fatalf("simple: %d %s", code, errout.String())
+	}
+	errout.Reset()
+	if code := run(advancedArgs, &advanced, &errout); code != 0 {
+		t.Fatalf("advanced: %d %s", code, errout.String())
+	}
+	var simpleExecution, advancedExecution canonicalcommand.Execution
+	if err := json.Unmarshal(simple.Bytes(), &simpleExecution); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(advanced.Bytes(), &advancedExecution); err != nil {
+		t.Fatal(err)
+	}
+	if len(simpleExecution.Stages) != len(advancedExecution.Stages) {
+		t.Fatal("simple and advanced pipeline lengths differ")
+	}
+	for index := range simpleExecution.Stages {
+		if simpleExecution.Stages[index].Stage != advancedExecution.Stages[index].Stage {
+			t.Fatal("simple and advanced stage ordering differs")
+		}
+	}
+	if !strings.Contains(simple.String(), fromName) || !strings.Contains(simple.String(), toName) {
+		t.Fatal("canonical execution lost snapshot traceability")
+	}
+}
+
+func TestCanonicalCLIRejectsInvalidAndUnsafeComposition(t *testing.T) {
+	for _, tc := range []struct {
+		args     []string
+		contains string
+	}{
+		{[]string{"changes"}, "--store is required"},
+		{[]string{"health", "--exclude", "compare"}, "not valid for a predefined profile"},
+		{[]string{"analyze", "--source", "store", "--store", "/tmp/x", "--pipeline", "health", "--exclude", "compare"}, "required"},
+		{[]string{"analyze", "--source", "remote", "--pipeline", "health"}, "live or store"},
+		{[]string{"analyze", "--source", "store", "--store", "/tmp/x", "--pipeline", "health", "--presentation", "dashboard"}, "unsupported presentation"},
+	} {
+		var out, errout bytes.Buffer
+		if code := run(tc.args, &out, &errout); code != 1 || !strings.Contains(errout.String(), tc.contains) {
+			t.Fatalf("%v: code=%d output=%q", tc.args, code, out.String()+errout.String())
 		}
 	}
 }

@@ -16,6 +16,30 @@ defined in `docs/PRODUCT_ARCHITECTURE.md`.
 
 All editions share one deterministic engineering flow:
 
+Every presentation enters that flow through the Canonical Command Architecture:
+
+```text
+CLI / future Interactive Terminal / future Dashboard / future REST API
+                              |
+                    Command Definition 1.0
+                              |
+                    Canonical Command Plan
+                              |
+                    Pipeline Orchestration
+                              |
+ Inventory -> Snapshot -> Compare -> Drift -> Health -> Rule -> Report
+                              |
+                    Command Execution 1.0
+                              |
+                 Replaceable presentation
+```
+
+Only `internal/pipeline` orchestrates engines. `internal/command` owns the
+presentation-neutral public request, plan, profile, parameter, projection, and
+execution contracts. `internal/presentation` renders completed executions and
+cannot call the pipeline or engines. `cmd/qwsg` is the first adapter, not an
+alternative source of command behavior.
+
 ```text
 Collectors -> Canonical Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine -> Health Engine -> Rule Engine -> Report Engine
                                                                                                     |                    |
@@ -53,8 +77,9 @@ Rule matches fixed conditions, and Report presents their canonical evidence.
 No downstream module may independently diff Inventory snapshots, reclassify
 Change Records, re-evaluate Health or Rules, or rebuild engineering summaries.
 
-The local administrator invokes `qwsg`. JSON is the machine-compatibility
-boundary; the separate terminal renderer exposes safe summaries. Snapshot
+The local administrator invokes `qwsg`. Command Execution 1.0 is the canonical
+machine boundary; JSON serializes it and the separate terminal renderer exposes
+safe summaries. Snapshot
 Explorer list/info/load operations consume only validated Inventory Store data.
 The Makefile installs one binary and creates no runtime service or state.
 

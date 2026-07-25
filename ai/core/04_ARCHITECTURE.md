@@ -75,3 +75,14 @@ evaluation boundary is defined in
 is defined in `docs/architecture/CANONICAL_RULE_ENGINE.md`. The permanent
 presentation boundary is defined in
 `docs/architecture/CANONICAL_REPORT_ENGINE.md`.
+
+Task 024 establishes `internal/command` as the permanent
+presentation-independent Command Definition 1.0 and Command Execution boundary,
+`internal/pipeline` as the only canonical engine-orchestration layer, and
+`internal/presentation` as a replaceable consumer of completed executions.
+Simple profiles and advanced composition resolve to the same plans and the same
+Inventory → Snapshot → Compare → Drift → Health → Rule → Report engines. The
+CLI is the first reference adapter only. Future Interactive Terminal, Dashboard,
+and REST API adapters must consume the same contracts and may not implement
+orchestration or engineering logic. The permanent boundary is defined in
+`docs/architecture/CANONICAL_COMMAND_ARCHITECTURE.md`.

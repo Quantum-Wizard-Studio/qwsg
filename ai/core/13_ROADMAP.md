@@ -32,10 +32,15 @@ The Foundation Phase is complete:
   1.0, Rule Evaluation Record 1.0, and matching boundary above Health.
 - Task 023 establishes the deterministic Canonical Report Engine, Canonical
   Report 1.0, source traceability, and presentation boundary above Rule.
+- Task 024 establishes the presentation-independent Canonical Command
+  Architecture, deterministic pipeline orchestration, simple profiles, advanced
+  composition, Command Definition 1.0, Command Execution 1.0, and the CLI
+  reference adapter shared by all future interfaces.
 
 The repository remains `0.0.1-prealpha`. The implemented product is a
 user-installable, one-shot local Inventory, Snapshot Explorer, and Comparison
-workflow plus internal canonical Drift, Health, Rule, and Report contracts. Monitoring,
+workflow plus internal canonical Drift, Health, Rule, and Report contracts and
+the canonical command/orchestration layer over them. Monitoring,
 alerts, daemon mode, scheduler, Web
 Dashboard, licensing, remote agents, fleet management, Provider operations,
 and AI adapters are not implemented.
@@ -68,6 +73,8 @@ and AI adapters are not implemented.
   Evaluation Records;
 - canonical Report taxonomy, engine, Canonical Report 1.0, rendering model, and
   source traceability;
+- canonical command definitions, profiles, deterministic pipeline orchestration,
+  execution results, parameter projection, and replaceable presentation;
 - versioned schemas, deterministic output, privacy-safe identity, resource
   bounds, and failure isolation.
 

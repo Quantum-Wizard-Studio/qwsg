@@ -13,9 +13,12 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/app"
 	"quantumwizard.hu/qwsg/internal/collector"
+	canonicalcommand "quantumwizard.hu/qwsg/internal/command"
 	"quantumwizard.hu/qwsg/internal/comparison"
 	"quantumwizard.hu/qwsg/internal/inventory"
 	"quantumwizard.hu/qwsg/internal/inventorystore"
+	"quantumwizard.hu/qwsg/internal/pipeline"
+	"quantumwizard.hu/qwsg/internal/presentation"
 	"quantumwizard.hu/qwsg/internal/runner"
 )
 
@@ -81,9 +84,84 @@ func run(args []string, out, errout io.Writer) int {
 		return runInventory(args[1:], out, errout)
 	case "compare":
 		return runCompare(args[1:], out, errout)
+	case "status", "check", "changes", "health", "report":
+		return runCanonicalProfile(args[0], args[1:], out, errout)
+	case "analyze":
+		return runCanonicalAdvanced(args[1:], out, errout)
 	default:
 		return usageError(errout, "unknown command: %s", safeText(args[0]))
 	}
+}
+
+func runCanonicalProfile(name string, args []string, out, errout io.Writer) int {
+	if len(args) > 0 && isHelp(args[0]) {
+		writeCanonicalHelp(out, name)
+		return 0
+	}
+	selection := canonicalcommand.Selection{Store: os.Getenv("QWSG_STORE")}
+	definition, err := canonicalcommand.ParseProfile(name, args, selection)
+	if err != nil {
+		return usageError(errout, "%v", err)
+	}
+	return executeCanonical(definition, out, errout)
+}
+
+func runCanonicalAdvanced(args []string, out, errout io.Writer) int {
+	if len(args) > 0 && isHelp(args[0]) {
+		writeCanonicalHelp(out, "analyze")
+		return 0
+	}
+	definition, err := canonicalcommand.Parse(args)
+	if err != nil {
+		return usageError(errout, "%v", err)
+	}
+	return executeCanonical(definition, out, errout)
+}
+
+func executeCanonical(definition canonicalcommand.Definition, out, errout io.Writer) int {
+	orchestrator := pipeline.Orchestrator{
+		Collect: func(ctx context.Context) (inventory.Snapshot, error) {
+			return collectInventory()
+		},
+		Retention: inventorystore.DefaultRetention,
+		Rules:     pipeline.CanonicalObservationRules(),
+	}
+	execution, err := orchestrator.Execute(context.Background(), definition)
+	if err != nil {
+		fmt.Fprintf(errout, "canonical command execution failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	var document []byte
+	if definition.Parameters.Output == canonicalcommand.JSON {
+		document, err = presentation.JSON(execution)
+	} else {
+		var text string
+		text, err = presentation.Terminal(execution)
+		document = []byte(text)
+	}
+	if err != nil {
+		fmt.Fprintf(errout, "command presentation failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	if _, err := out.Write(document); err != nil {
+		fmt.Fprintf(errout, "command output failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	return 0
+}
+
+func writeCanonicalHelp(out io.Writer, name string) {
+	fmt.Fprintf(out, "QWSG canonical command profile: %s\n\n", safeText(name))
+	fmt.Fprintln(out, "Common parameters:")
+	fmt.Fprintln(out, "  --store DIR")
+	fmt.Fprintln(out, "  --from SNAPSHOT --to SNAPSHOT")
+	fmt.Fprintln(out, "  --filter FIELD=VALUE  --group FIELD  --sort FIELD")
+	fmt.Fprintln(out, "  --output json|human  --presentation structured|terminal")
+	if name == "analyze" {
+		fmt.Fprintln(out, "  --source live|store --pipeline STAGE[,STAGE]")
+		fmt.Fprintln(out, "  --include STAGE[,STAGE] --exclude STAGE[,STAGE]")
+	}
+	fmt.Fprintln(out, "\nAll profiles resolve to Command Definition 1.0 and the same canonical pipeline.")
 }
 
 func runHelp(args []string, out, errout io.Writer) int {
@@ -101,6 +179,15 @@ func runHelp(args []string, out, errout io.Writer) int {
 		}
 		writeCompareHelp(out)
 		return 0
+	}
+	for _, topic := range []string{"status", "check", "changes", "health", "report", "analyze"} {
+		if args[0] == topic {
+			if len(args) != 1 {
+				return usageError(errout, "%s help does not accept a subcommand", topic)
+			}
+			writeCanonicalHelp(out, topic)
+			return 0
+		}
 	}
 	if args[0] != "inventory" {
 		return usageError(errout, "unknown help topic: %s", safeText(strings.Join(args, " ")))
@@ -544,23 +631,32 @@ func usageError(errout io.Writer, format string, values ...any) int {
 }
 
 func writeRootHelp(out io.Writer) {
-	fmt.Fprintln(out, `QWSG — read-only Linux inventory and snapshot explorer
+	fmt.Fprintln(out, `QWSG — deterministic Linux engineering analysis and snapshot explorer
 
 Usage:
   qwsg help [command]
   qwsg version
+  qwsg <status|check|changes|health|report> [options]
+  qwsg analyze --source live|store --pipeline STAGE[,STAGE] [options]
   qwsg inventory [--format json|human]
   qwsg inventory <save|list|info|load> [options]
   qwsg compare [--store DIR] [--from SNAPSHOT --to SNAPSHOT] [--format json|human]
 
 Commands:
+  status     Execute the canonical live Inventory profile
+  check      Execute the canonical live Inventory and Snapshot profile
+  changes    Execute the canonical Compare profile over stored snapshots
+  health     Execute Compare → Drift → Health over stored snapshots
+  report     Execute Compare → Drift → Health → Rule → Report
+  analyze    Compose Command Definition 1.0 with structured parameters
   inventory  Collect Inventory 1.0 or browse an explicit private snapshot store
   compare    Compare canonical Inventory snapshots without making a health judgement
   version    Show version and build information
   help       Show root or contextual help
 
-JSON remains the compatibility default for inventory, save, load, and compare.
-Run 'qwsg help inventory' or 'qwsg help compare' for options and exit semantics.`)
+Every command resolves through the presentation-independent Canonical Command
+Architecture. JSON remains the compatibility default for legacy inventory,
+save, load, and compare commands.`)
 }
 
 func writeVersionHelp(out io.Writer) {
