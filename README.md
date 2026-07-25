@@ -10,7 +10,8 @@ evidence, change understanding, and controlled protection.
 
 Version `0.0.1-prealpha` now provides a user-installable one-shot Linux
 Inventory CLI, Snapshot Explorer, canonical Snapshot Comparison Engine,
-Canonical Drift Engine, and deterministic Canonical Health Engine contracts.
+Canonical Drift Engine, deterministic Canonical Health Engine, and Canonical
+Rule Engine contracts.
 It remains a pre-alpha release and does not provide monitoring, daemon mode, services,
 alerts, an API, or a Web UI.
 
@@ -62,6 +63,11 @@ The [Canonical Health Engine](docs/architecture/CANONICAL_HEALTH_ENGINE.md)
 evaluates validated Drift Records through a deterministic Health taxonomy and
 emits one versioned Health Record per Drift Record. It performs no monitoring,
 alerting, policy, compliance, reporting, remediation, networking, or AI work.
+
+The [Canonical Rule Engine](docs/architecture/CANONICAL_RULE_ENGINE.md)
+evaluates bounded Rule Definition 1.0 data against validated Health Records and
+emits explainable, versioned Rule Evaluation Records. It performs no Policy,
+alerting, reporting, remediation, command execution, networking, or AI work.
 
 Engineering tasks follow [`ai/core/11_ENGINEERING_LIFECYCLE.md`](ai/core/11_ENGINEERING_LIFECYCLE.md). The official `ai/scripts/task-builder.sh` workflow generates an approved prompt/history pair from structured owner input after a completed task; `ai/scripts/next-task.sh` remains available when a separate unapproved draft/review cycle is required. Explicitly owner-authorized incomplete-task diversion uses `ai/scripts/divert-task-to-test.sh` to preserve failed evidence under the independent `ai/test_tasks/` namespace without weakening production completion gates. See [`docs/architecture/ENGINEERING_TASK_BUILDER.md`](docs/architecture/ENGINEERING_TASK_BUILDER.md).
 

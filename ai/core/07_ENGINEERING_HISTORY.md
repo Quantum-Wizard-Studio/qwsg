@@ -69,5 +69,10 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   taxonomy, stable Drift-to-Health evaluation, and future Rule, Policy, and
   Report boundaries without monitoring, alerting, remediation, or AI. See
   `ai/history/021_2026-07-24_canonical-health-engine.md`.
+- `2026-07-24`: Task 022 implemented the Canonical Rule Engine, Rule Definition
+  1.0, Rule Evaluation Record 1.0, bounded deterministic operator model,
+  explicit evaluation outcomes, and permanent Health-to-Rule boundary without
+  Policy, alerting, remediation, execution, networking, or AI. See
+  `ai/history/022_2026-07-24_canonical-rule-engine.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

@@ -28,10 +28,12 @@ The Foundation Phase is complete:
   Drift Records as the semantic boundary above Change Records.
 - Task 021 establishes the deterministic Canonical Health Engine, Health Record
   1.0, explicit evidence semantics, and the evaluation boundary above Drift.
+- Task 022 establishes the deterministic Canonical Rule Engine, Rule Definition
+  1.0, Rule Evaluation Record 1.0, and matching boundary above Health.
 
 The repository remains `0.0.1-prealpha`. The implemented product is a
 user-installable, one-shot local Inventory, Snapshot Explorer, and Comparison
-workflow plus internal canonical Drift and Health contracts. Monitoring,
+workflow plus internal canonical Drift, Health, and Rule contracts. Monitoring,
 alerts, daemon mode, scheduler, Web
 Dashboard, licensing, remote agents, fleet management, Provider operations,
 and AI adapters are not implemented.
@@ -60,13 +62,15 @@ and AI adapters are not implemented.
 - exclusive Snapshot Comparison Engine and canonical Change Records;
 - canonical Drift taxonomy, engine, and Drift Records;
 - canonical Health taxonomy, engine, and Health Records;
+- canonical Rule definitions, deterministic operator model, engine, and Rule
+  Evaluation Records;
 - versioned schemas, deterministic output, privacy-safe identity, resource
   bounds, and failure isolation.
 
 ### Next architectural outcomes
 
-1. **Rule and policy contract** — versioned declarative evaluation with
-   provenance, validation, profiles, and conflict behavior.
+1. **Policy contract** — versioned governance interpretation over immutable
+   Health and Rule outcomes, with provenance, profiles, and conflict behavior.
 2. **Report contract** — canonical structured report data from which terminal,
    file, Web, and notification views derive.
 3. **Configuration contract** — layered, validated, explainable configuration

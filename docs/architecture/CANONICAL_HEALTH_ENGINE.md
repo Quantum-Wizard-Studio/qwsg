@@ -153,13 +153,13 @@ Change identity, invalid derivation, unordered evidence, or other failed Drift
 validation. It does not repair, reinterpret, or partially accept invalid input.
 The one-Change/one-Drift/one-Health provenance chain remains explicit.
 
-## Future Rule Engine integration
+## Rule Engine integration
 
-A future Rule Engine may match versioned Health fields, combine multiple Health
-Records, and produce separately versioned rule outcomes. It must not change a
-Health Record, infer hidden Health status, compare snapshots, or reclassify
-drift. Rule definitions, profiles, expression languages, and execution are not
-implemented by Health.
+The Canonical Rule Engine matches bounded versioned Health fields and emits
+Canonical Rule Evaluation Records 1.0. It does not change a Health Record,
+infer hidden Health status, compare snapshots, or reclassify drift. Its
+contract and responsibility boundary are defined in
+`CANONICAL_RULE_ENGINE.md`.
 
 ## Future Policy Engine integration
 

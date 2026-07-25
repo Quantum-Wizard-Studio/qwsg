@@ -56,12 +56,17 @@ semantic layer above it: one versioned Drift Record per canonical Change
 Record, without health, risk, policy, or remediation judgement. Task 021
 establishes `internal/health` as the deterministic engineering-condition layer:
 one versioned Health Record per validated Drift Record, with explicit
-unknown, unsupported, and insufficient-evidence semantics. Future Rules,
-Policies, Reports, Automation, alerts, and interfaces consume Drift and Health
-contracts and must not compare Inventory snapshots, reclassify Change Records,
-or create competing Health semantics. The contracts are defined in
+unknown, unsupported, and insufficient-evidence semantics. Task 022 establishes
+`internal/rule` as the pure deterministic matching layer over versioned Health
+Records, producing canonical Rule Evaluation Records with explicit match,
+non-match, insufficient, unsupported, invalid, disabled, and error outcomes.
+Future Policies, Reports, Automation, alerts, and interfaces consume canonical
+Drift, Health, and Rule contracts and must not compare Inventory snapshots,
+reclassify Change Records, create competing Health semantics, or reimplement
+Rule matching. The contracts are defined in
 `docs/architecture/SNAPSHOT_COMPARISON_ENGINE.md` and
 `docs/architecture/CHANGE_RECORD_SCHEMA.md`; the permanent semantic boundary is
 defined in `docs/architecture/CANONICAL_DRIFT_ENGINE.md`, and the Health
 evaluation boundary is defined in
-`docs/architecture/CANONICAL_HEALTH_ENGINE.md`.
+`docs/architecture/CANONICAL_HEALTH_ENGINE.md`, and the permanent Rule boundary
+is defined in `docs/architecture/CANONICAL_RULE_ENGINE.md`.
