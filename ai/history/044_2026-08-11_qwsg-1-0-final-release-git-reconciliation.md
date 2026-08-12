@@ -4,15 +4,15 @@
 
 - Task ID: `044`
 - Task slug: `qwsg-1-0-final-release-git-reconciliation`
-- Status: `active — awaiting Owner evidence-only commit authorization`
+- Status: `complete`
 - Date generated: `2026-08-11` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: Hungarian
-- Related prompt: `ai/prompts/044_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/044_2026-08-12_qwsg-1-0-final-release-git-reconciliation.md`
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. The Project Owner started Task 044 through the canonical `job` workflow on 2026-08-11 UTC. The Owner approved the exact QWS Community / Free License Version 1.0 text and reversible local release preparation, then separately approved the exact 140-path staging allowlist and 94-path exclusion list for the release-source commit. No evidence-only commit, tag, push or publication is authorized.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. The Project Owner started Task 044 through the canonical `job` workflow on 2026-08-11 UTC. The Owner approved the exact QWS Community / Free License Version 1.0 text and reversible local release preparation, then separately authorized the exact release-source commit, evidence-only commit, annotated tag, Git pushes, Forgejo Release and two release assets through explicit gates. The verified release is complete; no successor task was authorized.
 
 ## Starting state
 
@@ -68,10 +68,37 @@ whitespace, privacy and index checks passed. The static unit check emitted the
 known sandbox bus warning while returning success; unchanged Task 043
 real-host reboot/systemd evidence remains canonical.
 
+## Publication
+
+The separately authorized evidence-only commit is
+`802cd5ffd14ba0eefabc3dd6dd12ebd4a6a212f6`. The annotated `v1.0.0` tag object
+is `7abc83da6185199606c2d76ac7d3504ddd78cf68` and peels exactly to release-source
+commit `177535e44b2ce5ed9efd73ab0793ffe6881f0cd6`. The Owner-authorized pushes placed
+the two expected commits on `origin/main` with no unrelated history and pushed
+only the verified tag.
+
+The final Forgejo Release is `QWSG 1.0.0`, final rather than draft or
+prerelease, at
+`https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/tag/v1.0.0`.
+It contains exactly `qwsg-1.0.0-linux-amd64.tar.gz` and its `.sha256` sidecar.
+Independent authenticated retrieval through the Forgejo Release download path
+proved archive SHA-256
+`edfba7366adf2c1ce0a8ce56369bb0dc5ad11326c4e3d1e301625a5313292fa5`,
+sidecar validity, internal manifest validity, canonical archive layout, exact
+Owner-approved packaged license, binary version `QWSG 1.0.0`, and embedded
+release-source identity `177535e44b2ce5ed9efd73ab0793ffe6881f0cd6`.
+
+Final repository, Framework, lifecycle, Git index, tracked-tree, remote branch,
+remote annotated-tag and preserved Owner-draft checks passed. No technical
+release blocker remains. The release decision is
+`READY FOR QWSG 1.0.0 PUBLICATION`, and publication has completed successfully.
+
 ## Rollback
 
 Use only `/tmp/qwsg-task044-implementation-20260811T.Nq12GK` after verifying no active QWSG/release/Git process, exact Task 044-owned current hashes and no later Owner edit. Restore only explicit snapshot-listed targets; do not use broad Git recovery or alter excluded local/Owner content.
 
 ## Completion state
 
-`active — awaiting Owner evidence-only commit authorization`
+`complete`
+
+`QWSG 1.0.0 RELEASED`

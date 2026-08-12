@@ -57,8 +57,16 @@ gates on Ubuntu 24.04 amd64 with systemd 255.
   verification passed with the already documented sandbox bus warning; Task
   043 remains the canonical real-host systemd/reboot evidence.
 
-The release-source and artifact gates are technically satisfied. The evidence-
-only commit and any `v1.0.0` tag, push, Forgejo Release or public publication
-remain separate Owner-authorized actions. Therefore the current decision is
-`READY FOR EVIDENCE-ONLY COMMIT REVIEW`, not yet the final publication
-decision.
+The separately authorized evidence-only commit is
+`802cd5ffd14ba0eefabc3dd6dd12ebd4a6a212f6`. Annotated tag `v1.0.0` peels
+exactly to the release-source commit, and both expected commits plus that tag
+were verified on the canonical Forgejo origin. The final Forgejo Release at
+`https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/tag/v1.0.0`
+contains exactly the archive and checksum sidecar. Independent post-upload
+retrieval repeated the archive checksum, sidecar, internal manifest, packaged
+license, canonical layout, binary version and embedded commit validations with
+no corruption.
+
+`READY FOR QWSG 1.0.0 PUBLICATION`
+
+`QWSG 1.0.0 RELEASED`

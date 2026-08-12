@@ -179,5 +179,11 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   bootstrap/publication diagnostics, verified through staged empty-HOME first
   and second observations. See
   `ai/history/041_2026-08-11_clean-host-first-run-bootstrap-hardening.md`.
+- `2026-08-12`: Task 044 reconciled the accepted QWSG 1.0 source baseline,
+  installed the Owner-approved Community license, created the canonical
+  release-source and evidence commits, proved reproducible artifact identity,
+  and published the independently reverified final `v1.0.0` Forgejo Release.
+  See
+  `ai/history/044_2026-08-11_qwsg-1-0-final-release-git-reconciliation.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

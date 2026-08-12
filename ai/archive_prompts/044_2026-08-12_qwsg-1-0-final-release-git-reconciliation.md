@@ -4,7 +4,7 @@
 
 - Task ID: `044`
 - Task slug: `qwsg-1-0-final-release-git-reconciliation`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-08-11` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: Hungarian
