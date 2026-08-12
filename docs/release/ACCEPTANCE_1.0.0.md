@@ -2,11 +2,12 @@
 
 ## Current gate
 
-The final `1.0.0` source metadata and Owner-approved QWS Community / Free
-License Version 1.0 are prepared locally. This record does not yet claim a final
-artifact or publication decision. The exact release-source staging allowlist,
-diff, modes, license hash and validation evidence must receive Project Owner
-authorization before the release-source commit.
+The Project Owner authorized the exact 140-path release-source allowlist, and
+the canonical release-source commit now exists as
+`177535e44b2ce5ed9efd73ab0793ffe6881f0cd6`. The final artifact was built from
+that exact commit and passed the applicable technical gates below. This
+post-build evidence update remains uncommitted pending the separate Owner gate
+for an evidence-only commit. No tag, push or publication is authorized.
 
 ## Accepted product baseline
 
@@ -28,15 +29,36 @@ gates on Ubuntu 24.04 amd64 with systemd 255.
   the release-source commit exists.
 - License: exact Owner-approved QWS Community / Free License Version 1.0.
 
-## Required post-commit evidence
+## Post-commit evidence
 
-After the release-source commit is separately authorized, the artifact must be
-built twice in independent cache/output roots. Binary, internal manifest,
-archive and sidecar must match byte-for-byte. Archive safety, manifest,
-checksum, static version/commit identity, staged install/upgrade/rollback/
-uninstall, systemd unit and applicable Task 039/041 artifact behavior must pass.
+- Release-source commit: `177535e44b2ce5ed9efd73ab0793ffe6881f0cd6`.
+- Commit subject: `release: establish QWSG 1.0.0 release-source baseline`.
+- Commit scope: exactly the Owner-approved 140 paths; none of the 94 excluded
+  paths entered the commit.
+- Controlled build epoch: `1786511170` (`2026-08-12T05:06:10Z`).
+- Final archive: `qwsg-1.0.0-linux-amd64.tar.gz`.
+- Final archive SHA-256:
+  `edfba7366adf2c1ce0a8ce56369bb0dc5ad11326c4e3d1e301625a5313292fa5`.
+- Two independent commit-archive builds produced byte-identical binary,
+  internal manifest, archive and sidecar.
+- The sidecar, internal `MANIFEST.sha256`, safe single-root archive layout,
+  regular-file/directory type boundary, static linux-amd64 binary, packaged
+  Owner-approved `LICENSE`, exact `1.0.0` version and full embedded commit
+  identity all passed.
+- Archive-only clean install, collision refusal, explicit replacement with
+  backup verification and clean uninstall passed in an isolated destination.
+- Empty-HOME extracted-binary acceptance passed: the first observation created
+  a truthful private baseline, the second completed the full pipeline, a
+  separate Console loaded the state, partial `check` published successfully,
+  directories were `0700` and files were `0600`.
+- Focused Task 039/041 tests, complete and race Go tests, vet, formatting,
+  Framework, Builder, lifecycle, diverted-task, test-task, job, staged
+  whitespace, privacy and exact-index gates passed. Static systemd unit
+  verification passed with the already documented sandbox bus warning; Task
+  043 remains the canonical real-host systemd/reboot evidence.
 
-Actual commit hashes, artifact hashes, measurements and the final
-`READY FOR QWSG 1.0.0 PUBLICATION` decision belong here only after those events
-occur. Tag, push, Forgejo Release and public publication remain separate Owner
-actions even after technical readiness.
+The release-source and artifact gates are technically satisfied. The evidence-
+only commit and any `v1.0.0` tag, push, Forgejo Release or public publication
+remain separate Owner-authorized actions. Therefore the current decision is
+`READY FOR EVIDENCE-ONLY COMMIT REVIEW`, not yet the final publication
+decision.

@@ -4,7 +4,7 @@
 
 - Task ID: `044`
 - Task slug: `qwsg-1-0-final-release-git-reconciliation`
-- Status: `active — awaiting Owner staging and release-source commit authorization`
+- Status: `active — awaiting Owner evidence-only commit authorization`
 - Date generated: `2026-08-11` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: Hungarian
@@ -12,7 +12,7 @@
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. The Project Owner started Task 044 through the canonical `job` workflow on 2026-08-11 UTC. The Owner then approved the exact QWS Community / Free License Version 1.0 text and authorized reversible local release preparation through the pre-staging gate. No staging, commit, tag, push or publication is authorized.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. The Project Owner started Task 044 through the canonical `job` workflow on 2026-08-11 UTC. The Owner approved the exact QWS Community / Free License Version 1.0 text and reversible local release preparation, then separately approved the exact 140-path staging allowlist and 94-path exclusion list for the release-source commit. No evidence-only commit, tag, push or publication is authorized.
 
 ## Starting state
 
@@ -36,10 +36,42 @@ The exact proposed source-commit allowlist contains 140 sorted paths (SHA-256 `7
 
 Builder input/installation, starting-state and post-change gates passed: build; focused, full and race Go tests; vet; formatting; Framework; Builder; lifecycle; diverted-task and audit; active-job; Git whitespace/index; preview release checksum, internal manifest, static version and two-build byte identity. The sandbox could not bind a private systemd bus during unit verification, but the static unit validation command completed successfully; accepted Task 043 real-host systemd/reboot evidence remains authoritative. The preview artifact is not the final artifact and was not placed in `dist/`.
 
+## Release-source commit and final artifact
+
+The Owner-gated pre-staging verification reconfirmed both approved list hashes,
+the exact 140/94 counts, zero overlap, complete 234-path classification,
+byte-identical snapshot payload, unchanged HEAD/upstream, empty index, and no
+secret/private-key/generated/local exclusion contamination. Exact-list staging
+and the resulting index audit passed. Commit
+`177535e44b2ce5ed9efd73ab0793ffe6881f0cd6` was created with subject
+`release: establish QWSG 1.0.0 release-source baseline`; it changes exactly 140
+paths and contains no excluded path.
+
+The committed tree matches the approved payload byte-for-byte. The post-commit
+working tree contains exactly the 94 classified excluded/local paths; only the
+unrelated Owner-owned `docs/architecture/QWCS_MIGRATION_BLUEPRINT.md` appears
+as non-ignored status. Two independent builds from separate `git archive`
+copies of the exact commit, using commit timestamp epoch `1786511170`, produced
+byte-identical binary, internal manifest, archive and sidecar. The final local
+artifact is `dist/qwsg-1.0.0-linux-amd64.tar.gz`, SHA-256
+`edfba7366adf2c1ce0a8ce56369bb0dc5ad11326c4e3d1e301625a5313292fa5`,
+and embeds full commit identity
+`177535e44b2ce5ed9efd73ab0793ffe6881f0cd6` with build time
+`2026-08-12T05:06:10Z`.
+
+External sidecar, internal manifest, archive safety, static binary, exact
+packaged license, unit verification, isolated install/collision/replace/backup/
+uninstall and extracted-binary empty-HOME bootstrap/second full pipeline/
+Console/check/private-mode gates passed. Focused/full/race tests, vet,
+formatting, Framework, Builder, lifecycle, diversion, test-task, job, staged
+whitespace, privacy and index checks passed. The static unit check emitted the
+known sandbox bus warning while returning success; unchanged Task 043
+real-host reboot/systemd evidence remains canonical.
+
 ## Rollback
 
 Use only `/tmp/qwsg-task044-implementation-20260811T.Nq12GK` after verifying no active QWSG/release/Git process, exact Task 044-owned current hashes and no later Owner edit. Restore only explicit snapshot-listed targets; do not use broad Git recovery or alter excluded local/Owner content.
 
 ## Completion state
 
-`active — awaiting Owner staging and release-source commit authorization`
+`active — awaiting Owner evidence-only commit authorization`
