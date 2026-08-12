@@ -1,6 +1,10 @@
 # Core Alpha Architecture Gate Register
 
-Open gates remain owner or later-task decisions. A recommendation is not ratification.
+Historical Core Alpha gates are retained for traceability. Task 038 disposition
+for Version 1.0 is authoritative: `AG-001`, `003`, `004`, `006`, `007`, `008`,
+and `011` are resolved by the narrow supported local implementation; `AG-002`
+and `005` are post-1.0; `AG-009` remains an Owner publication decision; legacy
+governance in `AG-010` does not block the validated lifecycle.
 
 | ID | Gate | Why open and what it blocks | Options and decision criteria | Slice 1 implementation |
 | --- | --- | --- | --- | --- |
@@ -16,4 +20,5 @@ Open gates remain owner or later-task decisions. A recommendation is not ratific
 | `AG-010` | Legacy governance and permission anomalies | Task IDs/slugs and mode `0600` records are inconsistent; blocks clean collaboration/audit automation, not product design. | Approve legacy alias rules and future mode policy without rewriting history. | May proceed; disclose limitations. |
 | `AG-011` | Partial-result CLI exit policy | Functional exit classes do not explicitly assign mixed success; blocks a stable CLI contract. | Prefer a documented non-zero incomplete result or machine-visible completeness plus a stable exit mapping; criterion is no false success and scriptability. | Must be decided in Task 009 contract work. |
 
-Previously disclosed release gates remain open unless explicitly covered above. No gate is closed by this document.
+The original table records why each question existed; it no longer overrides
+the Task 038 Version 1.0 release disposition above.

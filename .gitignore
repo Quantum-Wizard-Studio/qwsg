@@ -29,11 +29,16 @@ logs/
 
 # Build and coverage output
 /dist/
+/qwsg
 /coverage/
 *.cover
 *.coverage
 coverage.out
 *.test
+
+# Local Engineering Task Builder owner input
+/current-task-job.txt
+/current-task-maker.md
 
 # Laravel runtime files (future compatibility)
 /storage/app/private/

@@ -1,5 +1,12 @@
 # Quantum Wizard Server Guardian Product Definition
 
+## Version 1.0 release boundary
+
+Version 1.0 is the local Ubuntu 24.04/systemd 255+/linux-amd64 Guardian in the
+release support matrix. It provides truthful local evaluation and continuous
+supervision without a network Console, provider transport, fleet, remediation,
+cloud dependency or AI. Broader direction is not a shipped-behavior claim.
+
 ## Document purpose
 
 This document is the single product-level definition of Quantum Wizard Server Guardian (QWSG). It defines what the product is, why it exists, whom it serves, which problems it addresses, which boundaries constrain it, and which principles must guide its evolution.
@@ -238,33 +245,39 @@ The following principles are **Proposed — owner approval required**, consisten
 - Trust boundaries and limitations should be visible to operators.
 - Security findings should distinguish evidence, interpretation, uncertainty, and recommended action.
 - Commercial edition boundaries must never make the Community Edition unsafe,
-  incomplete, or less correct.
+  incomplete, less correct, or unable to perform accepted local QWSG 1.0
+  Guardian workflows.
 
 ## Product editions
 
 **Approved product direction under Task 019.** QWSG uses Community,
 Professional, and Provider edition identities. Every edition shares the same
 deterministic engineering core. The canonical boundary and comparison are
-defined in `docs/PRODUCT_ARCHITECTURE.md`. Pricing, distribution rights, public
-license terms, and service commitments remain open. “Community” is a product
-edition name and does not by itself grant redistribution or modification
-permission.
+defined in `docs/PRODUCT_ARCHITECTURE.md`. Pricing and service commitments
+remain open. Distribution and modification rights are governed by the
+Owner-approved QWS Community / Free License Version 1.0. “Community” remains a
+product capability identity and does not imply an OSI open-source license.
 
 ### Community Edition
 
-Community is a complete professional Linux engineering toolkit for unlimited
-manual local operation. It provides the full deterministic engineering
-capability, transparent history, reports and exports, local terminal
-experiences, offline operation, privacy-first behavior, and human control
-without requiring an account.
+Community is a complete professional local Linux Server Guardian. It includes
+the accepted QWSG 1.0 Inventory, Snapshot/Digital Twin, Comparison, Drift,
+Health, Rule, Policy, Report, local Guardian service, Operator Console,
+private state/history, diagnostics, installation, upgrade, rollback and
+uninstall capabilities. It supports unlimited local operation, including the
+shipped supervised Guardian, without requiring an account, API key, telemetry
+or network connection. It is not a crippled demonstration of a paid product.
 
 ### Professional Edition
 
-Professional is the automation and management platform around the same core. It
-adds supported scheduling, background operation, notifications, managed
-history, dashboards, multi-server coordination, updates, licensing, and support
-as separately implemented. Its value is time saved, not better engineering
-correctness.
+Professional is the future central automation, service and management platform
+around the same local core. It may add Quantum Wizard API connectivity,
+centrally managed history and alerting, advanced notification transports,
+Dashboard, multi-server coordination, team/role management, compliance
+services, remote management and managed backup/restore as separately approved
+and implemented. Its value is time saved and operational scale, not better
+local engineering correctness. API, entitlement or network failure must not
+disable the Community Guardian or corrupt local evidence.
 
 ### Provider Edition
 
@@ -334,9 +347,9 @@ The following decisions remain open and must not be silently converted into engi
 | Offline product promise | Approved by Task 019 | Local deterministic engineering remains useful without Internet, account, cloud, telemetry, or remote licensing checks. |
 | Cloud product role | Approved boundary; service details open | Future services are optional adapters and never prerequisites for the local core. |
 | Edition names | Approved by Task 019 | Community, Professional, and Provider. |
-| Edition feature boundary | Approved by Task 019 | Community is complete engineering; Professional adds automation; Provider adds operational scale. |
+| Edition feature boundary | Refined by Task 044 Owner policy | Community includes the complete accepted local Guardian; Professional may add central/remote managed services; Provider adds operational scale. |
 | Commercial model and pricing | Open | Decide only after product scope and cost assumptions are verified. |
-| Final license and distribution rights | Open | Resolve before public release; the temporary proprietary notice remains controlling. |
+| Final license and distribution rights | Approved in Task 044 | QWS Community / Free License Version 1.0; proprietary source-available terms, not OSI open source. |
 | Privacy and telemetry commitments | Approved boundary; implementation details open | Privacy first, local by default, explicit minimized transfers, and opt-in telemetry. |
 | Agent and Console product roles | Owner approval required | Approve the responsibility split without treating it as architecture. |
 

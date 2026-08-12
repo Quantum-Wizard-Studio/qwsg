@@ -5,6 +5,11 @@
 Version `1.0.0` is the first repository-validated reusable engineering
 framework. QWSG is its reference implementation and first consumer.
 
+The approved future architecture for its next generation is defined in
+`docs/architecture/QWCS_ENGINEERING_OPERATING_SYSTEM.md`. That document does
+not change Framework 1.0.0 behavior, rules, validation, lifecycle, or authority;
+implementation and migration require separately approved engineering work.
+
 ## Boundary
 
 The framework is the project-local system that defines, creates, validates,

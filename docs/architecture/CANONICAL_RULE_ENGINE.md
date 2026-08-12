@@ -220,18 +220,24 @@ Changing field types, operator meaning, result outcomes, explanation meaning,
 identity inputs, ordering, bounds, scope semantics, evidence references,
 confidence semantics, or match/error separation requires a major version.
 
-## Future Policy Engine integration
+## Policy Engine integration
 
-Policy may select Rule sets, interpret matches, resolve conflicts, assign
+The Canonical Policy Engine may select Rule sets, interpret matches, resolve conflicts, assign
 governance meaning, and decide whether an action is authorized. Policy must
 consume immutable Rule Evaluation Records and must not reimplement Rule
 matching or modify its evidence.
 
-## Future Report Engine integration
+## Report and Alert integration
 
 Report may render localized terminal, file, Web, export, or notification views.
 It must preserve Evaluation ID, Rule ID, Health ID, outcome, status,
 explanation, evidence, and versions. Rule performs no presentation or delivery.
+
+The pure Alert Engine may consume validated Rule Evaluations. A supplied Policy
+Evaluation supersedes its referenced direct Rule candidate, and a Rule
+Evaluation supersedes its referenced direct Health candidate. Alert preserves
+Rule outcome and evidence identity and applies only its own versioned Alert
+mapping; it never repeats Rule matching.
 
 ## Future Automation integration
 
@@ -239,6 +245,6 @@ Automation may consume only separately authorized Policy outcomes derived from
 canonical Rule Evaluation Records. A Rule match is never an instruction,
 authorization, remediation, command, alert, or scheduled action.
 
-Future Policy, Reporting, Alerting, Compliance, and Automation components must
+Policy, Reporting, Alert, and future Compliance and Automation components must
 consume canonical Rule Evaluation Records instead of implementing independent
 rule-matching logic.

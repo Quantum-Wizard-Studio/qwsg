@@ -166,6 +166,26 @@ type Result struct {
 	Metadata        map[string]string  `json:"metadata"`
 }
 
+// ValidateDefinitions validates configuration-time Rule Definition input
+// without evaluating Health evidence. Rule semantics remain owned here while
+// configuration consumers can reject malformed definitions before execution.
+func ValidateDefinitions(definitions []Definition) error {
+	if definitions == nil || len(definitions) > MaxRules {
+		return fmt.Errorf("invalid rule definition collection")
+	}
+	last := ""
+	for _, definition := range definitions {
+		if definition.ID <= last {
+			return fmt.Errorf("rule definitions must be ordered with unique ids")
+		}
+		if outcome, reason := classifyDefinition(definition); outcome != "" {
+			return fmt.Errorf("rule definition %q is %s: %s", definition.ID, outcome, reason)
+		}
+		last = definition.ID
+	}
+	return nil
+}
+
 var ruleIDPattern = regexp.MustCompile(`^[a-z0-9]+([._:-][a-z0-9]+)*$`)
 
 // Evaluate applies rules in stable Rule ID order and emits stable evaluation

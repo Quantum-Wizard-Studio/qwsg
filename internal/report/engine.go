@@ -1,7 +1,9 @@
 // Package report deterministically transforms canonical Rule Evaluation
-// Records into presentation-neutral Canonical Reports. It performs no
+// Records, and Policy Evaluation Records through its additive policy contract,
+// into presentation-neutral Canonical Reports. It performs no
 // collection, comparison, drift classification, health or rule evaluation,
-// policy, monitoring, alerting, delivery, remediation, networking, or AI work.
+// policy evaluation, monitoring, alerting, delivery, remediation, networking,
+// or AI work.
 package report
 
 import (

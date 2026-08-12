@@ -29,10 +29,11 @@ const (
 	Drift     Stage = "drift"
 	Health    Stage = "health"
 	Rule      Stage = "rule"
+	Policy    Stage = "policy"
 	Report    Stage = "report"
 )
 
-var CanonicalStages = []Stage{Inventory, Snapshot, Compare, Drift, Health, Rule, Report}
+var CanonicalStages = []Stage{Inventory, Snapshot, Compare, Drift, Health, Rule, Policy, Report}
 
 type OutputFormat string
 
@@ -141,6 +142,7 @@ type Execution struct {
 var profiles = map[string]Profile{
 	"status":  {Name: "status", Target: Inventory, Source: "live", Output: Human, Presentation: Terminal},
 	"check":   {Name: "check", Target: Snapshot, Source: "live", Output: Human, Presentation: Terminal},
+	"observe": {Name: "observe", Target: Report, Source: "live", Output: Human, Presentation: Terminal},
 	"changes": {Name: "changes", Target: Compare, Source: "store", Output: Human, Presentation: Terminal},
 	"health":  {Name: "health", Target: Health, Source: "store", Output: Human, Presentation: Terminal},
 	"report":  {Name: "report", Target: Report, Source: "store", Output: Human, Presentation: Terminal},

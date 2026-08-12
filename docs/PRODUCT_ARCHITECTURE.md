@@ -1,5 +1,24 @@
 # Quantum Wizard Server Guardian Product Architecture
 
+## Version 1.0 frozen product
+
+The 1.0 release is the implemented local Linux Server Guardian: canonical
+evaluation, bounded operator state, local Terminal Console, and continuously
+supervised non-root Runtime Service. Dashboard, API, provider/fleet,
+remediation, AI and commercial sections are direction, not 1.0 release gates.
+
+Canonical Current Operator State is the single-record process-boundary handoff between typed projection and replaceable interfaces. It provides current observation continuity, not general history or monitoring persistence.
+
+Canonical Operator Evaluation is the minimal one-shot product composition over the existing engineering core. `qwsg observe` establishes a baseline on first use, then runs the complete canonical live pipeline and publishes its typed Overview. Its condition is limited to implemented evidence; it is not proof of every server, application, backup, certificate, or hardware concern, and it does not claim continuous Guardian operation.
+
+Operator projection is a bounded product boundary: globally ranked attention
+retains the most severe and important evidence, correlated Rule/Policy views
+are reduced through canonical identities, and overflow is disclosed rather
+than hidden. Pipeline, projection, and publication failures have separate
+privacy-safe operator diagnostics.
+
+The local interface follows `Canonical Engineering and Operational Data -> Canonical Operator Presentation Model -> Interactive Operator Console`. Bare interactive `qwsg` opens this read-only Console; non-interactive invocation prints a concise nonblocking view.
+
 > The Community Edition exists to earn trust. The Professional Edition exists to save time. The Provider Edition exists to operate at scale. Every edition shares the same deterministic engineering core.
 
 ## 1. Purpose and authority
@@ -161,30 +180,33 @@ Community Edition is not a limited edition, trial, teaser, or reduced-quality
 product. It is a complete professional Linux engineering toolkit that Linux
 administrators should genuinely enjoy using every day.
 
-Community includes unlimited manual local use of the shared deterministic core,
-subject only to host resources and supported-platform contracts. No account is
-required. It remains offline capable and privacy first.
+Community includes unlimited local use of the shared deterministic core and the
+accepted QWSG 1.0 supervised Guardian, subject only to host resources and
+supported-platform contracts. No account, license key, telemetry or network
+connection is required. It remains offline capable and privacy first.
 
 ### 6.2 Capability boundary
 
 Community is the natural home for:
 
 - full Inventory, Snapshot, and Comparison Engines;
-- future full Drift and deterministic Health Engines;
-- local rules, profiles, reports, exports, and diagnostics;
-- interactive terminal workflows and the future local Terminal UI;
+- full local Drift, Health, Rule, Policy and Report evaluation;
+- local alerts, reports, exports, diagnostics and canonical private history;
+- the local Guardian service and read-only Operator Console;
 - a private local workspace and inspectable configuration;
 - manual observation, comparison, analysis, validation, and reporting;
+- supported installation, upgrade, rollback and uninstall;
 - stable machine-readable output for operator-authored scripts;
 - local import/export and documented interoperability;
 - localized user-facing guidance.
 
-“Manual” describes product orchestration, not an artificial restriction on
-Linux composability. QWSG must not sabotage pipes, scripts, cron, systemd, or
-other operator-owned tools. Supported QWSG-managed scheduling, background
-lifecycle, centralized policy, coordinated notification, and fleet management
-belong to Professional because QWSG then assumes responsibility for automation
-reliability and operational state.
+The accepted local Scheduler, Runtime and Guardian lifecycle are Community
+capabilities in QWSG 1.0. QWSG must not sabotage pipes, scripts, cron, systemd,
+or other operator-owned tools. Future central policy, coordinated managed
+notification, remote history, Dashboard/API and fleet management may belong to
+commercial services because those add cross-host operational responsibility.
+Loss or rejection of a future API key or service must not disable the local
+Community Guardian or corrupt local canonical evidence.
 
 ### 6.3 Trust contract
 
@@ -209,8 +231,8 @@ never replaces or improves engineering correctness.
 Subject to separate specifications and implementation tasks, Professional may
 provide:
 
-- a supported scheduler, daemon mode, background monitoring, bounded retries,
-  job history, and self-observability;
+- central scheduling and coordinated automation beyond the shipped local
+  Guardian, with bounded retries, managed history and self-observability;
 - alert policies, suppression and maintenance windows, recovery notifications,
   email and multiple recipients, and future pluggable delivery channels;
 - longer or policy-managed history, graphs, trends, historical dashboards, and
@@ -226,6 +248,19 @@ provide:
 Every automation action exposes its trigger, input record, policy, outcome, and
 failure state. Destructive or corrective action remains separately authorized;
 buying Professional is not authorization to modify a server.
+
+Task 028 implements only the pure Alert decision subset of this architecture:
+canonical Alert Records, lifecycle state, acknowledgement, bounded suppression
+and maintenance evaluation, deduplication, expiration, correlation, and
+recovery. Alert persistence, background monitoring, notification delivery,
+recipients, channels, delivery audit, and interfaces remain future components.
+
+Task 029 implements the provider-neutral delivery subset downstream of those
+Alert Records: deterministic routing and fan-out, bounded queue/retry proposals,
+idempotent delivery requests, canonical attempt/status/acknowledgement/evidence
+records, and an explicitly invoked one-cycle injected-provider adapter. It does
+not implement a concrete transport, durable queue, daemon, monitoring, Alert
+creation, configuration/secret integration, or user interface.
 
 ### 7.3 Failure boundary
 
@@ -282,8 +317,8 @@ aggregation requires an approved, minimized derived-data contract.
 | Manual local operation | Unlimited | Included | Included where role permits |
 | Offline local core | Required | Required | Required for enrolled hosts |
 | Account requirement | None | License or management identity only where needed | Organization and tenant identity for control-plane use |
-| QWSG-managed scheduling | Not a Community product obligation | Yes | Yes, at fleet scale |
-| Background service | Not a Community product obligation | Supported | Supported and orchestrated |
+| QWSG-managed scheduling | Accepted local 1.0 scheduling | Central coordination | Fleet-scale coordination |
+| Background service | Accepted local Guardian | Centrally managed | Supported and orchestrated |
 | Web management | Not required | Single-organization/multi-server | Multi-tenant/provider |
 | Notifications | Manual outputs and operator composition | Managed policies and channels | Tenant/fleet routing and integrations |
 | Fleet management | No | Multi-server | Multi-tenant and large-fleet |
@@ -408,10 +443,10 @@ Home
 └── Workspace and Diagnostics
 ```
 
-Community receives a complete local TUI. Professional may add scheduler,
-multi-server, notification, and licensing views. Provider may add tenant and
-fleet context. Edition changes should add navigation domains, not replace
-familiar local workflows.
+Community receives the complete local Operator Console and Guardian views.
+Professional may add central scheduling, multi-server, managed notification,
+and licensing views. Provider may add tenant and fleet context. Edition changes
+should add navigation domains, not replace familiar local workflows.
 
 Every important TUI operation must have an equivalent explicit command or
 public API operation. The TUI displays loading, stale, partial, unsupported,
@@ -449,10 +484,10 @@ architecture requirements from the first implementation.
 
 ### 14.1 Boundary
 
-Licensing controls access to edition-specific automation and operational
-capabilities. It does not control correctness, security fixes, access to an
-operator's local canonical records, or the ability to validate and export those
-records.
+Licensing may control access to future central, remote and managed service
+capabilities. It does not control the accepted local Community Guardian,
+correctness, security fixes, access to an operator's local canonical records,
+or the ability to validate and export those records.
 
 Community requires no account, activation, telemetry, or Internet connection.
 Professional and Provider may use licenses or subscriptions, but entitlement
@@ -700,3 +735,28 @@ documentation, and a truthful support decision.
 The architecture is successful when QWSG can expand for decades without
 forking its engineering truth, extracting operator trust, or making automation
 more authoritative than evidence.
+
+## Runtime coordination
+
+The Canonical Runtime Engine performs one explicit deterministic cycle across
+existing Scheduler, Pipeline evidence, Alert, and Notification contracts. It
+adds orchestration and partial-result evidence only. Continuous operation,
+service lifecycle, persistence, and monitoring remain outside Runtime 1.0.
+
+The Canonical Runtime Service provides the continuous local process foundation
+by repeatedly invoking that one-cycle boundary at fixed nominal intervals. The
+Operational Guardian Service supplies the narrow production composition:
+foreground non-root execution, systemd user supervision, canonical
+configuration, private bounded restart handoff, generation-correlated exit
+demotion, and Current Operator State publication. Production delivery and
+release hardening remain separate concerns.
+
+## Canonical operator presentation
+
+Canonical engineering and operational data now feeds one presentation-
+independent Operator Presentation Model before any replaceable interface. The
+model preserves owned Health, change, Alert, Runtime, and Service meanings,
+including missing, stale, partial, unsupported, and not-observed states. Future
+CLI, Terminal Console, REST API, and Web Dashboard adapters must consume this
+shared model rather than create interface-specific status semantics. The model
+is not monitoring, persistence, a renderer, or a current-state database.

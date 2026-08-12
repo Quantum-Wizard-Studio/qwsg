@@ -9,6 +9,7 @@ import (
 	"quantumwizard.hu/qwsg/internal/drift"
 	"quantumwizard.hu/qwsg/internal/health"
 	"quantumwizard.hu/qwsg/internal/inventory"
+	"quantumwizard.hu/qwsg/internal/policy"
 	"quantumwizard.hu/qwsg/internal/rule"
 )
 
@@ -36,6 +37,57 @@ func TestDeterministicReportIdentityOrderingAndSerialization(t *testing.T) {
 	if first.Summary.Total != 2 || first.Sections[0].Outcome != rule.Matched ||
 		first.Sections[1].Outcome != rule.NotMatched {
 		t.Fatalf("unexpected taxonomy order or summary: %#v", first)
+	}
+}
+
+func TestPolicyBackedReportIsDeterministicTraceableAndDistinct(t *testing.T) {
+	rules := ruleInput(t)
+	profile, err := policy.NormalizeProfile(policy.Profile{
+		ID: "report.policy", ContractVersion: policy.ProfileVersion, Version: "1.0", Priority: 1,
+		Extends: []string{}, Enabled: true, Scope: policy.Selector{RuleIDs: []string{}, Outcomes: []rule.Outcome{}},
+		Statements: []policy.Statement{
+			{ID: "matched.escalate", Priority: 10, Selector: policy.Selector{RuleIDs: []string{}, Outcomes: []rule.Outcome{rule.Matched}}, Outcome: policy.Escalated, Explanation: "matched_policy", Metadata: map[string]string{}},
+			{ID: "not-matched.accept", Priority: 10, Selector: policy.Selector{RuleIDs: []string{}, Outcomes: []rule.Outcome{rule.NotMatched}}, Outcome: policy.Accepted, Explanation: "accepted_policy", Metadata: map[string]string{}},
+		},
+		DefaultOutcome: policy.Indeterminate, Metadata: map[string]string{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	governed, err := policy.Evaluate([]policy.Profile{profile}, rules)
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, err := GeneratePolicy(governed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := GeneratePolicy(governed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, _ := MarshalPolicyCanonical(first)
+	b, _ := MarshalPolicyCanonical(second)
+	if string(a) != string(b) || first.ID != second.ID || first.Summary.Escalated != 1 || first.Summary.Accepted != 1 {
+		t.Fatalf("invalid deterministic Policy report: %#v", first)
+	}
+	for _, section := range first.Sections {
+		for _, item := range section.Items {
+			if item.Source.Type != PolicyEvaluationSource || item.Source.ID != item.PolicyEvaluationID || item.RuleEvaluationID == "" {
+				t.Fatalf("lost Policy traceability: %#v", item)
+			}
+		}
+	}
+	tampered := first
+	tampered.Sections = append([]PolicySection(nil), first.Sections...)
+	tampered.Sections[0].Items = append([]PolicyItem(nil), first.Sections[0].Items...)
+	tampered.Sections[0].Items[0].Outcome = policy.Accepted
+	if err := ValidatePolicyReport(tampered); err == nil {
+		t.Fatal("accepted tampered Policy report")
+	}
+	text, err := RenderPolicyText(first)
+	if err != nil || !strings.Contains(text, first.ID) {
+		t.Fatalf("Policy report rendering failed: %q %v", text, err)
 	}
 }
 

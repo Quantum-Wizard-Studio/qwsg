@@ -1,5 +1,12 @@
 # Roadmap
 
+- Task 035: Canonical Operator Evaluation — additive `observe` profile composes the complete existing live pipeline, truthfully bootstraps missing baseline evidence, and publishes a qualified Overview for a later Console process.
+- Task 036: Operator Projection Hardening — bounded severity-first attention, validated Rule/Policy correlation, explicit overflow disclosure, and differentiated observation diagnostics make large valid evaluations publishable.
+
+- Task 034: Canonical Current Operator State — single-record process continuity implemented; general persistence, monitoring, and operational history remain separate Version 1.0 gates.
+
+- Task 033: Interactive Operator Console — local read-only interface implemented; persistence/recovery, monitoring, providers, installation/supervision, REST API, and Dashboard remain independent Version 1.0 gates.
+
 ## Purpose and authority
 
 This document structures future QWSG outcomes and dependencies. The canonical
@@ -36,14 +43,41 @@ The Foundation Phase is complete:
   Architecture, deterministic pipeline orchestration, simple profiles, advanced
   composition, Command Definition 1.0, Command Execution 1.0, and the CLI
   reference adapter shared by all future interfaces.
+- Task 025 establishes the deterministic Canonical Policy Engine, Policy
+  Profile 1.0, Policy Evaluation Record 1.0, precedence, inheritance,
+  conflict behavior, Policy-backed Report integration, and the permanent
+  governance boundary above Rule.
+- Task 026 establishes the Canonical Configuration Contract, deterministic
+  source precedence, field provenance, Effective Configuration 1.0, and
+  scheduler-ready Schedule Definition 1.0 without operational scheduling.
+- Task 027 establishes the Canonical Professional Scheduler, deterministic
+  evaluation and state contracts, bounded retry/overlap/concurrency behavior,
+  restart-safe persistence, and an explicitly invoked one-cycle local adapter
+  over the existing Command and Pipeline contracts.
+- Task 028 establishes the pure Canonical Professional Alert Engine, immutable
+  Alert Records, explicit lifecycle state, acknowledgement, bounded suppression
+  and maintenance, deduplication, expiration, correlation, recovery, and
+  deterministic source precedence without persistence or delivery.
+- Task 029 establishes provider-neutral Canonical Professional Notification
+  Delivery over immutable Alert Records: deterministic routing, queue and retry
+  proposals, idempotency, delivery audit records, and an explicit one-cycle
+  injected-provider adapter without production transports, durable persistence,
+  daemon operation, monitoring, or upstream re-evaluation.
 
-The repository remains `0.0.1-prealpha`. The implemented product is a
-user-installable, one-shot local Inventory, Snapshot Explorer, and Comparison
-workflow plus internal canonical Drift, Health, Rule, and Report contracts and
-the canonical command/orchestration layer over them. Monitoring,
-alerts, daemon mode, scheduler, Web
-Dashboard, licensing, remote agents, fleet management, Provider operations,
-and AI adapters are not implemented.
+The prepared final repository identity is `1.0.0`. The implemented product is a user-installable
+local Inventory, Snapshot Explorer, Comparison, full operator evaluation,
+Current Operator State, Terminal Console, and continuously supervised Guardian,
+composing the canonical Drift, Health, Rule, Policy, Report, Command,
+Configuration, Scheduler, Alert, Notification, Runtime and Runtime Service
+boundaries. Production notification transports, Dashboard/API, license enforcement,
+remote agents, fleet/provider operations, remediation and AI are not implemented
+and are post-1.0 rather than hidden release gates.
+
+Version 1.0 release-gate classification at Task 038:
+
+- **MUST:** satisfied by Tasks 038–043, including the Owner-run clean-host physical reboot and uninstall evidence. Task 044 owns final source, license, identity and reproducibility reconciliation.
+- **SHOULD:** concrete notification transport and durable delivery continuity, unless the Project Owner makes off-console notification a Version 1.0 release requirement.
+- **LATER:** REST API, Web Dashboard, fleet/provider operations, AI, remediation, licensing, and broader integrations.
 
 ## Roadmap rules
 
@@ -71,20 +105,27 @@ and AI adapters are not implemented.
 - canonical Health taxonomy, engine, and Health Records;
 - canonical Rule definitions, deterministic operator model, engine, and Rule
   Evaluation Records;
+- canonical Policy Profiles, deterministic governance outcomes, precedence,
+  conflict semantics, engine, and Policy Evaluation Records;
 - canonical Report taxonomy, engine, Canonical Report 1.0, rendering model, and
   source traceability;
 - canonical command definitions, profiles, deterministic pipeline orchestration,
   execution results, parameter projection, and replaceable presentation;
+- canonical configuration sources, deterministic precedence and conflicts,
+  effective values with provenance, typed secret references, and scheduler-ready
+  schedule definitions;
+- canonical deterministic schedule evaluation, Scheduler state, events,
+  execution requests/results, bounded local persistence and locking, and an
+  explicit one-cycle Command/Pipeline adapter;
+- canonical deterministic Alert decisions, Alert Records and state,
+  acknowledgement, bounded suppression/maintenance, deduplication, expiration,
+  correlation, recovery, and exact upstream source precedence;
 - versioned schemas, deterministic output, privacy-safe identity, resource
   bounds, and failure isolation.
 
 ### Next architectural outcomes
 
-1. **Policy contract** — versioned governance interpretation over immutable
-   Health and Rule outcomes, with provenance, profiles, and conflict behavior.
-2. **Configuration contract** — layered, validated, explainable configuration
-   and secret references without hidden defaults.
-3. **Core hardening and release gates** — platform matrix, performance and
+1. **Core hardening and release gates** — platform matrix, performance and
    resource envelopes, migrations, packaging, security review, and support
    evidence.
 
@@ -114,10 +155,24 @@ must not depend on a license, account, cloud service, or AI provider.
 Professional outcomes start only after the corresponding Community workflow and
 core contract are correct:
 
+The one-cycle Canonical Runtime Engine is complete. It is the bounded
+coordination foundation for later operational hosting and deliberately adds no
+resident process. The next automation step must separately authorize daemon/
+service lifecycle, durable cross-component state, and operational recovery.
+
+The Operational Guardian Service now composes Runtime Service as one
+unprivileged foreground process under systemd user supervision, with canonical
+configuration, bounded exact-state restart handoff, single-writer protection,
+truthful lifecycle freshness, and cross-process Console evidence. Release
+hardening remains the sole Version 1.0 MUST gate; production transports and
+broader automation remain optional or later.
+
 1. scheduler and daemon architecture, including locking, recovery, missed runs,
    bounded retries, self-observability, and lifecycle;
-2. alert lifecycle, maintenance, suppression, recovery, delivery audit, email,
-   multiple recipients, and pluggable channels;
+2. durable Alert/Notification persistence, concrete email and other provider
+   transports, channel health, configuration/secret integration, and daemon
+   hosting over the established pure Alert and provider-neutral delivery
+   contracts;
 3. managed history, trends, graphs, and scheduled reports;
 4. secured Professional Web Dashboard and application API;
 5. multi-server enrollment, remote-agent identity, disconnected operation, and
@@ -193,6 +248,13 @@ A capability may be described as supported only when:
 
 Completed task numbers prove delivery of their bounded scope, not completion of
 an entire stream or product edition.
+
+Task 032 establishes the shared Canonical Operator Presentation Model before
+interface implementation. It prevents the CLI, future Terminal Console, REST
+API, and Web Dashboard from independently interpreting Health, changes,
+Alerts, Runtime/Service state, evidence freshness, or recommended next steps.
+It does not satisfy persistence, restart recovery, monitoring, provider,
+installation, packaging, or release gates.
 
 ## Roadmap governance
 

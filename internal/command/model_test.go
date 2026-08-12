@@ -11,9 +11,10 @@ func TestProfilesResolveDeterministically(t *testing.T) {
 	expected := map[string][]Stage{
 		"status":  {Inventory},
 		"check":   {Inventory, Snapshot},
+		"observe": {Inventory, Snapshot, Compare, Drift, Health, Rule, Policy, Report},
 		"changes": {Compare},
 		"health":  {Compare, Drift, Health},
-		"report":  {Compare, Drift, Health, Rule, Report},
+		"report":  {Compare, Drift, Health, Rule, Policy, Report},
 	}
 	for _, profile := range Profiles() {
 		first, err := ResolveProfile(profile.Name, Selection{Store: "/tmp/store"})

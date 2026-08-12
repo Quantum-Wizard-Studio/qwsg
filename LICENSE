@@ -1,7 +1,233 @@
-Quantum Wizard Server Guardian — Temporary Proprietary Notice
+QWS COMMUNITY / FREE LICENSE
+Version 1.0
 
-Copyright (c) 2026. All rights reserved.
+Copyright (c) 2026 Quantum Wizard Studio
+All rights reserved except as expressly granted by this License.
 
-No permission is currently granted to redistribute, modify, sublicense, or commercially reuse this software or its documentation. The final licensing model will be selected by the project owner before any public release.
+1. DEFINITIONS
 
-Purpose: preserve all rights while licensing is undecided. Status: temporary and proprietary. Licensing terms belong in this file; personal addresses, email addresses, credentials, and unrelated policy do not. This notice will evolve during development and must be replaced or confirmed before public release.
+"Software" means the Quantum Wizard Server Guardian (QWSG) software,
+including its source code, executable binaries, documentation, configuration
+examples, and accompanying files distributed under this License.
+
+"Community Edition" means the local QWSG functionality made available
+without a paid Quantum Wizard license or API entitlement.
+
+"Pro Services" means optional paid or licensed Quantum Wizard capabilities,
+including but not limited to hosted APIs, managed notification services,
+central dashboards, remote repositories, fleet management, team functions,
+remote management, compliance services, and other premium capabilities.
+
+"Licensor" means Quantum Wizard Studio and the applicable copyright holder.
+
+"You" means the individual or legal entity exercising permissions granted
+under this License.
+
+2. COMMUNITY USE GRANT
+
+Subject to compliance with this License, the Licensor grants You a
+non-exclusive, worldwide, royalty-free right to:
+
+a. install and run the Community Edition on systems that You own, operate,
+   administer, or are authorized to manage;
+
+b. use the Community Edition for personal, educational, nonprofit,
+   professional, and internal commercial purposes;
+
+c. make reasonable backup and archival copies;
+
+d. inspect the provided source code;
+
+e. modify the Software for Your own internal use, provided that such
+   modifications are not represented as official Quantum Wizard Studio
+   releases.
+
+No paid license or Quantum Wizard API key is required for the local
+Community Edition functionality expressly provided as free functionality.
+
+3. COMMUNITY EDITION PRINCIPLE
+
+The Community Edition is intended to remain a genuinely usable local Linux
+Server Guardian.
+
+The absence, expiration, unavailability, or failure of a Pro Services
+license, entitlement, API key, or remote Quantum Wizard service must not by
+itself disable the local Community Edition functionality distributed as free
+functionality.
+
+Nothing in this License requires the Licensor to make future features,
+services, APIs, hosted infrastructure, or premium functionality available
+without charge.
+
+4. REDISTRIBUTION
+
+You may redistribute unmodified copies of an official Community Edition
+release at no charge, provided that:
+
+a. this License is included in full;
+
+b. all copyright, attribution, version, and trademark notices are preserved;
+
+c. the Software is clearly identified as Quantum Wizard Server Guardian;
+
+d. You do not imply sponsorship, certification, partnership, or endorsement
+   by Quantum Wizard Studio;
+
+e. You do not charge a license fee for the Software itself.
+
+Reasonable fees for media, installation, administration, consulting,
+training, or support services are permitted, provided such fees are clearly
+for those services and not represented as a license fee for the Community
+Edition.
+
+Redistribution of modified versions requires separate written permission
+from the Licensor unless the Licensor has expressly authorized such
+distribution in writing.
+
+5. PROHIBITED USES
+
+Without separate written permission from the Licensor, You may not:
+
+a. sell, sublicense, lease, or license the Software itself;
+
+b. rebrand, white-label, or present the Software as Your own product;
+
+c. distribute modified versions of the Software;
+
+d. offer the Software, or a substantially derived version of it, as the
+   primary component of a competing commercial hosted, managed, SaaS,
+   monitoring, fleet-management, or server-guardian service;
+
+e. remove or alter copyright, attribution, license, provenance, or trademark
+   notices;
+
+f. circumvent, disable, falsify, bypass, or interfere with license checks,
+   API entitlement checks, feature-entitlement mechanisms, or technical
+   controls governing Pro Services;
+
+g. use another person's or organization's license key, API credential, or
+   entitlement without authorization;
+
+h. falsely represent Community functionality as Pro functionality or Pro
+   functionality as Community functionality.
+
+6. PRO SERVICES AND API ENTITLEMENTS
+
+Pro Services are not granted by this License.
+
+Access to Pro Services may require a separate paid license, subscription,
+API key, entitlement, service agreement, or other authorization issued by
+Quantum Wizard Studio.
+
+The commercial terms, availability, limits, pricing, support, and service
+levels of Pro Services may be governed by separate terms.
+
+A Community Edition installation may communicate with Quantum Wizard
+services only when the user explicitly configures or enables functionality
+that requires such communication.
+
+7. SOURCE AVAILABILITY
+
+Availability of source code under this License does not make the Software
+"open source" under the Open Source Initiative definition.
+
+The Software is provided under a proprietary source-available Community
+license with the permissions and restrictions stated in this document.
+
+No rights are granted by implication.
+
+8. TRADEMARKS
+
+"Quantum Wizard", "Quantum Wizard Studio", "Quantum Wizard Server Guardian",
+"QWSG", associated logos, product names, and branding may be trademarks or
+trade names of the Licensor.
+
+This License does not grant permission to use those marks except as
+reasonably necessary to identify authentic, unmodified copies of the
+Software or to truthfully refer to compatibility with the Software.
+
+No use may imply endorsement, affiliation, certification, or sponsorship
+without written permission.
+
+9. OWNERSHIP
+
+The Software is licensed, not sold.
+
+Except for the limited permissions expressly granted by this License, all
+copyright, intellectual property, trademark, and other rights in the
+Software remain with the Licensor and respective rights holders.
+
+Modifying the Software for permitted internal use does not transfer
+ownership of the original Software.
+
+10. THIRD-PARTY COMPONENTS
+
+Third-party software, libraries, assets, or components included with or used
+by the Software remain subject to their respective licenses.
+
+Where a third-party license grants rights that cannot lawfully be restricted
+by this License, the applicable third-party license controls for that
+component.
+
+11. NO WARRANTY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED
+"AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS,
+IMPLIED, OR STATUTORY, INCLUDING WITHOUT LIMITATION WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT,
+AVAILABILITY, ACCURACY, OR ERROR-FREE OPERATION.
+
+YOU ARE RESPONSIBLE FOR DETERMINING WHETHER THE SOFTWARE IS SUITABLE FOR YOUR
+SYSTEMS AND FOR MAINTAINING APPROPRIATE BACKUPS, SECURITY CONTROLS, AND
+OPERATIONAL PROCEDURES.
+
+12. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSOR SHALL NOT BE
+LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR
+PUNITIVE DAMAGES, OR FOR LOSS OF DATA, PROFITS, REVENUE, BUSINESS,
+AVAILABILITY, OR GOODWILL ARISING FROM OR RELATED TO THE SOFTWARE OR ITS USE.
+
+NOTHING IN THIS LICENSE EXCLUDES OR LIMITS LIABILITY WHERE SUCH EXCLUSION OR
+LIMITATION IS PROHIBITED BY APPLICABLE LAW.
+
+13. TERMINATION
+
+Your rights under this License terminate automatically if You materially
+violate its terms and fail to cure the violation within 30 days after
+becoming aware of it or receiving written notice from the Licensor.
+
+Upon termination, You must cease any use or distribution that is no longer
+authorized by this License.
+
+Sections concerning ownership, trademarks, warranty, limitation of
+liability, and applicable law survive termination to the extent legally
+applicable.
+
+14. SEPARATE COMMERCIAL AGREEMENTS
+
+The Licensor may offer separate commercial licenses or agreements granting
+additional rights, including redistribution, OEM, white-label, hosted
+service, enterprise, or Pro Service rights.
+
+Such agreements do not reduce the Community Edition rights already granted
+to compliant users under the version of this License that accompanied their
+copy of the Software.
+
+15. GOVERNING LAW
+
+Unless mandatory applicable law requires otherwise, this License shall be
+governed by the laws of Hungary.
+
+Any dispute arising from this License shall be subject to the competent
+courts determined under applicable Hungarian and European Union law.
+
+16. ENTIRE LICENSE
+
+This document states the permissions granted for the Community Edition.
+
+Any right not expressly granted by this License is reserved by the Licensor.
+
+QWS Community / Free License
+Version 1.0
+Copyright (c) 2026 Quantum Wizard Studio

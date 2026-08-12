@@ -6,8 +6,8 @@ The Report Engine is the presentation-contract layer of the canonical
 engineering pipeline:
 
 ```text
-Inventory -> Snapshot -> Compare -> Drift -> Health -> Rule -> Report
-                                                               |
+Inventory -> Snapshot -> Compare -> Drift -> Health -> Rule -> Policy -> Report
+                                                                          |
                           +----------------+--------------------+----------------+
                           |                |                    |                |
                  future Dashboard   future Export     future Notification  management UI
@@ -18,14 +18,18 @@ occurred. Health evaluates the engineering condition. Rule matches predefined
 deterministic conditions. Report transforms the resulting canonical evidence
 into a deterministic, presentation-neutral engineering artifact.
 
-`internal/report` is a pure offline Go package. Report 1.0 accepts only a
+`internal/report` is a pure offline Go package. Legacy Report 1.0 accepts only a
 validated `rule.Result` 1.0 and produces only a Canonical Report 1.0. It does
 not collect Inventory, persist Snapshots, compare, classify Drift, evaluate
 Health or Rules, execute Policy, calculate compliance or risk, monitor,
 schedule, run a daemon, alert, notify, email, render HTML or PDF, build a
 Dashboard, remediate, execute processes/scripts/plugins, communicate remotely,
 use cloud services, mutate the host, use AI or machine learning, or perform
-probabilistic evaluation.
+probabilistic evaluation. Task 025 adds `qwsg.policy-report/1.0`, which accepts
+only validated Policy Evaluation Results and becomes the canonical pipeline's
+Report contract. It preserves Policy and Rule source identities without
+re-evaluating either. The Rule-backed API remains available unchanged for
+compatibility.
 
 ## Canonical Report 1.0
 
@@ -63,6 +67,14 @@ Inventory, Snapshot, Compare, Drift, or Health adapters are unsupported in
 Report 1.0 because they would bypass or duplicate established engineering
 semantics. New report or source types require explicit versioned contracts and
 compatibility review.
+
+The additive `qwsg.policy-report/1.0` source taxonomy contains only
+`policy_evaluation`. Its summary and sections preserve the fixed Policy outcome
+order `escalated`, `conflict`, `observe`, `indeterminate`, `suppressed`,
+`accepted`, and `not_applicable`. Every item retains the Policy Evaluation,
+Rule Evaluation, Rule, applied Profile, applied statement, explanation, and
+evidence references. Direct Rule input is invalid for this Policy-backed
+contract, just as Policy input is invalid for legacy `qwsg.report/1.0`.
 
 Sections follow this fixed outcome order:
 
@@ -203,13 +215,35 @@ An Export Engine may transform Canonical Reports into HTML, PDF, CSV, or other
 formats under a separate contract. Export formatting and delivery remain
 outside Report 1.0 and cannot alter canonical content.
 
-## Future Policy integration
+## Policy integration
 
 Policy remains a separate governance layer. It consumes canonical Rule
-Evaluation Records, not presentation text. A future Policy-aware Report may
-present versioned Policy results only through a separately authorized adapter;
-Report never executes Policy or treats a match as authorization.
+Evaluation Records, not presentation text. Task 025 implements the separately
+versioned Policy-backed Report adapter over validated Policy Evaluation
+Records. Report never executes Policy or treats a match as authorization.
 
-Dashboard, Export, Policy, Notification, and management interfaces shall
-consume Canonical Reports instead of implementing independent engineering
-summary logic.
+Dashboard, Export, Notification, and management interfaces shall consume
+Canonical Reports instead of implementing independent engineering summary or
+Policy interpretation logic.
+
+Scheduler Execution Results may preserve Report stage contract identity and
+Policy trace references from a completed Command Execution. Scheduler neither
+generates Reports nor reinterprets their content.
+
+## Alert integration
+
+The pure Alert Engine may consume a validated Rule-backed or Policy-backed
+Canonical Report only for report-level completeness and traceability. It never
+recreates Alert candidates from Report items because those items preserve
+upstream Rule or Policy records that own the canonical evidence chain. A
+complete Report resolves its report-completeness condition; an incomplete
+Report produces one indeterminate report-level condition. Report generation,
+rendering, and delivery remain separate.
+
+## Operator presentation consumer
+
+The Canonical Operator Presentation Model may consume validated Report and
+Policy Report completeness and identities as explicit observations. It does
+not rebuild sections, explanations, Rule outcomes, or Policy decisions. Report
+remains the engineering-report authority; the operator model owns only the
+cross-domain overview needed by replaceable interfaces.

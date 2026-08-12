@@ -1,5 +1,16 @@
 # Canonical Command Architecture
 
+Task 035 adds the `observe` live Report profile. It uses the existing dependency closure exactly once: Inventory→Snapshot→Compare→Drift→Health→Rule→Policy→Report. The application establishes an Inventory/Snapshot baseline on the first invocation and runs the full profile only when prior evidence exists. It never compares a snapshot with itself.
+
+`check` remains Inventory→Snapshot. Its validated typed result may still publish limited Current Operator State; publication does not add a stage or turn Inventory completion into Health.
+
+The `observe` application boundary distinguishes a canonical Pipeline failure,
+an Operator projection/validation failure, and a Current Operator State
+publication failure with bounded privacy-safe tokens. This classification does
+not change Command definitions, stage ordering, or engine results.
+
+The Console refresh adapter resolves the existing `status` definition and performs one explicit Pipeline execution. It adds no profile, order, retry, polling, or interpretation; advanced CLI and JSON composition remain unchanged.
+
 ## Status and purpose
 
 Task 024 establishes the permanent, presentation-independent Canonical Command
@@ -83,9 +94,10 @@ Simple commands resolve to immutable predefined profiles:
 |---|---|---|
 | `status` | live | Inventory |
 | `check` | live | Inventory → Snapshot |
+| `observe` | live | Inventory → Snapshot → Compare → Drift → Health → Rule → Policy → Report |
 | `changes` | store | Compare |
 | `health` | store | Compare → Drift → Health |
-| `report` | store | Compare → Drift → Health → Rule → Report |
+| `report` | store | Compare → Drift → Health → Rule → Policy → Report |
 
 The current `qwsg` invocation without arguments retains contextual help for
 backward compatibility. Named profiles provide complete bounded workflows
@@ -119,7 +131,7 @@ orchestrator.
 The permanent order is:
 
 ```text
-Inventory → Snapshot → Compare → Drift → Health → Rule → Report
+Inventory → Snapshot → Compare → Drift → Health → Rule → Policy → Report
 ```
 
 Planning computes the transitive dependency closure of every requested stage,
@@ -145,15 +157,33 @@ Pipeline stages call only established public boundaries:
 - Drift: `drift.Classify`;
 - Health: `health.Evaluate`;
 - Rule: `rule.Evaluate`;
-- Report: `report.Generate`.
+- Policy: `policy.Evaluate`;
+- Report: `report.GeneratePolicy`.
 
 Every stage result records stage name, contract name and version, record count,
 completeness, and the unchanged canonical value. Command orchestration does not
 reclassify, score, summarize, or otherwise reinterpret it.
 
 The reference `report` profile supplies a versioned deterministic observation
-Rule Definition. That definition is configuration consumed by the Rule Engine;
-the command and presentation layers do not perform rule matching.
+Rule Definition and Policy Profile. Those definitions are configuration
+consumed by their canonical engines; command and presentation layers perform
+neither Rule matching nor Policy interpretation.
+
+Task 025 adds `policy` as the single compatible Command 1.0 stage extension.
+The public `report` profile retains its name and presentation contract while
+its dependency closure gains the mandatory Policy stage. Existing Inventory,
+Snapshot, Compare, Drift, Health, and Rule stage meanings are unchanged.
+
+Task 027 Scheduler creates no alternative command model. An empty Schedule
+Check scope resolves the complete referenced profile through
+`command.ResolveProfile`; its one-cycle adapter submits that definition only to
+the existing Pipeline Orchestrator. Non-empty Check scope is explicitly
+inapplicable until a versioned Command contract can represent it.
+
+Task 028 Alert creates no Command or Pipeline stage. Callers supply already
+validated canonical engine outputs directly to the pure Alert decision
+boundary. Alert cannot plan commands, execute the Pipeline, change stage order,
+or become an alternative orchestration path.
 
 ## Command Execution model
 
@@ -193,7 +223,7 @@ Future presentation adapters must:
 4. perform presentation only.
 
 They must not directly invoke collectors, stores, comparison, drift, health,
-rule, or report engines.
+rule, policy, or report engines.
 
 ## Compatibility Strategy
 
@@ -239,6 +269,19 @@ and size. Terminal output escapes control characters. Existing engine privacy
 and redaction contracts remain intact because canonical values are not
 reinterpreted. Execution is local and explicitly invoked.
 
-The architecture adds no daemon, scheduler, monitoring, Policy, Alert,
+The Command architecture adds no daemon, scheduler, monitoring, Alert decision,
 Automation, remediation, host mutation, remote execution, network listener,
 Dashboard, REST service, Interactive Terminal, AI, or machine learning.
+
+Runtime may inspect a successful Command Execution only through a validated
+Scheduler Execution Trace and must validate it against its canonical Command
+Plan before projecting exact typed values. Runtime cannot execute stages or
+reinterpret Command semantics.
+
+## Operator presentation consumer
+
+The Canonical Operator Presentation Model is a downstream read-only consumer
+of validated Command Execution and typed canonical outputs. It does not extend
+Command Definition, planning, profiles, pipeline stages, or `Execution.View`.
+Future interfaces retain Command Definition/Execution for advanced composition
+and use the shared operator model for the beginner overview.

@@ -3,27 +3,40 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
 
+	"quantumwizard.hu/qwsg/internal/alert"
 	"quantumwizard.hu/qwsg/internal/app"
 	"quantumwizard.hu/qwsg/internal/collector"
 	canonicalcommand "quantumwizard.hu/qwsg/internal/command"
 	"quantumwizard.hu/qwsg/internal/comparison"
+	"quantumwizard.hu/qwsg/internal/configuration"
+	"quantumwizard.hu/qwsg/internal/guardian"
 	"quantumwizard.hu/qwsg/internal/inventory"
 	"quantumwizard.hu/qwsg/internal/inventorystore"
+	"quantumwizard.hu/qwsg/internal/notification"
+	"quantumwizard.hu/qwsg/internal/operatorconsole"
+	"quantumwizard.hu/qwsg/internal/operatorstate"
 	"quantumwizard.hu/qwsg/internal/pipeline"
 	"quantumwizard.hu/qwsg/internal/presentation"
+	"quantumwizard.hu/qwsg/internal/presentationmodel"
 	"quantumwizard.hu/qwsg/internal/runner"
+	"quantumwizard.hu/qwsg/internal/runtime"
+	"quantumwizard.hu/qwsg/internal/runtimeservice"
+	"quantumwizard.hu/qwsg/internal/scheduler"
 )
 
 var (
-	version     = "0.0.1-prealpha"
+	version     = "1.0.0"
 	buildCommit = "unknown"
 	buildDate   = "unknown"
 )
@@ -60,12 +73,18 @@ type snapshotSummary struct {
 	Integrity     string           `json:"integrity"`
 }
 
-func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
+func main() {
+	interactive := terminalFile(os.Stdin) && terminalFile(os.Stdout)
+	os.Exit(runWithConsole(os.Args[1:], os.Stdin, os.Stdout, os.Stderr, interactive))
+}
 
 func run(args []string, out, errout io.Writer) int {
+	return runWithConsole(args, strings.NewReader(""), out, errout, false)
+}
+
+func runWithConsole(args []string, in io.Reader, out, errout io.Writer, interactive bool) int {
 	if len(args) == 0 {
-		writeRootHelp(out)
-		return 0
+		return runConsole(in, out, errout, interactive)
 	}
 	switch args[0] {
 	case "help", "--help", "-h":
@@ -84,13 +103,367 @@ func run(args []string, out, errout io.Writer) int {
 		return runInventory(args[1:], out, errout)
 	case "compare":
 		return runCompare(args[1:], out, errout)
-	case "status", "check", "changes", "health", "report":
+	case "status", "check", "observe", "changes", "health", "report":
 		return runCanonicalProfile(args[0], args[1:], out, errout)
 	case "analyze":
 		return runCanonicalAdvanced(args[1:], out, errout)
+	case "console":
+		if len(args) == 2 && isHelp(args[1]) {
+			fmt.Fprintln(out, "Usage: qwsg console\n\nOpens the read-only local Operator Console. Refresh is explicit (r).")
+			return 0
+		}
+		if len(args) != 1 {
+			return usageError(errout, "console does not accept options")
+		}
+		return runConsole(in, out, errout, interactive)
+	case "guardian":
+		return runGuardian(args[1:], out, errout)
 	default:
 		return usageError(errout, "unknown command: %s", safeText(args[0]))
 	}
+}
+
+const (
+	guardianDefaultInterval = 5 * time.Minute
+	guardianDefaultTimeout  = 2 * time.Minute
+)
+
+type guardianOptions struct {
+	stateRoot    string
+	storeRoot    string
+	configSource string
+	interval     time.Duration
+	timeout      time.Duration
+	generation   string
+}
+
+type guardianPipeline struct {
+	orchestrator *pipeline.Orchestrator
+	storeRoot    string
+}
+
+func (v guardianPipeline) Execute(ctx context.Context, definition canonicalcommand.Definition) (canonicalcommand.Execution, error) {
+	empty, err := observationStoreEmpty(v.storeRoot)
+	if err != nil {
+		return canonicalcommand.Execution{}, err
+	}
+	if empty && definition.Profile == "observe" {
+		check, resolveErr := canonicalcommand.ResolveProfile("check", canonicalcommand.Selection{Source: "live", Store: v.storeRoot})
+		if resolveErr != nil {
+			return canonicalcommand.Execution{}, resolveErr
+		}
+		if _, executeErr := v.orchestrator.Execute(ctx, check); executeErr != nil {
+			return canonicalcommand.Execution{}, executeErr
+		}
+		return canonicalcommand.Execution{}, fmt.Errorf("observation baseline initialized")
+	}
+	return v.orchestrator.Execute(ctx, definition)
+}
+
+func runGuardian(args []string, out, errout io.Writer) int {
+	if len(args) == 0 || isHelp(args[0]) {
+		fmt.Fprintln(out, "Usage: qwsg guardian run [--state-dir DIR] [--store DIR] [--config-source FILE] [--interval DURATION] [--cycle-timeout DURATION]")
+		return 0
+	}
+	if args[0] == "report-exit" {
+		return runGuardianExit(args[1:], errout)
+	}
+	if args[0] != "run" {
+		return usageError(errout, "unknown guardian operation: %s", safeText(args[0]))
+	}
+	options, err := parseGuardianOptions(args[1:])
+	if err != nil {
+		return usageError(errout, "%v", err)
+	}
+	if err = executeGuardian(options); err != nil {
+		diagnostic := "guardian_failed"
+		if errors.Is(err, guardian.ErrActive) {
+			diagnostic = "guardian_active"
+		} else if errors.Is(err, guardian.ErrCheckpoint) || errors.Is(err, guardian.ErrIncompatible) {
+			diagnostic = "guardian_checkpoint_invalid"
+		} else if errors.Is(err, guardian.ErrUnsafePath) {
+			diagnostic = "guardian_state_unsafe"
+		}
+		fmt.Fprintf(errout, "guardian operation failed: %s\n", diagnostic)
+		return 1
+	}
+	return 0
+}
+
+func runGuardianExit(args []string, errout io.Writer) int {
+	root, err := localStateRoot()
+	generation, result := "", ""
+	for index := 0; err == nil && index < len(args); index++ {
+		if index+1 >= len(args) {
+			err = fmt.Errorf("exit report option requires a value")
+			break
+		}
+		name, value := args[index], args[index+1]
+		index++
+		switch name {
+		case "--state-dir":
+			root = value
+		case "--generation":
+			generation = value
+		case "--result":
+			result = value
+		default:
+			err = fmt.Errorf("unknown exit report option")
+		}
+	}
+	if err == nil {
+		var checkpoints *guardian.Store
+		checkpoints, err = guardian.OpenStore(filepath.Join(root, "guardian"))
+		if err != nil {
+			err = fmt.Errorf("%w", guardian.ErrExitCheckpoint)
+		}
+		if err == nil {
+			var current *operatorstate.Store
+			current, err = operatorstate.Open(root)
+			if err != nil {
+				err = fmt.Errorf("%w", guardian.ErrExitCurrent)
+			}
+			if err == nil {
+				err = guardian.ReportExit(checkpoints, current, generation, result, time.Now().UTC(), 2*guardianDefaultInterval)
+			}
+		}
+	}
+	if err != nil {
+		diagnostic := "exit_operation_failed"
+		if errors.Is(err, guardian.ErrCheckpoint) || errors.Is(err, guardian.ErrIncompatible) {
+			diagnostic = "exit_checkpoint_invalid"
+		} else if errors.Is(err, guardian.ErrExitEvidence) {
+			diagnostic = "exit_evidence_invalid"
+		} else if errors.Is(err, guardian.ErrExitState) {
+			diagnostic = "exit_projection_invalid"
+		} else if errors.Is(err, guardian.ErrExitCheckpoint) {
+			diagnostic = "exit_checkpoint_unavailable"
+		} else if errors.Is(err, guardian.ErrExitCurrent) {
+			diagnostic = "exit_current_state_unavailable"
+		} else if errors.Is(err, operatorstate.ErrCorrupt) || errors.Is(err, operatorstate.ErrIncompatible) || errors.Is(err, operatorstate.ErrPermission) || errors.Is(err, operatorstate.ErrUnsafePath) {
+			diagnostic = "exit_current_state_invalid"
+		}
+		fmt.Fprintf(errout, "guardian exit report failed: %s\n", diagnostic)
+		return 1
+	}
+	return 0
+}
+
+func parseGuardianOptions(args []string) (guardianOptions, error) {
+	stateRoot, err := localStateRoot()
+	if err != nil {
+		return guardianOptions{}, err
+	}
+	value := guardianOptions{stateRoot: stateRoot, interval: guardianDefaultInterval, timeout: guardianDefaultTimeout, generation: os.Getenv("INVOCATION_ID")}
+	if value.generation == "" {
+		value.generation = fmt.Sprintf("manual-%d-%d", os.Getpid(), time.Now().UTC().UnixNano())
+	}
+	for index := 0; index < len(args); index++ {
+		if index+1 >= len(args) {
+			return guardianOptions{}, fmt.Errorf("guardian option requires a value")
+		}
+		name, item := args[index], args[index+1]
+		index++
+		switch name {
+		case "--state-dir":
+			value.stateRoot = item
+		case "--store":
+			value.storeRoot = item
+		case "--config-source":
+			value.configSource = item
+		case "--interval":
+			value.interval, err = time.ParseDuration(item)
+		case "--cycle-timeout":
+			value.timeout, err = time.ParseDuration(item)
+		default:
+			return guardianOptions{}, fmt.Errorf("unknown guardian option: %s", safeText(name))
+		}
+		if err != nil {
+			return guardianOptions{}, fmt.Errorf("invalid guardian duration")
+		}
+	}
+	if value.storeRoot == "" {
+		value.storeRoot = filepath.Join(value.stateRoot, "inventory")
+	}
+	if !filepath.IsAbs(value.stateRoot) || !filepath.IsAbs(value.storeRoot) || value.interval <= 0 || value.interval > runtimeservice.MaxInterval || value.timeout <= 0 || value.timeout >= value.interval || value.timeout > runtimeservice.MaxCycleTimeout {
+		return guardianOptions{}, fmt.Errorf("invalid guardian operating bounds")
+	}
+	return value, nil
+}
+
+func executeGuardian(options guardianOptions) error {
+	guardianRoot := filepath.Join(options.stateRoot, "guardian")
+	lock, err := guardian.Acquire(guardianRoot, options.generation)
+	if err != nil {
+		return err
+	}
+	defer lock.Release()
+	checkpointStore, err := guardian.OpenStore(guardianRoot)
+	if err != nil {
+		return err
+	}
+	previous, loadErr := checkpointStore.Load()
+	if loadErr == nil {
+		previous.Generation, previous.Active = options.generation, true
+		if err = checkpointStore.Save(previous); err != nil {
+			return err
+		}
+	} else if !errors.Is(loadErr, os.ErrNotExist) {
+		return loadErr
+	}
+	effective, err := guardianConfiguration(options)
+	if err != nil {
+		return err
+	}
+	checkpoint := guardian.Checkpoint{SchemaName: "qwsg.guardian-checkpoint", SchemaVersion: guardian.SchemaVersion, ModelVersion: guardian.ModelVersion, ServiceID: "qwsg.guardian.local", ConfigurationID: effective.ID, Generation: options.generation, Active: true, RuntimeState: runtime.NewState(), AlertState: alert.NewState(effective.ID), NotificationQueueState: notification.NewQueueState()}
+	if loadErr == nil {
+		if previous.ConfigurationID != effective.ID || previous.ServiceID != checkpoint.ServiceID {
+			return guardian.ErrCheckpoint
+		}
+		checkpoint.RuntimeState, checkpoint.AlertState, checkpoint.NotificationQueueState = previous.RuntimeState, previous.AlertState, previous.NotificationQueueState
+	}
+	if err = checkpointStore.Save(checkpoint); err != nil {
+		return err
+	}
+	schedulerStore, err := scheduler.OpenFileStore(filepath.Join(guardianRoot, "scheduler"))
+	if err != nil {
+		return err
+	}
+	schedulerLocker, err := scheduler.NewFileLocker(filepath.Join(guardianRoot, "scheduler"))
+	if err != nil {
+		return err
+	}
+	orchestrator := &pipeline.Orchestrator{Collect: collectInventoryContext, Configuration: &effective}
+	cycle := scheduler.Cycle{Configuration: effective, Selection: canonicalcommand.Selection{Source: "live", Store: options.storeRoot}, LockOwnerID: "qwsg.guardian.cycle", Store: schedulerStore, Locker: schedulerLocker, Clock: guardian.NewSchedulerClock(options.generation), TimeZones: scheduler.SystemTimeZones{}, ResolveCommand: scheduler.ResolveCanonicalCommand, Pipeline: guardianPipeline{orchestrator: orchestrator, storeRoot: options.storeRoot}}
+	captured := &guardian.CapturingScheduler{Cycle: cycle}
+	registry, err := notification.NewRegistry()
+	if err != nil {
+		return err
+	}
+	policy, err := notification.NewPolicy(notification.RetryPolicy{MaxAttempts: 1, DeliveryWindowNS: int64(time.Hour), BackoffNS: []int64{}}, []notification.Route{}, []notification.EndpointReference{}, []notification.ProviderBinding{})
+	if err != nil {
+		return err
+	}
+	runner := &guardian.RuntimeRunner{Coordinator: runtime.Coordinator{Scheduler: captured, Clock: runtimeservice.SystemClock{}, Providers: registry}, Store: checkpointStore, Checkpoint: &checkpoint}
+	stateStore, err := operatorstate.Open(options.stateRoot)
+	if err != nil {
+		return err
+	}
+	publisher := &guardian.Publisher{Store: stateStore, Scheduler: captured, Runner: runner, DefinitionID: effective.ID, ApplicationVersion: version, FreshFor: 2 * options.interval}
+	definition, err := runtimeservice.NewDefinition(checkpoint.ServiceID, options.interval, options.timeout)
+	if err != nil {
+		return err
+	}
+	started := time.Now().UTC()
+	seedContext, err := runtime.NewExecutionContext("guardian-seed", checkpoint.ServiceID, started, started.Add(options.timeout))
+	if err != nil {
+		return err
+	}
+	seed := runtime.Input{Context: seedContext, Configuration: effective, PreviousState: checkpoint.RuntimeState, PreviousAlertState: checkpoint.AlertState, PreviousNotificationQueue: checkpoint.NotificationQueueState, AlertEvidenceTTLNS: int64(24 * time.Hour), Acknowledgements: []alert.Acknowledgement{}, Suppressions: []alert.SuppressionWindow{}, NotificationPolicy: policy}
+	service := runtimeservice.Service{Clock: runtimeservice.SystemClock{}, Waiter: runtimeservice.TimerWaiter{}, Runner: runner, Sink: guardian.Sink{Publisher: publisher}}
+	result, err := runtimeservice.RunWithSignals(context.Background(), service, runtimeservice.Input{Definition: definition, StartedAt: started, InitialState: runtimeservice.NewState(checkpoint.ServiceID), Seed: seed}, runtimeservice.OSSignalContext)
+	checkpoint.Active = false
+	_ = checkpointStore.Save(checkpoint)
+	if err != nil || result.FinalState.Lifecycle == runtimeservice.Failed {
+		return fmt.Errorf("guardian service terminated")
+	}
+	return nil
+}
+
+func guardianConfiguration(options guardianOptions) (configuration.Effective, error) {
+	builtIn, err := configuration.BuiltIn(pipeline.CanonicalObservationRules(), pipeline.CanonicalPolicyProfiles())
+	if err != nil {
+		return configuration.Effective{}, err
+	}
+	schedule := []configuration.Schedule{{ID: "guardian.observe", ContractVersion: configuration.ScheduleVersion, Enabled: true, TimeZone: "UTC", Trigger: configuration.IntervalTrigger, IntervalNS: int64(options.interval), Calendar: configuration.Calendar{Minutes: []int{}, Hours: []int{}, MonthDays: []int{}, Months: []int{}, Weekdays: []int{}}, DSTPolicy: configuration.DSTFirstOccurrence, Priority: 0, MisfirePolicy: configuration.MisfireRunOnce, OverlapPolicy: configuration.OverlapForbid, ExecutionTimeoutNS: int64(options.timeout), RetryPolicyID: "canonical.default", CheckIDs: []string{}, CommandProfile: "observe"}}
+	builtIn.Identity = ""
+	builtIn.Patch.Schedules = &schedule
+	builtIn, err = configuration.NormalizeSource(builtIn)
+	if err != nil {
+		return configuration.Effective{}, err
+	}
+	sources := []configuration.Source{builtIn}
+	if options.configSource != "" {
+		document, readErr := os.ReadFile(options.configSource)
+		if readErr != nil || len(document) > configuration.MaxStringLength*configuration.MaxItems {
+			return configuration.Effective{}, fmt.Errorf("guardian configuration unavailable")
+		}
+		user, decodeErr := configuration.DecodeSource(document)
+		if decodeErr != nil {
+			return configuration.Effective{}, fmt.Errorf("guardian configuration invalid")
+		}
+		sources = append(sources, user)
+	}
+	return configuration.Resolve(sources)
+}
+
+type localOverviewProvider struct{}
+
+func (localOverviewProvider) Refresh(ctx context.Context) (presentationmodel.Overview, error) {
+	if err := ctx.Err(); err != nil {
+		return presentationmodel.Overview{}, err
+	}
+	return loadCurrentOverview(time.Now().UTC())
+}
+
+func loadCurrentOverview(now time.Time) (presentationmodel.Overview, error) {
+	store, err := currentOperatorStore()
+	if err != nil {
+		return presentationmodel.Overview{}, err
+	}
+	current, err := store.Load()
+	if err != nil {
+		return presentationmodel.Overview{}, err
+	}
+	overview, err := presentationmodel.RequalifyFreshness(current.Overview, now, current.FreshUntil)
+	if err != nil {
+		return presentationmodel.Overview{}, operatorstate.ErrCorrupt
+	}
+	return overview, nil
+}
+
+func runConsole(in io.Reader, out, errout io.Writer, interactive bool) int {
+	now := time.Unix(0, 0).UTC()
+	overview, err := presentationmodel.Project(presentationmodel.Input{SchemaName: presentationmodel.InputSchema, SchemaVersion: presentationmodel.SchemaVersion, ObservedAt: now, FreshForNS: int64(time.Hour)})
+	if err != nil {
+		fmt.Fprintf(errout, "console initialization failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	locale := os.Getenv("QWSG_LOCALE")
+	if locale != "hu" {
+		locale = "en"
+	}
+	diagnostic := ""
+	if qualified, loadErr := loadCurrentOverview(time.Now().UTC()); loadErr == nil {
+		overview = qualified
+	} else if !errors.Is(loadErr, operatorstate.ErrMissing) {
+		diagnostic = stateDiagnostic(loadErr)
+	}
+	capabilities := operatorconsole.Capabilities{Interactive: interactive, Width: 80, Height: 30}
+	state, err := operatorconsole.NewState(overview, locale, capabilities)
+	if err != nil {
+		fmt.Fprintf(errout, "console initialization failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	state.Diagnostic = diagnostic
+	if !interactive {
+		text := operatorconsole.Render(state)
+		if _, err = io.WriteString(out, text); err != nil {
+			fmt.Fprintf(errout, "console output failed: %s\n", safeText(err.Error()))
+			return 1
+		}
+		return 0
+	}
+	if err = operatorconsole.Run(context.Background(), in, out, localOverviewProvider{}, state); err != nil {
+		fmt.Fprintf(errout, "console failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	return 0
+}
+
+func terminalFile(file *os.File) bool {
+	info, err := file.Stat()
+	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
 
 func runCanonicalProfile(name string, args []string, out, errout io.Writer) int {
@@ -99,11 +472,234 @@ func runCanonicalProfile(name string, args []string, out, errout io.Writer) int 
 		return 0
 	}
 	selection := canonicalcommand.Selection{Store: os.Getenv("QWSG_STORE")}
+	if name == "observe" && selection.Store == "" {
+		var err error
+		selection.Store, err = observationStoreRoot()
+		if err != nil {
+			fmt.Fprintf(errout, "operator observation failed: %s\n", observeDiagnostic(err))
+			return 1
+		}
+	}
 	definition, err := canonicalcommand.ParseProfile(name, args, selection)
 	if err != nil {
 		return usageError(errout, "%v", err)
 	}
+	if name == "observe" {
+		return executeObserve(definition, out, errout)
+	}
 	return executeCanonical(definition, out, errout)
+}
+
+type observationResult struct {
+	Definition canonicalcommand.Definition
+	Execution  canonicalcommand.Execution
+	Overview   presentationmodel.Overview
+	Bootstrap  bool
+}
+
+type observationFailureKind string
+
+const (
+	observationBootstrapFailure   observationFailureKind = "state_bootstrap_failed"
+	observationPipelineFailure    observationFailureKind = "evaluation_pipeline_failed"
+	observationProjectionFailure  observationFailureKind = "operator_projection_failed"
+	observationPublicationFailure observationFailureKind = "current_state_publication_failed"
+)
+
+type observationFailure struct {
+	kind observationFailureKind
+	err  error
+}
+
+func (failure *observationFailure) Error() string { return string(failure.kind) }
+func (failure *observationFailure) Unwrap() error { return failure.err }
+
+func classifiedObservationFailure(kind observationFailureKind, err error) error {
+	if err == nil {
+		return nil
+	}
+	return &observationFailure{kind: kind, err: err}
+}
+
+func executeObserve(definition canonicalcommand.Definition, out, errout io.Writer) int {
+	lock, lockErr := acquireOneShotLock()
+	if lockErr != nil {
+		diagnostic := "evaluation_failed"
+		if errors.Is(lockErr, guardian.ErrActive) {
+			diagnostic = "guardian_active"
+		}
+		fmt.Fprintf(errout, "operator observation failed: %s\n", diagnostic)
+		return 1
+	}
+	defer lock.Release()
+	result, err := observeOnce(context.Background(), definition, collectInventoryContext, func() time.Time { return time.Now().UTC() })
+	if err != nil {
+		fmt.Fprintf(errout, "operator observation failed: %s\n", observeDiagnostic(err))
+		return 1
+	}
+	if err = renderCanonical(result.Definition, result.Execution, out); err != nil {
+		fmt.Fprintf(errout, "command presentation failed: %s\n", safeText(err.Error()))
+		return 1
+	}
+	if result.Bootstrap {
+		writeBaselineGuidance(definition.Parameters.Output, out, errout)
+	}
+	return 0
+}
+
+func acquireOneShotLock() (*guardian.Lock, error) {
+	root, err := localStateRoot()
+	if err != nil {
+		return nil, err
+	}
+	return guardian.Acquire(filepath.Join(root, "guardian"), "qwsg.observe.once")
+}
+
+func observeOnce(ctx context.Context, definition canonicalcommand.Definition, collect pipeline.Collector, clock func() time.Time) (observationResult, error) {
+	if err := ctx.Err(); err != nil {
+		return observationResult{}, err
+	}
+	if clock == nil {
+		return observationResult{}, fmt.Errorf("observation clock is unavailable")
+	}
+	plan, err := canonicalcommand.PlanDefinition(definition)
+	if err != nil || definition.Profile != "observe" || definition.Selection.Source != "live" || definition.Selection.Store == "" || !reflect.DeepEqual(plan.Stages, canonicalcommand.CanonicalStages) {
+		return observationResult{}, fmt.Errorf("invalid observe definition")
+	}
+	bootstrap, err := observationStoreEmpty(definition.Selection.Store)
+	if err != nil {
+		return observationResult{}, err
+	}
+	orchestrator := pipeline.Orchestrator{Collect: collect, Retention: inventorystore.DefaultRetention, Rules: pipeline.CanonicalObservationRules()}
+	if bootstrap {
+		check, resolveErr := canonicalcommand.ResolveProfile("check", canonicalcommand.Selection{Source: "live", Store: definition.Selection.Store})
+		if resolveErr != nil {
+			return observationResult{}, resolveErr
+		}
+		check.Parameters = definition.Parameters
+		check.ID = ""
+		check, resolveErr = canonicalcommand.Normalize(check)
+		if resolveErr != nil {
+			return observationResult{}, resolveErr
+		}
+		execution, executeErr := orchestrator.Execute(ctx, check)
+		if executeErr != nil {
+			return observationResult{}, classifiedObservationFailure(observationPipelineFailure, executeErr)
+		}
+		overview, publishErr := publishObserveBootstrap(check, execution, clock().UTC())
+		return observationResult{Definition: check, Execution: execution, Overview: overview, Bootstrap: true}, publishErr
+	}
+	execution, err := orchestrator.Execute(ctx, definition)
+	if err != nil {
+		return observationResult{}, classifiedObservationFailure(observationPipelineFailure, err)
+	}
+	overview, err := publishObserve(definition, execution, clock().UTC())
+	return observationResult{Definition: definition, Execution: execution, Overview: overview}, err
+}
+
+func publishObserveBootstrap(definition canonicalcommand.Definition, execution canonicalcommand.Execution, publishedAt time.Time) (presentationmodel.Overview, error) {
+	plan, err := canonicalcommand.PlanDefinition(definition)
+	if err != nil || definition.Profile != "check" || definition.Selection.Source != "live" || !execution.Complete || execution.CommandID != definition.ID || execution.PlanID != plan.ID || len(execution.Stages) != 2 {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, fmt.Errorf("ineligible observe bootstrap"))
+	}
+	inventoryStage, snapshotStage := execution.Stages[0], execution.Stages[1]
+	if inventoryStage.Stage != canonicalcommand.Inventory || snapshotStage.Stage != canonicalcommand.Snapshot || inventoryStage.ContractName != inventory.CanonicalSchemaName || inventoryStage.Version != inventory.SchemaVersion || snapshotStage.ContractName != inventorystore.FormatName || snapshotStage.Version != inventorystore.FormatVersion {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, fmt.Errorf("invalid observe bootstrap coverage"))
+	}
+	observed, ok := inventoryStage.Value.(inventory.Snapshot)
+	if !ok || inventory.Validate(observed) != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, fmt.Errorf("invalid typed bootstrap inventory"))
+	}
+	snapshotted, ok := snapshotStage.Value.(inventory.Snapshot)
+	if !ok || inventory.Validate(snapshotted) != nil || !reflect.DeepEqual(observed, snapshotted) {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, fmt.Errorf("invalid typed bootstrap snapshot"))
+	}
+	observationTime, freshUntil := observed.CompletedAt.UTC(), observed.FreshUntil.UTC()
+	if !freshUntil.After(observationTime) || publishedAt.Before(observationTime) {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, fmt.Errorf("invalid bootstrap freshness"))
+	}
+	overview, err := presentationmodel.Project(presentationmodel.Input{SchemaName: presentationmodel.InputSchema, SchemaVersion: presentationmodel.SchemaVersion, ObservedAt: observationTime, FreshForNS: int64(freshUntil.Sub(observationTime)), Command: &presentationmodel.CommandObservation{ObservedAt: observationTime, Value: execution}, Inventory: &presentationmodel.InventoryObservation{ObservedAt: observationTime, Value: observed}})
+	if err != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, err)
+	}
+	current, err := operatorstate.Normalize(operatorstate.State{ObservedAt: observationTime, PublishedAt: publishedAt.UTC(), FreshUntil: freshUntil, Coverage: operatorstate.CoverageInventorySnapshot, Provenance: operatorstate.Provenance{DefinitionID: definition.ID, ExecutionID: execution.ID, Profile: "check", Source: "live", Stages: []string{"inventory", "snapshot"}, Reason: operatorstate.PublicationCheck, ApplicationVersion: version}, Overview: overview})
+	if err != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationPublicationFailure, err)
+	}
+	store, err := currentOperatorStore()
+	if err != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationPublicationFailure, err)
+	}
+	if err = store.Publish(current); err != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationPublicationFailure, err)
+	}
+	return overview, nil
+}
+
+func observationStoreEmpty(root string) (bool, error) {
+	if root == "" {
+		return false, fmt.Errorf("observation store is unavailable")
+	}
+	if _, err := os.Lstat(root); errors.Is(err, os.ErrNotExist) {
+		return true, nil
+	} else if err != nil {
+		return false, err
+	}
+	store, err := inventorystore.Open(root, inventorystore.DefaultRetention)
+	if err != nil {
+		return false, err
+	}
+	names, err := store.List()
+	return len(names) == 0, err
+}
+
+func renderCanonical(definition canonicalcommand.Definition, execution canonicalcommand.Execution, out io.Writer) error {
+	var document []byte
+	var err error
+	if definition.Parameters.Output == canonicalcommand.JSON {
+		document, err = presentation.JSON(execution)
+	} else {
+		var value string
+		value, err = presentation.Terminal(execution)
+		document = []byte(value)
+	}
+	if err != nil {
+		return err
+	}
+	_, err = out.Write(document)
+	return err
+}
+
+func writeBaselineGuidance(format canonicalcommand.OutputFormat, out, errout io.Writer) {
+	message := "Observation baseline established; condition remains unknown until a later 'qwsg observe'."
+	if os.Getenv("QWSG_LOCALE") == "hu" {
+		message = "A megfigyelési alapállapot elkészült; az állapot egy későbbi 'qwsg observe' futásig ismeretlen marad."
+	}
+	if format == canonicalcommand.JSON {
+		fmt.Fprintln(errout, message)
+	} else {
+		fmt.Fprintln(out, message)
+	}
+}
+
+func observeDiagnostic(err error) string {
+	switch {
+	case errors.Is(err, inventorystore.ErrCorrupt):
+		return "inventory_store_corrupt"
+	case errors.Is(err, inventorystore.ErrIncompatible):
+		return "inventory_store_incompatible"
+	case errors.Is(err, inventorystore.ErrUnsafePath):
+		return "inventory_store_unsafe"
+	case errors.Is(err, os.ErrPermission):
+		return "inventory_store_permission_denied"
+	case errors.Is(err, operatorstate.ErrCorrupt), errors.Is(err, operatorstate.ErrIncompatible), errors.Is(err, operatorstate.ErrPermission), errors.Is(err, operatorstate.ErrUnsafePath):
+		return stateDiagnostic(err)
+	}
+	var failure *observationFailure
+	if errors.As(err, &failure) {
+		return string(failure.kind)
+	}
+	return "evaluation_failed"
 }
 
 func runCanonicalAdvanced(args []string, out, errout io.Writer) int {
@@ -131,6 +727,12 @@ func executeCanonical(definition canonicalcommand.Definition, out, errout io.Wri
 		fmt.Fprintf(errout, "canonical command execution failed: %s\n", safeText(err.Error()))
 		return 1
 	}
+	if definition.Profile == "check" {
+		if _, err = publishCheck(definition, execution, time.Now().UTC()); err != nil {
+			fmt.Fprintf(errout, "current operator state publication failed: %s\n", safeText(publicationDiagnostic(err)))
+			return 1
+		}
+	}
 	var document []byte
 	if definition.Parameters.Output == canonicalcommand.JSON {
 		document, err = presentation.JSON(execution)
@@ -148,6 +750,150 @@ func executeCanonical(definition canonicalcommand.Definition, out, errout io.Wri
 		return 1
 	}
 	return 0
+}
+
+func publishCheck(definition canonicalcommand.Definition, execution canonicalcommand.Execution, publishedAt time.Time) (presentationmodel.Overview, error) {
+	plan, err := canonicalcommand.PlanDefinition(definition)
+	if err != nil || definition.Profile != "check" || definition.Selection.Source != "live" || !execution.Complete || execution.CommandID != definition.ID || execution.PlanID != plan.ID || len(execution.Stages) != 2 {
+		return presentationmodel.Overview{}, fmt.Errorf("ineligible check execution")
+	}
+	inventoryStage, snapshotStage := execution.Stages[0], execution.Stages[1]
+	if inventoryStage.Stage != canonicalcommand.Inventory || snapshotStage.Stage != canonicalcommand.Snapshot || inventoryStage.ContractName != inventory.CanonicalSchemaName || inventoryStage.Version != inventory.SchemaVersion || snapshotStage.ContractName != inventorystore.FormatName || snapshotStage.Version != inventorystore.FormatVersion {
+		return presentationmodel.Overview{}, fmt.Errorf("invalid check stage coverage")
+	}
+	observed, ok := inventoryStage.Value.(inventory.Snapshot)
+	if !ok {
+		return presentationmodel.Overview{}, fmt.Errorf("inventory stage is not typed")
+	}
+	snapshotted, ok := snapshotStage.Value.(inventory.Snapshot)
+	if !ok || snapshotted.SnapshotID != observed.SnapshotID {
+		return presentationmodel.Overview{}, fmt.Errorf("snapshot stage is not correlated")
+	}
+	if err = inventory.Validate(observed); err != nil {
+		return presentationmodel.Overview{}, err
+	}
+	if err = inventory.Validate(snapshotted); err != nil || !reflect.DeepEqual(observed, snapshotted) {
+		return presentationmodel.Overview{}, fmt.Errorf("snapshot stage payload mismatch")
+	}
+	observationTime := observed.CompletedAt.UTC()
+	freshUntil := observed.FreshUntil.UTC()
+	if !freshUntil.After(observationTime) || publishedAt.Before(observationTime) {
+		return presentationmodel.Overview{}, fmt.Errorf("invalid observation freshness")
+	}
+	overview, err := presentationmodel.Project(presentationmodel.Input{SchemaName: presentationmodel.InputSchema, SchemaVersion: presentationmodel.SchemaVersion, ObservedAt: observationTime, FreshForNS: int64(freshUntil.Sub(observationTime)), Command: &presentationmodel.CommandObservation{ObservedAt: observationTime, Value: execution}, Inventory: &presentationmodel.InventoryObservation{ObservedAt: observationTime, Value: observed}})
+	if err != nil {
+		return presentationmodel.Overview{}, err
+	}
+	current, err := operatorstate.Normalize(operatorstate.State{ObservedAt: observationTime, PublishedAt: publishedAt.UTC(), FreshUntil: freshUntil, Coverage: operatorstate.CoverageInventorySnapshot, Provenance: operatorstate.Provenance{DefinitionID: definition.ID, ExecutionID: execution.ID, Profile: "check", Source: "live", Stages: []string{"inventory", "snapshot"}, Reason: operatorstate.PublicationCheck, ApplicationVersion: version}, Overview: overview})
+	if err != nil {
+		return presentationmodel.Overview{}, err
+	}
+	store, err := currentOperatorStore()
+	if err != nil {
+		return presentationmodel.Overview{}, err
+	}
+	if err = store.Publish(current); err != nil {
+		return presentationmodel.Overview{}, err
+	}
+	return overview, nil
+}
+
+func publishObserve(definition canonicalcommand.Definition, execution canonicalcommand.Execution, publishedAt time.Time) (presentationmodel.Overview, error) {
+	plan, err := canonicalcommand.PlanDefinition(definition)
+	if err != nil || definition.Profile != "observe" || definition.Selection.Source != "live" || !execution.Complete || execution.CommandID != definition.ID || execution.PlanID != plan.ID || len(execution.Stages) != 8 {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, fmt.Errorf("ineligible observe execution"))
+	}
+	observed, ok := execution.Stages[0].Value.(inventory.Snapshot)
+	if !ok || inventory.Validate(observed) != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, fmt.Errorf("invalid typed inventory stage"))
+	}
+	observationTime, freshUntil := observed.CompletedAt.UTC(), observed.FreshUntil.UTC()
+	if !freshUntil.After(observationTime) || publishedAt.Before(observationTime) {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, fmt.Errorf("invalid observation freshness"))
+	}
+	overview, err := app.ProjectOperatorEvaluation(execution, observationTime, freshUntil.Sub(observationTime), nil, nil)
+	if err != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationProjectionFailure, err)
+	}
+	stages := []string{"inventory", "snapshot", "compare", "drift", "health", "rule", "policy", "report"}
+	current, err := operatorstate.Normalize(operatorstate.State{ObservedAt: observationTime, PublishedAt: publishedAt.UTC(), FreshUntil: freshUntil, Coverage: operatorstate.CoverageOperatorEvaluation, Provenance: operatorstate.Provenance{DefinitionID: definition.ID, ExecutionID: execution.ID, Profile: "observe", Source: "live", Stages: stages, Reason: operatorstate.PublicationObserve, ApplicationVersion: version}, Overview: overview})
+	if err != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationPublicationFailure, err)
+	}
+	store, err := currentOperatorStore()
+	if err != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationPublicationFailure, err)
+	}
+	if err = store.Publish(current); err != nil {
+		return presentationmodel.Overview{}, classifiedObservationFailure(observationPublicationFailure, err)
+	}
+	return overview, nil
+}
+
+func currentOperatorStore() (*operatorstate.Store, error) {
+	root, err := localStateRoot()
+	if err != nil {
+		return nil, err
+	}
+	return operatorstate.Open(root)
+}
+
+func observationStoreRoot() (string, error) {
+	if root := os.Getenv("QWSG_STORE"); root != "" {
+		return root, nil
+	}
+	root, err := localStateRoot()
+	if err != nil {
+		return "", err
+	}
+	if err = ensureLocalStateRoot(root); err != nil {
+		return "", err
+	}
+	return filepath.Join(root, "inventory"), nil
+}
+
+func ensureLocalStateRoot(root string) error {
+	if err := operatorstate.EnsurePrivateRoot(root); err != nil {
+		return classifiedObservationFailure(observationBootstrapFailure, err)
+	}
+	return nil
+}
+
+func localStateRoot() (string, error) {
+	if root := os.Getenv("QWSG_STATE_DIR"); root != "" {
+		return root, nil
+	}
+	if base := os.Getenv("XDG_STATE_HOME"); base != "" {
+		return filepath.Join(base, "qwsg"), nil
+	}
+	if home := os.Getenv("HOME"); home != "" {
+		return filepath.Join(home, ".local", "state", "qwsg"), nil
+	}
+	return "", fmt.Errorf("local state root is unavailable")
+}
+
+func stateDiagnostic(err error) string {
+	switch {
+	case errors.Is(err, operatorstate.ErrCorrupt):
+		return "state_corrupt"
+	case errors.Is(err, operatorstate.ErrIncompatible):
+		return "state_incompatible"
+	case errors.Is(err, operatorstate.ErrPermission):
+		return "state_permission"
+	case errors.Is(err, operatorstate.ErrUnsafePath):
+		return "state_unsafe"
+	default:
+		return "state_unreadable"
+	}
+}
+
+func publicationDiagnostic(err error) string {
+	switch {
+	case errors.Is(err, operatorstate.ErrCorrupt), errors.Is(err, operatorstate.ErrIncompatible), errors.Is(err, operatorstate.ErrPermission), errors.Is(err, operatorstate.ErrUnsafePath):
+		return stateDiagnostic(err)
+	default:
+		return "state_publication_failed"
+	}
 }
 
 func writeCanonicalHelp(out io.Writer, name string) {
@@ -180,7 +926,7 @@ func runHelp(args []string, out, errout io.Writer) int {
 		writeCompareHelp(out)
 		return 0
 	}
-	for _, topic := range []string{"status", "check", "changes", "health", "report", "analyze"} {
+	for _, topic := range []string{"status", "check", "observe", "changes", "health", "report", "analyze"} {
 		if args[0] == topic {
 			if len(args) != 1 {
 				return usageError(errout, "%s help does not accept a subcommand", topic)
@@ -567,12 +1313,16 @@ func writeSummary(out, errout io.Writer, summary snapshotSummary, format string)
 }
 
 func collectInventory() (inventory.Snapshot, error) {
+	return collectInventoryContext(context.Background())
+}
+
+func collectInventoryContext(parent context.Context) (inventory.Snapshot, error) {
 	r := runner.Bounded{Allowed: map[string]string{"systemctl": "/usr/bin/systemctl", "go": "/usr/local/go/bin/go"}, Timeout: 2 * time.Second, MaxOutput: 1 << 20}
 	registry, err := collector.DefaultRegistry(r)
 	if err != nil {
 		return inventory.Snapshot{}, fmt.Errorf("collector registry initialization failed: %w", err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(parent, 15*time.Second)
 	defer cancel()
 	snapshot, err := app.Collect(ctx, version, registry)
 	if err != nil {
@@ -634,20 +1384,24 @@ func writeRootHelp(out io.Writer) {
 	fmt.Fprintln(out, `QWSG — deterministic Linux engineering analysis and snapshot explorer
 
 Usage:
+  qwsg
+	qwsg console
   qwsg help [command]
   qwsg version
-  qwsg <status|check|changes|health|report> [options]
+  qwsg <status|check|observe|changes|health|report> [options]
   qwsg analyze --source live|store --pipeline STAGE[,STAGE] [options]
   qwsg inventory [--format json|human]
   qwsg inventory <save|list|info|load> [options]
   qwsg compare [--store DIR] [--from SNAPSHOT --to SNAPSHOT] [--format json|human]
 
 Commands:
+	console    Open the read-only local Operator Console
   status     Execute the canonical live Inventory profile
   check      Execute the canonical live Inventory and Snapshot profile
+  observe    Establish a baseline or run the full canonical operator evaluation
   changes    Execute the canonical Compare profile over stored snapshots
   health     Execute Compare → Drift → Health over stored snapshots
-  report     Execute Compare → Drift → Health → Rule → Report
+  report     Execute Compare → Drift → Health → Rule → Policy → Report
   analyze    Compose Command Definition 1.0 with structured parameters
   inventory  Collect Inventory 1.0 or browse an explicit private snapshot store
   compare    Compare canonical Inventory snapshots without making a health judgement

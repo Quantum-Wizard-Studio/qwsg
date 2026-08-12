@@ -1,5 +1,14 @@
 # QWSG Installation
 
+The Version 1.0 operator path is the verified prebuilt archive described in
+`docs/release/QUICK_START.md`; it needs neither repository knowledge nor Go.
+The production prefix is deliberately fixed at `/usr/local`, keeping the
+audited absolute systemd `ExecStart` and executable inseparable. Installation
+copies artifacts only; service activation and lingering are explicit acts.
+
+Repository `make install-service` is a development convenience and rejects a
+nonstandard prefix. `DESTDIR` remains available for isolated staging.
+
 ## Supported acceptance environment
 
 Task 017 verifies source builds and installation on Ubuntu 24.04 with GNU Make,
@@ -77,3 +86,37 @@ sudo rm -- /usr/local/bin/qwsg
 
 Do not recursively remove a prefix, an Inventory Store, or unrelated files.
 There is no automatic updater or package-manager integration in Task 017.
+
+## Guardian user service
+
+Build as the ordinary runtime user, then install the binary and auditable user
+unit (installation does not enable or start it):
+
+```bash
+make build
+sudo make install-service
+systemctl --user daemon-reload
+systemctl --user enable --now qwsg-guardian.service
+```
+
+Use `systemctl --user start|stop|restart qwsg-guardian.service`,
+`systemctl --user enable|disable qwsg-guardian.service`, and
+`systemctl --user status qwsg-guardian.service`. Read service logs with
+`journalctl --user-unit=qwsg-guardian.service`. Installed, enabled, active and
+canonically observed are distinct states; bare `qwsg` reports only validated
+canonical lifecycle evidence.
+
+The service runs as the same non-root user that owns QWSG state. Starting at
+boot before login additionally requires an administrator to deliberately
+enable lingering for that exact user (`loginctl enable-linger USER`). Without
+a verified user manager and lingering, boot operation is unavailable rather
+than guaranteed. Never run the Guardian as root merely to bypass collector or
+state permissions.
+
+The default cadence is five minutes with a two-minute cycle timeout and a
+ten-minute lifecycle freshness window. State is private below the systemd user
+state directory. To use a canonical Source Record, add `--config-source` to a
+local unit override; do not put secrets or raw provider destinations in the
+unit. Stop and disable the unit before removing it. For rollback, restore the
+previous binary/unit, run `systemctl --user daemon-reload`, and retain the
+private state until compatibility has been assessed.

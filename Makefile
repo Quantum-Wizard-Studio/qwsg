@@ -1,4 +1,4 @@
-.PHONY: build install test vet fmt-check framework-check engineering-test
+.PHONY: build install install-service release test vet fmt-check framework-check engineering-test
 
 GOCACHE ?= /tmp/qwsg-go-cache
 GOMODCACHE ?= /tmp/qwsg-go-modcache
@@ -6,6 +6,7 @@ PREFIX ?= /usr/local
 DESTDIR ?=
 BINDIR ?= $(PREFIX)/bin
 INSTALL ?= install
+SYSTEMD_USER_UNIT_DIR ?= $(PREFIX)/lib/systemd/user
 VERSION := $(shell tr -d '\r\n' < VERSION)
 BUILD_COMMIT ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null || printf unknown)
 BUILD_DATE ?= unknown
@@ -22,6 +23,17 @@ install:
 	}
 	$(INSTALL) -d -m 0755 "$(DESTDIR)$(BINDIR)"
 	$(INSTALL) -m 0755 build/qwsg "$(DESTDIR)$(BINDIR)/qwsg"
+
+install-service: install
+	@test "$(PREFIX)" = "/usr/local" || { \
+		printf '%s\n' 'Error: QWSG 1.0 supports only PREFIX=/usr/local because the shipped unit has an absolute, audited ExecStart.' >&2; \
+		exit 1; \
+	}
+	$(INSTALL) -d -m 0755 "$(DESTDIR)$(SYSTEMD_USER_UNIT_DIR)"
+	$(INSTALL) -m 0644 packaging/systemd/qwsg-guardian.service "$(DESTDIR)$(SYSTEMD_USER_UNIT_DIR)/qwsg-guardian.service"
+
+release:
+	./scripts/build-release.sh
 
 test:
 	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go test ./...

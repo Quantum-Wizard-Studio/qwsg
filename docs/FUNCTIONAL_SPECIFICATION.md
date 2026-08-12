@@ -1,5 +1,24 @@
 # QWSG Core Alpha Functional Specification
 
+## Current operator state
+
+A successful eligible `check` atomically publishes limited Inventory/Snapshot coverage. A separate bare process validates and displays it, ages it at the exclusive freshness deadline, and fails closed for missing, corrupt, incompatible, unsafe, or unreadable state. Inventory success is not Health.
+
+`qwsg observe` provides the additive full operator workflow. The first invocation persists a baseline and remains unknown. A later invocation executes the existing live Inventory, Snapshot, Compare, Drift, Health, Rule, Policy, and Report stages, validates their typed correlation, and publishes full operator-evaluation coverage. It fails rather than self-comparing or silently replacing corrupt store evidence. This qualifies only the engineering condition represented by current canonical checks.
+
+Valid evaluations with more than 256 candidate attention facts shall still
+project and publish. Projection shall deterministically retain the
+highest-severity and highest-importance facts, correlate Rule/Policy views only
+through validated identities, disclose correlated and omitted counts, and
+preserve source references. Operator diagnostics shall distinguish Pipeline,
+projection, and Current State publication failures without exposing private
+host data. Missing or stale evidence may recommend a fresh observation;
+intrinsically partial current evidence shall recommend inspection instead.
+
+## Local Operator Console
+
+Bare `qwsg` presents model-owned condition, attention, changes, Alert summary, Guardian, evidence freshness/completeness, and recommendation. Refresh is explicit and one-shot. The interface performs no remediation, persistence, monitoring, or service control.
+
 ## 1. Purpose and authority
 
 This document is the authoritative functional specification for Quantum Wizard Server Guardian (QWSG) Core Alpha. It defines externally observable behavior, required inputs and outputs, workflows, operational states, failure behavior, and acceptance criteria. It is implementation-neutral: it does not select languages, frameworks, process topology, protocols, package layout, database technology, or a secrets backend.
@@ -220,13 +239,26 @@ The severity order is `OK < WARNING < CRITICAL < EMERGENCY`. `UNKNOWN` is not pa
 
 ## 12. Alert lifecycle and delivery
 
+Implementation boundary: Task 028 implements the deterministic Alert decision
+and lifecycle contract. Task 029 consumes its immutable Alert Records only and
+implements provider-neutral delivery planning, bounded queue/retry proposals,
+idempotent requests, delivery attempt/status/acknowledgement/evidence records,
+and an explicitly invoked one-cycle injected-provider adapter. Neither task
+implements incident persistence, monitoring, a durable queue, a daemon,
+concrete production transport, channel-health Alert generation,
+configuration/secret integration, or CLI/Console workflows.
+
 `FR-ALERT-001`: Notification events are created for confirmed unhealthy entry, escalation, de-escalation, full recovery, observation loss, configured emergency reminder, maintenance-end active status, and notification-channel failure or recovery.
 
 `FR-ALERT-002`: Unchanged polling MUST NOT repeatedly notify. The default reminder policy is one reminder every 24 hours for an unresolved `EMERGENCY`; reminders for other severities are disabled by default.
 
 `FR-ALERT-003`: Every notification MUST identify instance, subject, old and new state, incident ID, evidence summary, event and observation times, policy basis, recommended next step, acknowledgement status, maintenance context, and whether remediation was attempted. Core Alpha always states that remediation was not attempted.
 
-`FR-ALERT-004`: E-mail is the mandatory Core Alpha channel. At least one local submission or authenticated SMTP transport MUST be selected, specified, and verified in the release support matrix before release. This specification does not select the transport implementation.
+`FR-ALERT-004`: E-mail is a post-1.0 delivery capability. Version 1.0 ships
+provider-neutral Notification contracts and locally visible Alert evidence;
+it MUST NOT claim or require a concrete transport. A later transport release
+must select, specify, and verify its supported local-submission or authenticated
+SMTP boundary.
 
 `FR-ALERT-005`: Delivery attempts MUST have finite timeouts and bounded retries with backoff. Default policy is three total attempts within 15 minutes. Failure after retries becomes a visible notification-health incident.
 
@@ -389,16 +421,18 @@ A later feature MUST preserve this specification's authority, safety, state, aud
 
 ## 22. Release gates and unresolved owner decisions
 
-These items do not block implementation of the behavior and contracts above, but they block a supported public or production release. They MUST NOT be silently inferred by architecture or implementation:
+Task 038 resolves these historical Core Alpha gates for the narrow Version 1.0
+local product as follows. Future families remain explicit rather than silently
+inferred:
 
-1. Exact Ubuntu and Debian versions and CPU architectures in the initial tested support matrix.
-2. Whether the Console ships in the first release or follows Agent and Installer delivery.
-3. The mandatory Core Alpha e-mail transport or transports.
-4. Default retention periods and storage budgets.
-5. Console authentication, recovery, and network-exposure model.
-6. Concrete configuration syntax, secrets backend, storage technology, and service topology.
-7. Distribution integrity and update-authenticity mechanism.
-8. Licensing, edition, telemetry, commercial, and hosted-service decisions.
+1. Supported: Ubuntu 24.04 LTS, systemd 255+, linux-amd64 only.
+2. The local non-network Terminal Console ships.
+3. Concrete notification transports are post-1.0.
+4. Existing bounded file retention and engine caps ship; general history does not.
+5. The Console is local and read-only, with no listener or authentication surface.
+6. Configuration Source 1.0, private bounded files, and a systemd user service ship.
+7. Deterministic archives and SHA-256 integrity ship; publisher authentication/signing is a disclosed later/publication decision.
+8. Licensing and public/commercial publication remain separate Owner decisions; no telemetry or hosted dependency ships.
 
 ## 23. End-to-end workflows
 
@@ -510,3 +544,40 @@ These items do not block implementation of the behavior and contracts above, but
 ## 27. Change control
 
 Changes to mandatory behavior require a governed engineering task, explicit authority, snapshot and rollback, parent-document consistency review, requirement and acceptance-test updates, and chronological history. Implementation convenience, framework limitation, or undocumented existing behavior is not authority to weaken this specification.
+
+## 28. Canonical Runtime cycle
+
+The core shall accept an explicit bounded execution context, invoke one
+Scheduler cycle, validate its execution traces, evaluate Alert inputs in
+canonical order, plan Notification delivery from Alert Records only, and run at
+most one provider cycle when requests exist. It shall preserve completed
+evidence on cancellation or failure, return a proposed idle Runtime state, and
+shall not run continuously or duplicate an owning engine's decisions.
+
+## 29. Canonical Runtime Service
+
+The local Runtime Service shall invoke the Canonical Runtime Engine sequentially
+at fixed-rate nominal boundaries, start with one immediate cycle, skip elapsed
+boundaries without overlap or catch-up bursts, propagate cancellation and
+per-cycle deadlines, and stop gracefully on caller cancellation, SIGINT, or
+SIGTERM. It shall forward Runtime-proposed states exactly in memory and shall
+not reproduce Runtime or downstream decisions.
+
+The Operational Guardian adapter shall run this service as one unprivileged
+foreground process under the systemd user manager. It shall consume canonical
+configuration, retain only a bounded validated Runtime/Alert/Notification
+restart checkpoint, publish exact lifecycle evidence to Current Operator
+State, reject competing writers, stop gracefully, and fail closed on invalid
+state or configuration. A stale former-running claim shall become unavailable.
+Neither systemd nor the adapter may reproduce an engineering decision.
+
+## 30. Canonical operator overview
+
+QWSG shall derive beginner-facing condition, attention, change, Alert,
+Guardian, freshness/completeness, and recommended-next-step facts through one
+presentation-independent model over validated canonical records. Missing,
+stale, partial, unsupported, invalid, and not-observed evidence must remain
+distinct and must never be displayed as healthy. Recommendations are bounded
+read-only action tokens and grant no remediation authority. This contract does
+not itself add bare-`qwsg` behavior, a Console, API, Dashboard, monitoring,
+persistence, or process discovery.

@@ -161,19 +161,21 @@ infer hidden Health status, compare snapshots, or reclassify drift. Its
 contract and responsibility boundary are defined in
 `CANONICAL_RULE_ENGINE.md`.
 
-## Future Policy Engine integration
+## Policy integration
 
-A future Policy Engine may select rule sets, define organization-specific
-acceptance, and resolve policy conflicts over immutable Health and Rule
-outcomes. Policy must remain distinguishable from the universal Health
-taxonomy. No Policy or Compliance Engine is implemented here.
+The Canonical Policy Engine selects profiles and resolves governance treatment
+over immutable Rule outcomes. Policy remains distinguishable from the universal
+Health taxonomy and does not change Health evidence.
 
-## Future Report Engine integration
+## Report and Alert integration
 
-A future Report Engine may render localized terminal, file, Web, notification,
-or export views from canonical Health Records. Presentation must preserve
-Health ID, Drift ID, Change ID, status, evidence state, reason, and versions.
-Health performs no rendering, localization, notification, or remote delivery.
+The Report Engine preserves canonical downstream evidence for presentation.
+The pure Alert Engine may consume a validated Health Result directly only when
+its records are not already represented by supplied Rule or Policy results. It
+maps Health status through its own versioned severity taxonomy and preserves
+Health, Drift, Change, scope, and timestamp references. Neither consumer may
+change Health semantics. Health performs no alert lifecycle, rendering,
+localization, notification, or remote delivery.
 
 ## Compatibility strategy
 

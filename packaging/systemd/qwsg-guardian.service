@@ -1,0 +1,31 @@
+[Unit]
+Description=Quantum Wizard Server Guardian
+Documentation=https://qwsg.quantumwizard.hu/
+After=local-fs.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/qwsg guardian run
+ExecStopPost=/usr/local/bin/qwsg guardian report-exit --generation ${INVOCATION_ID} --result ${SERVICE_RESULT}
+Restart=on-failure
+RestartSec=5s
+KillSignal=SIGTERM
+TimeoutStopSec=150s
+UMask=0077
+StateDirectory=qwsg
+StateDirectoryMode=0700
+WorkingDirectory=%S/qwsg
+Environment=QWSG_STATE_DIR=%S/qwsg
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%S/qwsg
+MemoryMax=128M
+TasksMax=32
+CPUQuota=25%
+
+[Install]
+WantedBy=default.target
