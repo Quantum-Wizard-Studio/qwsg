@@ -27,3 +27,10 @@
   configuration faults from entering restart churn.
 
 Raw state can contain host evidence. Do not paste it into public reports. QWSG emits privacy-safe categories instead of raw paths, identifiers, config values, or Go errors.
+
+- `notification_not_ready`: run `qwsg notification preflight`, correct required
+  or incompatible findings, and rerun it. Unknown capability is not guessed.
+- `smtp_delivery_failed`: verify destination, TLS trust, authentication, and
+  network externally. Guardian monitoring continues.
+- `credential_path_unsafe`: use the canonical current-user-owned `0700`
+  directory and a `0600` regular credential file; links are rejected.

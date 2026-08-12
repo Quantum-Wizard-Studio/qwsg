@@ -89,3 +89,8 @@ QWSG rejects relative or unsafe paths, symlinks, permissive store objects,
 unexpected files, unsupported versions, malformed JSON, duplicate keys,
 integrity mismatch, and invalid Inventory. Preserve a failed store for review.
 Do not delete locks, transaction artifacts, or operator snapshots blindly.
+
+Optional Community email commands are `qwsg notification preflight`,
+`qwsg notification credential set --from-file FILE`, and the explicit
+`qwsg notification test`. Community supports exactly one administrator
+recipient; credential values are never accepted as command arguments or shown.

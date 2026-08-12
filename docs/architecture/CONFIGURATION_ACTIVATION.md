@@ -43,17 +43,14 @@ XDG state root. They are not interchangeable and uninstall preserves both.
 
 ## Secret and future-product boundary
 
-Public configuration can contain only typed opaque secret references. Future
-credential material belongs to a separate private credential-provider/store
-boundary below the QWSG per-user configuration domain; Task 045 implements no
-backend and accepts no secret value.
+Public configuration can contain only typed opaque secret references. Task 046
+activates one narrow private SMTP credential store below the QWSG per-user
+configuration domain; the public contract still accepts no secret value.
 
-An inert optional extension can preserve a future ordered recipient collection
-without activating it. Basic local email is a future Community capability with
-exactly one administrator address and no QWS account, API key, subscription, or
-QWS remote service. Pro has no entitlement-imposed recipient limit, subject to
-global parser and resource bounds. Delivery and entitlement enforcement are
-not Task 045 behavior.
+The `notification.email` version `1.0` extension is activated by Task 046 for
+exactly one Community administrator address without a QWS account, API key,
+subscription, or remote service. Its collection representation preserves
+future Pro multiple-recipient compatibility; entitlement remains unimplemented.
 
 ## Guardian failure boundary
 

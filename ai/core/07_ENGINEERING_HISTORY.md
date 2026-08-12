@@ -1,5 +1,10 @@
 # Engineering History
 
+- 2026-08-12 — Task 046 activated optional local Community SMTP notifications
+  for exactly one administrator recipient using private credentials,
+  deterministic readiness preflight, bounded retry, and existing canonical
+  Alert/Notification/Guardian continuity semantics.
+
 - 2026-08-12 — Task 045 established the per-user QWSG Setup and Configuration
   foundation: strict XDG discovery, private atomic Source Record persistence,
   deterministic setup/config CLI, unified Guardian scheduling and fail-safe

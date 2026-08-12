@@ -176,3 +176,10 @@ delivery through replaceable providers. Operational hosting remains later work.
 Runtime calls planning with Alert Records only and invokes at most one provider
 cycle when requests exist. It does not select routes, retry attempts, classify
 provider outcomes, or persist queues.
+
+Task 046 is the separately authorized concrete Community SMTP adapter and
+Guardian-hosting layer. It activates this unchanged provider interface,
+delivery policy, and queue contract through the canonical configuration and
+private credential boundaries documented in
+`COMMUNITY_EMAIL_NOTIFICATIONS.md`. Other channels, callbacks, managed
+delivery, and entitlement remain excluded.

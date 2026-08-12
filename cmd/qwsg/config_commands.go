@@ -11,8 +11,10 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/configuration"
 	"quantumwizard.hu/qwsg/internal/configurationstore"
+	"quantumwizard.hu/qwsg/internal/credentialstore"
 	"quantumwizard.hu/qwsg/internal/pipeline"
 	"quantumwizard.hu/qwsg/internal/runtimeservice"
+	"quantumwizard.hu/qwsg/internal/smtpnotification"
 )
 
 type configOptions struct {
@@ -78,6 +80,9 @@ func runConfig(args []string, out, errout io.Writer) int {
 	if err = validateGuardianTiming(effective); err != nil {
 		return configFailure(errout, err)
 	}
+	if err = validateNotificationReadiness(effective, path); err != nil {
+		return configFailure(errout, configurationstore.ErrInvalid)
+	}
 	switch action {
 	case "show":
 		result := configResult{Status: "valid", Path: path, Configured: found, Effective: effective}
@@ -113,6 +118,9 @@ func runConfig(args []string, out, errout io.Writer) int {
 		}
 		if setErr = validateGuardianTiming(resolved); setErr != nil {
 			return configFailure(errout, setErr)
+		}
+		if setErr = validateNotificationReadiness(resolved, path); setErr != nil {
+			return configFailure(errout, configurationstore.ErrInvalid)
 		}
 		if setErr = configurationstore.Save(path, updated); setErr != nil {
 			return configFailure(errout, setErr)
@@ -181,6 +189,9 @@ func runSetup(args []string, in io.Reader, out, errout io.Writer, interactive bo
 	}
 	if err = validateGuardianTiming(effective); err != nil {
 		return configFailure(errout, err)
+	}
+	if err = validateNotificationReadiness(effective, path); err != nil {
+		return configFailure(errout, configurationstore.ErrInvalid)
 	}
 	if options.format == formatHuman {
 		fmt.Fprintf(out, "QWSG setup plan\nPath: %s\nExisting configuration: %t\nLocale: %s\nTime zone: %s\nGuardian interval: %s\nGuardian cycle timeout: %s\n", safeText(path), found, safeText(effective.Values.Locale), safeText(effective.Values.TimeZone), guardianInterval(effective), guardianTimeout(effective))
@@ -291,6 +302,28 @@ func setConfigValue(source configuration.Source, found bool, effective configura
 		}
 		schedules := []configuration.Schedule{schedule}
 		source.Patch.Schedules = &schedules
+	case "notification.email.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout":
+		extensions := append([]configuration.Extension{}, effective.Values.Extensions...)
+		fields := map[string]string{}
+		foundExtension := false
+		for i := range extensions {
+			if extensions[i].ID == smtpnotification.ExtensionID {
+				for k, v := range extensions[i].Fields {
+					fields[k] = v
+				}
+				extensions = append(extensions[:i], extensions[i+1:]...)
+				foundExtension = true
+				break
+			}
+		}
+		_ = foundExtension
+		field := strings.TrimPrefix(key, "notification.email.")
+		if field == "recipient" {
+			field = "recipients"
+		}
+		fields[field] = value
+		extensions = append(extensions, configuration.Extension{ID: smtpnotification.ExtensionID, Version: "1.0", Required: false, Fields: fields})
+		source.Patch.Extensions = &extensions
 	default:
 		return source, fmt.Errorf("unsupported configuration key %q", key)
 	}
@@ -309,6 +342,17 @@ func getConfigValue(effective configuration.Effective, key string) (string, erro
 		return guardianInterval(effective).String(), nil
 	case "guardian.cycle_timeout":
 		return guardianTimeout(effective).String(), nil
+	case "notification.email.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout":
+		field := strings.TrimPrefix(key, "notification.email.")
+		if field == "recipient" {
+			field = "recipients"
+		}
+		for _, x := range effective.Values.Extensions {
+			if x.ID == smtpnotification.ExtensionID {
+				return x.Fields[field], nil
+			}
+		}
+		return "", nil
 	default:
 		return "", fmt.Errorf("unsupported configuration key %q", key)
 	}
@@ -339,6 +383,22 @@ func validateGuardianTiming(effective configuration.Effective) error {
 	interval, timeout := guardianInterval(effective), guardianTimeout(effective)
 	if interval <= 0 || interval > runtimeservice.MaxInterval || timeout <= 0 || timeout >= interval || timeout > runtimeservice.MaxCycleTimeout {
 		return fmt.Errorf("%w: guardian interval and timeout are inconsistent", configurationstore.ErrInvalid)
+	}
+	return nil
+}
+
+func validateNotificationReadiness(effective configuration.Effective, configPath string) error {
+	cfg, err := smtpnotification.FromEffective(effective)
+	if err != nil {
+		return err
+	}
+	available := cfg.Auth != "password"
+	if cfg.Enabled && cfg.Auth == "password" {
+		_, err = credentialstore.Load(configPath, cfg.CredentialRef)
+		available = err == nil
+	}
+	if !smtpnotification.Ready(smtpnotification.Preflight(cfg, available)) {
+		return configurationstore.ErrInvalid
 	}
 	return nil
 }

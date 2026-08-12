@@ -21,6 +21,7 @@ import (
 	"quantumwizard.hu/qwsg/internal/comparison"
 	"quantumwizard.hu/qwsg/internal/configuration"
 	"quantumwizard.hu/qwsg/internal/configurationstore"
+	"quantumwizard.hu/qwsg/internal/credentialstore"
 	"quantumwizard.hu/qwsg/internal/guardian"
 	"quantumwizard.hu/qwsg/internal/inventory"
 	"quantumwizard.hu/qwsg/internal/inventorystore"
@@ -34,6 +35,7 @@ import (
 	"quantumwizard.hu/qwsg/internal/runtime"
 	"quantumwizard.hu/qwsg/internal/runtimeservice"
 	"quantumwizard.hu/qwsg/internal/scheduler"
+	"quantumwizard.hu/qwsg/internal/smtpnotification"
 )
 
 var (
@@ -123,6 +125,8 @@ func runWithConsole(args []string, in io.Reader, out, errout io.Writer, interact
 		return runSetup(args[1:], in, out, errout, interactive)
 	case "config":
 		return runConfig(args[1:], out, errout)
+	case "notification":
+		return runNotification(args[1:], out, errout)
 	default:
 		return usageError(errout, "unknown command: %s", safeText(args[0]))
 	}
@@ -311,6 +315,23 @@ func executeGuardian(options guardianOptions) error {
 	if interval <= 0 || interval > runtimeservice.MaxInterval || timeout <= 0 || timeout >= interval || timeout > runtimeservice.MaxCycleTimeout {
 		return fmt.Errorf("%w: guardian operating bounds", configurationstore.ErrInvalid)
 	}
+	configPath, err := configurationstore.SelectPath(options.configSource, os.Getenv)
+	if err != nil {
+		return err
+	}
+	emailConfig, err := smtpnotification.FromEffective(effective)
+	if err != nil {
+		return fmt.Errorf("%w: notification configuration", configurationstore.ErrInvalid)
+	}
+	password := []byte(nil)
+	credentialAvailable := emailConfig.Auth != "password"
+	if emailConfig.Enabled && emailConfig.Auth == "password" {
+		password, err = credentialstore.Load(configPath, emailConfig.CredentialRef)
+		credentialAvailable = err == nil
+	}
+	if !smtpnotification.Ready(smtpnotification.Preflight(emailConfig, credentialAvailable)) {
+		return fmt.Errorf("%w: notification preflight", configurationstore.ErrInvalid)
+	}
 	guardianRoot := filepath.Join(options.stateRoot, "guardian")
 	lock, err := guardian.Acquire(guardianRoot, options.generation)
 	if err != nil {
@@ -348,11 +369,15 @@ func executeGuardian(options guardianOptions) error {
 	orchestrator := &pipeline.Orchestrator{Collect: collectInventoryContext, Configuration: &effective}
 	cycle := scheduler.Cycle{Configuration: effective, Selection: canonicalcommand.Selection{Source: "live", Store: options.storeRoot}, LockOwnerID: "qwsg.guardian.cycle", Store: schedulerStore, Locker: schedulerLocker, Clock: guardian.NewSchedulerClock(options.generation), TimeZones: scheduler.SystemTimeZones{}, ResolveCommand: scheduler.ResolveCanonicalCommand, Pipeline: guardianPipeline{orchestrator: orchestrator, storeRoot: options.storeRoot}}
 	captured := &guardian.CapturingScheduler{Cycle: cycle}
-	registry, err := notification.NewRegistry()
+	providers := []notification.Provider{}
+	if emailConfig.Enabled {
+		providers = append(providers, smtpnotification.Provider{Config: emailConfig, Password: password})
+	}
+	registry, err := notification.NewRegistry(providers...)
 	if err != nil {
 		return err
 	}
-	policy, err := notification.NewPolicy(notification.RetryPolicy{MaxAttempts: 1, DeliveryWindowNS: int64(time.Hour), BackoffNS: []int64{}}, []notification.Route{}, []notification.EndpointReference{}, []notification.ProviderBinding{})
+	policy, err := smtpnotification.Policy(emailConfig)
 	if err != nil {
 		return err
 	}
@@ -1407,6 +1432,7 @@ Usage:
 	qwsg console
   qwsg setup [--accept-defaults] [--set KEY=VALUE]
   qwsg config <show|validate|get|set> ...
+  qwsg notification <preflight|test|credential> ...
   qwsg help [command]
   qwsg version
   qwsg <status|check|observe|changes|health|report> [options]
@@ -1419,6 +1445,7 @@ Commands:
 	console    Open the read-only local Operator Console
   setup      Safely create or review the per-user QWSG configuration
   config     Show, validate, read, or update canonical configuration
+  notification Assess readiness, store a private SMTP credential, or send a test
   status     Execute the canonical live Inventory profile
   check      Execute the canonical live Inventory and Snapshot profile
   observe    Establish a baseline or run the full canonical operator evaluation

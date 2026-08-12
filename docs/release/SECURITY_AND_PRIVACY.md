@@ -7,5 +7,8 @@ Installation privilege is limited to copying checked artifacts under `/usr/local
 Per-user configuration is separate from state, current-user-owned, and exact
 mode `0700/0600`. QWSG rejects symlinks, special files, wrong owners, and
 permissive modes, and publishes changes atomically. General configuration has
-only opaque secret references. Task 045 adds no credentials, network client,
-SMTP transport, or entitlement lookup.
+only opaque secret references. Optional Community email initiates outbound SMTP
+only for due Alert delivery or an explicit test. TLS verification cannot be
+disabled. Its separate credential store is `0700/0600`; messages contain
+bounded Alert metadata rather than raw host evidence. Delivery failure never
+disables local monitoring.

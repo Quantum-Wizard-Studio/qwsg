@@ -11,6 +11,10 @@ review with `qwsg config show`, and validate before explicitly enabling the user
 unit. Installation never writes per-user configuration. See
 `docs/release/SETUP_AND_CONFIGURATION.md`.
 
+Installation never installs dependencies or configures SMTP. Optional email is
+assessed afterward with `qwsg notification preflight`; operators apply any
+supported recommendation themselves and rerun validation.
+
 Repository `make install-service` is a development convenience and rejects a
 nonstandard prefix. `DESTDIR` remains available for isolated staging.
 

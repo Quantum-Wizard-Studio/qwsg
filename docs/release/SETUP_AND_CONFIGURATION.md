@@ -38,8 +38,11 @@ qwsg config get KEY [--format human|json]
 qwsg config set KEY VALUE [--format human|json]
 ```
 
-The Task 045 mutable keys are `locale`, `time_zone`, `snapshot_retention`,
-`guardian.interval`, and `guardian.cycle_timeout`. Durations use forms such as
+The base mutable keys are `locale`, `time_zone`, `snapshot_retention`,
+`guardian.interval`, and `guardian.cycle_timeout`. Task 046 also supports
+`notification.email.enabled`, `.recipient`, `.host`, `.port`, `.sender`,
+`.security`, `.auth`, `.username`, `.credential_ref`, and `.timeout`.
+Community permits exactly one administrator recipient. Durations use forms such as
 `30s`, `2m`, or `1h`. Unknown keys and arbitrary JSON paths are rejected.
 
 The compiled defaults are locale `en`, time zone `UTC`, snapshot retention
@@ -57,16 +60,14 @@ values fail closed. QWSG does not silently migrate, repair, or discard an
 invalid file. Guardian validates before mutating state; the Console also
 refuses normal operation while discovered configuration is invalid.
 
-## Secrets and future notifications
+## Community email and secrets
 
-The general JSON file stores references only, never passwords, API keys,
-tokens, or credentials. A future protected credential provider/store will
-resolve those references without changing this public contract.
-
-Task 045 sends no email. The model reserves a future ordered recipient
-collection: Community basic local email will support exactly one administrator
-recipient without a QWS account, API key, subscription, or QWS remote service;
-Pro will have no entitlement recipient cap, subject to global safety bounds.
+The general JSON file stores references only. Configure non-secret email fields
+while disabled, store a password from a protected current-user-owned `0600`
+file with `qwsg notification credential set --from-file FILE`, enable email,
+then run `qwsg notification preflight` and `qwsg notification test`. Passwords
+are never command arguments or output. Pro multiple-recipient support remains
+future work.
 
 After validation, install and activate the shipped user unit explicitly. Setup
 does not enable or start it.

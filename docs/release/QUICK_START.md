@@ -29,3 +29,9 @@ systemctl --user enable --now qwsg-guardian.service
 Installation never enables the service and never changes user lingering.
 Setup is per-user and non-root; it never starts the service. See
 `SETUP_AND_CONFIGURATION.md` for automation and configuration details.
+
+Optional Community email supports one administrator recipient. Configure its
+non-secret keys, provision the password with
+`qwsg notification credential set --from-file FILE`, and run
+`qwsg notification preflight` plus the explicit `qwsg notification test`
+before Guardian activation.

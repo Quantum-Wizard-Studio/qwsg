@@ -6,6 +6,10 @@ All notable changes to Quantum Wizard Server Guardian will be recorded here. Thi
 
 ### Added
 
+- Optional one-recipient Community SMTP notifications with a private credential
+  store, deterministic readiness preflight, bounded retry, and privacy-safe
+  Alert messages.
+
 - Task 045 per-user Setup and Configuration foundation with strict XDG
   discovery, atomic private persistence, deterministic CLI management,
   effective Guardian scheduling, invalid-configuration preflight, and future
