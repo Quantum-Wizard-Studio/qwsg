@@ -2,6 +2,11 @@
 
 Use `qwsg` for the current read-only operator view and `qwsg observe` for an explicit full observation. The supervised Guardian runs the same canonical Runtime Service; it does not duplicate engine decisions.
 
+Before activation or after a configuration change, run `qwsg config validate`
+and `qwsg config show`. Guardian discovers that primary configuration and uses
+its effective interval and timeout. Duration flags are temporary
+highest-precedence configuration sources for bounded testing only.
+
 Inside the interactive Console, `r` only reloads the integrity-checked Current
 Operator State and requalifies freshness. It does not compete with the running
 Guardian. An explicit `qwsg observe` remains lock-protected and fails safely

@@ -17,6 +17,13 @@
   per-user state root. `state_publication_failed` means valid evaluation reached
   Current State publication but the bounded write did not complete. Neither
   token means that saved state was corrupt or unreadable.
-- invalid configuration: validate Source Record 1.0 JSON, exact schema versions, identity, ownership and mode. The shipped example contains no secret.
+- `configuration_invalid`, `configuration_path_unsafe`, or
+  `configuration_permission_unsafe`: run `qwsg config validate`. The directory
+  must be current-user-owned mode `0700`, the regular file mode `0600`, and no
+  path component may be a symlink. Unknown, malformed, incompatible, and
+  identity-mismatched Source Records fail closed.
+- `guardian_configuration_invalid`: Guardian rejected configuration before
+  changing checkpoint or lifecycle state. Its systemd condition prevents
+  configuration faults from entering restart churn.
 
 Raw state can contain host evidence. Do not paste it into public reports. QWSG emits privacy-safe categories instead of raw paths, identifiers, config values, or Go errors.

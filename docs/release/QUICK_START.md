@@ -8,6 +8,9 @@ tar -xzf qwsg-1.0.0-linux-amd64.tar.gz
 cd qwsg-1.0.0-linux-amd64
 sudo ./install.sh
 qwsg version
+qwsg setup
+qwsg config show
+qwsg config validate
 qwsg observe
 qwsg observe
 ```
@@ -24,3 +27,5 @@ systemctl --user enable --now qwsg-guardian.service
 ```
 
 Installation never enables the service and never changes user lingering.
+Setup is per-user and non-root; it never starts the service. See
+`SETUP_AND_CONFIGURATION.md` for automation and configuration details.

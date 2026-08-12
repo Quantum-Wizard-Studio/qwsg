@@ -15,6 +15,8 @@ import (
 
 	canonicalcommand "quantumwizard.hu/qwsg/internal/command"
 	"quantumwizard.hu/qwsg/internal/comparison"
+	"quantumwizard.hu/qwsg/internal/configuration"
+	"quantumwizard.hu/qwsg/internal/configurationstore"
 	"quantumwizard.hu/qwsg/internal/inventory"
 	"quantumwizard.hu/qwsg/internal/inventorystore"
 	"quantumwizard.hu/qwsg/internal/operatorstate"
@@ -38,6 +40,175 @@ func TestCLIHelpVersionAndInvalid(t *testing.T) {
 		code := run(tc.args, &out, &err)
 		if code != tc.code || !strings.Contains(out.String()+err.String(), tc.contains) {
 			t.Fatalf("%v: %d %q", tc.args, code, out.String()+err.String())
+		}
+	}
+}
+
+func TestSetupAndConfigCommandLifecycle(t *testing.T) {
+	home := filepath.Join(t.TempDir(), "home")
+	if err := os.Mkdir(home, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", "")
+	path := filepath.Join(home, ".config", "qwsg", "config.json")
+	var out, errout bytes.Buffer
+	if code := run([]string{"config", "show"}, &out, &errout); code != 0 || !strings.Contains(out.String(), "Configured: false") {
+		t.Fatalf("show defaults code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	out.Reset()
+	errout.Reset()
+	if code := run([]string{"setup"}, &out, &errout); code != 1 || !strings.Contains(errout.String(), "requires a terminal") {
+		t.Fatalf("noninteractive setup code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	if _, err := os.Stat(path); !errors.Is(err, os.ErrNotExist) {
+		t.Fatal("setup wrote before acceptance")
+	}
+	out.Reset()
+	errout.Reset()
+	if code := run([]string{"setup", "--accept-defaults", "--set", "locale=hu", "--set", "guardian.interval=10m"}, &out, &errout); code != 0 {
+		t.Fatalf("setup code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	if info, err := os.Stat(path); err != nil || info.Mode().Perm() != 0600 {
+		t.Fatalf("config mode=%v err=%v", info, err)
+	}
+	out.Reset()
+	errout.Reset()
+	if code := run([]string{"config", "get", "locale"}, &out, &errout); code != 0 || strings.TrimSpace(out.String()) != "hu" {
+		t.Fatalf("get code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	out.Reset()
+	errout.Reset()
+	if code := run([]string{"config", "set", "guardian.cycle_timeout", "3m"}, &out, &errout); code != 0 {
+		t.Fatalf("set code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	out.Reset()
+	errout.Reset()
+	if code := run([]string{"config", "show", "--format", "json"}, &out, &errout); code != 0 || strings.Contains(out.String(), "QWSG setup plan") {
+		t.Fatalf("json show code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	var result configResult
+	if err := json.Unmarshal(out.Bytes(), &result); err != nil || !result.Configured || guardianInterval(result.Effective) != 10*time.Minute || guardianTimeout(result.Effective) != 3*time.Minute {
+		t.Fatalf("result=%+v err=%v", result, err)
+	}
+	before, _ := os.ReadFile(path)
+	out.Reset()
+	errout.Reset()
+	if code := run([]string{"config", "set", "guardian.cycle_timeout", "20m"}, &out, &errout); code != 1 || !strings.Contains(errout.String(), "configuration_invalid") {
+		t.Fatalf("inconsistent timing code=%d err=%q", code, errout.String())
+	}
+	unchanged, _ := os.ReadFile(path)
+	if !bytes.Equal(before, unchanged) {
+		t.Fatal("invalid timing replaced configuration")
+	}
+	out.Reset()
+	errout.Reset()
+	if code := run([]string{"setup", "--accept-defaults"}, &out, &errout); code != 0 {
+		t.Fatalf("repeat setup: %d %q", code, errout.String())
+	}
+	after, _ := os.ReadFile(path)
+	if !bytes.Equal(before, after) {
+		t.Fatal("repeat setup changed valid configuration")
+	}
+}
+
+func TestConfigurationFailuresAreBoundedAndGuardianPreflights(t *testing.T) {
+	home := filepath.Join(t.TempDir(), "home")
+	configDir := filepath.Join(home, ".config", "qwsg")
+	if err := os.MkdirAll(configDir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(configDir, "config.json")
+	if err := os.WriteFile(path, []byte(`{"unknown":true}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("QWSG_STATE_DIR", filepath.Join(home, "state"))
+	for _, args := range [][]string{{"config", "validate"}, {"console"}} {
+		var out, errout bytes.Buffer
+		if code := run(args, &out, &errout); code != 1 || !strings.Contains(errout.String(), "configuration_invalid") || strings.Contains(errout.String(), home) {
+			t.Fatalf("%v code=%d out=%q err=%q", args, code, out.String(), errout.String())
+		}
+	}
+	options, err := parseGuardianOptions([]string{"--interval", "10m", "--cycle-timeout", "2m"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = executeGuardian(options); !errors.Is(err, configurationstore.ErrInvalid) {
+		t.Fatalf("guardian invalid config: %v", err)
+	}
+	if _, statErr := os.Stat(filepath.Join(home, "state")); !errors.Is(statErr, os.ErrNotExist) {
+		t.Fatal("Guardian mutated state before configuration validation")
+	}
+}
+
+func TestInteractiveSetupRequiresExplicitYes(t *testing.T) {
+	home := filepath.Join(t.TempDir(), "home")
+	if err := os.Mkdir(home, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", "")
+	path := filepath.Join(home, ".config", "qwsg", "config.json")
+	for _, tc := range []struct {
+		answer  string
+		written bool
+	}{{"n\n", false}, {"y\n", true}} {
+		var out, errout bytes.Buffer
+		if code := runWithConsole([]string{"setup"}, strings.NewReader(tc.answer), &out, &errout, true); code != 0 {
+			t.Fatalf("answer=%q code=%d err=%q", tc.answer, code, errout.String())
+		}
+		_, err := os.Stat(path)
+		if tc.written != (err == nil) {
+			t.Fatalf("answer=%q written=%v err=%v", tc.answer, tc.written, err)
+		}
+	}
+}
+
+func TestConfigRejectsUnsafePathsPermissionsAndUnknownKeys(t *testing.T) {
+	home := filepath.Join(t.TempDir(), "home")
+	if err := os.Mkdir(home, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", "relative")
+	var out, errout bytes.Buffer
+	if code := run([]string{"config", "show"}, &out, &errout); code != 1 || !strings.Contains(errout.String(), "configuration_path_unsafe") {
+		t.Fatalf("unsafe XDG: %d %q", code, errout.String())
+	}
+	t.Setenv("XDG_CONFIG_HOME", "")
+	if code := run([]string{"config", "set", "smtp.password", "secret"}, &out, &errout); code != 1 || !strings.Contains(errout.String(), "unsupported configuration key") {
+		t.Fatalf("secret key accepted: %d %q", code, errout.String())
+	}
+	configDir := filepath.Join(home, ".config", "qwsg")
+	if err := os.MkdirAll(configDir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(configDir, "config.json")
+	locale := "en"
+	source, _ := configuration.NormalizeSource(configuration.Source{SchemaName: configuration.SourceSchema, SchemaVersion: configuration.SchemaVersion, ModelVersion: configuration.ModelVersion, ID: "local.operator", SourceVersion: "1.0", Kind: configuration.PrimaryLocal, Patch: configuration.Patch{Locale: &locale}})
+	document, _ := configuration.MarshalSourceCanonical(source)
+	if err := os.WriteFile(path, document, 0644); err != nil {
+		t.Fatal(err)
+	}
+	out.Reset()
+	errout.Reset()
+	if code := run([]string{"config", "validate"}, &out, &errout); code != 1 || !strings.Contains(errout.String(), "configuration_permission_unsafe") {
+		t.Fatalf("permission accepted: %d %q", code, errout.String())
+	}
+}
+
+func TestNotificationRecipientExtensionRemainsInertAndRepresentable(t *testing.T) {
+	for _, recipients := range []string{`["admin@example.invalid"]`, `["a@example.invalid","b@example.invalid","c@example.invalid"]`} {
+		extensions := []configuration.Extension{{ID: "notification.recipients", Version: "1.0", Required: false, Fields: map[string]string{"addresses_json": recipients}}}
+		source, err := configuration.NormalizeSource(configuration.Source{SchemaName: configuration.SourceSchema, SchemaVersion: configuration.SchemaVersion, ModelVersion: configuration.ModelVersion, ID: "local.operator", SourceVersion: "1.0", Kind: configuration.PrimaryLocal, Patch: configuration.Patch{Extensions: &extensions}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		effective, err := resolveLocalConfiguration(source, true, nil)
+		if err != nil || effective.Values.Extensions[0].Fields["addresses_json"] != recipients {
+			t.Fatalf("recipients=%s effective=%+v err=%v", recipients, effective.Values.Extensions, err)
 		}
 	}
 }

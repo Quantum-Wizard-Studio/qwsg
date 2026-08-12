@@ -6,6 +6,11 @@ All notable changes to Quantum Wizard Server Guardian will be recorded here. Thi
 
 ### Added
 
+- Task 045 per-user Setup and Configuration foundation with strict XDG
+  discovery, atomic private persistence, deterministic CLI management,
+  effective Guardian scheduling, invalid-configuration preflight, and future
+  secret/notification boundaries without delivery or entitlement.
+
 - Authoritative QWSG Core Alpha Functional Specification covering actors, checks, configuration, state and incident semantics, alerting, reporting, CLI and lifecycle behavior, failure handling, release gates, and testable acceptance criteria.
 - Evidence-based repository deep audit, Quantum Creator conformance review, requirements traceability matrix, and Core Alpha readiness assessment.
 - Authoritative Core Alpha architecture, inventory data and security models, architecture gates, requirements mapping, and implementation handoff for the read-only Slice 1 milestone.

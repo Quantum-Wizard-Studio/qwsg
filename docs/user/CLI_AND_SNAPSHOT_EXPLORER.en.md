@@ -12,6 +12,10 @@ qwsg version
 qwsg help inventory
 ```
 
+For persistent per-user Guardian configuration, run `qwsg setup`, then use
+`qwsg config show|validate|get|set`. The canonical reference is
+`docs/release/SETUP_AND_CONFIGURATION.md`; setup never starts the service.
+
 Exit `0` means success or complete Inventory, `2` means partial but usable
 Inventory, and `1` means a usage, validation, store, permission, corruption, or
 runtime failure.

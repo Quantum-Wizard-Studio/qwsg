@@ -1,1 +1,1 @@
-{"schema_name":"qwsg.configuration-source","schema_version":"1.0","model_version":"1.0","id":"local.operator","identity":"","source_version":"1.0","kind":"primary_local","patch":{"locale":"en"}}
+{"schema_name":"qwsg.configuration-source","schema_version":"1.0","model_version":"1.0","id":"local.operator","identity":"sha256:b53a5bbc341234013566e78e9b085415a37a3afe0b93b896b5f007be1c9db962","source_version":"1.0","kind":"primary_local","patch":{"locale":"en","time_zone":"UTC"}}

@@ -58,9 +58,9 @@ declared version. Every normalized source and Effective Configuration has a
 SHA-256 identity derived from its complete canonical content with its identity
 field omitted.
 
-Canonical JSON is used for stable interchange and identity. It is not the
-selected end-user configuration syntax and does not authorize filesystem
-activation.
+Canonical JSON is used for stable interchange and identity. Task 045 selects a
+strict per-user Source Record file and activation transaction around this
+unchanged semantic contract; see `CONFIGURATION_ACTIVATION.md`.
 
 ## Source taxonomy and precedence
 

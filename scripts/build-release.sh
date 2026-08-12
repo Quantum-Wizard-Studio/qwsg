@@ -32,7 +32,7 @@ cp "$repo/packaging/release/install.sh" "$repo/packaging/release/uninstall.sh" "
 cp "$repo/packaging/release/qwsg-config.json" "$root/"
 cp "$repo/LICENSE" "$repo/CHANGELOG.md" "$root/"
 release_notes="RELEASE_NOTES_$version"
-for doc in QUICK_START OPERATIONS TROUBLESHOOTING UPGRADE_ROLLBACK_UNINSTALL SUPPORT SECURITY_AND_PRIVACY KNOWN_LIMITATIONS "$release_notes"; do cp "$repo/docs/release/$doc.md" "$root/docs/"; done
+for doc in QUICK_START SETUP_AND_CONFIGURATION OPERATIONS TROUBLESHOOTING UPGRADE_ROLLBACK_UNINSTALL SUPPORT SECURITY_AND_PRIVACY KNOWN_LIMITATIONS "$release_notes"; do cp "$repo/docs/release/$doc.md" "$root/docs/"; done
 chmod 0755 "$root/bin/qwsg" "$root/install.sh" "$root/uninstall.sh"
 find "$root" -type f ! -name MANIFEST.sha256 -printf '%P\n' | LC_ALL=C sort | while IFS= read -r file; do sha256sum "$root/$file"; done | sed "s#  $root/#  #" > "$root/MANIFEST.sha256"
 find "$root" -exec touch -h -d "@$epoch" {} +

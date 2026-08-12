@@ -6,6 +6,11 @@ The production prefix is deliberately fixed at `/usr/local`, keeping the
 audited absolute systemd `ExecStart` and executable inseparable. Installation
 copies artifacts only; service activation and lingering are explicit acts.
 
+After installation, run `qwsg setup` as the intended ordinary Guardian user,
+review with `qwsg config show`, and validate before explicitly enabling the user
+unit. Installation never writes per-user configuration. See
+`docs/release/SETUP_AND_CONFIGURATION.md`.
+
 Repository `make install-service` is a development convenience and rejects a
 nonstandard prefix. `DESTDIR` remains available for isolated staging.
 

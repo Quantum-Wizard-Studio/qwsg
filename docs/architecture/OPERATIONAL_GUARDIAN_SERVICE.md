@@ -10,10 +10,10 @@ cycle.
 The adapter resolves Configuration Source 1.0 records through the Canonical
 Configuration Contract. Its built-in source enables one five-minute local
 `observe` schedule. Runtime Service cadence is five minutes, cycle timeout is
-two minutes, and lifecycle freshness is ten minutes. Command-line duration
-overrides exist for isolated validation and must still satisfy `timeout <
-interval`. An optional `--config-source` is strictly decoded and participates
-in the existing precedence model.
+two minutes, and lifecycle freshness is ten minutes. The per-user primary file
+is automatically discovered. Duration overrides are temporary Configuration
+Sources, so actual recurrence and Effective Configuration cannot disagree.
+`--config` replaces discovery; `--config-source` is a compatibility alias.
 
 Private state is rooted at `$QWSG_STATE_DIR`, then `$XDG_STATE_HOME/qwsg`, then
 `$HOME/.local/state/qwsg`. It contains Scheduler state/lock, inventory
@@ -21,7 +21,13 @@ snapshots, Current Operator State, a nonblocking Guardian operation lock, and
 one integrity-protected atomic checkpoint. The checkpoint retains only the
 last validated Runtime, Alert and Notification proposed states and launch
 correlation. Missing state is a first start; invalid, incompatible or
-configuration-mismatched state fails closed and is not overwritten.
+invalid state fails closed and is not overwritten. A deliberate valid
+configuration identity change begins a fresh Runtime/Alert/Notification state
+epoch while preserving inventory and Current Operator evidence.
+
+Configuration resolves before lock or checkpoint mutation. The unit validation
+condition skips process start for invalid input, avoiding restart churn without
+weakening the sandbox.
 
 Checkpoint `active` records recovery intent and launch correlation; it is not
 a process-liveness oracle. A running operator claim requires fresh validated

@@ -13,6 +13,11 @@ qwsg version
 qwsg help inventory
 ```
 
+A tartós, felhasználónkénti Guardian konfigurációhoz futtasd a `qwsg setup`
+parancsot, majd használd a `qwsg config show|validate|get|set` műveleteket. A
+kanonikus leírás: `docs/release/SETUP_AND_CONFIGURATION.md`; a setup nem indítja
+el a service-t.
+
 A `0` kilépési kód sikeres vagy teljes Inventory eredményt, a `2` részleges, de
 használható Inventory eredményt, az `1` használati, validációs, store-,
 jogosultsági, korrupciós vagy futási hibát jelent.

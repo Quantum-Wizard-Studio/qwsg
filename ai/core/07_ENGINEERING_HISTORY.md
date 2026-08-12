@@ -1,5 +1,10 @@
 # Engineering History
 
+- 2026-08-12 — Task 045 established the per-user QWSG Setup and Configuration
+  foundation: strict XDG discovery, private atomic Source Record persistence,
+  deterministic setup/config CLI, unified Guardian scheduling and fail-safe
+  systemd preflight, while reserving but not implementing future secret,
+  Community-email, and Pro-recipient boundaries.
 - 2026-08-11 — Task 043 accepted QWSG `1.0.0-rc.3` on a genuine clean no-Go Ubuntu 24.04 host, including first use, user-service operation, physical reboot recovery, recurrence, restart and uninstall, and concluded `READY FOR QWSG 1.0 FINAL RELEASE` without authorizing publication.
 - 2026-08-11 — Task 042 produced reproducible QWSG `1.0.0-rc.3` release artifacts containing the accepted Task 041 clean-HOME bootstrap correction and completed artifact-level Task 039/041 validation for Owner clean-host acceptance.
 - 2026-08-10 — Task 036 hardened Operator projection for large valid evaluations with deterministic severity-first bounds, Rule/Policy correlation, explicit reduction disclosure, differentiated diagnostics, and truthful recommendations.

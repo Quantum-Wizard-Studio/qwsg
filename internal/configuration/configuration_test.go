@@ -154,6 +154,13 @@ func TestEffectiveIdentityDetectsTampering(t *testing.T) {
 	}
 }
 
+func TestDecodeRejectsDuplicateObjectFields(t *testing.T) {
+	data := []byte(`{"schema_name":"qwsg.configuration-source","schema_name":"qwsg.configuration-source"}`)
+	if _, err := DecodeSource(data); err == nil || !strings.Contains(err.Error(), "duplicate") {
+		t.Fatalf("duplicate field accepted: %v", err)
+	}
+}
+
 func TestNormalizationDoesNotMutateInputAndRejectsInvalidRules(t *testing.T) {
 	checks := []Check{{ID: "check.z", Enabled: true, TargetIDs: []string{"target.z", "target.a"}}, {ID: "check.a", Enabled: true, TargetIDs: []string{}}}
 	source := Source{SchemaName: SourceSchema, SchemaVersion: SchemaVersion, ModelVersion: ModelVersion, ID: "local.immutable", SourceVersion: "1.0", Kind: PrimaryLocal, Patch: Patch{Checks: &checks}}

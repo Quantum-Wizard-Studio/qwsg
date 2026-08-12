@@ -355,6 +355,9 @@ func MarshalEffectiveCanonical(result Effective) ([]byte, error) {
 }
 
 func DecodeSource(data []byte) (Source, error) {
+	if err := rejectDuplicateJSONNames(data); err != nil {
+		return Source{}, err
+	}
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.DisallowUnknownFields()
 	var source Source
@@ -365,6 +368,58 @@ func DecodeSource(data []byte) (Source, error) {
 		return Source{}, err
 	}
 	return NormalizeSource(source)
+}
+
+func rejectDuplicateJSONNames(data []byte) error {
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	var walk func() error
+	walk = func() error {
+		token, err := decoder.Token()
+		if err != nil {
+			return err
+		}
+		delim, ok := token.(json.Delim)
+		if !ok {
+			return nil
+		}
+		switch delim {
+		case '{':
+			seen := map[string]bool{}
+			for decoder.More() {
+				nameToken, tokenErr := decoder.Token()
+				if tokenErr != nil {
+					return tokenErr
+				}
+				name, ok := nameToken.(string)
+				if !ok || seen[name] {
+					return fmt.Errorf("invalid configuration source JSON: duplicate object field")
+				}
+				seen[name] = true
+				if err := walk(); err != nil {
+					return err
+				}
+			}
+			_, err = decoder.Token()
+			return err
+		case '[':
+			for decoder.More() {
+				if err := walk(); err != nil {
+					return err
+				}
+			}
+			_, err = decoder.Token()
+			return err
+		default:
+			return fmt.Errorf("invalid configuration source JSON")
+		}
+	}
+	if err := walk(); err != nil {
+		return fmt.Errorf("invalid configuration source JSON: %w", err)
+	}
+	if decoder.More() {
+		return fmt.Errorf("invalid configuration source JSON")
+	}
+	return nil
 }
 
 func validateSource(source Source, requireIdentity bool) error {

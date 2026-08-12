@@ -20,6 +20,7 @@ import (
 	canonicalcommand "quantumwizard.hu/qwsg/internal/command"
 	"quantumwizard.hu/qwsg/internal/comparison"
 	"quantumwizard.hu/qwsg/internal/configuration"
+	"quantumwizard.hu/qwsg/internal/configurationstore"
 	"quantumwizard.hu/qwsg/internal/guardian"
 	"quantumwizard.hu/qwsg/internal/inventory"
 	"quantumwizard.hu/qwsg/internal/inventorystore"
@@ -118,6 +119,10 @@ func runWithConsole(args []string, in io.Reader, out, errout io.Writer, interact
 		return runConsole(in, out, errout, interactive)
 	case "guardian":
 		return runGuardian(args[1:], out, errout)
+	case "setup":
+		return runSetup(args[1:], in, out, errout, interactive)
+	case "config":
+		return runConfig(args[1:], out, errout)
 	default:
 		return usageError(errout, "unknown command: %s", safeText(args[0]))
 	}
@@ -132,8 +137,8 @@ type guardianOptions struct {
 	stateRoot    string
 	storeRoot    string
 	configSource string
-	interval     time.Duration
-	timeout      time.Duration
+	interval     *time.Duration
+	timeout      *time.Duration
 	generation   string
 }
 
@@ -162,7 +167,7 @@ func (v guardianPipeline) Execute(ctx context.Context, definition canonicalcomma
 
 func runGuardian(args []string, out, errout io.Writer) int {
 	if len(args) == 0 || isHelp(args[0]) {
-		fmt.Fprintln(out, "Usage: qwsg guardian run [--state-dir DIR] [--store DIR] [--config-source FILE] [--interval DURATION] [--cycle-timeout DURATION]")
+		fmt.Fprintln(out, "Usage: qwsg guardian run [--state-dir DIR] [--store DIR] [--config FILE] [--interval DURATION] [--cycle-timeout DURATION]")
 		return 0
 	}
 	if args[0] == "report-exit" {
@@ -183,6 +188,8 @@ func runGuardian(args []string, out, errout io.Writer) int {
 			diagnostic = "guardian_checkpoint_invalid"
 		} else if errors.Is(err, guardian.ErrUnsafePath) {
 			diagnostic = "guardian_state_unsafe"
+		} else if errors.Is(err, configurationstore.ErrUnsafe) || errors.Is(err, configurationstore.ErrPermission) || errors.Is(err, configurationstore.ErrInvalid) || errors.Is(err, configurationstore.ErrUnavailable) {
+			diagnostic = "guardian_configuration_invalid"
 		}
 		fmt.Fprintf(errout, "guardian operation failed: %s\n", diagnostic)
 		return 1
@@ -254,7 +261,7 @@ func parseGuardianOptions(args []string) (guardianOptions, error) {
 	if err != nil {
 		return guardianOptions{}, err
 	}
-	value := guardianOptions{stateRoot: stateRoot, interval: guardianDefaultInterval, timeout: guardianDefaultTimeout, generation: os.Getenv("INVOCATION_ID")}
+	value := guardianOptions{stateRoot: stateRoot, generation: os.Getenv("INVOCATION_ID")}
 	if value.generation == "" {
 		value.generation = fmt.Sprintf("manual-%d-%d", os.Getpid(), time.Now().UTC().UnixNano())
 	}
@@ -269,12 +276,17 @@ func parseGuardianOptions(args []string) (guardianOptions, error) {
 			value.stateRoot = item
 		case "--store":
 			value.storeRoot = item
-		case "--config-source":
+		case "--config", "--config-source":
+			if value.configSource != "" {
+				return guardianOptions{}, fmt.Errorf("configuration path may be selected once")
+			}
 			value.configSource = item
 		case "--interval":
-			value.interval, err = time.ParseDuration(item)
+			parsed, parseErr := time.ParseDuration(item)
+			value.interval, err = &parsed, parseErr
 		case "--cycle-timeout":
-			value.timeout, err = time.ParseDuration(item)
+			parsed, parseErr := time.ParseDuration(item)
+			value.timeout, err = &parsed, parseErr
 		default:
 			return guardianOptions{}, fmt.Errorf("unknown guardian option: %s", safeText(name))
 		}
@@ -285,13 +297,20 @@ func parseGuardianOptions(args []string) (guardianOptions, error) {
 	if value.storeRoot == "" {
 		value.storeRoot = filepath.Join(value.stateRoot, "inventory")
 	}
-	if !filepath.IsAbs(value.stateRoot) || !filepath.IsAbs(value.storeRoot) || value.interval <= 0 || value.interval > runtimeservice.MaxInterval || value.timeout <= 0 || value.timeout >= value.interval || value.timeout > runtimeservice.MaxCycleTimeout {
+	if !filepath.IsAbs(value.stateRoot) || !filepath.IsAbs(value.storeRoot) || (value.interval != nil && (*value.interval <= 0 || *value.interval > runtimeservice.MaxInterval)) || (value.timeout != nil && (*value.timeout <= 0 || *value.timeout > runtimeservice.MaxCycleTimeout)) {
 		return guardianOptions{}, fmt.Errorf("invalid guardian operating bounds")
 	}
 	return value, nil
 }
 
 func executeGuardian(options guardianOptions) error {
+	effective, interval, timeout, err := guardianConfiguration(options)
+	if err != nil {
+		return err
+	}
+	if interval <= 0 || interval > runtimeservice.MaxInterval || timeout <= 0 || timeout >= interval || timeout > runtimeservice.MaxCycleTimeout {
+		return fmt.Errorf("%w: guardian operating bounds", configurationstore.ErrInvalid)
+	}
 	guardianRoot := filepath.Join(options.stateRoot, "guardian")
 	lock, err := guardian.Acquire(guardianRoot, options.generation)
 	if err != nil {
@@ -303,24 +322,17 @@ func executeGuardian(options guardianOptions) error {
 		return err
 	}
 	previous, loadErr := checkpointStore.Load()
-	if loadErr == nil {
-		previous.Generation, previous.Active = options.generation, true
-		if err = checkpointStore.Save(previous); err != nil {
-			return err
-		}
-	} else if !errors.Is(loadErr, os.ErrNotExist) {
+	if loadErr != nil && !errors.Is(loadErr, os.ErrNotExist) {
 		return loadErr
-	}
-	effective, err := guardianConfiguration(options)
-	if err != nil {
-		return err
 	}
 	checkpoint := guardian.Checkpoint{SchemaName: "qwsg.guardian-checkpoint", SchemaVersion: guardian.SchemaVersion, ModelVersion: guardian.ModelVersion, ServiceID: "qwsg.guardian.local", ConfigurationID: effective.ID, Generation: options.generation, Active: true, RuntimeState: runtime.NewState(), AlertState: alert.NewState(effective.ID), NotificationQueueState: notification.NewQueueState()}
 	if loadErr == nil {
-		if previous.ConfigurationID != effective.ID || previous.ServiceID != checkpoint.ServiceID {
+		if previous.ServiceID != checkpoint.ServiceID {
 			return guardian.ErrCheckpoint
 		}
-		checkpoint.RuntimeState, checkpoint.AlertState, checkpoint.NotificationQueueState = previous.RuntimeState, previous.AlertState, previous.NotificationQueueState
+		if previous.ConfigurationID == effective.ID {
+			checkpoint.RuntimeState, checkpoint.AlertState, checkpoint.NotificationQueueState = previous.RuntimeState, previous.AlertState, previous.NotificationQueueState
+		}
 	}
 	if err = checkpointStore.Save(checkpoint); err != nil {
 		return err
@@ -349,13 +361,13 @@ func executeGuardian(options guardianOptions) error {
 	if err != nil {
 		return err
 	}
-	publisher := &guardian.Publisher{Store: stateStore, Scheduler: captured, Runner: runner, DefinitionID: effective.ID, ApplicationVersion: version, FreshFor: 2 * options.interval}
-	definition, err := runtimeservice.NewDefinition(checkpoint.ServiceID, options.interval, options.timeout)
+	publisher := &guardian.Publisher{Store: stateStore, Scheduler: captured, Runner: runner, DefinitionID: effective.ID, ApplicationVersion: version, FreshFor: 2 * interval}
+	definition, err := runtimeservice.NewDefinition(checkpoint.ServiceID, interval, timeout)
 	if err != nil {
 		return err
 	}
 	started := time.Now().UTC()
-	seedContext, err := runtime.NewExecutionContext("guardian-seed", checkpoint.ServiceID, started, started.Add(options.timeout))
+	seedContext, err := runtime.NewExecutionContext("guardian-seed", checkpoint.ServiceID, started, started.Add(timeout))
 	if err != nil {
 		return err
 	}
@@ -370,31 +382,31 @@ func executeGuardian(options guardianOptions) error {
 	return nil
 }
 
-func guardianConfiguration(options guardianOptions) (configuration.Effective, error) {
-	builtIn, err := configuration.BuiltIn(pipeline.CanonicalObservationRules(), pipeline.CanonicalPolicyProfiles())
+func guardianConfiguration(options guardianOptions) (configuration.Effective, time.Duration, time.Duration, error) {
+	path, err := configurationstore.SelectPath(options.configSource, os.Getenv)
 	if err != nil {
-		return configuration.Effective{}, err
+		return configuration.Effective{}, 0, 0, err
 	}
-	schedule := []configuration.Schedule{{ID: "guardian.observe", ContractVersion: configuration.ScheduleVersion, Enabled: true, TimeZone: "UTC", Trigger: configuration.IntervalTrigger, IntervalNS: int64(options.interval), Calendar: configuration.Calendar{Minutes: []int{}, Hours: []int{}, MonthDays: []int{}, Months: []int{}, Weekdays: []int{}}, DSTPolicy: configuration.DSTFirstOccurrence, Priority: 0, MisfirePolicy: configuration.MisfireRunOnce, OverlapPolicy: configuration.OverlapForbid, ExecutionTimeoutNS: int64(options.timeout), RetryPolicyID: "canonical.default", CheckIDs: []string{}, CommandProfile: "observe"}}
-	builtIn.Identity = ""
-	builtIn.Patch.Schedules = &schedule
-	builtIn, err = configuration.NormalizeSource(builtIn)
+	user, found, err := configurationstore.Load(path)
 	if err != nil {
-		return configuration.Effective{}, err
+		return configuration.Effective{}, 0, 0, err
 	}
-	sources := []configuration.Source{builtIn}
-	if options.configSource != "" {
-		document, readErr := os.ReadFile(options.configSource)
-		if readErr != nil || len(document) > configuration.MaxStringLength*configuration.MaxItems {
-			return configuration.Effective{}, fmt.Errorf("guardian configuration unavailable")
-		}
-		user, decodeErr := configuration.DecodeSource(document)
-		if decodeErr != nil {
-			return configuration.Effective{}, fmt.Errorf("guardian configuration invalid")
-		}
-		sources = append(sources, user)
+	if options.configSource != "" && !found {
+		return configuration.Effective{}, 0, 0, configurationstore.ErrUnavailable
 	}
-	return configuration.Resolve(sources)
+	base, err := resolveLocalConfiguration(user, found, nil)
+	if err != nil {
+		return configuration.Effective{}, 0, 0, fmt.Errorf("%w: effective configuration", configurationstore.ErrInvalid)
+	}
+	temporary, err := temporaryGuardianSource(base, options.interval, options.timeout)
+	if err != nil {
+		return configuration.Effective{}, 0, 0, err
+	}
+	effective, err := resolveLocalConfiguration(user, found, temporary)
+	if err != nil {
+		return configuration.Effective{}, 0, 0, fmt.Errorf("%w: effective configuration", configurationstore.ErrInvalid)
+	}
+	return effective, guardianInterval(effective), guardianTimeout(effective), nil
 }
 
 type localOverviewProvider struct{}
@@ -423,6 +435,13 @@ func loadCurrentOverview(now time.Time) (presentationmodel.Overview, error) {
 }
 
 func runConsole(in io.Reader, out, errout io.Writer, interactive bool) int {
+	path, configErr := configurationstore.DefaultPath(os.Getenv)
+	if configErr == nil {
+		_, _, configErr = configurationstore.Load(path)
+	}
+	if configErr != nil {
+		return configFailure(errout, configErr)
+	}
 	now := time.Unix(0, 0).UTC()
 	overview, err := presentationmodel.Project(presentationmodel.Input{SchemaName: presentationmodel.InputSchema, SchemaVersion: presentationmodel.SchemaVersion, ObservedAt: now, FreshForNS: int64(time.Hour)})
 	if err != nil {
@@ -1386,6 +1405,8 @@ func writeRootHelp(out io.Writer) {
 Usage:
   qwsg
 	qwsg console
+  qwsg setup [--accept-defaults] [--set KEY=VALUE]
+  qwsg config <show|validate|get|set> ...
   qwsg help [command]
   qwsg version
   qwsg <status|check|observe|changes|health|report> [options]
@@ -1396,6 +1417,8 @@ Usage:
 
 Commands:
 	console    Open the read-only local Operator Console
+  setup      Safely create or review the per-user QWSG configuration
+  config     Show, validate, read, or update canonical configuration
   status     Execute the canonical live Inventory profile
   check      Execute the canonical live Inventory and Snapshot profile
   observe    Establish a baseline or run the full canonical operator evaluation
