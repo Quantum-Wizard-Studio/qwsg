@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/alert"
+	"quantumwizard.hu/qwsg/internal/assessment"
 	"quantumwizard.hu/qwsg/internal/configuration"
 	"quantumwizard.hu/qwsg/internal/notification"
 )
@@ -27,20 +28,22 @@ type Config struct {
 	Port                                                             int
 	Timeout                                                          time.Duration
 }
-type Classification string
+type Classification = assessment.Classification
 
 const (
-	Satisfied           Classification = "satisfied"
-	MissingRequired     Classification = "missing_required"
-	MissingOptional     Classification = "missing_optional"
-	UnknownVerification Classification = "unknown_requires_verification"
-	Incompatible        Classification = "incompatible"
+	Satisfied           = assessment.Satisfied
+	MissingRequired     = assessment.MissingRequired
+	MissingOptional     = assessment.MissingOptional
+	UnknownVerification = assessment.UnknownVerification
+	Incompatible        = assessment.Incompatible
 )
 
+// Finding retains the Task 046 focused JSON contract while its classification
+// is now owned by the common assessment model.
 type Finding struct {
-	Requirement    string         `json:"requirement"`
-	Classification Classification `json:"classification"`
-	Remediation    string         `json:"remediation,omitempty"`
+	Requirement    string                    `json:"requirement"`
+	Classification assessment.Classification `json:"classification"`
+	Remediation    string                    `json:"remediation,omitempty"`
 }
 
 func FromEffective(e configuration.Effective) (Config, error) {

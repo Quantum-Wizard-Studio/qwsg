@@ -6,10 +6,18 @@ The production prefix is deliberately fixed at `/usr/local`, keeping the
 audited absolute systemd `ExecStart` and executable inseparable. Installation
 copies artifacts only; service activation and lingering are explicit acts.
 
+Before privileged artifact copying, run `./bin/qwsg install --check` from the
+archive as the intended ordinary Guardian user. Resolve required findings and
+rerun it. Unsupported or uncertain platforms receive no guessed package
+commands. See `docs/architecture/SMART_INSTALL_READINESS.md`.
+
 After installation, run `qwsg setup` as the intended ordinary Guardian user,
 review with `qwsg config show`, and validate before explicitly enabling the user
 unit. Installation never writes per-user configuration. See
 `docs/release/SETUP_AND_CONFIGURATION.md`.
+
+After setup, `qwsg readiness` reports environment, configuration, notification,
+Guardian/service, and overall readiness without changing the host.
 
 Installation never installs dependencies or configures SMTP. Optional email is
 assessed afterward with `qwsg notification preflight`; operators apply any

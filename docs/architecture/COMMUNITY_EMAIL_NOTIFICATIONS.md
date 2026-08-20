@@ -8,6 +8,11 @@ Transport is `implicit_tls` or required `starttls`; certificate verification and
 
 The default route covers unsuppressed `entered`, `escalated`, and `recovered` Alert Records at warning, critical, or emergency severity. Delivery uses three attempts within one hour, with one-minute and five-minute retry eligibility. Planning never sleeps. SMTP failure records bounded delivery evidence and never changes monitoring truth.
 
-`qwsg notification preflight` reports `satisfied`, `missing_required`, `missing_optional`, `unknown_requires_verification`, or `incompatible`. It is read-only and never installs packages or changes infrastructure. Full install-wide dependency assessment remains future work.
+`qwsg notification preflight` reports the common Assessment Model 1.0 values
+`satisfied`, `missing_required`, `missing_optional`,
+`unknown_requires_verification`, or `incompatible`. SMTP owns its focused
+detection while `internal/assessment` owns the shared classification. It is
+read-only and never installs packages or changes infrastructure. Composite
+readiness is available through `qwsg readiness`.
 
 Messages contain bounded Alert metadata and local-action guidance only. Inventory, host/network identifiers, paths, mounts, full evidence, configuration, and credentials remain local.

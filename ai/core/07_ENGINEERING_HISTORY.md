@@ -1,5 +1,11 @@
 # Engineering History
 
+- 2026-08-20 — Task 047 established the read-only Smart Install and operational
+  readiness foundation: one versioned five-state assessment model and registry,
+  bounded supported-host probes, archive bootstrap preflight, composite
+  environment/configuration/notification/Guardian reporting, and inert
+  platform-gated remediation guidance without provisioning authority.
+
 - 2026-08-12 — Task 046 activated optional local Community SMTP notifications
   for exactly one administrator recipient using private credentials,
   deterministic readiness preflight, bounded retry, and existing canonical

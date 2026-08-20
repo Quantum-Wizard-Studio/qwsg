@@ -1,5 +1,13 @@
 # QWSG 1.0 Troubleshooting
 
+- `missing_required`: resolve the blocker and rerun `qwsg install --check` or
+  `qwsg readiness`.
+- `unknown_requires_verification`: manually verify the named condition; QWSG
+  deliberately does not guess a package command.
+- `incompatible`: the observed host violates the supported boundary.
+- `overall: partial`: core operation can be ready while optional notification
+  remains unavailable or unverified.
+
 - `Guardian: unavailable`: lifecycle evidence is absent, invalid, incompatible, or stale. Inspect the exact user unit and its bounded journal.
 - `Guardian: degraded`: the process is operating but its latest qualified cycle or evidence is incomplete or failed.
 - `guardian_active`: a supervised Guardian owns the single-writer lock; use the Console instead of racing `qwsg observe`.

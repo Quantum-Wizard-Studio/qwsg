@@ -6,6 +6,7 @@ QWSG 1.0 is a local, non-root Linux Server Guardian. Verify the downloaded archi
 sha256sum -c qwsg-1.0.0-linux-amd64.tar.gz.sha256
 tar -xzf qwsg-1.0.0-linux-amd64.tar.gz
 cd qwsg-1.0.0-linux-amd64
+./bin/qwsg install --check
 sudo ./install.sh
 qwsg version
 qwsg setup
@@ -13,6 +14,7 @@ qwsg config show
 qwsg config validate
 qwsg observe
 qwsg observe
+qwsg readiness
 ```
 
 The first observation can establish the local baseline. The second can evaluate change and health. `qwsg` opens the Console on a terminal and prints one read-only Overview otherwise. Unknown or degraded results are truthful when evidence is missing, partial, stale, or a cycle failed.

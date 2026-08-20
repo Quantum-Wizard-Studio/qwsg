@@ -6,6 +6,12 @@ non-root user. Start with the [release Quick Start](docs/release/QUICK_START.md)
 support, operations, troubleshooting, security, upgrade/rollback/uninstall and
 limitations are documented under `docs/release/`.
 
+From an unpacked archive, `./bin/qwsg install --check` performs read-only Smart
+Install assessment before privileged artifact copying. After setup, `qwsg
+readiness` reports environment, configuration, external notification,
+Guardian/service, and overall operational readiness. See the [Smart Install
+architecture](docs/architecture/SMART_INSTALL_READINESS.md).
+
 `qwsg observe` is the simple full operator evaluation. Its first run creates a private baseline and truthfully remains unknown; a later run composes the existing Inventory→Snapshot→Compare→Drift→Health→Rule→Policy→Report pipeline and publishes one private Current Operator State record. A separately started bare `qwsg` displays that qualified evidence. `qwsg check` remains the compatible Inventory→Snapshot profile.
 
 Large evaluations remain bounded: QWSG ranks attention globally, correlates

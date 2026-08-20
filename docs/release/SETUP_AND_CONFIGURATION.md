@@ -8,12 +8,17 @@ Run setup as the ordinary user who will run Guardian:
 qwsg setup
 qwsg config show
 qwsg config validate
+qwsg readiness
 ```
 
 For deterministic automation, use `qwsg setup --accept-defaults`. Repeat setup
 preserves a valid configuration unless an explicit `--set KEY=VALUE` is given.
 Setup displays its destination and proposed effective values before an
 interactive write. It never enables or starts a service.
+
+Assessment does not invent administrator addresses, SMTP providers,
+credentials, sender identities, or server-purpose choices. No VPS profile is
+persisted; a versioned profile extension is deferred until separately designed.
 
 ## Locations and precedence
 

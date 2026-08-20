@@ -31,4 +31,4 @@ install_one "$root/bin/qwsg" "$destdir/usr/local/bin/qwsg" 0755
 install_one "$root/lib/systemd/user/qwsg-guardian.service" "$destdir/usr/local/lib/systemd/user/qwsg-guardian.service" 0644
 for file in "$root"/docs/*.md "$root/LICENSE" "$root/CHANGELOG.md" "$root/qwsg-config.json"; do install_one "$file" "$destdir/usr/local/share/doc/qwsg/$(basename "$file")" 0644; done
 printf '%s\n' 'QWSG artifacts installed. Service was not enabled or started.'
-printf '%s\n' 'Next: run qwsg setup as the intended non-root user, review with qwsg config show, and optionally run qwsg notification preflight.'
+printf '%s\n' 'Next: as the intended non-root user run qwsg setup, qwsg config show, and qwsg readiness.'

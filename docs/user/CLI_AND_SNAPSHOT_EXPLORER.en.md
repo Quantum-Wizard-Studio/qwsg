@@ -16,6 +16,12 @@ For persistent per-user Guardian configuration, run `qwsg setup`, then use
 `qwsg config show|validate|get|set`. The canonical reference is
 `docs/release/SETUP_AND_CONFIGURATION.md`; setup never starts the service.
 
+For Smart Install and operational readiness, use `./bin/qwsg install --check`
+from an archive and `qwsg readiness` after setup. Both support `--format
+human|json`, are read-only, and return `4` when a required capability is
+unavailable, incompatible, or cannot be verified. Recommendations are displayed
+for operator review and are never executed.
+
 Exit `0` means success or complete Inventory, `2` means partial but usable
 Inventory, and `1` means a usage, validation, store, permission, corruption, or
 runtime failure.

@@ -127,6 +127,10 @@ func runWithConsole(args []string, in io.Reader, out, errout io.Writer, interact
 		return runConfig(args[1:], out, errout)
 	case "notification":
 		return runNotification(args[1:], out, errout)
+	case "install":
+		return runInstallAssessment(args[1:], out, errout)
+	case "readiness":
+		return runReadiness(args[1:], out, errout)
 	default:
 		return usageError(errout, "unknown command: %s", safeText(args[0]))
 	}
@@ -1433,6 +1437,8 @@ Usage:
   qwsg setup [--accept-defaults] [--set KEY=VALUE]
   qwsg config <show|validate|get|set> ...
   qwsg notification <preflight|test|credential> ...
+  qwsg install --check [--format human|json]
+  qwsg readiness [--format human|json]
   qwsg help [command]
   qwsg version
   qwsg <status|check|observe|changes|health|report> [options]
@@ -1446,6 +1452,8 @@ Commands:
   setup      Safely create or review the per-user QWSG configuration
   config     Show, validate, read, or update canonical configuration
   notification Assess readiness, store a private SMTP credential, or send a test
+  install     Assess installation and host requirements without mutation
+  readiness   Show composite operational readiness
   status     Execute the canonical live Inventory profile
   check      Execute the canonical live Inventory and Snapshot profile
   observe    Establish a baseline or run the full canonical operator evaluation

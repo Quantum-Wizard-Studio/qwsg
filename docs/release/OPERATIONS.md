@@ -2,6 +2,10 @@
 
 Use `qwsg` for the current read-only operator view and `qwsg observe` for an explicit full observation. The supervised Guardian runs the same canonical Runtime Service; it does not duplicate engine decisions.
 
+Use `qwsg readiness` for the composite operational gate. Guardian core may be
+`ready`, notification `not_ready`, and overall `partial`. A ready Guardian claim
+requires fresh canonical evidence, not merely an installed or active unit.
+
 Before activation or after a configuration change, run `qwsg config validate`
 and `qwsg config show`. Guardian discovers that primary configuration and uses
 its effective interval and timeout. Duration flags are temporary

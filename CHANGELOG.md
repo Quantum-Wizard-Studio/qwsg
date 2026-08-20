@@ -6,6 +6,13 @@ All notable changes to Quantum Wizard Server Guardian will be recorded here. Thi
 
 ### Added
 
+- Versioned read-only Smart Install dependency/capability registry and bounded
+  supported-host probes.
+- `qwsg install --check` archive bootstrap assessment and composite `qwsg
+  readiness` human/JSON reporting.
+- Common five-state assessment classifications shared with Community email
+  preflight, without automatic remediation or provisioning.
+
 - Optional one-recipient Community SMTP notifications with a private credential
   store, deterministic readiness preflight, bounded retry, and privacy-safe
   Alert messages.

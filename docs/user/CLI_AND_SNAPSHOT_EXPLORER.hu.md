@@ -18,6 +18,12 @@ parancsot, majd használd a `qwsg config show|validate|get|set` műveleteket. A
 kanonikus leírás: `docs/release/SETUP_AND_CONFIGURATION.md`; a setup nem indítja
 el a service-t.
 
+A Smart Install és az operatív readiness ellenőrzéséhez az archívumban használd
+a `./bin/qwsg install --check`, setup után pedig a `qwsg readiness` parancsot.
+Mindkettő támogatja a `--format human|json` kimenetet, csak olvasható, és `4`
+kilépési kódot ad, ha egy kötelező capability hiányzik, inkompatibilis vagy nem
+ellenőrizhető. A javaslatokat csak megjeleníti; nem hajtja végre őket.
+
 A `0` kilépési kód sikeres vagy teljes Inventory eredményt, a `2` részleges, de
 használható Inventory eredményt, az `1` használati, validációs, store-,
 jogosultsági, korrupciós vagy futási hibát jelent.

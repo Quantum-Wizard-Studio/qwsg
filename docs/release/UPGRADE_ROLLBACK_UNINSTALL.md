@@ -8,6 +8,10 @@ Run `qwsg config validate` before and after upgrade. Source Record 1.0 remains
 strict and is not silently migrated. Setup preserves unspecified valid values.
 Back up configuration separately from runtime state.
 
+Run `qwsg install --check` against a new archive before replacement and
+`qwsg readiness` after upgrade or rollback. Neither command executes
+remediation or changes a service.
+
 Rollback restores only the recorded old binary and unit after stopping the Guardian. Preserve state. If the old binary rejects newer state, leave the service stopped and retain the data for review.
 
 Before uninstall, explicitly run `systemctl --user disable --now qwsg-guardian.service` and remove only the copied per-user unit. Run the matching verified release archive's `sudo ./uninstall.sh`; it refuses modified artifacts. Configuration and private state are preserved. QWSG 1.0 provides no automatic purge command.
