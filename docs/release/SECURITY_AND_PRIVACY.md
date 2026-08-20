@@ -7,6 +7,9 @@ Installation privilege is limited to copying checked artifacts under `/usr/local
 Smart Install assessment is read-only. Direct evidence is preferred; external
 probes are compiled, absolute, allowlisted, fixed-argument, bounded, and
 shell-free. Recommendations are inert registry data and are never executed.
+The user-manager probe receives only a validated effective-UID-derived
+`XDG_RUNTIME_DIR`; arbitrary caller environment is rejected. Filesystem
+semantics detection uses metadata and `statfs` without creating probe files.
 Output uses stable reason tokens and minimal platform facts rather than raw
 command output, identifiers, paths, destinations, or secrets.
 

@@ -32,11 +32,15 @@ unknown/missing/incompatible evidence prevents a ready claim. Missing optional
 or unknown recommended capability affects only that capability. Guardian core
 may be ready while external notification is not ready; overall is then partial.
 
-`internal/assessment` owns Registry and Assessment Model 1.0. Entries contain a
+`internal/assessment` owns Registry and Assessment Model 1.1. Entries contain a
 stable ID, purpose token, requirement class, disposition, capability, bounded
 probe ID, platform/version constraint, privacy class, and optional structured
 remediation with display text, elevation, compatibility guard, and mandatory
-revalidation. CLI code does not own package names or remediation strings.
+revalidation. Model 1.1 additionally owns command-free actionable guidance:
+explanation, blocking effect, verification and operator actions, privilege
+requirement, manual-verification flag, safety notes, and revalidation action.
+The same registry-selected plan drives human and JSON output. CLI code owns
+only localization-ready presentation text, not finding or remediation logic.
 
 | Requirement class | Current meaning |
 | --- | --- |
@@ -60,10 +64,25 @@ inferred package mapping. Package presence alone does not prove compatibility,
 especially on control-panel or managed-stack hosts. No Postfix, Exim, Sendmail,
 relay, or certificate-package recommendation is generated.
 
-Commands appear only for exact Registry 1.0 mappings on the recognized
+Commands appear only for exact Registry mappings on the recognized
 platform. Current mappings guide QWSG setup and user-unit placement/activation;
 package-manager mappings remain absent until separately proven and tested.
 Recommendations are displayed as inert data and never executed.
+
+The user-manager probe validates the effective UID's canonical
+`/run/user/<uid>` directory before supplying only that derived
+`XDG_RUNTIME_DIR` to fixed `systemctl --user is-system-running` arguments. It
+does not inherit arbitrary session environment or expose raw stderr. Stable,
+transient, unavailable, unsafe, timeout, bounded-output, and unrecognized
+states remain separate evidence tokens; ambiguous evidence receives no repair
+command.
+
+Filesystem assessment inspects the effective user's QWSG configuration and
+state path ancestors without creating files. Ext-family, XFS, and Btrfs local
+filesystem types are accepted for the documented Unix ownership, private-mode,
+advisory-lock, and atomic-rename contract. Remote, overlay, pseudo, unknown,
+inaccessible, symlink, or wrong-owner evidence remains an actionable manual
+verification state. Default assessment never performs a behavioral write test.
 
 Direct Go/runtime/filesystem evidence is preferred. External probes map a
 compiled ID to one absolute executable and fixed arguments through the bounded

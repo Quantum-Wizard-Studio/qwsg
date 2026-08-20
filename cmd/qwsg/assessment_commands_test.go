@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"quantumwizard.hu/qwsg/internal/assessment"
 )
@@ -29,6 +30,38 @@ func TestInstallCheckIsStructuredAndReadOnly(t *testing.T) {
 		if _, err := os.Lstat(path); !os.IsNotExist(err) {
 			t.Fatalf("assessment mutated %s: %v", path, err)
 		}
+	}
+}
+
+func TestTask049FindingsProduceActionableGuidanceWithoutRepairCommand(t *testing.T) {
+	report := assessment.Report{
+		SchemaName: assessment.SchemaName, SchemaVersion: assessment.SchemaVersion,
+		ModelVersion: assessment.ModelVersion, RegistryVersion: assessment.RegistryVersion,
+		AssessedAt: time.Unix(1, 0).UTC(), Phase: "install",
+		Platform: assessment.Platform{ID: "ubuntu-24.04-amd64", Distribution: "ubuntu", Version: "24.04", Architecture: "amd64", Supported: true},
+		Findings: []assessment.Finding{
+			{RequirementID: "filesystem.local_semantics", Classification: assessment.UnknownVerification, EvidenceToken: "filesystem_remote_or_overlay"},
+			{RequirementID: "systemd.user_manager", Classification: assessment.MissingRequired, EvidenceToken: "systemd_user_manager_unavailable"},
+		},
+		Domains:     []assessment.DomainSummary{{Domain: "installation", State: assessment.NotReady}},
+		NextActions: []string{"review_systemd_user_manager_guidance", "rerun_qwsg_install_check"},
+	}
+	attachRecommendations(&report)
+	var out, errout bytes.Buffer
+	if code := writeAssessment(&out, &errout, report, formatHuman); code != 4 {
+		t.Fatalf("code=%d err=%q", code, errout.String())
+	}
+	for _, expected := range []string{"filesystem.local_semantics", "systemd.user_manager", "Explanation:", "Verify:", "Operator action:", "Privileges:", "Manual verification: required", "Safety:", "Revalidate: qwsg install --check"} {
+		if !strings.Contains(out.String(), expected) {
+			t.Fatalf("missing %q in %q", expected, out.String())
+		}
+	}
+	if strings.Contains(out.String(), "Recommended:") {
+		t.Fatalf("ambiguous findings received remediation: %q", out.String())
+	}
+	encoded, err := json.Marshal(report)
+	if err != nil || !bytes.Contains(encoded, []byte(`"guidance"`)) || bytes.Contains(encoded, []byte(`"remediation"`)) {
+		t.Fatalf("json=%s err=%v", encoded, err)
 	}
 }
 
@@ -83,6 +116,36 @@ func TestAssessmentUsageAndHumanOutput(t *testing.T) {
 	}
 	if !strings.Contains(out.String(), "QWSG install readiness") || !strings.Contains(out.String(), "systemd.version") {
 		t.Fatalf("out=%q", out.String())
+	}
+	if strings.Contains(out.String(), "systemd.user_manager               missing_required") {
+		for _, expected := range []string{"Explanation:", "Verify:", "Operator action:", "Privileges:", "Revalidate: qwsg install --check", "review_systemd_user_manager_guidance"} {
+			if !strings.Contains(out.String(), expected) {
+				t.Fatalf("missing %q in %q", expected, out.String())
+			}
+		}
+	}
+}
+
+func TestJSONCarriesEquivalentActionableGuidance(t *testing.T) {
+	var out, errout bytes.Buffer
+	code := run([]string{"install", "--check", "--format", "json"}, &out, &errout)
+	if code != 0 && code != 4 {
+		t.Fatalf("code=%d err=%q", code, errout.String())
+	}
+	var report assessment.Report
+	if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+		t.Fatal(err)
+	}
+	if report.SchemaVersion != "1.1" || report.ModelVersion != "1.1" || report.RegistryVersion != "1.1" {
+		t.Fatalf("versions=%s/%s/%s", report.SchemaVersion, report.ModelVersion, report.RegistryVersion)
+	}
+	for _, finding := range report.Findings {
+		if finding.RequirementID == "systemd.user_manager" && finding.Classification != assessment.Satisfied {
+			if finding.Guidance == nil || finding.Guidance.RevalidationAction != "rerun_qwsg_install_check" {
+				t.Fatalf("finding=%+v", finding)
+			}
+			return
+		}
 	}
 }
 

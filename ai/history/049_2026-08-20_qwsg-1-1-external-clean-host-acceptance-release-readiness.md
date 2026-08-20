@@ -4,7 +4,7 @@
 
 - Task ID: `049`
 - Task slug: `qwsg-1-1-external-clean-host-acceptance-release-readiness`
-- Status: `active — stopped at candidate-source integration gate`
+- Status: `complete with disclosed limitations`
 - Date generated: `2026-08-20` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
@@ -12,7 +12,16 @@
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded. The Project Owner authorized implementation preparation on 2026-08-20 UTC. Preparation has reached the mandatory candidate-source integration gate; candidate construction, transfer, external-host execution, and SMTP credential handling have not started.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded. The Project Owner authorized implementation preparation on 2026-08-20 UTC, then separately authorized the exact candidate-source integration, clean fast-forward push, private twin build, transfer, and first external execution. Candidate construction is complete. External Smart Install failed its operator-guidance gate at **Checkpoint 04 — Run Smart Install before host mutation**; all later physical execution and SMTP credential handling remain stopped.
+
+On 2026-08-20 UTC, the Project Owner explicitly authorized truthful terminal
+closure as `complete with disclosed limitations`. The final verdict is **NOT
+READY FOR QWSG 1.1.0 RELEASE**. This lifecycle closure does not represent a
+successful external acceptance: `QWSG-049-F002` remains a release blocker,
+`QWSG-049-F003` remains release-gate blocking, and no operator workaround was
+used. The immutable historical candidate remains QWSG `1.1.0-rc.1`, source
+commit `ff2eb2b12499f5daf3b5ba11b1f8d7fc562f8a31`, artifact SHA-256
+`aa139faaccc1cc85b50cfe0eedee9436539ae1c3071e01d8e9ed9283fc7f8239`.
 
 ## Starting state
 
@@ -81,6 +90,68 @@ and bounded audited disposal.
   repair, tag, release, publication, Task 050, staging, commit, or push was
   performed.
 
+The Project Owner then authorized the exact 12-path integration. Pre-stage
+allowlist/content/security checks passed; the content-manifest SHA-256 was
+`a7841bb2b3b49d8241ef7e0f7d16972f860c30c259139189be8402d9ce4f8cde`.
+Commit `ff2eb2b12499f5daf3b5ba11b1f8d7fc562f8a31` with subject
+`release: prepare QWSG 1.1.0-rc.1 acceptance source` has parent
+`57d37206c221a85b83cccb974525bc3ba4e408c1` and exactly the approved 12
+paths. Post-commit gates passed, the dry-run passed, and `main` was pushed as a
+single clean fast-forward so `origin/main` equals the candidate-source commit.
+
+Two independent `git archive` source roots built the private candidate with
+commit epoch `1787237840` (`2026-08-20T14:57:20Z`). The first invocation method
+ran the release script outside the exported Go module and was recorded as
+`attempt-failed`; Go stopped before archive creation. Running inside each
+exported source root produced byte-identical archive and sidecar. Archive
+`qwsg-1.1.0-rc.1-linux-amd64.tar.gz` is SHA-256
+`aa139faaccc1cc85b50cfe0eedee9436539ae1c3071e01d8e9ed9283fc7f8239`.
+
+Sidecar, internal manifest, exact single-root layout, static linux-amd64
+binary, version, full embedded commit, build time, LICENSE/README/INSTALL byte
+identity, release notes, modes, secret scan, and isolated installer/uninstaller
+passed. Installed documentation is correctly mode `0644` and the installer
+prints documentation, setup, and readiness guidance.
+
+Pre-transfer link-resolution verification found `QWSG-049-F001`, classified
+`COSMETIC / POST-RELEASE CANDIDATE`: the exact canonical document copies retain
+repository-context Markdown targets that do not resolve inside the archive.
+Both documents explicitly name their archive-root counterpart and installed
+paths in prose, satisfying the approved byte-identity and operator-guidance
+contract without hidden engineering knowledge. No required action is missing,
+so the finding is non-blocking. Candidate transfer and all external checkpoints
+remain stopped solely because they require the next explicit Owner gate.
+
+The Owner then supplied privacy-safe external Smart Install output from the
+clean Ubuntu 24.04 amd64 host. QWSG correctly classified
+`systemd.user_manager` as `missing_required`, kept environment/installation
+`not_ready`, and refused continuation. Finding `QWSG-049-F002` is a `RELEASE
+BLOCKER`: the product supplied only `resolve_required_findings`, with no cause,
+verification action, privilege boundary, or proven remediation. The Owner
+correctly did not mask the missing product guidance with developer knowledge.
+
+The simultaneous `filesystem.local_semantics =
+unknown_requires_verification` produced no bounded manual-verification
+instruction. Finding `QWSG-049-F003` is a `UX/DOCUMENTATION DEFECT`; although
+the requirement is recommended/non-blocking at runtime, the mandatory Smart
+Install manual-verification acceptance gate fails and therefore blocks release
+readiness.
+
+Repository audit proves these are not hidden presentation data. Both Registry
+1.0 requirements have empty remediation lists. The presenter already renders
+canonical remediation when present. The user-manager probe collapses distinct
+failures into `systemd_user_unavailable`, so current evidence cannot safely
+select one exact command. Filesystem semantics is emitted unconditionally as
+unknown and has neither a probe nor a structured manual plan. The current model
+cannot express non-command verification because remediation validation requires
+commands.
+
+The smallest correction changes product assessment/model/registry/probe/
+presentation behavior and tests, not Task 049 acceptance tooling. It requires
+separate Owner authority. No workaround, source correction, next checkpoint,
+SMTP credential request, external mutation, release action, or Task 050 was
+performed. Acceptance remains `NOT READY FOR QWSG 1.1.0 RELEASE`.
+
 ## Verification
 
 Builder input, metadata, prompt/history identity, approval state, and lifecycle
@@ -136,4 +207,10 @@ rollback simulation.
 
 ## Completion state
 
-`active — candidate-source integration authorization required`
+`complete with disclosed limitations — NOT READY FOR QWSG 1.1.0 RELEASE`
+
+External acceptance stopped at **Checkpoint 04 — Run Smart Install before
+host mutation**. `QWSG-049-F002` remains `OPEN, BLOCKING` and
+`QWSG-049-F003` remains `OPEN, RELEASE-GATE BLOCKING`. Checkpoints 05–16 were
+not begun. No manual workaround, external continuation, SMTP credential
+handling, RC replacement, tag, release, upload, or publication occurred.

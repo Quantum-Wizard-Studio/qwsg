@@ -15,15 +15,23 @@ commands.
 ## Verify, assess, and install
 
 ```sh
-sha256sum -c qwsg-1.1.0-rc.1-linux-amd64.tar.gz.sha256
-tar -xzf qwsg-1.1.0-rc.1-linux-amd64.tar.gz
-cd qwsg-1.1.0-rc.1-linux-amd64
+sha256sum -c qwsg-1.1.0-rc.2-linux-amd64.tar.gz.sha256
+tar -xzf qwsg-1.1.0-rc.2-linux-amd64.tar.gz
+cd qwsg-1.1.0-rc.2-linux-amd64
 sha256sum -c MANIFEST.sha256
 ./bin/qwsg install --check
 sudo ./install.sh
 ```
 
-Smart Install is read-only. Resolve blockers yourself and revalidate.
+Smart Install is read-only. For every supported actionable finding it explains
+the impact, verification procedure, operator action, privilege boundary,
+safety notes, and mandatory revalidation. It prints an exact remediation
+command only when the detected cause and supported-platform mapping prove that
+command safe. Apply any host change yourself, then rerun:
+
+```sh
+qwsg install --check
+```
 `install.sh` copies immutable artifacts only; it never configures SMTP,
 lingering, a user, or a service.
 

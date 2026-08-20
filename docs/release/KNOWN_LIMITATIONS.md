@@ -1,4 +1,4 @@
-# QWSG 1.1.0-rc.1 Known Limitations
+# QWSG 1.1.0-rc.2 Known Limitations
 
 - The supported production contract is limited to Ubuntu 24.04 LTS, systemd 255+, and linux-amd64.
 - The Console is local terminal output; there is no Web Dashboard, REST API, listener, fleet or remote management.

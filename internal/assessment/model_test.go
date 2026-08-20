@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -92,6 +94,141 @@ func TestAssessmentRejectsUnsupportedOldRootAndFailedProbe(t *testing.T) {
 	}
 }
 
+func TestActionableGuidanceIsDeterministicAndCommandFree(t *testing.T) {
+	host := supportedFixture()
+	host.results["systemd_user"] = runner.Result{}
+	host.errors["systemd_user"] = errors.New("no bus")
+	report := AssessInstall(context.Background(), host, time.Unix(1, 0))
+	for _, finding := range report.Findings {
+		if finding.RequirementID != "systemd.user_manager" {
+			continue
+		}
+		if finding.Guidance == nil || finding.Guidance.PrivilegeRequirement != PrivilegeManualVerification || !finding.Guidance.ManualVerification || finding.Guidance.RevalidationAction != "rerun_qwsg_install_check" {
+			t.Fatalf("guidance=%+v", finding.Guidance)
+		}
+		if finding.Remediation != nil {
+			t.Fatal("ambiguous user-manager state received a command")
+		}
+		return
+	}
+	t.Fatal("user-manager finding missing")
+}
+
+func TestEveryUserManagerFailureHasExactSupportedGuidance(t *testing.T) {
+	cases := []struct {
+		classification Classification
+		evidence       string
+	}{
+		{MissingRequired, "systemd_user_runtime_directory_missing"},
+		{UnknownVerification, "systemd_user_runtime_directory_unsafe"},
+		{UnknownVerification, "systemd_user_manager_starting"},
+		{MissingRequired, "systemd_user_manager_unavailable"},
+		{UnknownVerification, "systemd_user_probe_timeout"},
+		{UnknownVerification, "systemd_user_probe_output_limit"},
+		{UnknownVerification, "systemd_user_probe_failed"},
+		{UnknownVerification, "systemd_user_state_unrecognized"},
+	}
+	for _, tc := range cases {
+		guidance := GuidanceFor("systemd.user_manager", "ubuntu-24.04-amd64", tc.classification, tc.evidence)
+		if guidance == nil || guidance.RevalidationAction != "rerun_qwsg_install_check" {
+			t.Fatalf("evidence=%s guidance=%+v", tc.evidence, guidance)
+		}
+		if Recommendation("systemd.user_manager", "ubuntu-24.04-amd64") != nil {
+			t.Fatal("ambiguous user-manager state received remediation")
+		}
+	}
+	if GuidanceFor("systemd.user_manager", "unsupported", MissingRequired, "systemd_user_manager_unavailable") != nil {
+		t.Fatal("unsupported platform received guidance mapping")
+	}
+}
+
+func TestSystemdUserManagerEvidenceStates(t *testing.T) {
+	cases := []struct {
+		result         runner.Result
+		err            error
+		classification Classification
+		evidence       string
+	}{
+		{runner.Result{Stdout: []byte("running\n")}, nil, Satisfied, "systemd_user_manager_available"},
+		{runner.Result{Stdout: []byte("degraded\n"), ExitCode: 1}, errors.New("exit 1"), Satisfied, "systemd_user_manager_available"},
+		{runner.Result{Stdout: []byte("starting\n")}, nil, UnknownVerification, "systemd_user_manager_starting"},
+		{runner.Result{}, context.DeadlineExceeded, UnknownVerification, "systemd_user_probe_timeout"},
+		{runner.Result{}, runner.ErrOutputLimit, UnknownVerification, "systemd_user_probe_output_limit"},
+		{runner.Result{}, errors.New("unavailable"), MissingRequired, "systemd_user_manager_unavailable"},
+		{runner.Result{Stdout: []byte("future-state\n")}, nil, UnknownVerification, "systemd_user_state_unrecognized"},
+	}
+	for _, tc := range cases {
+		finding := classifyUserManager(tc.result, tc.err)
+		if finding.Classification != tc.classification || finding.EvidenceToken != tc.evidence {
+			t.Fatalf("result=%q got=%+v", tc.result.Stdout, finding)
+		}
+	}
+}
+
+func TestRuntimeDirectoryValidationIsReadOnlyAndFailClosed(t *testing.T) {
+	root := t.TempDir()
+	directory := filepath.Join(root, "runtime")
+	if _, evidence := validateRuntimeDirectory(directory, os.Geteuid()); evidence != "systemd_user_runtime_directory_missing" {
+		t.Fatal(evidence)
+	}
+	if err := os.Mkdir(directory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if _, evidence := validateRuntimeDirectory(directory, os.Geteuid()); evidence != "systemd_user_runtime_directory_valid" {
+		t.Fatal(evidence)
+	}
+	if err := os.Chmod(directory, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if _, evidence := validateRuntimeDirectory(directory, os.Geteuid()); evidence != "systemd_user_runtime_directory_unsafe" {
+		t.Fatal(evidence)
+	}
+	link := filepath.Join(root, "link")
+	if err := os.Symlink(directory, link); err != nil {
+		t.Fatal(err)
+	}
+	if _, evidence := validateRuntimeDirectory(link, os.Geteuid()); evidence != "systemd_user_runtime_directory_unsafe" {
+		t.Fatal(evidence)
+	}
+}
+
+func TestFilesystemPathEvidenceRejectsSymlinkAndRelativeSelection(t *testing.T) {
+	root := t.TempDir()
+	owned := filepath.Join(root, "owned")
+	if err := os.Mkdir(owned, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if ancestor, evidence := safeExistingAncestor(filepath.Join(owned, "future", "qwsg"), os.Geteuid()); evidence != "" || ancestor != owned {
+		t.Fatalf("ancestor=%q evidence=%q", ancestor, evidence)
+	}
+	link := filepath.Join(root, "link")
+	if err := os.Symlink(owned, link); err != nil {
+		t.Fatal(err)
+	}
+	if _, evidence := safeExistingAncestor(filepath.Join(link, "qwsg"), os.Geteuid()); evidence != "filesystem_path_unsafe" {
+		t.Fatal(evidence)
+	}
+	t.Setenv("XDG_CONFIG_HOME", "relative")
+	if _, ok := effectiveAssessmentPaths(root); ok {
+		t.Fatal("relative environment path accepted")
+	}
+}
+
+func TestFilesystemTypeEvidenceIsAllowlisted(t *testing.T) {
+	for _, value := range []uint64{0xef53, 0x58465342, 0x9123683e} {
+		classification, evidence := classifyFilesystemType(value)
+		if classification != Satisfied || evidence != "filesystem_local_semantics_supported" {
+			t.Fatalf("type=%x class=%s evidence=%s", value, classification, evidence)
+		}
+	}
+	for _, value := range []uint64{0x794c7630, 0x6969, 0x01021994, 0} { // overlay, NFS, tmpfs, unknown
+		classification, evidence := classifyFilesystemType(value)
+		if classification != UnknownVerification || evidence != "filesystem_remote_or_overlay" {
+			t.Fatalf("type=%x class=%s evidence=%s", value, classification, evidence)
+		}
+	}
+}
+
 func TestAggregationPrecedence(t *testing.T) {
 	if Summarize([]Finding{{Classification: MissingOptional}}) != Partial || Summarize([]Finding{{Classification: UnknownVerification}}) != Unknown || Summarize([]Finding{{Classification: MissingRequired}, {Classification: MissingOptional}}) != NotReady {
 		t.Fatal("aggregation precedence")
@@ -102,6 +239,13 @@ func TestRegistryRejectsInjectedCommand(t *testing.T) {
 	registry := []Requirement{{ID: "bad.command", PurposeToken: "bad", Class: RuntimeDependency, Disposition: Required, Capability: "bad", ProbeID: "bad", Platforms: []string{"ubuntu"}, PrivacyClass: "operational", Remediations: []Remediation{{PlatformID: "ubuntu", Commands: [][]string{{"sh", "-c", "evil\ncommand"}}, DisplayCommands: []string{"evil\ncommand"}, Revalidate: true}}}}
 	if ValidateRegistry(registry) == nil {
 		t.Fatal("unsafe remediation accepted")
+	}
+}
+
+func TestRegistryRejectsUnsafeGuidance(t *testing.T) {
+	registry := []Requirement{{ID: "bad.guidance", PurposeToken: "bad", Class: RuntimeDependency, Disposition: Required, Capability: "bad", ProbeID: "bad", Platforms: []string{"ubuntu"}, PrivacyClass: "operational", GuidanceRules: []GuidanceRule{{PlatformID: "ubuntu", Classification: MissingRequired, EvidenceToken: "bad", Guidance: Guidance{ExplanationToken: "bad\ntext", BlockingEffect: "blocks", VerificationActions: []string{"verify"}, OperatorActions: []string{"act"}, PrivilegeRequirement: PrivilegeNone, RevalidationAction: "retry"}}}}}
+	if ValidateRegistry(registry) == nil {
+		t.Fatal("unsafe guidance accepted")
 	}
 }
 

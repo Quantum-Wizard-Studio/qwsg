@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"os/exec"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -19,9 +21,12 @@ type Runner interface {
 	Run(context.Context, string, ...string) (Result, error)
 }
 type Bounded struct {
-	Allowed   map[string]string
-	Timeout   time.Duration
-	MaxOutput int
+	Allowed map[string]string
+	// TrustedEnvironment is construction-time policy, not caller input. Only
+	// narrowly validated user-runtime variables are accepted.
+	TrustedEnvironment map[string][]string
+	Timeout            time.Duration
+	MaxOutput          int
 }
 
 func (b Bounded) Run(parent context.Context, id string, args ...string) (Result, error) {
@@ -40,6 +45,12 @@ func (b Bounded) Run(parent context.Context, id string, args ...string) (Result,
 		return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 	}
 	cmd.Env = []string{"PATH=/usr/bin:/bin", "LANG=C", "LC_ALL=C"}
+	for _, entry := range b.TrustedEnvironment[id] {
+		if !validTrustedEnvironment(entry) {
+			return Result{}, errors.New("unsafe trusted command environment")
+		}
+		cmd.Env = append(cmd.Env, entry)
+	}
 	var out, errout bytes.Buffer
 	ow := &limitWriter{w: &out, n: b.MaxOutput}
 	ew := &limitWriter{w: &errout, n: b.MaxOutput}
@@ -57,6 +68,24 @@ func (b Bounded) Run(parent context.Context, id string, args ...string) (Result,
 		return r, ctx.Err()
 	}
 	return r, err
+}
+
+func validTrustedEnvironment(entry string) bool {
+	const prefix = "XDG_RUNTIME_DIR=/run/user/"
+	if !strings.HasPrefix(entry, prefix) {
+		return false
+	}
+	id := strings.TrimPrefix(entry, prefix)
+	if id == "" {
+		return false
+	}
+	for _, r := range id {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	uid, err := strconv.Atoi(id)
+	return err == nil && uid >= 0 && strconv.Itoa(uid) == id
 }
 
 type limitWriter struct {

@@ -7,5 +7,8 @@ Other Linux distributions are experimental. Other CPU architectures, containers 
 `qwsg install --check` reports uncertainty as `unknown_requires_verification`
 and proven support violations as `incompatible`. Unsupported distributions and
 managed/control-panel stacks receive no speculative package command.
+Actionable findings include a bounded verification procedure, privilege
+boundary, safety notes, and revalidation action. A missing exact remediation
+command means the evidence does not prove one; it is not permission to guess.
 
 Task 043 completed the Owner-run physical reboot journey on a freshly reinstalled disposable supported host: explicit lingering, boot-before-login service recovery, recurring post-reboot state, Console freshness, controlled restart and uninstall all passed. Repository tests do not replace that retained real-host evidence.

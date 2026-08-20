@@ -206,15 +206,7 @@ func lingeringFinding() assessment.Finding {
 }
 
 func attachRecommendations(report *assessment.Report) {
-	if !report.Platform.Supported {
-		return
-	}
-	for index := range report.Findings {
-		if report.Findings[index].Classification == assessment.Satisfied {
-			continue
-		}
-		report.Findings[index].Remediation = assessment.Recommendation(report.Findings[index].RequirementID, report.Platform.ID)
-	}
+	assessment.AttachGuidance(report)
 }
 
 func operationalDomains(findings []assessment.Finding) []assessment.DomainSummary {
@@ -286,6 +278,24 @@ func writeAssessment(out, errout io.Writer, report assessment.Report, format str
 				}
 				fmt.Fprintln(out, "  Revalidate after operator action.")
 			}
+			if finding.Guidance != nil {
+				fmt.Fprintf(out, "  Explanation: %s\n", guidanceText(finding.Guidance.ExplanationToken))
+				fmt.Fprintf(out, "  Impact: %s\n", guidanceText(finding.Guidance.BlockingEffect))
+				for _, action := range finding.Guidance.VerificationActions {
+					fmt.Fprintf(out, "  Verify: %s\n", guidanceText(action))
+				}
+				for _, action := range finding.Guidance.OperatorActions {
+					fmt.Fprintf(out, "  Operator action: %s\n", guidanceText(action))
+				}
+				fmt.Fprintf(out, "  Privileges: %s\n", guidanceText(string(finding.Guidance.PrivilegeRequirement)))
+				if finding.Guidance.ManualVerification {
+					fmt.Fprintln(out, "  Manual verification: required")
+				}
+				for _, note := range finding.Guidance.SafetyNotes {
+					fmt.Fprintf(out, "  Safety: %s\n", guidanceText(note))
+				}
+				fmt.Fprintf(out, "  Revalidate: %s\n", guidanceText(finding.Guidance.RevalidationAction))
+			}
 		}
 		for _, domain := range report.Domains {
 			fmt.Fprintf(out, "%s: %s\n", safeText(domain.Domain), domain.State)
@@ -310,4 +320,48 @@ func writeAssessment(out, errout io.Writer, report assessment.Report, format str
 		}
 	}
 	return 5
+}
+
+func guidanceText(token string) string {
+	messages := map[string]string{
+		"administrator":                                    "administrator privileges are required for any host change",
+		"manual_verification":                              "manual verification; administrator help may be required",
+		"none":                                             "ordinary-user action",
+		"blocks_installation":                              "installation and activation cannot continue",
+		"reduces_operational_confidence":                   "non-blocking, but readiness remains partial until verified",
+		"user_runtime_directory_missing":                   "the ordinary user's systemd runtime directory is unavailable",
+		"user_runtime_directory_unsafe":                    "the ordinary user's systemd runtime directory failed ownership, type, or permission checks",
+		"user_manager_transient":                           "the user systemd manager has not reached a stable running state",
+		"user_manager_unavailable":                         "the user systemd manager could not be reached with validated session context",
+		"user_manager_probe_timeout":                       "the bounded user-manager verification timed out",
+		"user_manager_probe_output_unbounded":              "the user-manager response exceeded the safe output limit",
+		"user_manager_probe_failed":                        "the user-manager verification failed with an ambiguous state",
+		"user_manager_state_unrecognized":                  "the user manager returned a state QWSG cannot safely classify",
+		"verify_login_session_runtime":                     "log in as the intended non-root QWSG user and confirm that a normal user session is available",
+		"verify_runtime_directory_ownership_and_type":      "have the host administrator verify the user's runtime directory is a private, user-owned directory",
+		"wait_for_user_manager_startup":                    "wait briefly for the user manager to finish starting",
+		"verify_systemctl_user_manager":                    "as the intended QWSG user, run: systemctl --user is-system-running",
+		"retry_systemctl_user_manager":                     "retry: systemctl --user is-system-running",
+		"contact_host_administrator_for_user_session":      "ask the host administrator to restore a normal systemd user session; QWSG cannot safely select a repair command from this evidence",
+		"contact_host_administrator_for_runtime_directory": "ask the host administrator to inspect the user-session runtime directory; do not replace or chmod it based only on this result",
+		"retry_assessment_after_bounded_wait":              "rerun the assessment after the user manager reaches a stable state",
+		"contact_host_administrator_for_user_manager":      "ask the host administrator to verify the systemd user-session infrastructure; no exact repair command is proven",
+		"retry_assessment":                                 "rerun the assessment once; seek administrator verification if the result repeats",
+		"contact_host_administrator_if_repeated":           "if the bounded probe fails again, ask the host administrator to verify the user manager",
+		"assessment_does_not_modify_host":                  "QWSG has not changed the user session or systemd configuration",
+		"do_not_guess_systemd_repair":                      "do not apply package, PAM, lingering, or service changes without identifying the cause",
+		"filesystem_type_unknown":                          "QWSG cannot prove the required local filesystem semantics from the available read-only evidence",
+		"filesystem_remote_or_overlay":                     "the QWSG data path appears to use a remote, overlay, or unproven filesystem type",
+		"filesystem_path_unavailable":                      "the QWSG data-path ancestor could not be inspected safely",
+		"filesystem_path_unsafe":                           "the QWSG data-path ancestor is not a safe user-owned directory",
+		"verify_local_unix_filesystem_semantics":           "verify that QWSG configuration and state reside on a local Unix filesystem supporting atomic rename, advisory flock, ownership, and private modes",
+		"confirm_atomic_rename_flock_and_private_modes":    "confirm those semantics with the host or storage administrator before unattended operation",
+		"assessment_remains_read_only":                     "the default assessment performs no filesystem write test",
+		"no_install_command_is_proven":                     "no package or host-change command is justified by this evidence",
+		"rerun_qwsg_install_check":                         "qwsg install --check",
+	}
+	if value, ok := messages[token]; ok {
+		return value
+	}
+	return safeText(token)
 }

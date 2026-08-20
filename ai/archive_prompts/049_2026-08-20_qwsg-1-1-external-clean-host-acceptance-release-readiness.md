@@ -4,7 +4,7 @@
 
 - Task ID: `049`
 - Task slug: `qwsg-1-1-external-clean-host-acceptance-release-readiness`
-- Status: `approved`
+- Status: `complete with disclosed limitations`
 - Date opened: `2026-08-20` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English

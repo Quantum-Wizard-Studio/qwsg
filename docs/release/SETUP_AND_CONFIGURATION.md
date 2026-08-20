@@ -15,6 +15,9 @@ On a terminal, setup guides the configuration write and separately asks before
 activating the fixed QWSG user service. It is resumable from canonical state.
 Use `qwsg setup --plan [--format human|json]` for a read-only deterministic
 plan; it never prompts, writes, contacts SMTP, or changes a service.
+Environment blockers shown by guided setup reuse the same Assessment Model 1.1
+guidance as `qwsg install --check`; setup neither duplicates nor executes the
+recommended operator action.
 
 For deterministic automation, use `qwsg setup --accept-defaults`. Repeat setup
 preserves a valid configuration unless an explicit `--set KEY=VALUE` is given.

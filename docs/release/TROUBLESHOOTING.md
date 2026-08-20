@@ -3,10 +3,22 @@
 - `missing_required`: resolve the blocker and rerun `qwsg install --check` or
   `qwsg readiness`.
 - `unknown_requires_verification`: manually verify the named condition; QWSG
-  deliberately does not guess a package command.
+  deliberately does not guess a package command. Read the finding's
+  Explanation, Verify, Operator action, Privileges, Safety, and Revalidate
+  lines; JSON exposes the equivalent `guidance` object.
 - `incompatible`: the observed host violates the supported boundary.
 - `overall: partial`: core operation can be ready while optional notification
   remains unavailable or unverified.
+
+- `systemd.user_manager`: perform the displayed ordinary-user verification.
+  QWSG distinguishes a missing/unsafe runtime directory, transient manager,
+  unreachable manager, timeout, oversized response, and unknown state. It does
+  not prescribe package, PAM, lingering, or service changes from ambiguous
+  evidence. After the verified host action, rerun `qwsg install --check`.
+- `filesystem.local_semantics`: default assessment is read-only. If the
+  filesystem cannot be proven, verify that the QWSG configuration and state
+  locations support atomic rename, advisory `flock`, Unix ownership/modes, and
+  private `0700/0600` storage, then rerun the assessment.
 
 - `Guardian: unavailable`: lifecycle evidence is absent, invalid, incompatible, or stale. Inspect the exact user unit and its bounded journal.
 - `Guardian: degraded`: the process is operating but its latest qualified cycle or evidence is incomplete or failed.
