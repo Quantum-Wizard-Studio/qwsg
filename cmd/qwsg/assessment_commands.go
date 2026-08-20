@@ -48,14 +48,19 @@ func runReadiness(args []string, out, errout io.Writer) int {
 		return usageError(errout, "%v", err)
 	}
 	host := assessment.LocalHost{Runner: assessment.DefaultRunner()}
-	report := assessment.AssessInstall(context.Background(), host, time.Now().UTC())
+	report := buildOperationalReport(context.Background(), host, time.Now().UTC())
+	return writeAssessment(out, errout, report, format)
+}
+
+func buildOperationalReport(ctx context.Context, host assessment.Host, now time.Time) assessment.Report {
+	report := assessment.AssessInstall(ctx, host, now)
 	report.Phase = "operational"
-	report.Findings = append(report.Findings, configurationFinding(), notificationFinding(), serviceFinding(context.Background(), host, "guardian.unit_installed", "systemd_unit_installed"), serviceFinding(context.Background(), host, "guardian.service_enabled", "systemd_service_enabled"), serviceFinding(context.Background(), host, "guardian.service_active", "systemd_service_active"), lingeringFinding(), guardianEvidenceFinding())
+	report.Findings = append(report.Findings, configurationFinding(), notificationFinding(), serviceFinding(ctx, host, "guardian.unit_installed", "systemd_unit_installed"), serviceFinding(ctx, host, "guardian.service_enabled", "systemd_service_enabled"), serviceFinding(ctx, host, "guardian.service_active", "systemd_service_active"), lingeringFinding(), guardianEvidenceFinding())
 	assessment.SortFindings(report.Findings)
 	attachRecommendations(&report)
 	report.Domains = operationalDomains(report.Findings)
 	report.NextActions = operationalNextActions(report.Domains)
-	return writeAssessment(out, errout, report, format)
+	return report
 }
 
 func parseAssessmentFormat(args []string) (string, error) {

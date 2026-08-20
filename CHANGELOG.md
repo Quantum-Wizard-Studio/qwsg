@@ -4,6 +4,9 @@ All notable changes to Quantum Wizard Server Guardian will be recorded here. Thi
 
 ## [Unreleased]
 
+- Added a versioned resumable Smart Setup plan, explicit fixed user-service
+  activation, and operator-first README/installation packaging guidance.
+
 ### Added
 
 - Versioned read-only Smart Install dependency/capability registry and bounded

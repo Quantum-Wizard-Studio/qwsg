@@ -11,6 +11,11 @@ qwsg config validate
 qwsg readiness
 ```
 
+On a terminal, setup guides the configuration write and separately asks before
+activating the fixed QWSG user service. It is resumable from canonical state.
+Use `qwsg setup --plan [--format human|json]` for a read-only deterministic
+plan; it never prompts, writes, contacts SMTP, or changes a service.
+
 For deterministic automation, use `qwsg setup --accept-defaults`. Repeat setup
 preserves a valid configuration unless an explicit `--set KEY=VALUE` is given.
 Setup displays its destination and proposed effective values before an
@@ -74,5 +79,5 @@ then run `qwsg notification preflight` and `qwsg notification test`. Passwords
 are never command arguments or output. Pro multiple-recipient support remains
 future work.
 
-After validation, install and activate the shipped user unit explicitly. Setup
-does not enable or start it.
+After validation, guided setup may activate the shipped user unit only after
+explicit confirmation. Noninteractive setup never enables or starts it.

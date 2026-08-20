@@ -31,6 +31,8 @@ cp "$repo/packaging/systemd/qwsg-guardian.service" "$root/lib/systemd/user/"
 cp "$repo/packaging/release/install.sh" "$repo/packaging/release/uninstall.sh" "$root/"
 cp "$repo/packaging/release/qwsg-config.json" "$root/"
 cp "$repo/LICENSE" "$repo/CHANGELOG.md" "$root/"
+cp "$repo/README.md" "$root/README.md"
+cp "$repo/docs/installation/INSTALL.md" "$root/INSTALL.md"
 release_notes="RELEASE_NOTES_$version"
 for doc in QUICK_START SETUP_AND_CONFIGURATION OPERATIONS TROUBLESHOOTING UPGRADE_ROLLBACK_UNINSTALL SUPPORT SECURITY_AND_PRIVACY KNOWN_LIMITATIONS "$release_notes"; do cp "$repo/docs/release/$doc.md" "$root/docs/"; done
 chmod 0755 "$root/bin/qwsg" "$root/install.sh" "$root/uninstall.sh"

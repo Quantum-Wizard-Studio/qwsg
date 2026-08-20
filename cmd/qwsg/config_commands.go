@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -9,12 +10,15 @@ import (
 	"strings"
 	"time"
 
+	"quantumwizard.hu/qwsg/internal/assessment"
 	"quantumwizard.hu/qwsg/internal/configuration"
 	"quantumwizard.hu/qwsg/internal/configurationstore"
 	"quantumwizard.hu/qwsg/internal/credentialstore"
 	"quantumwizard.hu/qwsg/internal/pipeline"
 	"quantumwizard.hu/qwsg/internal/runtimeservice"
+	"quantumwizard.hu/qwsg/internal/setupflow"
 	"quantumwizard.hu/qwsg/internal/smtpnotification"
+	"quantumwizard.hu/qwsg/internal/userservice"
 )
 
 type configOptions struct {
@@ -135,6 +139,30 @@ func runConfig(args []string, out, errout io.Writer) int {
 }
 
 func runSetup(args []string, in io.Reader, out, errout io.Writer, interactive bool) int {
+	if len(args) > 0 && args[0] == "--plan" {
+		options, err := parseConfigOptions(args[1:])
+		if err != nil {
+			return usageError(errout, "%v", err)
+		}
+		if options.path != "" {
+			return usageError(errout, "setup plan does not accept --config")
+		}
+		host := assessment.LocalHost{Runner: assessment.DefaultRunner()}
+		plan, err := setupflow.Build(buildOperationalReport(context.Background(), host, time.Now().UTC()))
+		if err != nil {
+			fmt.Fprintln(errout, "setup plan failed: setup_plan_invalid")
+			return 5
+		}
+		if options.format == formatJSON {
+			return writeJSON(out, errout, plan)
+		}
+		fmt.Fprintln(out, "QWSG guided setup plan")
+		for _, step := range plan.Steps {
+			fmt.Fprintf(out, "%-24s %s\n", safeText(step.Phase), step.State)
+		}
+		fmt.Fprintf(out, "Next action: %s (%s)\n", safeText(string(plan.NextAction.Action)), safeText(plan.NextAction.ReasonToken))
+		return 0
+	}
 	accept, sets, remaining := false, []string{}, []string{}
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -214,7 +242,40 @@ func runSetup(args []string, in io.Reader, out, errout io.Writer, interactive bo
 		return writeJSON(out, errout, configResult{Status: "configured", Path: path, Configured: true, Effective: effective})
 	}
 	fmt.Fprintln(out, "Configuration written safely.")
-	fmt.Fprintln(out, "Next: qwsg config validate; install and enable the user service explicitly; then run qwsg console.")
+	if interactive && !accept {
+		cfg, cfgErr := smtpnotification.FromEffective(effective)
+		if cfgErr == nil && cfg.Enabled {
+			fmt.Fprint(out, "Send a controlled notification test now? [y/N]: ")
+			var testAnswer string
+			if _, scanErr := fmt.Fscanln(in, &testAnswer); scanErr == nil && strings.EqualFold(testAnswer, "y") {
+				if code := runNotification([]string{"test"}, out, errout); code != 0 {
+					fmt.Fprintln(out, "Notification remains unverified; configuration was preserved. Resume with: qwsg setup")
+					return code
+				}
+			}
+		}
+		fmt.Fprint(out, "Activate QWSG Guardian now? [y/N]: ")
+		var answer string
+		if _, scanErr := fmt.Fscanln(in, &answer); scanErr == nil && strings.EqualFold(answer, "y") {
+			if err = userservice.New().Activate(context.Background()); err != nil {
+				fmt.Fprintln(errout, "Guardian activation failed; configuration was preserved. Run: qwsg readiness")
+				return 1
+			}
+			fmt.Fprintln(out, "Guardian activation requested. Waiting for fresh Guardian evidence...")
+			deadline := time.Now().Add(guardianTimeout(effective) + 5*time.Second)
+			for time.Now().Before(deadline) {
+				if guardianEvidenceFinding().Classification == assessment.Satisfied {
+					fmt.Fprintln(out, "Guardian produced fresh canonical evidence.")
+					return runReadiness(nil, out, errout)
+				}
+				time.Sleep(time.Second)
+			}
+			fmt.Fprintln(out, "Fresh Guardian evidence was not available before the bounded timeout. Run: qwsg readiness")
+			return 4
+		}
+		fmt.Fprintln(out, "Guardian activation skipped.")
+	}
+	fmt.Fprintln(out, "Next: qwsg readiness")
 	return 0
 }
 

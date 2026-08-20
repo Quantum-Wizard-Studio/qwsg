@@ -100,3 +100,21 @@ func TestOperationalAggregationKeepsNotificationOptional(t *testing.T) {
 		t.Fatalf("domains=%+v", domains)
 	}
 }
+
+func TestSetupPlanJSONIsReadOnlyAndStructured(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(root, "config"))
+	t.Setenv("QWSG_STATE_DIR", filepath.Join(root, "state"))
+	var out, errout bytes.Buffer
+	if code := run([]string{"setup", "--plan", "--format", "json"}, &out, &errout); code != 0 {
+		t.Fatalf("code=%d err=%q", code, errout.String())
+	}
+	if !strings.Contains(out.String(), `"schema_name": "qwsg.setup-flow"`) || !strings.Contains(out.String(), `"next_action"`) {
+		t.Fatalf("out=%q", out.String())
+	}
+	for _, p := range []string{filepath.Join(root, "config"), filepath.Join(root, "state")} {
+		if _, err := os.Lstat(p); !os.IsNotExist(err) {
+			t.Fatalf("plan mutated %s", p)
+		}
+	}
+}
