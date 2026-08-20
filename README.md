@@ -50,5 +50,5 @@ KEY=VALUE`, and `qwsg config ...`.
 
 Run `qwsg help` for the command reference. Developer and architecture material
 lives under `docs/development/` and `docs/architecture/` rather than dominating
-this operator entrypoint. QWSG 1.0.0 uses the source-available QWS Community /
+this operator entrypoint. QWSG uses the source-available QWS Community /
 Free License Version 1.0; see `LICENSE`.

@@ -1,4 +1,4 @@
-.PHONY: build install install-service release test vet fmt-check framework-check engineering-test
+.PHONY: build install install-service release release-check test vet fmt-check framework-check engineering-test
 
 GOCACHE ?= /tmp/qwsg-go-cache
 GOMODCACHE ?= /tmp/qwsg-go-modcache
@@ -34,6 +34,9 @@ install-service: install
 
 release:
 	./scripts/build-release.sh
+
+release-check:
+	./scripts/test-release-plumbing.sh
 
 test:
 	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go test ./...

@@ -15,9 +15,9 @@ commands.
 ## Verify, assess, and install
 
 ```sh
-sha256sum -c qwsg-1.0.0-linux-amd64.tar.gz.sha256
-tar -xzf qwsg-1.0.0-linux-amd64.tar.gz
-cd qwsg-1.0.0-linux-amd64
+sha256sum -c qwsg-1.1.0-rc.1-linux-amd64.tar.gz.sha256
+tar -xzf qwsg-1.1.0-rc.1-linux-amd64.tar.gz
+cd qwsg-1.1.0-rc.1-linux-amd64
 sha256sum -c MANIFEST.sha256
 ./bin/qwsg install --check
 sudo ./install.sh
