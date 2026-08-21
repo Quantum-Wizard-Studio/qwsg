@@ -4,7 +4,7 @@
 
 - Task ID: `051`
 - Task slug: `qwsg-1-1-0-rc-2-clean-host-acceptance-retest`
-- Status: `active`
+- Status: `complete with disclosed limitations — NOT READY FOR QWSG 1.1.0 RELEASE`
 - Date opened: `2026-08-21` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English

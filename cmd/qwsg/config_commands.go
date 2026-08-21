@@ -139,6 +139,12 @@ func runConfig(args []string, out, errout io.Writer) int {
 }
 
 func runSetup(args []string, in io.Reader, out, errout io.Writer, interactive bool) int {
+	return runSetupWithActivator(args, in, out, errout, interactive, func(ctx context.Context) error {
+		return userservice.New().Activate(ctx)
+	})
+}
+
+func runSetupWithActivator(args []string, in io.Reader, out, errout io.Writer, interactive bool, activate func(context.Context) error) int {
 	if len(args) > 0 && args[0] == "--plan" {
 		options, err := parseConfigOptions(args[1:])
 		if err != nil {
@@ -257,8 +263,8 @@ func runSetup(args []string, in io.Reader, out, errout io.Writer, interactive bo
 		fmt.Fprint(out, "Activate QWSG Guardian now? [y/N]: ")
 		var answer string
 		if _, scanErr := fmt.Fscanln(in, &answer); scanErr == nil && strings.EqualFold(answer, "y") {
-			if err = userservice.New().Activate(context.Background()); err != nil {
-				fmt.Fprintln(errout, "Guardian activation failed; configuration was preserved. Run: qwsg readiness")
+			if err = activate(context.Background()); err != nil {
+				fmt.Fprintln(errout, guardianActivationFailure(err))
 				return 1
 			}
 			fmt.Fprintln(out, "Guardian activation requested. Waiting for fresh Guardian evidence...")
@@ -277,6 +283,49 @@ func runSetup(args []string, in io.Reader, out, errout io.Writer, interactive bo
 	}
 	fmt.Fprintln(out, "Next: qwsg readiness")
 	return 0
+}
+
+func guardianActivationFailure(err error) string {
+	stage := "fixed activation operation"
+	explanation := "the bounded operation did not complete"
+	next := "Run qwsg readiness, review its evidence, then resume with: qwsg setup"
+	var activationErr *userservice.ActivationError
+	if !errors.As(err, &activationErr) {
+		return fmt.Sprintf("Guardian activation failed during %s: %s. Configuration was preserved. Next: %s", stage, explanation, next)
+	}
+	switch activationErr.Stage {
+	case userservice.StageRuntimeContext:
+		stage = "user runtime-context validation"
+	case userservice.StageManager:
+		stage = "user-manager reachability check"
+	case userservice.StageDaemonReload:
+		stage = "systemd user-unit reload"
+	case userservice.StageEnableStart:
+		stage = "Guardian enable/start"
+	}
+	switch activationErr.Cause {
+	case userservice.CauseContextMissing:
+		explanation = "the effective user's canonical runtime directory is missing"
+		next = "Run qwsg install --check and follow its user-session guidance, then resume with: qwsg setup"
+	case userservice.CauseContextUnsafe:
+		explanation = "the effective user's canonical runtime directory did not pass ownership, type, and mode validation"
+		next = "Run qwsg install --check and follow its runtime-directory guidance, then resume with: qwsg setup"
+	case userservice.CauseManagerUnreachable:
+		explanation = "the validated user manager could not be reached"
+	case userservice.CauseManagerStarting:
+		explanation = "the validated user manager is in a transient state"
+	case userservice.CauseManagerProbeFailed:
+		explanation = "the bounded user-manager probe failed"
+	case userservice.CauseManagerStateUnrecognized:
+		explanation = "the validated user manager returned an unrecognized state"
+	case userservice.CauseTimeout:
+		explanation = "the bounded operation timed out"
+	case userservice.CauseOutputLimit:
+		explanation = "the bounded operation exceeded its output limit"
+	case userservice.CauseOperationFailed:
+		explanation = "the fixed systemd user operation failed"
+	}
+	return fmt.Sprintf("Guardian activation failed during %s: %s. Configuration was preserved. Next: %s", stage, explanation, next)
 }
 
 func parseConfigOptions(args []string) (configOptions, error) {

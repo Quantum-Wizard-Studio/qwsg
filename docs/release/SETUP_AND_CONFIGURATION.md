@@ -22,7 +22,8 @@ recommended operator action.
 For deterministic automation, use `qwsg setup --accept-defaults`. Repeat setup
 preserves a valid configuration unless an explicit `--set KEY=VALUE` is given.
 Setup displays its destination and proposed effective values before an
-interactive write. It never enables or starts a service.
+interactive write. Noninteractive setup never enables or starts a service;
+interactive setup does so only after the separate explicit activation prompt.
 
 Assessment does not invent administrator addresses, SMTP providers,
 credentials, sender identities, or server-purpose choices. No VPS profile is
@@ -83,4 +84,9 @@ are never command arguments or output. Pro multiple-recipient support remains
 future work.
 
 After validation, guided setup may activate the shipped user unit only after
-explicit confirmation. Noninteractive setup never enables or starts it.
+explicit confirmation. It uses the same validated effective-UID user-runtime
+context as readiness and performs only fixed systemd user-manager operations.
+Failures identify runtime validation, manager reachability, unit reload, or
+enable/start without raw command output; configuration remains preserved and
+the displayed QWSG assessment/resume action is safe to follow. Noninteractive
+setup never enables or starts the unit.

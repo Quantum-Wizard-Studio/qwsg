@@ -2,11 +2,12 @@
 set -eu
 
 repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
-test "$(tr -d '\r\n' < "$repo/VERSION")" = 1.1.0-rc.2
+test "$(tr -d '\r\n' < "$repo/VERSION")" = 1.1.0-rc.3
+test -f "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.3.md"
 test -f "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.2.md"
-test ! -e "$repo/dist/qwsg-1.1.0-rc.2-linux-amd64.tar.gz"
+test ! -e "$repo/dist/qwsg-1.1.0-rc.3-linux-amd64.tar.gz"
 test "$(QWSG_RELEASE_VALIDATE_ONLY=1 "$repo/scripts/build-release.sh")" = \
-  'release build: identity 1.1.0-rc.2 is valid'
+  'release build: identity 1.1.0-rc.3 is valid'
 grep -F '1.1 RC requires explicit SOURCE_DATE_EPOCH' "$repo/scripts/build-release.sh" >/dev/null
 grep -F '1.1 RC requires the full 40-character commit' "$repo/scripts/build-release.sh" >/dev/null
 grep -F 'output archive or sidecar already exists' "$repo/scripts/build-release.sh" >/dev/null
@@ -18,11 +19,11 @@ grep -F '1.1 RC requires explicit SOURCE_DATE_EPOCH' "$work/missing-metadata" >/
 if SOURCE_DATE_EPOCH=0 BUILD_COMMIT=0123456789abcdef "$repo/scripts/build-release.sh" >"$work/short-commit" 2>&1; then exit 1; fi
 grep -F '1.1 RC requires the full 40-character commit' "$work/short-commit" >/dev/null
 mkdir "$work/dist"
-touch "$work/dist/qwsg-1.1.0-rc.2-linux-amd64.tar.gz"
+touch "$work/dist/qwsg-1.1.0-rc.3-linux-amd64.tar.gz"
 if SOURCE_DATE_EPOCH=0 BUILD_COMMIT=0123456789abcdef0123456789abcdef01234567 DIST_DIR="$work/dist" \
   "$repo/scripts/build-release.sh" >"$work/collision" 2>&1; then exit 1; fi
 grep -F 'output archive or sidecar already exists' "$work/collision" >/dev/null
-grep -F 'qwsg-1.1.0-rc.2-linux-amd64.tar.gz' "$repo/docs/installation/INSTALL.md" >/dev/null
+grep -F 'qwsg-1.1.0-rc.3-linux-amd64.tar.gz' "$repo/docs/installation/INSTALL.md" >/dev/null
 grep -F 'README.md' "$repo/docs/installation/INSTALL.md" >/dev/null
 grep -F 'INSTALL.md' "$repo/README.md" >/dev/null
 
@@ -56,4 +57,4 @@ grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
 grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
 grep -F 'READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
 
-printf '%s\n' 'PASS: QWSG 1.1.0-rc.2 release plumbing'
+printf '%s\n' 'PASS: QWSG 1.1.0-rc.3 release plumbing'

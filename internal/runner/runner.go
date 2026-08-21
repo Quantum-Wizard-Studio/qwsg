@@ -45,11 +45,12 @@ func (b Bounded) Run(parent context.Context, id string, args ...string) (Result,
 		return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 	}
 	cmd.Env = []string{"PATH=/usr/bin:/bin", "LANG=C", "LC_ALL=C"}
-	for _, entry := range b.TrustedEnvironment[id] {
-		if !validTrustedEnvironment(entry) {
-			return Result{}, errors.New("unsafe trusted command environment")
-		}
-		cmd.Env = append(cmd.Env, entry)
+	trusted := b.TrustedEnvironment[id]
+	if len(trusted) > 1 || (len(trusted) == 1 && !validTrustedEnvironment(trusted[0])) {
+		return Result{}, errors.New("unsafe trusted command environment")
+	}
+	if len(trusted) == 1 {
+		cmd.Env = append(cmd.Env, trusted[0])
 	}
 	var out, errout bytes.Buffer
 	ow := &limitWriter{w: &out, n: b.MaxOutput}

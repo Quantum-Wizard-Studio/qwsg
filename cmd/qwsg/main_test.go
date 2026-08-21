@@ -22,6 +22,7 @@ import (
 	"quantumwizard.hu/qwsg/internal/operatorstate"
 	"quantumwizard.hu/qwsg/internal/pipeline"
 	"quantumwizard.hu/qwsg/internal/presentationmodel"
+	"quantumwizard.hu/qwsg/internal/userservice"
 )
 
 func TestCLIHelpVersionAndInvalid(t *testing.T) {
@@ -163,6 +164,53 @@ func TestInteractiveSetupRequiresExplicitYes(t *testing.T) {
 		if tc.written != (err == nil) {
 			t.Fatalf("answer=%q written=%v err=%v", tc.answer, tc.written, err)
 		}
+	}
+}
+
+func TestGuardianActivationDiagnosticsAreStageSpecificAndPrivate(t *testing.T) {
+	cases := []struct {
+		stage userservice.Stage
+		cause userservice.Cause
+		want  string
+	}{
+		{userservice.StageRuntimeContext, userservice.CauseContextMissing, "user runtime-context validation"},
+		{userservice.StageManager, userservice.CauseManagerUnreachable, "user-manager reachability check"},
+		{userservice.StageDaemonReload, userservice.CauseTimeout, "systemd user-unit reload"},
+		{userservice.StageEnableStart, userservice.CauseOutputLimit, "Guardian enable/start"},
+	}
+	for _, tc := range cases {
+		message := guardianActivationFailure(&userservice.ActivationError{Stage: tc.stage, Cause: tc.cause})
+		for _, want := range []string{tc.want, "Configuration was preserved", "qwsg"} {
+			if !strings.Contains(message, want) {
+				t.Fatalf("stage=%q cause=%q missing %q in %q", tc.stage, tc.cause, want, message)
+			}
+		}
+		for _, forbidden := range []string{"XDG_RUNTIME_DIR", "/run/user/", "stderr", "DBUS_SESSION_BUS_ADDRESS"} {
+			if strings.Contains(message, forbidden) {
+				t.Fatalf("stage=%q leaked %q in %q", tc.stage, forbidden, message)
+			}
+		}
+	}
+}
+
+func TestGuidedSetupPreservesConfigurationAndRendersTypedActivationFailure(t *testing.T) {
+	home := filepath.Join(t.TempDir(), "home")
+	if err := os.Mkdir(home, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", "")
+	var out, errout bytes.Buffer
+	activate := func(context.Context) error {
+		return &userservice.ActivationError{Stage: userservice.StageDaemonReload, Cause: userservice.CauseTimeout}
+	}
+	code := runSetupWithActivator(nil, strings.NewReader("y\ny\n"), &out, &errout, true, activate)
+	if code != 1 || !strings.Contains(errout.String(), "systemd user-unit reload") || !strings.Contains(errout.String(), "bounded operation timed out") || !strings.Contains(errout.String(), "Configuration was preserved") {
+		t.Fatalf("code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	path := filepath.Join(home, ".config", "qwsg", "config.json")
+	if info, err := os.Stat(path); err != nil || info.Mode().Perm() != 0600 {
+		t.Fatalf("configuration not preserved: info=%v err=%v", info, err)
 	}
 }
 

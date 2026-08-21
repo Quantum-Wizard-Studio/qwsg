@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/runner"
+	"quantumwizard.hu/qwsg/internal/userruntime"
 )
 
 type Host interface {
@@ -48,9 +49,9 @@ func (host LocalHost) Run(ctx context.Context, id string) (runner.Result, error)
 
 func DefaultRunner() runner.Runner {
 	environment := map[string][]string{}
-	if directory, evidence := trustedRuntimeDirectory(os.Geteuid()); evidence == "systemd_user_runtime_directory_valid" {
+	if runtimeContext, outcome := userruntime.Resolve(os.Geteuid()); outcome == userruntime.Valid {
 		for _, id := range []string{"systemd_user", "systemd_unit_installed", "systemd_service_enabled", "systemd_service_active"} {
-			environment[id] = []string{"XDG_RUNTIME_DIR=" + directory}
+			environment[id] = []string{runtimeContext.Environment()}
 		}
 	}
 	return fixedRunner{base: runner.Bounded{Allowed: map[string]string{"glibc_version": "/usr/bin/getconf", "systemd_version": "/usr/bin/systemctl", "systemd_user": "/usr/bin/systemctl", "systemd_unit_installed": "/usr/bin/systemctl", "systemd_service_enabled": "/usr/bin/systemctl", "systemd_service_active": "/usr/bin/systemctl"}, TrustedEnvironment: environment, Timeout: 2 * time.Second, MaxOutput: 64 << 10}}
@@ -108,63 +109,35 @@ func systemdUserManagerFinding(ctx context.Context, host Host) Finding {
 }
 
 func (host LocalHost) UserManagerFinding(ctx context.Context) Finding {
-	_, evidence := trustedRuntimeDirectory(host.EffectiveUID())
-	switch evidence {
-	case "systemd_user_runtime_directory_missing":
-		return Finding{RequirementID: "systemd.user_manager", Classification: MissingRequired, EvidenceToken: evidence}
-	case "systemd_user_runtime_directory_unsafe":
-		return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: evidence}
+	_, outcome := userruntime.Resolve(host.EffectiveUID())
+	switch outcome {
+	case userruntime.Missing:
+		return Finding{RequirementID: "systemd.user_manager", Classification: MissingRequired, EvidenceToken: "systemd_user_runtime_directory_missing"}
+	case userruntime.Unsafe:
+		return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: "systemd_user_runtime_directory_unsafe"}
 	}
 	result, err := host.Run(ctx, "systemd_user")
 	return classifyUserManager(result, err)
 }
 
 func classifyUserManager(result runner.Result, err error) Finding {
-	state := strings.TrimSpace(string(result.Stdout))
-	if state == "running" || state == "degraded" {
+	outcome, state := userruntime.ClassifyManager(result, err)
+	switch outcome {
+	case userruntime.ManagerReachable:
 		return Finding{RequirementID: "systemd.user_manager", Classification: Satisfied, EvidenceToken: "systemd_user_manager_available", ObservedValue: state}
-	}
-	for _, transient := range []string{"initializing", "starting", "maintenance", "stopping"} {
-		if state == transient {
-			return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: "systemd_user_manager_starting"}
-		}
-	}
-	if errors.Is(err, context.DeadlineExceeded) {
+	case userruntime.ManagerTransient:
+		return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: "systemd_user_manager_starting"}
+	case userruntime.ManagerTimeout:
 		return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: "systemd_user_probe_timeout"}
-	}
-	if errors.Is(err, runner.ErrOutputLimit) {
+	case userruntime.ManagerOutputLimit:
 		return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: "systemd_user_probe_output_limit"}
-	}
-	if err != nil && state == "" {
+	case userruntime.ManagerUnavailable:
 		return Finding{RequirementID: "systemd.user_manager", Classification: MissingRequired, EvidenceToken: "systemd_user_manager_unavailable"}
-	}
-	if err != nil {
+	case userruntime.ManagerProbeFailed:
 		return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: "systemd_user_probe_failed"}
+	default:
+		return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: "systemd_user_state_unrecognized"}
 	}
-	return Finding{RequirementID: "systemd.user_manager", Classification: UnknownVerification, EvidenceToken: "systemd_user_state_unrecognized"}
-}
-
-func trustedRuntimeDirectory(uid int) (string, string) {
-	if uid < 0 {
-		return "", "systemd_user_runtime_directory_unsafe"
-	}
-	directory := filepath.Join("/run/user", strconv.Itoa(uid))
-	return validateRuntimeDirectory(directory, uid)
-}
-
-func validateRuntimeDirectory(directory string, uid int) (string, string) {
-	info, err := os.Lstat(directory)
-	if os.IsNotExist(err) {
-		return "", "systemd_user_runtime_directory_missing"
-	}
-	if err != nil || info.Mode()&os.ModeSymlink != 0 || !info.IsDir() || info.Mode().Perm()&0077 != 0 {
-		return "", "systemd_user_runtime_directory_unsafe"
-	}
-	stat, ok := info.Sys().(*syscall.Stat_t)
-	if !ok || int(stat.Uid) != uid {
-		return "", "systemd_user_runtime_directory_unsafe"
-	}
-	return directory, "systemd_user_runtime_directory_valid"
 }
 
 func filesystemFinding(host Host) Finding {

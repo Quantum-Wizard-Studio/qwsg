@@ -19,6 +19,22 @@ guidance. Unit state never substitutes for fresh integrity-checked Current
 Operator State; operators re-run `qwsg readiness` until qualified evidence is
 available or the bounded Guardian cycle fails.
 
+Activation and readiness share `internal/userruntime`, which derives
+`/run/user/<decimal-effective-uid>` and rejects missing, symlink, special,
+wrong-owner, or group/other-accessible runtime directories. The validated
+context contributes only canonical `XDG_RUNTIME_DIR` to the fixed systemctl
+operations; ambient XDG, DBus, HOME, and caller-supplied values remain absent.
+Before mutation, activation uses the same bounded `is-system-running`
+reachability semantics as assessment. Running and degraded are reachable;
+transient, unavailable, timeout, output-bound, and unrecognized results remain
+distinct.
+
+Typed activation failures carry only a fixed stage (`runtime_context`,
+`manager_reachability`, `daemon_reload`, or `enable_start`) and bounded cause.
+Human output explains the stage, confirms configuration preservation, and
+points to QWSG assessment and resumable setup. It never exposes raw stderr,
+environment values, usernames, host paths, or guessed remediation commands.
+
 Direct hidden credential entry is deferred until a dependency-free no-echo
 terminal boundary can be proven. The existing current-user mode-0600
 `notification credential set --from-file` path remains the safe guided and

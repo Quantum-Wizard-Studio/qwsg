@@ -4,7 +4,7 @@
 
 - Task ID: `051`
 - Task slug: `qwsg-1-1-0-rc-2-clean-host-acceptance-retest`
-- Status: `active — Gate A1 readiness and scaffolding`
+- Status: `complete with disclosed limitations — NOT READY FOR QWSG 1.1.0 RELEASE`
 - Date generated: `2026-08-21` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
@@ -12,7 +12,7 @@
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded. The Project Owner started Task 051 through the canonical `job` workflow on 2026-08-21 UTC. Work is bounded to Phase A until the separate source-integration gate.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded. The Project Owner started Task 051 through the canonical `job` workflow on 2026-08-21 UTC. After the separately gated source integration, private RC.2 construction and private transfer work, the Owner supplied privacy-safe external evidence of the product-guided journey. External acceptance stopped at guided Guardian activation on the open blocking finding `QWSG-051-F001`. On 2026-08-21 UTC the Owner authorized truthful lifecycle closure as complete with disclosed limitations and `NOT READY FOR QWSG 1.1.0 RELEASE`; this is not successful release acceptance.
 
 ## Starting state
 
@@ -92,6 +92,95 @@ review, validation, dry-run push, clean fast-forward push to `origin/main`, and
 direct remote verification. Candidate construction and all later gates remain
 unauthorized.
 
+Gate A2 integrated and pushed exact six-path commit
+`6d3f79accd4d52b94c960eefa93e2f51fbc9a48c` with parent
+`af8154140ba934cfa0b89aa7071633c87323ecb9`; direct remote verification and
+ahead/behind `0/0` passed. The Project Owner then separately authorized Gate B
+private construction from that exact commit only.
+
+Gate B exported the authorized commit into independent mode-0700 roots
+`/tmp/qwsg-task051-rc2-build-one.Qr9pC5` and
+`/tmp/qwsg-task051-rc2-build-two.3AHmql`, with separate source, output and cache
+directories. The commit timestamp `1787293383`
+(`2026-08-21T06:23:03Z`) was used as `SOURCE_DATE_EPOCH`, and the exact full
+commit was passed as `BUILD_COMMIT`.
+
+The first invocation attempt launched both release scripts from the development
+working directory. Go rejected the absolute exported package paths as outside
+the current module; both attempts failed before producing output and both
+output roots were verified empty. The successful method launched each script
+from its own unmodified exported source root with the same provenance inputs.
+
+Both builds independently produced
+`qwsg-1.1.0-rc.2-linux-amd64.tar.gz`, size `2945629` bytes, SHA-256
+`73d045cbc5577d3e9921a44760ba316d2094cf13fafe82f873be9f3600547315`.
+Archives, sidecars, internal manifests and binaries are byte-identical. Both
+sidecars and manifests verify. The binary SHA-256 is
+`bade6dfc92418784f18ce4d5f495c1c6580f3fad56bac00beae7aeed4422643f`;
+it reports version `1.1.0-rc.2`, exact commit
+`6d3f79accd4d52b94c960eefa93e2f51fbc9a48c`, and build time
+`2026-08-21T06:23:03Z`. It is a stripped statically linked ELF 64-bit x86-64
+Linux executable with no dynamic dependencies.
+
+The archive has one canonical RC.2 root, relative paths, regular
+files/directories only, deterministic metadata, a complete manifest, packaged
+LICENSE, root README/INSTALL and RC.2 notes. Those source-derived documents are
+byte-correct. Package-name/content audits excluded credentials, secrets,
+private keys, Builder inputs, snapshots, backups, caches, acceptance secrets,
+Owner-owned content, unrelated local files and RC.1 material. No transfer,
+external access, credential action, tag, release, publication, staging, commit,
+push or Task 052 occurred during Gate B.
+
+The Project Owner authorized Gate C direct private SSH/SCP transfer of exactly
+the build-one archive and sidecar. Pre-transfer source checks passed: both
+literal files were regular non-symlinks, the source directory contained exactly
+the two authorized names, the archive size and SHA-256 matched Gate B, and the
+sidecar verified. Strict SSH then rejected the connection because the presented
+host key conflicted with an existing trusted key. Work stopped before
+authentication, remote command execution, directory creation, or transfer. No
+known-host entry was removed or changed, no bypass or fallback was attempted,
+and the fingerprint/private destination are omitted from repository evidence.
+Gate C requires independent Owner fingerprint verification and explicit trust
+update authority before it can resume.
+
+The Owner independently confirmed the exact presented ED25519 fingerprint and
+authorized reconciliation. Inspection showed three stale keys for only the
+approved destination (ED25519, RSA and ECDSA); the standard known-host tool
+removed those destination entries and retained its automatic local backup.
+The next strict interactive connection displayed the exact Owner-verified
+ED25519 fingerprint, which was accepted. SSH then requested the destination
+account password. Because this session has no protected Owner-only interactive
+credential channel and credentials may not enter chat or tool input, the prompt
+was aborted. No authentication, remote command, directory creation, transfer,
+fallback, candidate execution, or external acceptance occurred. Repository
+evidence retains neither the destination nor its fingerprint.
+
+The Owner later reported privacy-safe RC.2 external evidence from the
+product-guided journey. Guided setup successfully wrote the configuration, the
+Owner explicitly accepted Guardian activation, and QWSG returned `Guardian
+activation failed; configuration was preserved. Run: qwsg readiness`. The
+instructed readiness run reported configuration and environment ready,
+`configuration.present`, `filesystem.local_semantics`, the installed Guardian
+unit and the running user manager satisfied, while Guardian enabled, active and
+canonical evidence remained missing. The complete raw output was not supplied;
+only these canonical facts are retained.
+
+Finding `QWSG-051-F001` is an OPEN, BLOCKING `RELEASE BLOCKER`. Readiness uses
+the Task 050 assessment host runner, which supplies validated
+`XDG_RUNTIME_DIR=/run/user/<uid>` to fixed user-systemd probes. Guided setup's
+separate `userservice.Controller` uses the common bounded runner without trusted
+runtime environment; that runner replaces the child environment with only
+PATH/locale variables. Its fixed `systemctl --user daemon-reload` and `enable
+--now` therefore cannot reliably reach the same user bus that readiness proved
+running. The controller also collapses both stages to generic errors and does
+not preserve a privacy-safe cause token.
+
+No operator workaround was supplied and the readiness remediation command was
+not authorized for execution. External acceptance stopped at guided Guardian
+activation. Correcting the activation runner/environment and diagnostic
+contract is product work outside Task 051 acceptance authority and requires a
+separately Owner-authorized correction task and replacement candidate.
+
 ## Verification
 
 Pre-change PASS: build; full tests; repository-wide race tests; vet; formatting;
@@ -112,4 +201,16 @@ v1.0.0, LICENSE, external state, credentials, or the excluded Owner-owned path.
 
 ## Completion state
 
-`active — Gate A2 source integration authorized and in progress`
+`complete with disclosed limitations — NOT READY FOR QWSG 1.1.0 RELEASE`
+
+Task 051 closed truthfully under explicit Owner authority with
+`QWSG-051-F001` permanently `OPEN, BLOCKING` at the guided Guardian activation
+checkpoint. The RC.2 source is
+`6d3f79accd4d52b94c960eefa93e2f51fbc9a48c`; the reproducible private RC.2
+archive SHA-256 is
+`73d045cbc5577d3e9921a44760ba316d2094cf13fafe82f873be9f3600547315`.
+Completed privacy-safe evidence is retained above. Every later mandatory
+checkpoint remains incomplete/unexecuted unless explicitly evidenced; no PASS
+is inferred. RC.1 evidence and Task 049 findings F002/F003 remain immutable
+history. No external workflow continuation, workaround, replacement build,
+release, or publication occurred as part of closure.

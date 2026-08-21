@@ -69,10 +69,10 @@ platform. Current mappings guide QWSG setup and user-unit placement/activation;
 package-manager mappings remain absent until separately proven and tested.
 Recommendations are displayed as inert data and never executed.
 
-The user-manager probe validates the effective UID's canonical
+The shared `internal/userruntime` boundary validates the effective UID's canonical
 `/run/user/<uid>` directory before supplying only that derived
-`XDG_RUNTIME_DIR` to fixed `systemctl --user is-system-running` arguments. It
-does not inherit arbitrary session environment or expose raw stderr. Stable,
+`XDG_RUNTIME_DIR` to fixed `systemctl --user` readiness and guided-activation
+operations. It does not inherit arbitrary session environment or expose raw stderr. Stable,
 transient, unavailable, unsafe, timeout, bounded-output, and unrecognized
 states remain separate evidence tokens; ambiguous evidence receives no repair
 command.

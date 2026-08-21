@@ -20,6 +20,14 @@
   locations support atomic rename, advisory `flock`, Unix ownership/modes, and
   private `0700/0600` storage, then rerun the assessment.
 
+- Guided Guardian activation failures name one fixed stage: user runtime-context
+  validation, user-manager reachability, systemd user-unit reload, or Guardian
+  enable/start. Configuration remains preserved. Follow the displayed
+  `qwsg install --check` or `qwsg readiness` evidence and resume with
+  `qwsg setup`; do not substitute an inferred systemctl command. Timeout and
+  output-limit causes are intentionally distinct from a fixed-operation
+  failure, and raw command output is withheld.
+
 - `Guardian: unavailable`: lifecycle evidence is absent, invalid, incompatible, or stale. Inspect the exact user unit and its bounded journal.
 - `Guardian: degraded`: the process is operating but its latest qualified cycle or evidence is incomplete or failed.
 - `guardian_active`: a supervised Guardian owns the single-writer lock; use the Console instead of racing `qwsg observe`.

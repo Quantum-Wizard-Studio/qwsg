@@ -12,3 +12,9 @@ boundary, safety notes, and revalidation action. A missing exact remediation
 command means the evidence does not prove one; it is not permission to guess.
 
 Task 043 completed the Owner-run physical reboot journey on a freshly reinstalled disposable supported host: explicit lingering, boot-before-login service recovery, recurring post-reboot state, Console freshness, controlled restart and uninstall all passed. Repository tests do not replace that retained real-host evidence.
+
+For guided Guardian activation failures, retain only the privacy-safe stage and
+cause shown by QWSG plus the matching `qwsg readiness` classifications. Do not
+collect raw environment values, stderr, usernames, runtime paths, host/account
+identifiers, configuration, credentials, or provider data. Follow the product's
+bounded assessment/resume action; do not infer a systemctl repair command.

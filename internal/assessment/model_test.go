@@ -165,33 +165,6 @@ func TestSystemdUserManagerEvidenceStates(t *testing.T) {
 	}
 }
 
-func TestRuntimeDirectoryValidationIsReadOnlyAndFailClosed(t *testing.T) {
-	root := t.TempDir()
-	directory := filepath.Join(root, "runtime")
-	if _, evidence := validateRuntimeDirectory(directory, os.Geteuid()); evidence != "systemd_user_runtime_directory_missing" {
-		t.Fatal(evidence)
-	}
-	if err := os.Mkdir(directory, 0700); err != nil {
-		t.Fatal(err)
-	}
-	if _, evidence := validateRuntimeDirectory(directory, os.Geteuid()); evidence != "systemd_user_runtime_directory_valid" {
-		t.Fatal(evidence)
-	}
-	if err := os.Chmod(directory, 0755); err != nil {
-		t.Fatal(err)
-	}
-	if _, evidence := validateRuntimeDirectory(directory, os.Geteuid()); evidence != "systemd_user_runtime_directory_unsafe" {
-		t.Fatal(evidence)
-	}
-	link := filepath.Join(root, "link")
-	if err := os.Symlink(directory, link); err != nil {
-		t.Fatal(err)
-	}
-	if _, evidence := validateRuntimeDirectory(link, os.Geteuid()); evidence != "systemd_user_runtime_directory_unsafe" {
-		t.Fatal(evidence)
-	}
-}
-
 func TestFilesystemPathEvidenceRejectsSymlinkAndRelativeSelection(t *testing.T) {
 	root := t.TempDir()
 	owned := filepath.Join(root, "owned")
