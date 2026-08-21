@@ -1,8 +1,9 @@
 # QWSG 1.1.0-rc.2 Private Acceptance Notes
 
-This source identity prepares a replacement private acceptance candidate for a
-later separately authorized task. Task 050 does not build, tag, transfer,
-publish, or externally test this candidate.
+This source identity prepares a replacement private acceptance candidate for
+the separately authorized Task 051 clean-host retest. Candidate construction,
+private transfer, and each external phase remain behind explicit Owner gates.
+This identity is not a final release, tag, publication, or readiness claim.
 
 ## Smart Install correction
 
