@@ -4,7 +4,7 @@
 
 - Task ID: `052`
 - Task slug: `qwsg-guided-guardian-activation-runtime-context-diagnostics`
-- Status: `active — source integration authorized; lifecycle closure not authorized`
+- Status: `complete with disclosed limitations`
 - Date generated: `2026-08-21` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
@@ -149,14 +149,28 @@ or touch Owner content, RC.1/RC.2, external state, v1.0.0 or LICENSE.
 
 ## Completion state
 
-`active — source integration gate authorized; lifecycle closure remains separately gated`
+`complete with disclosed limitations`
 
-Task 052 is not lifecycle-complete and `QWSG-051-F001` is not externally
-verified/corrected. The next authorized operation must be an exact path-based
-staging/review/commit/push gate for the Task 051 closure, Task 052 lifecycle,
-product correction, tests and RC.3 source metadata. After integration, Task
-052 closure requires another explicit Owner gate. A future clean-host task
-must construct RC.3 twice from that exact clean commit and restart at
-Checkpoint 01; historical host-independent evidence may be cited only as
-chronology while every artifact-identity and product-dependent external gate
-is re-executed. Task 053 is not created here.
+The Task 052 implementation is complete and integrated into `main` as commit
+`6bb5b62957e54e0ac3377ce1b85593408c341873` (`feat: fix guided Guardian
+activation runtime context`) with parent
+`6d3f79accd4d52b94c960eefa93e2f51fbc9a48c`. The exact 29-path commit passed
+pre- and post-commit build, focused/full/race, vet, formatting, RC.3
+release-plumbing, shell/static-systemd, security/exclusion, Framework, Builder,
+lifecycle, diversion, job, test-task, whitespace and preservation validation;
+it was pushed as a clean fast-forward and directly verified on remote `main`
+with ahead/behind `0/0`.
+
+Source version is `1.1.0-rc.3`. No RC.3 candidate artifact has been built.
+`QWSG-051-F001` remains the historical OPEN/BLOCKING RELEASE BLOCKER until a
+separately authorized RC.3 external clean-host acceptance verifies the fix;
+Task 052 local evidence does not claim external resolution. RC.1, RC.2, Task
+049 F002/F003, Task 051 external evidence, v1.0.0, LICENSE and Owner-owned
+content remain preserved. No external VPS, SMTP, Guardian acceptance, tag,
+release, upload, publication or Task 053 action occurred.
+
+A future separately authorized clean-host task must construct RC.3 twice from
+the exact integrated clean source commit and restart at Checkpoint 01;
+historical host-independent evidence may be cited only as chronology while
+every artifact-identity and product-dependent external gate is re-executed.
+Task 053 is not created here.

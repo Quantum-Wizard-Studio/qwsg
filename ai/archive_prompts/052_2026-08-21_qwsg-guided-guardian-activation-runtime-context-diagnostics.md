@@ -4,7 +4,7 @@
 
 - Task ID: `052`
 - Task slug: `qwsg-guided-guardian-activation-runtime-context-diagnostics`
-- Status: `active`
+- Status: `complete with disclosed limitations`
 - Date opened: `2026-08-21` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English
