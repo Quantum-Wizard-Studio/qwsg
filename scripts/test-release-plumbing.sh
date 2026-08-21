@@ -29,7 +29,8 @@ grep -F 'INSTALL.md' "$repo/README.md" >/dev/null
 
 validate_protocol() {
 protocol=$1
-test "$(grep -c '^## Checkpoint [0-9][0-9] ' "$protocol")" -eq 16
+expected_checkpoints=$2
+test "$(grep -c '^## Checkpoint [0-9][0-9] ' "$protocol")" -eq "$expected_checkpoints"
 awk '
   function verify() {
     if (!checkpoint) return
@@ -50,11 +51,19 @@ awk '
 ' "$protocol"
 }
 
-validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.1.md"
-validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.2.md"
+validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.1.md" 16
+validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.2.md" 16
+validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.3.md" 25
 test -f "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md"
 grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
 grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
 grep -F 'READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
+test -f "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md"
+grep -F 'QWSG-051-F001' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md" >/dev/null
+grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md" >/dev/null
+grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md" >/dev/null
+grep -F 'OPEN, BLOCKING' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md" >/dev/null
+grep -F 'READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md" >/dev/null
+grep -F 'NOT READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md" >/dev/null
 
 printf '%s\n' 'PASS: QWSG 1.1.0-rc.3 release plumbing'
