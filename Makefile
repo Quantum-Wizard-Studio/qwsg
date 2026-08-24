@@ -1,4 +1,4 @@
-.PHONY: build install install-service release release-check test vet fmt-check framework-check engineering-test
+.PHONY: build build-contract-check install install-service release release-check test vet fmt-check framework-check engineering-test
 
 GOCACHE ?= /tmp/qwsg-go-cache
 GOMODCACHE ?= /tmp/qwsg-go-modcache
@@ -14,7 +14,10 @@ LDFLAGS := -X main.version=$(VERSION) -X main.buildCommit=$(BUILD_COMMIT) -X mai
 
 build:
 	mkdir -p build
-	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go build -trimpath -ldflags "$(LDFLAGS)" -o build/qwsg ./cmd/qwsg
+	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go build -trimpath -buildvcs=false -ldflags "$(LDFLAGS)" -o build/qwsg ./cmd/qwsg
+
+build-contract-check:
+	./scripts/test-build-contract.sh
 
 install:
 	@test -f build/qwsg -a -x build/qwsg || { \
@@ -50,7 +53,7 @@ fmt-check:
 framework-check:
 	./ai/scripts/framework-check.sh
 
-engineering-test: framework-check
+engineering-test: framework-check build-contract-check
 	./ai/tests/test-framework.sh
 	./ai/tests/test-divert-task-to-test.sh
 	./ai/tests/test-next-task.sh

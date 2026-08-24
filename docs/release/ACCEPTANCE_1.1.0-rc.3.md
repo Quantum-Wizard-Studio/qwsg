@@ -2,9 +2,9 @@
 
 ## Current state
 
-- Candidate: `NOT BUILT`
+- Candidate: `PRIVATE BYTES CONSTRUCTED — VALIDATION STOPPED`
 - External acceptance: `NOT STARTED`
-- Final verdict: `PENDING`
+- Final verdict: `NOT READY FOR QWSG 1.1.0 RELEASE`
 - Historical `QWSG-051-F001`: `OPEN, BLOCKING` until the exact RC.3 external
   proof in Checkpoints 14–16 passes.
 - Task 049 `QWSG-049-F002` and `QWSG-049-F003`: immutable history; fresh RC.3
@@ -19,7 +19,7 @@ credentials, external execution, tag, release, upload or publication.
 | --- | --- | --- | --- |
 | A1 | repository/source readiness audit | COMPLETE | Task 053 Gate A1 report |
 | A2 | exact acceptance-source integration | PENDING OWNER AUTHORIZATION | — |
-| B/C/D | private twin construction and package proof | NOT AUTHORIZED | — |
+| B/C/D | private twin construction and package proof | STOPPED | Twin build/package proof passed; required exported-source `make build` failed because the Git archive intentionally has no `.git` metadata and the Makefile build does not disable automatic Go VCS stamping. |
 | E | private transfer and destination integrity | NOT AUTHORIZED | — |
 | F | Checkpoints 01–25 | NOT AUTHORIZED | — |
 | G | evidence integration and verdict | NOT AUTHORIZED | — |
@@ -30,14 +30,17 @@ credentials, external execution, tag, release, upload or publication.
 | --- | --- |
 | Pre-A2 baseline | `3bf5a8e26e32ac1489dcdfecad5b086e4141cd91` |
 | Task 052 product commit | `6bb5b62957e54e0ac3377ce1b85593408c341873` |
-| Candidate-source commit | PENDING GATE A2 |
+| Candidate-source commit | `3e7d2f9d543078b49d1afa522dc6bf3baba1c949` |
 | Source version | `1.1.0-rc.3` |
-| SOURCE_DATE_EPOCH / UTC build time | NOT BUILT |
-| Archive | `qwsg-1.1.0-rc.3-linux-amd64.tar.gz` — NOT BUILT |
-| Size / SHA-256 | NOT BUILT |
-| Binary/manifest/sidecar byte identity | NOT TESTED |
-| Static Linux amd64 / embedded source | NOT TESTED |
-| Package/layout/docs/LICENSE/exclusions | NOT TESTED |
+| SOURCE_DATE_EPOCH / UTC build time | `1787314469` / `2026-08-21T12:14:29Z` |
+| Archive | `qwsg-1.1.0-rc.3-linux-amd64.tar.gz` |
+| Size / SHA-256 | `2949417` bytes / `c3ba763701b7ee0340d4928b21c23276dfdc083536b08814157366310629a0cc` |
+| Binary/manifest/sidecar byte identity | PASS across both independent builds |
+| Sidecar SHA-256 | `41be7497c427bae4dbccf240e846a69b7cad7c3fe5d9f8c2d8071b088f08e343`; verification PASS |
+| Manifest SHA-256 | `33751c0f050b0304c9a0840a50c6f32287d2ada4793d12706f49971b93fa7dc3`; 18 entries verify PASS |
+| Binary SHA-256 | `eb9926c99e90e2146ee8657797c71d1382c316e372af62186fc67d1bc6c3b044` |
+| Static Linux amd64 / embedded source | PASS; static x86-64 ELF; `1.1.0-rc.3`, exact commit and UTC build identity |
+| Package/layout/docs/LICENSE/exclusions | PASS: one root, 25 members, 19 regular files, only directories/regular files, byte-correct source documentation and exclusions |
 
 ## Transfer provenance
 
@@ -120,6 +123,7 @@ or reference, headers, tokens, private paths or host/account identity.
 | ID | Checkpoint | Severity | Description | State |
 | --- | --- | --- | --- | --- |
 | QWSG-051-F001 | historical RC.2 guided activation | RELEASE BLOCKER | RC.2 lost validated user-runtime context; RC.3 external retest required. | OPEN, BLOCKING |
+| QWSG-053-F001 | Gate B/C/D exported-source validation | RELEASE BLOCKER | Required `make build` in the independent Git-exported source failed before tests because Go automatic VCS stamping could not obtain repository status from an export without `.git`; the release builder uses `-buildvcs=false`, but the ordinary Makefile build does not. Per Gate B/C/D authority, validation stopped without a workaround or rebuild. | OPEN, BLOCKING |
 
 New findings must use the established severity model and stop acceptance where
 required. Do not repair product behavior inside this acceptance task.
@@ -132,6 +136,8 @@ pass, both real receipts are independently confirmed, reboot and lifecycle
 operations pass, no blocker/security defect remains, and all local/governance
 gates pass.
 
-Otherwise the result is `NOT READY FOR QWSG 1.1.0 RELEASE` with exact findings
-or missing evidence. Current state is `PENDING`; no release/publication action
-is authorized.
+The result is `NOT READY FOR QWSG 1.1.0 RELEASE`: required exported-source
+validation failed at Gate B/C/D on open blocking `QWSG-053-F001`. Transfer and
+all external checkpoints remained unexecuted. This is a completed acceptance
+task with disclosed limitations, not successful release acceptance. No
+release/publication action is authorized.
