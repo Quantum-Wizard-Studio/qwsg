@@ -57,6 +57,7 @@ validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.1.md" 16
 validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.2.md" 16
 validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.3.md" 25
 validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.4.md" 25
+validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.5.md" 26
 test -f "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md"
 grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
 grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
@@ -81,6 +82,19 @@ grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 grep -F 'READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 grep -F 'NOT READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
+test -f "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md"
+grep -F -- '- Candidate: `NOT BUILT`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Transfer: `NOT STARTED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- External acceptance: `NOT STARTED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Final verdict: `PENDING`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+test "$(grep -c '| NOT EXECUTED |' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md")" -ge 26
+grep -F 'QWSG-055-F001 remains `OPEN, BLOCKING`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'QWSG-051-F001' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'QWSG-053-F001' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'git.quantumwizard.hu' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F '`wget` and `curl` examples' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F -- '-buildvcs=false' "$repo/Makefile" >/dev/null
 grep -F '1.1.0-rc.4' "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.4.md" >/dev/null
 grep -F '1.1.0-rc.5' "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.5.md" >/dev/null
