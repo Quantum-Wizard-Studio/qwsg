@@ -55,6 +55,7 @@ awk '
 validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.1.md" 16
 validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.2.md" 16
 validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.3.md" 25
+validate_protocol "$repo/docs/release/ACCEPTANCE_PROTOCOL_1.1.0-rc.4.md" 25
 test -f "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md"
 grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
 grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.2.md" >/dev/null
@@ -69,6 +70,14 @@ grep -F 'NOT READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-
 grep -F 'QWSG-053-F001' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md" >/dev/null
 grep -F 'c3ba763701b7ee0340d4928b21c23276dfdc083536b08814157366310629a0cc' \
   "$repo/docs/release/ACCEPTANCE_1.1.0-rc.3.md" >/dev/null
+test -f "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md"
+grep -F 'Candidate: `NOT BUILT`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
+grep -F 'QWSG-053-F001' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
+grep -F 'QWSG-051-F001' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
+grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
+grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
+grep -F 'READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
+grep -F 'NOT READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 grep -F -- '-buildvcs=false' "$repo/Makefile" >/dev/null
 grep -F '1.1.0-rc.4' "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.4.md" >/dev/null
 
