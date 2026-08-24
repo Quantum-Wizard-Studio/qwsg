@@ -83,7 +83,18 @@ grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 grep -F 'READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 grep -F 'NOT READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 test -f "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md"
-grep -F -- '- Candidate: `NOT BUILT`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Candidate: `BUILT PRIVATELY; NOT TRANSFERRED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F '1025d36d05b2f6f919f0ea4ec4a7029f67536000' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F '1787594463' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F '2026-08-24T18:01:03Z' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'qwsg-1.1.0-rc.5-linux-amd64.tar.gz' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F '2951350' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'cfe300c0f1f312d80120f74a9f24bed4a64387471bf2097ddc63d94f0fb2f7b0' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F '69f3eb4bf89dc126a7eafd08354eec37a941014171b3d1d70c6e6a4cf52e5eb0' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'ae51aca0bc4ddc61b0daea3a87f0acabcde5ec9fd8fadddc050f0786d6915e9e' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F '5484aab96d5c3748e81b065fdb11ec8c34385589bb07ee7ea1b2b35fdffa6b93' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'PASS; PRIVACY-SAFE LOCAL EVIDENCE RECORDED' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'LOCAL GATE B RETEST PASS; historical state remains OPEN/BLOCKING' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F -- '- Transfer: `NOT STARTED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F -- '- External acceptance: `NOT STARTED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F -- '- Final verdict: `PENDING`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null

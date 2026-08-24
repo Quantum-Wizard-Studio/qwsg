@@ -2,23 +2,24 @@
 
 ## Current state
 
-- Candidate: `NOT BUILT`
+- Candidate: `BUILT PRIVATELY; NOT TRANSFERRED`
 - Transfer: `NOT STARTED`
 - External acceptance: `NOT STARTED`
 - Final verdict: `PENDING`
 - Notification receipts: `NOT CONFIRMED`
-- Candidate-source commit: `PENDING GATE A INTEGRATION`
+- Candidate-source commit: `1025d36d05b2f6f919f0ea4ec4a7029f67536000`
 - Historical QWSG-055-F001: `OPEN, BLOCKING`
 
-This empty ledger authorizes no construction, transfer, external execution,
-credentials, tag, Forgejo Release, upload or publication.
+This local Gate B evidence authorizes no rebuild, evidence integration,
+transfer, external execution, credentials, tag, Forgejo Release, upload or
+publication.
 
 ## Owner gate ledger
 
 | Gate | Scope | State |
 | --- | --- | --- |
-| A | readiness audit and acceptance-scaffolding integration | PREPARED; INTEGRATION NOT AUTHORIZED |
-| B | private exact-commit twin construction | NOT STARTED |
+| A | readiness audit and acceptance-scaffolding integration | PASS; INTEGRATED AS `1025d36d05b2f6f919f0ea4ec4a7029f67536000` |
+| B | private exact-commit twin construction | PASS; PRIVACY-SAFE LOCAL EVIDENCE RECORDED |
 | C | deterministic/package/provenance/security proof and evidence integration | NOT STARTED |
 | D | private transfer and destination integrity | NOT STARTED |
 | E | Checkpoints 01–26 fresh external clean-host acceptance | NOT STARTED |
@@ -30,13 +31,15 @@ credentials, tag, Forgejo Release, upload or publication.
 | --- | --- |
 | Gate A baseline | `05a49a2e56d254ab3eb4646dc9df04fa4b63e335` |
 | Task 056 integration | `fc52295f6cc5b61078b32535230bdc704168d13c` |
-| Candidate-source commit | PENDING GATE A INTEGRATION |
+| Candidate-source commit | `1025d36d05b2f6f919f0ea4ec4a7029f67536000` |
 | Source version | `1.1.0-rc.5` |
-| SOURCE_DATE_EPOCH / UTC | NOT ESTABLISHED |
-| Archive filename, size and SHA-256 | NOT BUILT |
-| Sidecar, manifest and binary SHA-256 | NOT BUILT |
-| Twin byte identity | NOT EXECUTED |
-| Static platform/package/docs/LICENSE/exclusions | NOT EXECUTED |
+| SOURCE_DATE_EPOCH / UTC | `1787594463` / `2026-08-24T18:01:03Z` |
+| Archive filename, size and SHA-256 | `qwsg-1.1.0-rc.5-linux-amd64.tar.gz`; `2951350` bytes; `cfe300c0f1f312d80120f74a9f24bed4a64387471bf2097ddc63d94f0fb2f7b0` |
+| Sidecar SHA-256 / verification | `69f3eb4bf89dc126a7eafd08354eec37a941014171b3d1d70c6e6a4cf52e5eb0`; PASS in both private roots |
+| Manifest SHA-256 / verification | `ae51aca0bc4ddc61b0daea3a87f0acabcde5ec9fd8fadddc050f0786d6915e9e`; every entry PASS in both twins; no unmanifested payload |
+| Binary SHA-256 / embedded identity | `5484aab96d5c3748e81b065fdb11ec8c34385589bb07ee7ea1b2b35fdffa6b93`; QWSG `1.1.0-rc.5`, exact full commit, controlled UTC time |
+| Twin byte identity | PASS for ordinary binaries and release binary, manifest, archive and sidecar across two independent no-`.git` exports |
+| Static platform/package/docs/LICENSE/exclusions | PASS; stripped static ELF64 x86-64, canonical safe root/content/types/modes/timestamps, source-identical docs/LICENSE, no excluded content |
 
 ## External checkpoint ledger
 
@@ -75,7 +78,7 @@ credentials, tag, Forgejo Release, upload or publication.
 | --- | --- | --- | --- |
 | QWSG-055-F001 | OPEN, BLOCKING | Checkpoints 14–16: real safe state directory, no compatibility symlink, guided activation, enabled/active/fresh evidence and satisfied filesystem assessment | NOT EXECUTED |
 | QWSG-051-F001 | OPEN, BLOCKING | Checkpoint 17: documented guided workflow and independent enabled/active/fresh readiness | NOT EXECUTED |
-| QWSG-053-F001 | OPEN, BLOCKING | Gates B/C: ordinary no-`.git` builds without GOFLAGS and exact deterministic provenance | NOT EXECUTED |
+| QWSG-053-F001 | OPEN, BLOCKING | Gates B/C: ordinary no-`.git` builds without GOFLAGS and exact deterministic provenance | LOCAL GATE B RETEST PASS; historical state remains OPEN/BLOCKING pending later acceptance boundaries |
 | QWSG-049-F002 | OPEN, BLOCKING | Checkpoints 07–08: fresh actionable user-manager guidance | NOT EXECUTED |
 | QWSG-049-F003 | OPEN, RELEASE-GATE BLOCKING | Checkpoints 07–08 and 15–17: fresh local-semantics assessment before and after activation | NOT EXECUTED |
 

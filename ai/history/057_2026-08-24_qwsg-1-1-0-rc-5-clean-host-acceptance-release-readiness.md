@@ -4,7 +4,7 @@
 
 - Task ID: `057`
 - Task slug: `qwsg-1-1-0-rc-5-clean-host-acceptance-release-readiness`
-- Status: `in progress — Gate A scaffolding prepared; integration Owner-gated`
+- Status: `in progress — Gate B private deterministic construction passed; Gate C Owner-gated`
 - Date generated: `2026-08-24` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
@@ -51,6 +51,34 @@ bytes, caches and unrelated files are excluded.
 - Narrowly extended release-plumbing validation for the RC.5 protocol, empty
   ledger, finding preservation and future Forgejo wget/curl distribution
   requirement. No distribution mechanism was implemented.
+- Gate A was integrated as the exact candidate-source commit
+  `1025d36d05b2f6f919f0ea4ec4a7029f67536000`.
+- Under separate Gate B authority, created two new independent private
+  mode-0700 roots and independently exported the exact commit without `.git`.
+  Both ordinary module-root `make build` invocations ran with GOFLAGS unset and
+  reported truthful `commit: unknown` / `built: unknown` provenance.
+- Derived SOURCE_DATE_EPOCH `1787594463` (`2026-08-24T18:01:03Z`) from the exact
+  commit and invoked canonical release construction from each exported module
+  root with the full lowercase commit and independent caches/output.
+- Both releases produced byte-identical binary, manifest, archive and sidecar.
+  The private archive is `qwsg-1.1.0-rc.5-linux-amd64.tar.gz`, `2951350` bytes,
+  SHA-256 `cfe300c0f1f312d80120f74a9f24bed4a64387471bf2097ddc63d94f0fb2f7b0`.
+  Sidecar SHA-256 is
+  `69f3eb4bf89dc126a7eafd08354eec37a941014171b3d1d70c6e6a4cf52e5eb0`;
+  both sidecar checks pass.
+- Manifest SHA-256 is
+  `ae51aca0bc4ddc61b0daea3a87f0acabcde5ec9fd8fadddc050f0786d6915e9e`;
+  every entry passes in both twins and no unmanifested payload exists. Binary
+  SHA-256 is
+  `5484aab96d5c3748e81b065fdb11ec8c34385589bb07ee7ea1b2b35fdffa6b93`.
+- Verified exact embedded version/full commit/UTC time, absent ambient VCS
+  metadata, stripped static ELF64 x86-64 identity, one canonical safe archive
+  root, expected regular files/directories only, deterministic root ownership,
+  established modes/timestamps, source-identical documentation/LICENSE and all
+  security/privacy/Owner-content exclusions.
+- QWSG-053-F001 receives bounded additive `LOCAL GATE B RETEST PASS` evidence
+  only. Its immutable historical OPEN/BLOCKING state is not rewritten, and no
+  external correction or release readiness is claimed.
 
 ## Verification
 
@@ -63,6 +91,11 @@ private host, credential, candidate or Owner-content inclusion. Protected
 RC.1/RC.2/failed RC.3/failed RC.4, finding, Task 055/056, v1.0.0 and LICENSE
 evidence matches the verified snapshot.
 
+Gate B snapshot `/tmp/qwsg-task057-gate-b-snapshot.qqk89R` is private mode 0700
+and contains the exact tracked source archive, source/epoch/output-absence
+record, protected-history hashes and bounded rollback instructions. Private
+build-root paths are intentionally omitted from canonical evidence.
+
 ## Rollback
 
 After explicit Owner authorization, restore only the literal Gate A targets
@@ -72,6 +105,7 @@ or unrelated content.
 
 ## Completion state
 
-`in progress — Gate A scaffolding prepared locally; integration remains
-Owner-gated`. No RC.5 candidate was constructed and no transfer, external host,
-credential, tag, release, upload or publication operation occurred.
+`in progress — Gate B deterministic private candidate construction passed;
+Gate C evidence integration remains Owner-gated`. Candidate bytes remain
+private and untransferred. No external host, credential, tag, release, upload
+or publication operation occurred.
