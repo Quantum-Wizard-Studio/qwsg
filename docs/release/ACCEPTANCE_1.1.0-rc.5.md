@@ -2,17 +2,21 @@
 
 ## Current state
 
-- Candidate: `BUILT PRIVATELY; NOT TRANSFERRED`
-- Transfer: `NOT STARTED`
-- External acceptance: `NOT STARTED`
-- Final verdict: `PENDING`
+- Candidate: `BUILT PRIVATELY; TRANSFERRED AND DESTINATION-VERIFIED`
+- Transfer: `PASS — OWNER-WORKSTATION FALLBACK; READ-ONLY RECOVERY VERIFIED`
+- Task classification: `COMPLETE WITH DISCLOSED ACCEPTANCE LIMITATIONS`
+- Core result: `RC.5 CORE CLEAN-HOST FUNCTIONAL PROOF: ACHIEVED`
+- Formal result: `FORMAL 26-CHECKPOINT RELEASE-READINESS ACCEPTANCE: INCOMPLETE`
+- External acceptance: `TERMINATED INCOMPLETE BY OWNER PROCESS DECISION`
+- Final verdict: `NOT READY FOR QWSG 1.1.0 RELEASE — FORMAL CERTIFICATION TERMINATED INCOMPLETE BY OWNER DECISION`
 - Notification receipts: `NOT CONFIRMED`
 - Candidate-source commit: `1025d36d05b2f6f919f0ea4ec4a7029f67536000`
 - Historical QWSG-055-F001: `OPEN, BLOCKING`
 
-This local Gate B evidence authorizes no rebuild, evidence integration,
-transfer, external execution, credentials, tag, Forgejo Release, upload or
-publication.
+The Owner confirmed the host was fully reinstalled/reset before acceptance.
+Gate D destination verification passed before extraction but was reported only
+after setup and activation had begun. The reporting-order deviation is
+preserved; bounded recovery reverified the unchanged archive and sidecar.
 
 ## Owner gate ledger
 
@@ -20,10 +24,10 @@ publication.
 | --- | --- | --- |
 | A | readiness audit and acceptance-scaffolding integration | PASS; INTEGRATED AS `1025d36d05b2f6f919f0ea4ec4a7029f67536000` |
 | B | private exact-commit twin construction | PASS; PRIVACY-SAFE LOCAL EVIDENCE RECORDED |
-| C | deterministic/package/provenance/security proof and evidence integration | NOT STARTED |
-| D | private transfer and destination integrity | NOT STARTED |
-| E | Checkpoints 01–26 fresh external clean-host acceptance | NOT STARTED |
-| F | privacy-safe evidence integration and final verdict | NOT STARTED |
+| C | deterministic/package/provenance/security proof and evidence integration | PASS; INTEGRATED AS `957d2ffd88139cffbb127bb336abeb2282c1e8db` |
+| D | private transfer and destination integrity | PASS; OWNER-WORKSTATION FALLBACK; DESTINATION RECOVERY PASS |
+| E | Checkpoints 01–26 fresh external clean-host acceptance | TERMINATED BY OWNER; FORMAL SEQUENCE INCOMPLETE |
+| F | privacy-safe evidence integration and final verdict | COMPLETE WITH DISCLOSED ACCEPTANCE LIMITATIONS; NOT READY |
 
 ## Source and candidate provenance
 
@@ -43,11 +47,34 @@ publication.
 
 ## External checkpoint ledger
 
+The Owner authorized a full clean-host restart from Checkpoint 01 on a newly
+reinstalled Ubuntu 24.04 amd64 VPS. The earlier out-of-sequence RC.5 attempt
+remains preserved as additive chronology, including its successful Gate D
+recovery and Task 056/QWSG-055-F001 proof, but it does not substitute for any
+checkpoint in this restarted run.
+
+## Preserved RC.5 core functional proof
+
+Before the formal restart, the exact verified RC.5 candidate produced genuine
+external evidence on an Owner-confirmed freshly reinstalled Ubuntu 24.04 amd64
+VPS. Transfer integrity, archive checksum and internal manifest verification
+passed. Smart Install reported ready; installation, guided setup and guided
+Guardian activation completed without manual systemctl intervention. Fresh
+canonical Guardian evidence was produced, the service remained enabled and
+active, and `filesystem.local_semantics` remained satisfied.
+
+Independent evidence proved the canonical state root was a real non-symlink,
+current-user-owned mode-0700 directory reached through safe components;
+configuration and state roots were distinct; systemd created no compatibility
+symlink or migration; and Guardian reported success with zero restarts. This is
+the achieved RC.5 core clean-host functional proof. It is not a substitute for
+the incomplete formal 26-checkpoint certification.
+
 | CP | Evidence requirement | State |
 | --- | --- | --- |
-| 01 | private receipt and exact two-file provenance | NOT EXECUTED |
-| 02 | archive checksum/sidecar | NOT EXECUTED |
-| 03 | canonical safe archive layout | NOT EXECUTED |
+| 01 | private receipt and exact two-file provenance | PASS; EXACT TWO REGULAR NON-SYMLINK FILES |
+| 02 | archive checksum/sidecar | PASS; SIZE AND BOTH DIGESTS EXACT, SIDECAR OK |
+| 03 | canonical safe archive layout | PASS; EXACT 25-MEMBER SAFE LISTING AND METADATA |
 | 04 | internal manifest | NOT EXECUTED |
 | 05 | LICENSE, docs, RC.5/binary/source identity | NOT EXECUTED |
 | 06 | README/INSTALL operator journey | NOT EXECUTED |
@@ -76,8 +103,8 @@ publication.
 
 | Finding | Immutable historical state | Required fresh RC.5 evidence | Current RC.5 state |
 | --- | --- | --- | --- |
-| QWSG-055-F001 | OPEN, BLOCKING | Checkpoints 14–16: real safe state directory, no compatibility symlink, guided activation, enabled/active/fresh evidence and satisfied filesystem assessment | NOT EXECUTED |
-| QWSG-051-F001 | OPEN, BLOCKING | Checkpoint 17: documented guided workflow and independent enabled/active/fresh readiness | NOT EXECUTED |
+| QWSG-055-F001 | OPEN, BLOCKING | Checkpoints 14–16: real safe state directory, no compatibility symlink, guided activation, enabled/active/fresh evidence and satisfied filesystem assessment | ADDITIVE EXTERNALLY VERIFIED CORRECTED IN RC.5; HISTORICAL OPEN/BLOCKING IMMUTABLE; FORMAL RESTART INCOMPLETE |
+| QWSG-051-F001 | OPEN, BLOCKING | Checkpoint 17: documented guided workflow and independent enabled/active/fresh readiness | ADDITIVE EXTERNALLY VERIFIED CORRECTED IN RC.5; HISTORICAL OPEN/BLOCKING IMMUTABLE; FORMAL RESTART INCOMPLETE |
 | QWSG-053-F001 | OPEN, BLOCKING | Gates B/C: ordinary no-`.git` builds without GOFLAGS and exact deterministic provenance | LOCAL GATE B RETEST PASS; historical state remains OPEN/BLOCKING pending later acceptance boundaries |
 | QWSG-049-F002 | OPEN, BLOCKING | Checkpoints 07–08: fresh actionable user-manager guidance | NOT EXECUTED |
 | QWSG-049-F003 | OPEN, RELEASE-GATE BLOCKING | Checkpoints 07–08 and 15–17: fresh local-semantics assessment before and after activation | NOT EXECUTED |
@@ -89,19 +116,20 @@ does not rewrite the original finding chronology.
 
 | Requirement | State |
 | --- | --- |
-| Canonical state root is a real directory | NOT EXECUTED |
-| No state-root or unsafe path-component symlink | NOT EXECUTED |
-| Intended ordinary-user ownership | NOT EXECUTED |
-| Mode 0700 | NOT EXECUTED |
-| Configuration and state roots distinct | NOT EXECUTED |
-| No systemd compatibility symlink/migration | NOT EXECUTED |
-| Guided activation without manual systemctl repair | NOT EXECUTED |
-| Service enabled and active | NOT EXECUTED |
-| Fresh integrity-checked canonical Guardian evidence | NOT EXECUTED |
-| Post-activation filesystem.local_semantics satisfied | NOT EXECUTED |
+| Canonical state root is a real directory | NOT EXECUTED IN CLEAN-HOST RESTART |
+| No state-root or unsafe path-component symlink | NOT EXECUTED IN CLEAN-HOST RESTART |
+| Intended ordinary-user ownership | NOT EXECUTED IN CLEAN-HOST RESTART |
+| Mode 0700 | NOT EXECUTED IN CLEAN-HOST RESTART |
+| Configuration and state roots distinct | NOT EXECUTED IN CLEAN-HOST RESTART |
+| No systemd compatibility symlink/migration | NOT EXECUTED IN CLEAN-HOST RESTART |
+| Guided activation without manual systemctl repair | NOT EXECUTED IN CLEAN-HOST RESTART |
+| Service enabled and active | NOT EXECUTED IN CLEAN-HOST RESTART |
+| Fresh integrity-checked canonical Guardian evidence | NOT EXECUTED IN CLEAN-HOST RESTART |
+| Post-activation filesystem.local_semantics satisfied | NOT EXECUTED IN CLEAN-HOST RESTART |
 
-QWSG-055-F001 remains `OPEN, BLOCKING` until every row passes with fresh
-independent evidence on the genuinely clean RC.5 host.
+The earlier RC.5 attempt passed every row and remains additive evidence. The
+Owner-authorized clean-host restart must prove every row again before the
+current run may close QWSG-055-F001. Historical evidence remains immutable.
 
 ## SMTP and privacy ledger
 
@@ -119,9 +147,13 @@ private host/account identity or raw private paths.
 
 ## Clean-host declaration
 
-Gate E is blocked until the Owner confirms the disposable Ubuntu 24.04 amd64
-VPS was freshly installed/reset before Checkpoint 01. The mutated RC.4
-environment is not clean evidence by assertion.
+The Owner confirmed the disposable Ubuntu 24.04 amd64 VPS was fully
+reinstalled/reset after RC.4 and had no QWSG-specific preparation before the
+first RC.5 execution. The later formal restart encountered previously created
+acceptance state at Checkpoint 04. The Owner terminated the disproportionately
+procedural sequence rather than reinstalling solely to reproduce chronology.
+This is a procedural/evidence limitation and does not demonstrate a product
+defect.
 
 ## Mandatory post-acceptance distribution follow-up
 
@@ -133,9 +165,10 @@ artifact copying. Gate A does not implement or publish this mechanism.
 
 ## Final decision gate
 
-`READY FOR QWSG 1.1.0 RELEASE` requires Gates A–F and all 26 checkpoints PASS,
-every required historical retest, both actual notification receipts,
-reboot/restart/uninstall/reinstall success, and no open blocker or security
-defect. Otherwise the verdict is `NOT READY FOR QWSG 1.1.0 RELEASE`. The current
-verdict remains `PENDING`. Neither outcome authorizes a tag, Forgejo Release,
-upload, publication or announcement.
+Task 057 is `COMPLETE WITH DISCLOSED ACCEPTANCE LIMITATIONS`. `RC.5 CORE
+CLEAN-HOST FUNCTIONAL PROOF: ACHIEVED`, while `FORMAL 26-CHECKPOINT
+RELEASE-READINESS ACCEPTANCE: INCOMPLETE`. The terminal verdict is `NOT READY
+FOR QWSG 1.1.0 RELEASE` because formal certification was terminated incomplete
+by Owner decision. No product defect is inferred solely from missing procedural
+evidence. This verdict authorizes no tag, Forgejo Release, upload, publication
+or announcement.

@@ -4,7 +4,7 @@
 
 - Task ID: `057`
 - Task slug: `qwsg-1-1-0-rc-5-clean-host-acceptance-release-readiness`
-- Status: `in progress — Gate B private deterministic construction passed; Gate C Owner-gated`
+- Status: `complete with disclosed acceptance limitations — formal certification incomplete`
 - Date generated: `2026-08-24` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
@@ -79,6 +79,82 @@ bytes, caches and unrelated files are excluded.
 - QWSG-053-F001 receives bounded additive `LOCAL GATE B RETEST PASS` evidence
   only. Its immutable historical OPEN/BLOCKING state is not rewritten, and no
   external correction or release readiness is claimed.
+- Gate C integrated the privacy-safe candidate evidence as
+  `957d2ffd88139cffbb127bb336abeb2282c1e8db` without rebuilding candidate
+  bytes.
+- The Owner confirmed a full clean Ubuntu 24.04 amd64 reinstall/reset and used
+  the approved Owner-workstation fallback to transfer exactly the archive and
+  sidecar. Destination verification passed before extraction but was reported
+  only after Smart Install, installation, setup and activation had begun. This
+  reporting-order deviation is preserved and does not rewrite chronology.
+- Bounded read-only Gate D recovery reverified two regular non-symlink files,
+  archive size `2951350`, exact archive and sidecar SHA-256 identities, and
+  sidecar result PASS. No candidate rebuild occurred.
+- Guided setup created configuration and activated Guardian without a manual
+  systemctl workaround. Fresh canonical Guardian evidence appeared.
+- Independent Task 056 verification proved a real non-symlink state directory,
+  symlink-free required components, current-user ownership, mode 0700,
+  configuration/state separation, exact unit state-root contract and absence
+  of the systemd compatibility migration. The service was loaded, enabled,
+  active/running, successful and had zero restarts.
+- Fresh readiness reported configuration, filesystem local semantics,
+  canonical Guardian evidence, unit installation, enabled/active service,
+  running user manager and Ubuntu 24.04 amd64 requirements satisfied.
+  Notification and lingering remain optional/pending, so later notification,
+  logout, reboot, restart, uninstall and reinstall checkpoints remain blocked
+  on further Owner authority.
+- QWSG-055-F001 and QWSG-051-F001 receive additive `EXTERNALLY VERIFIED
+  CORRECTED IN RC.5` evidence. Their original historical OPEN/BLOCKING records
+  remain immutable. Checkpoints whose privacy-safe evidence was not supplied
+  remain explicitly pending review rather than inferred PASS.
+- Owner-authorized Checkpoint 03–10 reconciliation used only retained evidence.
+  Checkpoints 03–04 lack the required external layout/manifest outputs;
+  Checkpoints 05–06 have only partial cryptographic continuity/operator-flow
+  evidence; Checkpoint 07 execution is Owner-confirmed but its product output
+  was not retained; therefore Checkpoint 08 cannot retest F002/F003. Checkpoint
+  09 proves installation and unit presence but lacks installed hash/mode
+  evidence. Checkpoint 10 proves safe configuration, but no evidence exists for
+  its required interruption, resume, invalid-input and deferred-activation
+  boundaries. None was retroactively promoted to PASS.
+- Because Checkpoints 03–10 are not all PASS, Checkpoints 11–13 instructions
+  were not prepared and notification/credential work remains unauthorized.
+- The Owner then authorized a complete Gate E restart from Checkpoint 01 on a
+  newly reinstalled clean Ubuntu 24.04 amd64 VPS. Earlier RC.5 external results
+  remain additive chronology but do not satisfy the restarted run.
+- Restarted Checkpoint 01 passed: exactly the approved RC.5 archive and sidecar
+  were present as two regular non-symlink files. No hash read, extraction or
+  QWSG execution occurred during this checkpoint.
+- Restarted Checkpoint 02 passed: archive size `2951350`, archive SHA-256
+  `cfe300c0f1f312d80120f74a9f24bed4a64387471bf2097ddc63d94f0fb2f7b0`,
+  sidecar SHA-256
+  `69f3eb4bf89dc126a7eafd08354eec37a941014171b3d1d70c6e6a4cf52e5eb0`,
+  and `sha256sum -c` all matched exactly. No extraction occurred.
+- Restarted Checkpoint 03 passed without extraction: one canonical root, 25
+  unique members, no absolute/traversal/duplicate/link/special entries, six
+  directories and 19 regular files with exact accepted modes, numeric owner
+  and controlled timestamp. Member-list SHA-256 was
+  `813322c50c57d8a0c212a8ac935fb03a5f4e06112cc8fa0571a93c84b4492c92` and
+  metadata-list SHA-256 was
+  `4b314fd56158b649bb95c6718a3fb5e6ae79713c9946993e7ef103470435779d`.
+- Restarted Checkpoint 04 stopped at its no-existing-acceptance-directory
+  precondition because previously created acceptance state remained. With
+  `set -e` active, no new extraction or mutation occurred. Checkpoints 04–26 of
+  the restarted formal sequence were not completed.
+- The Owner directed controlled early closure because the 26-checkpoint process
+  had become disproportionately procedural. This process decision preserves
+  every passed, partial, unreconciled, stopped and unexecuted state; it neither
+  manufactures PASS evidence nor proves a product defect.
+- Final classification is `COMPLETE WITH DISCLOSED ACCEPTANCE LIMITATIONS`.
+  `RC.5 CORE CLEAN-HOST FUNCTIONAL PROOF: ACHIEVED`; `FORMAL 26-CHECKPOINT
+  RELEASE-READINESS ACCEPTANCE: INCOMPLETE`; terminal release verdict is `NOT
+  READY FOR QWSG 1.1.0 RELEASE` because formal certification was terminated
+  incomplete by Owner decision.
+- QWSG-055-F001 and QWSG-051-F001 retain immutable historical OPEN/BLOCKING
+  records and receive only additive external RC.5 correction evidence. Missing
+  procedural evidence alone is not classified as a product defect.
+- The required future Forgejo distribution work remains deferred: stable
+  archive and checksum-sidecar URLs, wget/curl examples, checksum verification
+  and future Smart Installer compatibility require separate authority.
 
 ## Verification
 
@@ -96,6 +172,30 @@ and contains the exact tracked source archive, source/epoch/output-absence
 record, protected-history hashes and bounded rollback instructions. Private
 build-root paths are intentionally omitted from canonical evidence.
 
+Gate D recovery/Task 056 verification snapshot
+`/tmp/qwsg-task057-recovery-snapshot.ErXlwl` is private mode 0700 and contains
+the exact tracked HEAD plus before-images and bounded rollback instructions for
+only this history and the RC.5 acceptance ledger.
+
+Checkpoint 03–10 reconciliation snapshot
+`/tmp/qwsg-task057-cp03-10-reconcile.sqqpUx` is private mode 0700 and contains
+the exact two evidence before-images with verified hashes and bounded rollback
+instructions.
+
+Clean-host restart Checkpoint 01 snapshot
+`/tmp/qwsg-task057-clean-restart-cp01.k7fvp5` is private mode 0700 and contains
+the exact two evidence before-images with verified hashes and bounded rollback
+instructions.
+
+Clean-host restart Checkpoint 02 snapshot:
+`/tmp/qwsg-task057-clean-restart-cp02.UdRIY9`.
+
+Clean-host restart Checkpoint 03 snapshot:
+`/tmp/qwsg-task057-clean-restart-cp03.QfjPi8`.
+
+Final evidence integration snapshot:
+`/tmp/qwsg-task057-final-evidence.d0aT6p`.
+
 ## Rollback
 
 After explicit Owner authorization, restore only the literal Gate A targets
@@ -105,7 +205,8 @@ or unrelated content.
 
 ## Completion state
 
-`in progress — Gate B deterministic private candidate construction passed;
-Gate C evidence integration remains Owner-gated`. Candidate bytes remain
-private and untransferred. No external host, credential, tag, release, upload
-or publication operation occurred.
+`complete with disclosed acceptance limitations`. RC.5 core clean-host
+functional proof was achieved, but formal 26-checkpoint release-readiness
+acceptance is incomplete. The terminal verdict is `NOT READY FOR QWSG 1.1.0
+RELEASE` because the Owner terminated formal certification incomplete. No
+credential, tag, Forgejo Release, upload or publication operation occurred.

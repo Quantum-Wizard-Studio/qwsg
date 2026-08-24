@@ -83,7 +83,7 @@ grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 grep -F 'READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 grep -F 'NOT READY FOR QWSG 1.1.0 RELEASE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.4.md" >/dev/null
 test -f "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md"
-grep -F -- '- Candidate: `BUILT PRIVATELY; NOT TRANSFERRED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Candidate: `BUILT PRIVATELY; TRANSFERRED AND DESTINATION-VERIFIED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F '1025d36d05b2f6f919f0ea4ec4a7029f67536000' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F '1787594463' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F '2026-08-24T18:01:03Z' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
@@ -95,11 +95,15 @@ grep -F 'ae51aca0bc4ddc61b0daea3a87f0acabcde5ec9fd8fadddc050f0786d6915e9e' "$rep
 grep -F '5484aab96d5c3748e81b065fdb11ec8c34385589bb07ee7ea1b2b35fdffa6b93' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F 'PASS; PRIVACY-SAFE LOCAL EVIDENCE RECORDED' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F 'LOCAL GATE B RETEST PASS; historical state remains OPEN/BLOCKING' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
-grep -F -- '- Transfer: `NOT STARTED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
-grep -F -- '- External acceptance: `NOT STARTED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
-grep -F -- '- Final verdict: `PENDING`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
-test "$(grep -c '| NOT EXECUTED |' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md")" -ge 26
-grep -F 'QWSG-055-F001 remains `OPEN, BLOCKING`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Transfer: `PASS — OWNER-WORKSTATION FALLBACK; READ-ONLY RECOVERY VERIFIED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- External acceptance: `TERMINATED INCOMPLETE BY OWNER PROCESS DECISION`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Task classification: `COMPLETE WITH DISCLOSED ACCEPTANCE LIMITATIONS`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Core result: `RC.5 CORE CLEAN-HOST FUNCTIONAL PROOF: ACHIEVED`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Formal result: `FORMAL 26-CHECKPOINT RELEASE-READINESS ACCEPTANCE: INCOMPLETE`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F -- '- Final verdict: `NOT READY FOR QWSG 1.1.0 RELEASE — FORMAL CERTIFICATION TERMINATED INCOMPLETE BY OWNER DECISION`' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+test "$(grep -c '| NOT EXECUTED |' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md")" -ge 23
+grep -F 'No product defect is inferred solely from missing procedural' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+grep -F 'ADDITIVE EXTERNALLY VERIFIED CORRECTED IN RC.5; HISTORICAL OPEN/BLOCKING IMMUTABLE' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F 'QWSG-051-F001' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F 'QWSG-053-F001' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
