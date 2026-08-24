@@ -4,7 +4,7 @@
 
 - Task ID: `057`
 - Task slug: `qwsg-1-1-0-rc-5-clean-host-acceptance-release-readiness`
-- Status: `active`
+- Status: `complete with disclosed acceptance limitations — formal certification incomplete`
 - Date opened: `2026-08-24` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English

@@ -8,11 +8,17 @@
 - Date generated: `2026-08-24` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/057_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/057_2026-08-24_qwsg-1-1-0-rc-5-clean-host-acceptance-release-readiness.md`
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded; implementation has not started.
+The Engineering Task Builder generated and transactionally installed this
+matching prompt/history pair from validated structured owner input. Explicit
+approval was recorded. The authorized acceptance work ran through controlled
+gates, final limited evidence was integrated as
+`1a16e9ec9c1c5ab233b6b3a00f251969b8128315`, and the Owner directed canonical
+early closure with disclosed acceptance limitations. The completed prompt is
+archived and the repository returns to canonical idle.
 
 ## Starting state
 
@@ -195,6 +201,9 @@ Clean-host restart Checkpoint 03 snapshot:
 
 Final evidence integration snapshot:
 `/tmp/qwsg-task057-final-evidence.d0aT6p`.
+
+Lifecycle closure snapshot:
+`/tmp/qwsg-task057-lifecycle-close.w8Uh5E`.
 
 ## Rollback
 
