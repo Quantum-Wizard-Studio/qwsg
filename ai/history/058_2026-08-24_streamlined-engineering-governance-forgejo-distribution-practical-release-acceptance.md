@@ -4,7 +4,7 @@
 
 - Task ID: `058`
 - Task slug: `streamlined-engineering-governance-forgejo-distribution-practical-release-acceptance`
-- Status: `active — implementation validated; integration pending`
+- Status: `complete`
 - Date generated: `2026-08-24` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
@@ -18,7 +18,9 @@ source identity
 and rendered-prompt identity
 `061212f36231634d2e0fcb3d8b2ad87207478874b5ee12ce7f60ea5f5d52d8e0`.
 The Owner then authorized the complete bounded implementation, integration,
-clean-fast-forward push, validation, and canonical closure cycle.
+clean-fast-forward push, validation, and canonical closure cycle. Implementation
+commit `f229bc3177afa3f37a08c014c3d3cb57309dcec7` was validated and pushed as a
+clean fast-forward before lifecycle closure.
 
 ## Starting state
 
@@ -165,6 +167,37 @@ security, and Git-state checks after any rollback.
 
 Rollback procedure validation: PASS; no rollback was required.
 
+## Git integration
+
+- Implementation commit:
+  `f229bc3177afa3f37a08c014c3d3cb57309dcec7`
+- Parent: `0e17a8598821071c4121e1df69b59cd0b62e5506`
+- Subject: `feat: streamline engineering governance and release acceptance`
+- Exact implementation path count: `23`.
+- Pre-commit staged diff, modes, security/privacy exclusions, and
+  `git diff --cached --check`: PASS.
+- Post-commit build, full/race/vet/format, checkout/export build contract,
+  release plumbing, Framework, Builder, lifecycle, diversion, active-job,
+  test-task, shell, whitespace, security, and preservation validation: PASS.
+- Push dry-run and clean fast-forward push: PASS.
+- Post-push `HEAD == origin/main ==` direct Forgejo `main` at the implementation
+  commit; ahead/behind `0/0`.
+
+## Disclosed limitations
+
+- No operational public QWSG Release-asset URL exists or was claimed. A later
+  Owner-authorized tag/Release/asset publication must verify anonymous expanded
+  URLs with `wget`, `curl`, and `sha256sum -c`.
+- Task 058 defined but did not execute the prospective acceptance run or build a
+  candidate. The freshly reinstalled VPS remained untouched.
+- Task 057 retains its original limited-acceptance outcome; Task 058 does not
+  retroactively certify RC.5.
+
 ## Completion state
 
-`active — implementation validated; integration and lifecycle closure pending`
+`complete`
+
+Task 058 completed its authorized objective. Framework 1.1.0, the practical
+acceptance standard, and Forgejo distribution contract are integrated. No
+Owner-reserved publication or external operation occurred. The task is ready
+for canonical archival and idle closure; no Task 059 is authorized or created.

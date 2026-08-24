@@ -4,7 +4,7 @@
 
 - Task ID: `058`
 - Task slug: `streamlined-engineering-governance-forgejo-distribution-practical-release-acceptance`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-08-24` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English
