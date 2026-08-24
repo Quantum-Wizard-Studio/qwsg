@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -14,12 +15,15 @@ import (
 	"quantumwizard.hu/qwsg/internal/configuration"
 	"quantumwizard.hu/qwsg/internal/configurationstore"
 	"quantumwizard.hu/qwsg/internal/credentialstore"
+	"quantumwizard.hu/qwsg/internal/operatorstate"
 	"quantumwizard.hu/qwsg/internal/pipeline"
 	"quantumwizard.hu/qwsg/internal/runtimeservice"
 	"quantumwizard.hu/qwsg/internal/setupflow"
 	"quantumwizard.hu/qwsg/internal/smtpnotification"
 	"quantumwizard.hu/qwsg/internal/userservice"
 )
+
+var errGuardianStateRootMismatch = errors.New("guardian service state root mismatch")
 
 type configOptions struct {
 	path   string
@@ -263,6 +267,10 @@ func runSetupWithActivator(args []string, in io.Reader, out, errout io.Writer, i
 		fmt.Fprint(out, "Activate QWSG Guardian now? [y/N]: ")
 		var answer string
 		if _, scanErr := fmt.Fscanln(in, &answer); scanErr == nil && strings.EqualFold(answer, "y") {
+			if err = prepareGuardianState(); err != nil {
+				fmt.Fprintln(errout, guardianStatePreparationFailure(err))
+				return 1
+			}
 			if err = activate(context.Background()); err != nil {
 				fmt.Fprintln(errout, guardianActivationFailure(err))
 				return 1
@@ -283,6 +291,44 @@ func runSetupWithActivator(args []string, in io.Reader, out, errout io.Writer, i
 	}
 	fmt.Fprintln(out, "Next: qwsg readiness")
 	return 0
+}
+
+func prepareGuardianState() error {
+	root, err := localStateRoot()
+	if err != nil {
+		return err
+	}
+	serviceRoot, err := packagedGuardianStateRoot()
+	if err != nil {
+		return err
+	}
+	if root != serviceRoot {
+		return errGuardianStateRootMismatch
+	}
+	return operatorstate.EnsurePrivateRoot(root)
+}
+
+func packagedGuardianStateRoot() (string, error) {
+	if base := os.Getenv("XDG_STATE_HOME"); base != "" {
+		return filepath.Join(base, "qwsg"), nil
+	}
+	if home := os.Getenv("HOME"); home != "" {
+		return filepath.Join(home, ".local", "state", "qwsg"), nil
+	}
+	return "", fmt.Errorf("packaged guardian state root is unavailable")
+}
+
+func guardianStatePreparationFailure(err error) string {
+	explanation := "the canonical state directory is unavailable"
+	switch {
+	case errors.Is(err, errGuardianStateRootMismatch):
+		explanation = "the requested state root does not match the packaged Guardian service state root"
+	case errors.Is(err, operatorstate.ErrUnsafePath):
+		explanation = "the canonical state path contains a symlink or unsafe file type"
+	case errors.Is(err, operatorstate.ErrPermission):
+		explanation = "the canonical state directory failed ownership or private-mode validation"
+	}
+	return fmt.Sprintf("Guardian activation failed during state-directory preparation: %s. Configuration was preserved. Next: verify the state path security, then resume with: qwsg setup", explanation)
 }
 
 func guardianActivationFailure(err error) string {

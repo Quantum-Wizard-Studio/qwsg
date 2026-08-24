@@ -15,9 +15,9 @@ commands.
 ## Verify, assess, and install
 
 ```sh
-sha256sum -c qwsg-1.1.0-rc.4-linux-amd64.tar.gz.sha256
-tar -xzf qwsg-1.1.0-rc.4-linux-amd64.tar.gz
-cd qwsg-1.1.0-rc.4-linux-amd64
+sha256sum -c qwsg-1.1.0-rc.5-linux-amd64.tar.gz.sha256
+tar -xzf qwsg-1.1.0-rc.5-linux-amd64.tar.gz
+cd qwsg-1.1.0-rc.5-linux-amd64
 sha256sum -c MANIFEST.sha256
 ./bin/qwsg install --check
 sudo ./install.sh
@@ -58,9 +58,13 @@ A controlled test—not configuration acceptance—verifies notification.
 ## Guardian activation and readiness
 
 Guided setup separately confirms ordinary-user activation and never invokes
-sudo. It validates the effective user's canonical runtime directory, checks
-the same user manager as readiness, and then performs only the fixed user-unit
-reload and enable/start sequence. A failure names the fixed stage, preserves
+sudo. Before contacting systemd, it creates or validates the packaged
+Guardian's canonical state directory as a real current-user-owned mode-0700
+non-symlink path. Unsafe existing state is never removed, followed, replaced,
+chmodded or chowned; activation stops with a state-preparation diagnostic. It
+then validates the effective user's canonical runtime directory, checks the
+same user manager as readiness, and performs only the fixed user-unit reload
+and enable/start sequence. A failure names the fixed stage, preserves
 configuration, and gives a bounded QWSG assessment/resume action. Manual
 operation remains:
 

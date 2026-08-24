@@ -25,6 +25,15 @@ invalid state fails closed and is not overwritten. A deliberate valid
 configuration identity change begins a fresh Runtime/Alert/Notification state
 epoch while preserving inventory and Current Operator evidence.
 
+Guided activation additionally requires that this resolved root match the
+packaged systemd user service's `%S/qwsg` root. Before any user-manager probe,
+daemon reload or enable/start operation, QWSG uses the canonical private-root
+primitive to create or validate the directory as a real current-user-owned
+mode-0700 path with no symlink component. Existing unsafe state fails closed
+without removal, replacement, chmod, chown or migration. This precondition
+ensures systemd encounters the real state directory instead of applying its
+same-name configuration-directory compatibility symlink behavior.
+
 Configuration resolves before lock or checkpoint mutation. The unit validation
 condition skips process start for invalid input, avoiding restart churn without
 weakening the sandbox.

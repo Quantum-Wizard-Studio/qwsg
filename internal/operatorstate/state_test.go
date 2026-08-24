@@ -213,6 +213,43 @@ func TestEnsurePrivateRootRejectsUnsafeExistingPaths(t *testing.T) {
 	}
 }
 
+func TestPrivateDirRejectsWrongOwnershipWithoutMutation(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "state")
+	if err := os.Mkdir(root, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.Lstat(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = privateDirForUID(root, os.Geteuid()+1); !errors.Is(err, ErrPermission) {
+		t.Fatalf("wrong owner accepted: %v", err)
+	}
+	after, err := os.Lstat(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if before.Mode() != after.Mode() || before.Sys().(*syscall.Stat_t).Uid != after.Sys().(*syscall.Stat_t).Uid {
+		t.Fatal("ownership rejection mutated the directory")
+	}
+}
+
+func TestEnsurePrivateRootDoesNotRepairRestrictiveCreationMode(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "state")
+	previous := syscall.Umask(0o777)
+	defer syscall.Umask(previous)
+	if err := EnsurePrivateRoot(root); !errors.Is(err, ErrPermission) {
+		t.Fatalf("restrictive creation mode accepted or repaired: %v", err)
+	}
+	info, err := os.Lstat(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Mode().Perm() != 0 {
+		t.Fatalf("restrictive mode was changed: %o", info.Mode().Perm())
+	}
+}
+
 func TestPublicationFailureWindowsAreDeterministic(t *testing.T) {
 	root := filepath.Join(t.TempDir(), "state")
 	store, _ := Open(root)

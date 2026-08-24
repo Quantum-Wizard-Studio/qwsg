@@ -159,15 +159,16 @@ func ensurePrivateDir(root string) error {
 		if err = os.MkdirAll(root, 0o700); err != nil {
 			return classify(err)
 		}
-		if err = os.Chmod(root, 0o700); err != nil {
-			return classify(err)
-		}
 	} else if err != nil {
 		return classify(err)
 	}
 	return privateDir(root)
 }
 func privateDir(root string) error {
+	return privateDirForUID(root, os.Geteuid())
+}
+
+func privateDirForUID(root string, uid int) error {
 	info, err := os.Lstat(root)
 	if errors.Is(err, fs.ErrNotExist) {
 		return ErrMissing
@@ -181,7 +182,7 @@ func privateDir(root string) error {
 	if info.Mode().Perm() != 0o700 {
 		return ErrPermission
 	}
-	if stat, ok := info.Sys().(*syscall.Stat_t); !ok || int(stat.Uid) != os.Geteuid() {
+	if stat, ok := info.Sys().(*syscall.Stat_t); !ok || int(stat.Uid) != uid {
 		return ErrPermission
 	}
 	return nil

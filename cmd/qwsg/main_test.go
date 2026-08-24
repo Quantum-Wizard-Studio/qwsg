@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -211,6 +212,164 @@ func TestGuidedSetupPreservesConfigurationAndRendersTypedActivationFailure(t *te
 	path := filepath.Join(home, ".config", "qwsg", "config.json")
 	if info, err := os.Stat(path); err != nil || info.Mode().Perm() != 0600 {
 		t.Fatalf("configuration not preserved: info=%v err=%v", info, err)
+	}
+	state := filepath.Join(home, ".local", "state", "qwsg")
+	if info, err := os.Lstat(state); err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm() != 0700 || int(info.Sys().(*syscall.Stat_t).Uid) != os.Geteuid() {
+		t.Fatalf("private state not prepared before activation: info=%v err=%v", info, err)
+	}
+}
+
+func TestGuidedSetupPreparesStateBeforeActivationAndIsIdempotent(t *testing.T) {
+	home := filepath.Join(t.TempDir(), "home")
+	if err := os.Mkdir(home, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("XDG_STATE_HOME", "")
+	t.Setenv("QWSG_STATE_DIR", "")
+	state := filepath.Join(home, ".local", "state", "qwsg")
+	activate := func(context.Context) error {
+		info, err := os.Lstat(state)
+		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm() != 0700 || int(info.Sys().(*syscall.Stat_t).Uid) != os.Geteuid() {
+			t.Fatalf("state was not safe before activation: info=%v err=%v", info, err)
+		}
+		return &userservice.ActivationError{Stage: userservice.StageEnableStart, Cause: userservice.CauseOperationFailed}
+	}
+	for attempt := 0; attempt < 2; attempt++ {
+		var out, errout bytes.Buffer
+		code := runSetupWithActivator(nil, strings.NewReader("y\ny\n"), &out, &errout, true, activate)
+		if code != 1 || !strings.Contains(errout.String(), "Guardian enable/start") {
+			t.Fatalf("attempt=%d code=%d out=%q err=%q", attempt, code, out.String(), errout.String())
+		}
+	}
+}
+
+func TestGuardianStatePreparationFailureIsTypedAndPrivate(t *testing.T) {
+	cases := []struct {
+		err  error
+		want string
+	}{
+		{operatorstate.ErrUnsafePath, "symlink or unsafe file type"},
+		{operatorstate.ErrPermission, "ownership or private-mode validation"},
+		{errGuardianStateRootMismatch, "does not match the packaged Guardian service state root"},
+		{errors.New("private host path: /sensitive/state"), "canonical state directory is unavailable"},
+	}
+	for _, tc := range cases {
+		message := guardianStatePreparationFailure(tc.err)
+		for _, want := range []string{"state-directory preparation", tc.want, "Configuration was preserved", "qwsg setup"} {
+			if !strings.Contains(message, want) {
+				t.Fatalf("missing %q in %q", want, message)
+			}
+		}
+		for _, forbidden := range []string{"/sensitive", "QWSG_STATE_DIR", "HOME=", "stderr"} {
+			if strings.Contains(message, forbidden) {
+				t.Fatalf("leaked %q in %q", forbidden, message)
+			}
+		}
+	}
+}
+
+func TestGuidedSetupRejectsStateRootMismatchBeforeActivation(t *testing.T) {
+	home := filepath.Join(t.TempDir(), "home")
+	if err := os.Mkdir(home, 0700); err != nil {
+		t.Fatal(err)
+	}
+	override := filepath.Join(home, "explicit-state")
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("XDG_STATE_HOME", "")
+	t.Setenv("QWSG_STATE_DIR", override)
+	activated := false
+	var out, errout bytes.Buffer
+	code := runSetupWithActivator(nil, strings.NewReader("y\ny\n"), &out, &errout, true, func(context.Context) error {
+		activated = true
+		return nil
+	})
+	if code != 1 || activated || !strings.Contains(errout.String(), "does not match the packaged Guardian service state root") || strings.Contains(errout.String(), override) {
+		t.Fatalf("code=%d activated=%t out=%q err=%q", code, activated, out.String(), errout.String())
+	}
+	if _, err := os.Lstat(override); !os.IsNotExist(err) {
+		t.Fatalf("mismatched override was modified: %v", err)
+	}
+}
+
+func TestGuidedSetupRejectsUnsafeStateBeforeActivationWithoutRepair(t *testing.T) {
+	cases := []struct {
+		name  string
+		setup func(t *testing.T, home, state string)
+	}{
+		{"state symlink", func(t *testing.T, home, state string) {
+			target := filepath.Join(home, "target")
+			if err := os.MkdirAll(filepath.Dir(state), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Mkdir(target, 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink(target, state); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"component symlink", func(t *testing.T, home, state string) {
+			target := filepath.Join(home, "state-target")
+			if err := os.MkdirAll(filepath.Join(target, "qwsg"), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Mkdir(filepath.Join(home, ".local"), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink(target, filepath.Join(home, ".local", "state")); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"wrong type", func(t *testing.T, home, state string) {
+			if err := os.MkdirAll(filepath.Dir(state), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(state, []byte("preserve"), 0600); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"unsafe mode", func(t *testing.T, home, state string) {
+			if err := os.MkdirAll(state, 0755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Chmod(state, 0755); err != nil {
+				t.Fatal(err)
+			}
+		}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			home := filepath.Join(t.TempDir(), "home")
+			if err := os.Mkdir(home, 0700); err != nil {
+				t.Fatal(err)
+			}
+			t.Setenv("HOME", home)
+			t.Setenv("XDG_CONFIG_HOME", "")
+			t.Setenv("XDG_STATE_HOME", "")
+			t.Setenv("QWSG_STATE_DIR", "")
+			state := filepath.Join(home, ".local", "state", "qwsg")
+			tc.setup(t, home, state)
+			before, err := os.Lstat(state)
+			if err != nil {
+				t.Fatal(err)
+			}
+			activated := false
+			var out, errout bytes.Buffer
+			code := runSetupWithActivator(nil, strings.NewReader("y\ny\n"), &out, &errout, true, func(context.Context) error { activated = true; return nil })
+			if code != 1 || activated || !strings.Contains(errout.String(), "state-directory preparation") || strings.Contains(errout.String(), state) {
+				t.Fatalf("code=%d activated=%t out=%q err=%q", code, activated, out.String(), errout.String())
+			}
+			after, err := os.Lstat(state)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if before.Mode() != after.Mode() || before.Size() != after.Size() {
+				t.Fatal("unsafe state was modified")
+			}
+		})
 	}
 }
 
