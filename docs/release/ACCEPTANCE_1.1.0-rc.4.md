@@ -2,7 +2,7 @@
 
 ## Current state
 
-- Candidate: `NOT BUILT`
+- Candidate: `BUILT PRIVATELY; TRANSFER NOT AUTHORIZED`
 - Transfer: `NOT STARTED`
 - External acceptance: `NOT STARTED`
 - Final verdict: `PENDING`
@@ -13,16 +13,16 @@
 - Task 049 `QWSG-049-F002` and `QWSG-049-F003`: immutable history; fresh RC.4
   Smart Install regression is pending.
 
-No entry authorizes construction, transfer, VPS access, credentials, external
-execution, tag, Forgejo Release, upload or publication.
+No entry authorizes candidate rebuild, transfer, VPS access, credentials,
+external execution, tag, Forgejo Release, upload or publication.
 
 ## Owner gate ledger
 
 | Gate | Scope | State | Evidence |
 | --- | --- | --- | --- |
-| A | readiness audit and acceptance-source scaffolding integration | AUDIT COMPLETE; INTEGRATION PENDING OWNER AUTHORIZATION | Task 055 Gate A report |
-| B | private exact-commit twin construction | NOT AUTHORIZED | — |
-| C | deterministic/package/provenance/security proof | NOT AUTHORIZED | — |
+| A | readiness audit and acceptance-source scaffolding integration | PASS; INTEGRATED | `f105771dbddccf363a63095ac4ad2a7a2285aa84` |
+| B | private exact-commit twin construction | PASS AFTER ONE OWNER-AUTHORIZED CORRECTED RETRY | Original attempt preserved as acceptance-orchestration failure; corrected module-root twin construction and bounded validation passed |
+| C | deterministic/package/provenance/security proof | PASS; PRIVACY-SAFE EVIDENCE INTEGRATED | Owner-accepted Gate B twin identity, package, provenance and exclusion proof |
 | D | private transfer and destination integrity | NOT AUTHORIZED | — |
 | E | Checkpoints 01–25 external clean-host acceptance | NOT AUTHORIZED | — |
 | F | privacy-safe evidence integration and verdict | NOT AUTHORIZED | — |
@@ -33,15 +33,24 @@ execution, tag, Forgejo Release, upload or publication.
 | --- | --- |
 | Gate A baseline | `12069b16cc574c759a40f905d2b4981bd729716d` |
 | Task 054 integration commit | `ef513dde187e4119b6aa04a3439a879056f6cc69` |
-| Candidate-source commit | PENDING GATE A INTEGRATION |
+| Candidate-source commit | `f105771dbddccf363a63095ac4ad2a7a2285aa84` |
 | Source version | `1.1.0-rc.4` |
-| SOURCE_DATE_EPOCH / UTC build time | NOT BUILT |
-| Archive | `qwsg-1.1.0-rc.4-linux-amd64.tar.gz` — NOT BUILT |
-| Size / SHA-256 | NOT BUILT |
-| Binary/manifest/archive/sidecar byte identity | NOT TESTED |
-| Static Linux amd64 / embedded source | NOT TESTED |
-| Package/layout/docs/LICENSE/exclusions | NOT TESTED |
-| Exported-source build contract | LOCAL GATE A PASS; exact clean candidate-source retest required at Gate B |
+| SOURCE_DATE_EPOCH / UTC build time | `1787571815` / `2026-08-24T11:43:35Z` |
+| Archive | `qwsg-1.1.0-rc.4-linux-amd64.tar.gz` — PRIVATE; NOT TRANSFERRED |
+| Size / SHA-256 | `2949478` bytes / `7ad8a0f1be9bdbaa4403c3a816a6b474fd8e052934abd031047e4f82fe73a333` |
+| Sidecar SHA-256 | `ca4daca22dd9f6accf5cdb062c3bb7aa88066f70b3988ae8fb1f189875d954bc`; archive verification PASS |
+| Manifest SHA-256 | `ac1e31000e85ef406249675dc9dbdcda53ea848c571c7e4aeba4a3a4f72ad588`; all entries PASS |
+| Binary SHA-256 | `3ec977090f90ec21a535e0a5c4fe158ab6eee883af4f230c6423514dd1cba92b` |
+| Binary/manifest/archive/sidecar byte identity | PASS across two new independent exact-commit exports |
+| Static Linux amd64 / embedded source | PASS; `1.1.0-rc.4`, full source commit, and controlled UTC build time exact |
+| Package/layout/docs/LICENSE/exclusions | PASS; Gate C privacy-safe evidence accepted and integrated |
+| Exported-source build contract | PASS in both genuine no-`.git` exports with `GOFLAGS` unset and truthful ordinary `unknown` provenance; historical finding remains OPEN/BLOCKING pending later acceptance boundaries |
+
+The original Gate B attempt remains preserved as an acceptance-procedure and
+orchestration failure: its ordinary exported-source build passed, but the
+release script was launched directly while the process working directory
+remained the canonical checkout. Go therefore rejected the exported absolute
+package path as outside the selected module. No product defect was inferred.
 
 ## Transfer provenance
 
@@ -81,10 +90,11 @@ size, digest and sidecar result; never credentials or private host/account data.
 
 ## Historical blocker retest ledger
 
-- `QWSG-053-F001` remains immutable historical `OPEN, BLOCKING`. Gate B must
-  freshly prove ordinary `make build` in genuine no-`.git` exports with
-  `GOFLAGS` unset, truthful unknown defaults, exact explicit identity,
-  controlled byte identity and no ambient Go `vcs.*` settings.
+- `QWSG-053-F001` remains immutable historical `OPEN, BLOCKING`. One
+  Owner-authorized corrected Gate B retry passed ordinary `make build` in two
+  genuine no-`.git` exports with `GOFLAGS` unset, truthful default provenance,
+  exact release identity and controlled twin byte identity. This is bounded
+  local Gate B evidence, not external clean-host correction or release readiness.
 - `QWSG-051-F001` remains immutable historical `OPEN, BLOCKING`. It may be
   recorded here as `EXTERNALLY VERIFIED CORRECTED` only after documented guided
   activation succeeds and independent readiness proves enabled, active and
@@ -125,7 +135,7 @@ or reference, headers, tokens, private paths or host/account identity.
 
 | ID | Boundary | Severity | Historical state | RC.4 retest state |
 | --- | --- | --- | --- | --- |
-| QWSG-053-F001 | exported-source ordinary build | RELEASE BLOCKER | OPEN, BLOCKING | PENDING GATE B |
+| QWSG-053-F001 | exported-source ordinary build | RELEASE BLOCKER | OPEN, BLOCKING | LOCAL GATE B RETEST PASS; external acceptance not claimed |
 | QWSG-051-F001 | guided Guardian activation | RELEASE BLOCKER | OPEN, BLOCKING | NOT EXECUTED |
 | QWSG-049-F002 | Smart Install user-manager guidance | RELEASE BLOCKER | OPEN, BLOCKING | NOT EXECUTED |
 | QWSG-049-F003 | filesystem local-semantics guidance | UX/DOCUMENTATION DEFECT; RELEASE-GATE BLOCKING | OPEN, RELEASE-GATE BLOCKING | NOT EXECUTED |
