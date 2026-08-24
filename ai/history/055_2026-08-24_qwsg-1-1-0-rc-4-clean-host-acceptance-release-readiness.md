@@ -165,3 +165,11 @@ alter historical evidence, candidate bytes, tags, remote state or Owner content.
 QWSG-055-F001 remains `OPEN, BLOCKING`; Checkpoints 11–13 and 17–25 remain
 unexecuted. A separately authorized correction task, new candidate identity,
 and clean-host acceptance restart from Checkpoint 01 are required.
+
+The privacy-safe blocker evidence was integrated as commit
+`af70281a2694feb23ffeed5671ee7da173c5287e` with subject
+`docs: record RC.4 clean-host acceptance blocker`. Under separate Owner
+authority, the completed-with-limitations prompt was archived and the
+repository returned to canonical idle. The closure snapshot is
+`/tmp/qwsg-task055-closure.t5IuF9`; rollback is bounded to the Task 055 prompt,
+archive destination and this history record.
