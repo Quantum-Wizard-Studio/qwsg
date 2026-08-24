@@ -4,7 +4,7 @@
 
 - Task ID: `054`
 - Task slug: `qwsg-exported-source-build-determinism-fix`
-- Status: `approved`
+- Status: `complete`
 - Date opened: `2026-08-21` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English
