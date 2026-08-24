@@ -4,7 +4,7 @@
 
 - Task ID: `056`
 - Task slug: `qwsg-systemd-user-state-directory-compatibility-correction`
-- Status: `active`
+- Status: `complete with disclosed limitations — external RC.5 acceptance pending`
 - Date opened: `2026-08-24` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English

@@ -4,11 +4,11 @@
 
 - Task ID: `056`
 - Task slug: `qwsg-systemd-user-state-directory-compatibility-correction`
-- Status: `in progress — bounded implementation complete; pre-integration validation pending`
+- Status: `complete with disclosed limitations — external RC.5 acceptance pending`
 - Date generated: `2026-08-24` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/056_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/056_2026-08-24_qwsg-systemd-user-state-directory-compatibility-correction.md`
 
 ## Lifecycle state
 
@@ -92,7 +92,17 @@ restore, rerun focused/full/security/governance/protected-hash validation.
 
 ## Completion state
 
-`in progress — local implementation only; integration remains Owner-gated`.
-QWSG-055-F001 remains historical `OPEN, BLOCKING` until a separately built RC.5
-candidate passes fresh external clean-host acceptance from Checkpoint 01 on a
-fully reinstalled disposable VPS.
+`complete with disclosed limitations — external RC.5 acceptance pending`.
+Task 056 implementation is complete, and the state-directory compatibility
+correction is integrated into `main` as
+`fc52295f6cc5b61078b32535230bdc704168d13c` (`fix: prepare Guardian state
+before systemd activation`). Local and regression validation passed. The
+packaged systemd user unit remains unchanged, and the source version is QWSG
+`1.1.0-rc.5`.
+
+No RC.5 candidate artifact has been constructed, and no RC.5 external
+clean-host acceptance has occurred. QWSG-055-F001 remains historical `OPEN,
+BLOCKING` until a separately authorized RC.5 candidate passes fresh external
+clean-host acceptance from Checkpoint 01 on a fully reinstalled disposable
+VPS. Task 056 completion does not claim external correction or release
+readiness.
