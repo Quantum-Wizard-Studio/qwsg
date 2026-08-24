@@ -14,6 +14,13 @@ commands.
 
 ## Verify, assess, and install
 
+For published releases, obtain the archive and sidecar through the immutable
+Forgejo Release-asset contract documented in
+[`FORGEJO_DISTRIBUTION.md`](../release/FORGEJO_DISTRIBUTION.md). Concrete public
+URLs are documented only after their Release assets exist and anonymous
+`wget`/`curl` verification passes. Private candidates continue to use their
+authorized private transfer boundary.
+
 ```sh
 sha256sum -c qwsg-1.1.0-rc.5-linux-amd64.tar.gz.sha256
 tar -xzf qwsg-1.1.0-rc.5-linux-amd64.tar.gz

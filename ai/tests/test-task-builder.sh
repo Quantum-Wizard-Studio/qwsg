@@ -43,8 +43,22 @@ new_input() {
     printf 'Hungarian\n' >"$dir/language"
     printf '%s\n' "$approval" >"$dir/approval"
     local field
-    for field in objective scope out-of-scope starting-state snapshot risk planned-work rollback deliverables verification documentation completion; do
-        printf 'First %s line.\nSecond %s line.\n' "$field" "$field" >"$dir/$field"
+    for field in objective scope out-of-scope authority-envelope starting-state snapshot risk planned-work rollback deliverables verification documentation completion; do
+        if [[ "$field" == authority-envelope ]]; then
+            printf '%s\n' \
+                '- **Authorized paths/components/systems:** fixture paths.' \
+                '- **Routine operations:** fixture operations.' \
+                '- **Correction/retest authority:** bounded fixture correction.' \
+                '- **Repository integration:** targeted fixture integration.' \
+                '- **Lifecycle completion:** fixture closure.' \
+                '- **Permitted external actions:** none.' \
+                '- **Evidence and rollback:** fixture evidence.' \
+                '- **Owner-reserved operations:** fixture reserved work.' \
+                '- **Mandatory STOP conditions:** fixture boundary failure.' \
+                >"$dir/$field"
+        else
+            printf 'First %s line.\nSecond %s line.\n' "$field" "$field" >"$dir/$field"
+        fi
     done
     printf '%s\n' "$dir"
 }
@@ -84,11 +98,13 @@ expect_success "$root" ./ai/scripts/next-task.sh --check
 grep -Fq -- '- Status: `approved`' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq 'First objective line.' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq 'Second objective line.' "$root/ai/prompts/014_CURRENT_TASK.md"
+grep -Fq '**Authorized paths/components/systems:** fixture paths.' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq 'Approved by Project Owner' "$root/ai/prompts/014_CURRENT_TASK.md"
+grep -Fq 'authorized to start and execute every routine operation' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq -- '- `ai/core/16_GIT_POLICY.md`' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq -- '- `ai/config/engineering-project.conf`' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq -- '- Status: `approved — task not started`' "$root/ai/history/014_${today}_next-engineering-task.md"
-passes=$((passes + 7))
+passes=$((passes + 9))
 
 root="$(new_fixture idle-install)"; input="$(new_input idle-install)"
 mv "$root/ai/prompts/013_CURRENT_TASK.md" "$root/ai/archive_prompts/013_${today}_engineering-task-builder.md"
@@ -101,8 +117,22 @@ root="$(new_fixture interactive)"
 interactive_input="$work/interactive-input"
 {
     printf 'interactive-task\nInteractive Task\nProject Owner\nHungarian\n'
-    for field in objective scope out-of-scope starting-state snapshot risk planned-work rollback deliverables verification documentation completion; do
-        printf 'Interactive %s line one.\nInteractive %s line two.\n.\n' "$field" "$field"
+    for field in objective scope out-of-scope authority-envelope starting-state snapshot risk planned-work rollback deliverables verification documentation completion; do
+        if [[ "$field" == authority-envelope ]]; then
+            printf '%s\n' \
+                '- **Authorized paths/components/systems:** fixture paths.' \
+                '- **Routine operations:** fixture operations.' \
+                '- **Correction/retest authority:** bounded fixture correction.' \
+                '- **Repository integration:** targeted fixture integration.' \
+                '- **Lifecycle completion:** fixture closure.' \
+                '- **Permitted external actions:** none.' \
+                '- **Evidence and rollback:** fixture evidence.' \
+                '- **Owner-reserved operations:** fixture reserved work.' \
+                '- **Mandatory STOP conditions:** fixture boundary failure.' \
+                '.'
+        else
+            printf 'Interactive %s line one.\nInteractive %s line two.\n.\n' "$field" "$field"
+        fi
     done
     printf 'APPROVE\n'
 } >"$interactive_input"
@@ -116,6 +146,15 @@ expect_failure "$root" ./ai/scripts/task-builder.sh --input-dir "$input"
 assert_original "$root"
 
 root="$(new_fixture missing-field)"; input="$(new_input missing-field)"; rm "$input/scope"
+expect_failure "$root" ./ai/scripts/task-builder.sh --input-dir "$input"
+assert_original "$root"
+
+root="$(new_fixture missing-envelope)"; input="$(new_input missing-envelope)"; rm "$input/authority-envelope"
+expect_failure "$root" ./ai/scripts/task-builder.sh --input-dir "$input"
+assert_original "$root"
+
+root="$(new_fixture incomplete-envelope)"; input="$(new_input incomplete-envelope)"
+sed -i '/Mandatory STOP conditions/d' "$input/authority-envelope"
 expect_failure "$root" ./ai/scripts/task-builder.sh --input-dir "$input"
 assert_original "$root"
 

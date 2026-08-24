@@ -201,5 +201,13 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   and published the independently reverified final `v1.0.0` Forgejo Release.
   See
   `ai/history/044_2026-08-11_qwsg-1-0-final-release-git-reconciliation.md`.
+- `2026-08-24`: Task 058 advanced the Reusable Engineering Framework to 1.1.0
+  with first-class task Authority Envelopes, proportional in-scope
+  correction/retest behavior, and autonomous reviewed integration/closure;
+  introduced the prospective twelve-step practical release-acceptance standard;
+  and defined the immutable Forgejo Release-asset download contract for
+  `wget`, `curl`, checksum verification, and future Smart Installer use without
+  publishing an artifact. See
+  `ai/history/058_2026-08-24_streamlined-engineering-governance-forgejo-distribution-practical-release-acceptance.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

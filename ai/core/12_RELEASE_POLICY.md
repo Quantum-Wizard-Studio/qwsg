@@ -25,6 +25,18 @@ SHA-256 detects changes after a trusted hash was obtained; it does not
 authenticate the publisher. Signing, key custody, tagging and publication are
 separate Owner-authorized operations.
 
+Prospective acceptance follows
+`docs/release/PRACTICAL_RELEASE_ACCEPTANCE.md`: one bounded Owner authorization
+covers twelve product-relevant steps, while credentials and defects pause the
+run and publication remains separate. Historical RC protocols retain their
+original meaning.
+
+Published artifacts follow `docs/release/FORGEJO_DISTRIBUTION.md`: an immutable
+version tag and associated Forgejo Release carry the exact archive and SHA-256
+sidecar through version-specific asset URLs. Concrete URLs become operational
+claims only after separately authorized publication and anonymous `wget`,
+`curl`, and checksum verification.
+
 ## Release gates
 
 A technical 1.0 release decision requires full/race/vet/format tests, Framework

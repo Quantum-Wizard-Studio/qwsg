@@ -150,9 +150,26 @@ cat >"$root/ai/prompts/001_CURRENT_TASK.md" <<'EOF'
 EOF
 expect_failure "$root" ./ai/scripts/framework-check.sh
 
+root="$(new_fixture prepared-draft)"
+cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
+sed -i 's/^- Status: .*/- Status: `draft — requires human editing and approval`/' \
+    "$root/ai/prompts/001_CURRENT_TASK.md"
+printf '\n[REQUIRES HUMAN EDITING]\n' >>"$root/ai/prompts/001_CURRENT_TASK.md"
+expect_success "$root" ./ai/scripts/framework-check.sh
+
 root="$(new_fixture missing-task-section)"
 cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
 sed -i '/^## Snapshot Requirements$/d' "$root/ai/prompts/001_CURRENT_TASK.md"
+expect_failure "$root" ./ai/scripts/framework-check.sh
+
+root="$(new_fixture missing-authority-envelope)"
+cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
+sed -i '/^## Authority Envelope$/d' "$root/ai/prompts/001_CURRENT_TASK.md"
+expect_failure "$root" ./ai/scripts/framework-check.sh
+
+root="$(new_fixture incomplete-authority-envelope)"
+cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
+sed -i '/\*\*Mandatory STOP conditions:\*\*/d' "$root/ai/prompts/001_CURRENT_TASK.md"
 expect_failure "$root" ./ai/scripts/framework-check.sh
 
 root="$(new_fixture unsafe-task-git)"

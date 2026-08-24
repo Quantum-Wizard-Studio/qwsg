@@ -21,9 +21,9 @@ UTF-8 text files and installs the generated approved task transactionally.
 --check-input validates and renders nothing; it never changes lifecycle files.
 
 Required input files:
-  slug title authority language objective scope out-of-scope starting-state
-  snapshot risk planned-work rollback deliverables verification documentation
-  completion approval
+  slug title authority language objective scope out-of-scope authority-envelope
+  starting-state snapshot risk planned-work rollback deliverables verification
+  documentation completion approval
 
 The approval file must contain exactly APPROVE (apart from a final newline).
 EOF
@@ -80,7 +80,7 @@ load_current() {
     [[ "$history_status" == complete* ]] || fail "current history is not complete: $history_status"
 }
 
-readonly fields=(slug title authority language objective scope out-of-scope starting-state snapshot risk planned-work rollback deliverables verification documentation completion approval)
+readonly fields=(slug title authority language objective scope out-of-scope authority-envelope starting-state snapshot risk planned-work rollback deliverables verification documentation completion approval)
 
 validate_input_dir() {
     input_dir="$(cd -- "$1" 2>/dev/null && pwd -P)" || fail "input directory is unavailable: $1"
@@ -99,6 +99,15 @@ validate_input_dir() {
     read_single_value approval approval
     [[ -n "$title" && -n "$authority" && -n "$language" ]] || fail 'title, authority, and language must be single non-empty lines'
     [[ "$approval" == APPROVE ]] || fail 'explicit owner approval is required: approval must be exactly APPROVE'
+    local label
+    for label in 'Authorized paths/components/systems' 'Routine operations' \
+        'Correction/retest authority' 'Repository integration' \
+        'Lifecycle completion' 'Permitted external actions' \
+        'Evidence and rollback' 'Owner-reserved operations' \
+        'Mandatory STOP conditions'; do
+        grep -Fq "**$label:**" "$input_dir/authority-envelope" ||
+            fail "authority-envelope lacks required category: $label"
+    done
 }
 
 read_single_value() {
@@ -136,7 +145,7 @@ collect_interactive() {
     read_line_field 'Human authority' authority
     read_line_field 'Preferred owner communication language' language
     local field label
-    for field in objective scope out-of-scope starting-state snapshot risk planned-work rollback deliverables verification documentation completion; do
+    for field in objective scope out-of-scope authority-envelope starting-state snapshot risk planned-work rollback deliverables verification documentation completion; do
         label="${field//-/ }"
         read_multiline_field "$label" "$field"
     done
@@ -184,6 +193,7 @@ EOF
     append_section 'Objective' objective
     append_section 'Scope' scope
     append_section 'Out of Scope' out-of-scope
+    append_section 'Authority Envelope' authority-envelope
     cat >>"$temp_prompt" <<'EOF'
 
 ## Required Reading
@@ -212,7 +222,7 @@ EOF
 
 Approved by $authority through the Engineering Task Builder on $today UTC.
 
-The structured task definition has been explicitly approved for implementation. Further scope changes require explicit Project Owner approval.
+The structured task definition and Authority Envelope have been explicitly approved. The task is authorized to start and execute every routine operation inside that envelope without another Owner gate. Further scope changes and every Owner-reserved operation require explicit Project Owner approval.
 EOF
 
     cat >"$temp_history" <<EOF
@@ -268,7 +278,7 @@ validate_rendered_pair() {
     grep -Fxq -- "- Task ID: \`$next_id\`" "$temp_history" || fail 'generated history Task ID is invalid'
     grep -Fxq -- "- Task slug: \`$slug\`" "$temp_history" || fail 'generated history slug is invalid'
     local heading
-    for heading in 'Objective' 'Scope' 'Out of Scope' 'Required Reading' 'Starting State Verification' 'Snapshot Requirements' 'Risk Assessment' 'Planned Work' 'Rollback Plan' 'Deliverables' 'Verification' 'Documentation Updates' 'Completion Criteria' 'Owner Approval Requirements'; do
+    for heading in 'Objective' 'Scope' 'Out of Scope' 'Authority Envelope' 'Required Reading' 'Starting State Verification' 'Snapshot Requirements' 'Risk Assessment' 'Planned Work' 'Rollback Plan' 'Deliverables' 'Verification' 'Documentation Updates' 'Completion Criteria' 'Owner Approval Requirements'; do
         grep -Fxq "## $heading" "$temp_prompt" || fail "generated prompt lacks section: $heading"
     done
 }
@@ -304,7 +314,7 @@ install_pair() {
     "$project_root/ai/scripts/next-task.sh" --check >/dev/null || fail 'installed task failed lifecycle consistency validation'
     trap - EXIT
     [[ -z "${interactive_dir:-}" || ! -d "$interactive_dir" ]] || rm -rf -- "$interactive_dir"
-    printf 'Completed Task ID: %s\nArchived prompt: %s\nNew approved Task ID: %s\nNew prompt: %s\nNew history: %s\nLifecycle validation: PASS\nAPPROVED AND READY FOR IMPLEMENTATION\n' \
+    printf 'Completed Task ID: %s\nArchived prompt: %s\nNew approved Task ID: %s\nNew prompt: %s\nNew history: %s\nLifecycle validation: PASS\nAPPROVED AND AUTHORIZED FOR EXECUTION\n' \
         "$current_id" "${archive_path#$project_root/}" "$next_id" "${new_prompt#$project_root/}" "${new_history#$project_root/}"
 }
 

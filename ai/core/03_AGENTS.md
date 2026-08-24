@@ -24,6 +24,15 @@ Mandatory collaboration baseline for `0.0.1-prealpha`.
 - Every implementation or documentation task must follow the workflow and required record fields in `08_JOB_TEMPLATE.md`.
 - Before any implementation work, every agent must read `00_PROJECT_PHILOSOPHY.md`, `01_CONSTITUTION.md`, `03_AGENTS.md`, and `08_JOB_TEMPLATE.md`.
 - Every agent follows `11_ENGINEERING_LIFECYCLE.md`; after verified completion it prepares, but never approves or executes, the next task when the active prompt requires it.
+- A Builder-approved task with a valid Authority Envelope is executable without
+  a second routine start gate. Within that envelope, an agent completes ordinary
+  inspect, snapshot, implementation, correction, verification, integration,
+  clean-fast-forward push, and lifecycle work autonomously. It stops only when
+  the envelope or a mandatory higher-level safeguard reserves the decision.
+- A recoverable in-scope failure is evidence to diagnose, correct, and retest;
+  it is not by itself a reason to request new authority. Never convert missing
+  evidence into success or use this rule to cross a security, privacy,
+  destructive, external-system, credential, publication, or scope boundary.
 - Every agent validates `ai/config/engineering-project.conf` with
   `ai/scripts/framework-check.sh` before relying on project identity, remote,
   branch, lifecycle paths, required reading, or validation commands.

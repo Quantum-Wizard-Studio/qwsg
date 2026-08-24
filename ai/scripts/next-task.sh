@@ -167,6 +167,10 @@ prepare_next() {
 
 [REQUIRES HUMAN EDITING]
 
+## Authority Envelope
+
+[REQUIRES HUMAN EDITING]
+
 ## Required Reading
 
 - `ai/core/00_PROJECT_PHILOSOPHY.md`
@@ -174,6 +178,9 @@ prepare_next() {
 - `ai/core/03_AGENTS.md`
 - `ai/core/08_JOB_TEMPLATE.md`
 - `ai/core/11_ENGINEERING_LIFECYCLE.md`
+- `ai/core/14_PROMPT_WORKFLOW.md`
+- `ai/core/16_GIT_POLICY.md`
+- `ai/config/engineering-project.conf`
 
 ## Starting State Verification
 

@@ -14,14 +14,24 @@ The original job fields remain required with their original meanings: Objective 
 
 ## Mandatory task lifecycle
 
-1. **Authority and scope:** identify the human-authorized objective, deliverables, exclusions, and stop conditions. Do not broaden scope by assumption.
+1. **Authority and scope:** identify the human-authorized objective, Authority
+   Envelope, deliverables, exclusions, and stop conditions. Do not broaden scope
+   by assumption. Builder approval of a complete envelope authorizes task start
+   and its routine in-envelope execution; it does not authorize reserved work.
 2. **Read governing documents:** read the constitution, agent rules, relevant standards, policies, system records, and prior task history before changing the project. Validate the versioned project configuration and canonical Git policy; never source configuration or treat project-overridable data as authority to weaken mandatory safeguards.
-3. **Inspect:** record the exact relevant environment, Git, ownership, permission, ACL, dependency, and file state. Stop and report material differences.
+3. **Inspect:** record the exact relevant environment, Git, ownership,
+   permission, ACL, dependency, and file state. Diagnose and correct recoverable
+   in-scope differences; stop on a material authority, safety, privacy, security,
+   destructive, external-system, or rollback difference.
 4. **Snapshot:** create and verify a rollback-capable snapshot before modifying task targets.
 5. **Plan and rollback:** document what will change, the smallest safe method, risks, verification, and an exact bounded rollback procedure before implementation.
 6. **Communicate:** use the verified preferred language of the current project owner or lead developer for concise progress updates, decisions, warnings, and explanations. Do not hardcode or assume a human language.
 7. **Implement:** make only authorized changes. Engineering artifacts are English; user-facing content is localization-ready.
-8. **Verify:** verify every meaningful change and the complete deliverable. Check scope, content, tests where applicable, security, permissions, ownership, ACLs, Git diff, and rollback validity in proportion to risk.
+8. **Verify:** verify every meaningful change and the complete deliverable.
+   Check scope, content, tests where applicable, security, permissions,
+   ownership, ACLs, Git diff, and rollback validity in proportion to risk.
+   Recoverable failures follow diagnose -> correct -> retest -> continue while
+   they remain inside the Authority Envelope.
 9. **Document:** update affected engineering documents and create a chronological English delivery report.
 10. **Deliver and hand off:** report the outcome in the current owner or lead developer's preferred language, including verification, rollback, unresolved issues, Git state, and explicit completion status. When required by the active task, prepare the next unapproved task under `11_ENGINEERING_LIFECYCLE.md`; never start it.
 
@@ -45,43 +55,70 @@ Exact files, components, systems, people, and actions authorized for the task.
 
 Explicit exclusions, forbidden actions, deferred work, and the next milestone that must not begin.
 
-### 5. Required Reading
+### 5. Authority Envelope
+
+Every newly Builder-approved task must explicitly define all of these
+categories:
+
+1. authorized paths, components, systems, and people;
+2. authorized routine operation categories;
+3. bounded diagnosis, correction, and retest authority;
+4. repository integration authority;
+5. lifecycle completion authority;
+6. explicitly permitted external actions;
+7. evidence and rollback requirements;
+8. Owner-reserved operations; and
+9. mandatory STOP conditions.
+
+The envelope is the complete execution authority for the approved task. It may
+authorize snapshot, edits, tests, documentation, explicit path staging, staged
+diff review, task-scoped commits, push dry-run, clean fast-forward push,
+post-push validation, and canonical closure without intermediate approval.
+Ambiguity does not expand authority. Credentials, material scope or architecture
+changes, unplanned destructive or external mutation, unresolved security or
+privacy uncertainty, privilege escalation, tags, Releases, publication, and
+deployment remain reserved unless the Project Owner explicitly says otherwise.
+
+Historical tasks created before Framework 1.1.0 remain valid under their
+recorded authority and are not rewritten to add this section.
+
+### 6. Required Reading
 
 Always include `00_PROJECT_PHILOSOPHY.md`, `01_CONSTITUTION.md`, `03_AGENTS.md`, and `08_JOB_TEMPLATE.md` before implementation work. Add relevant policies, system records, prompts, prior reports, and technical references. Record what was actually read.
 
-### 6. Environment Verification
+### 7. Environment Verification
 
 Record relevant date, user, working directory, Git branch and status, file state, versions, ownership, permissions, ACLs, dependencies, services, and material differences from expectations. Verify facts rather than assuming them.
 
-### 7. Snapshot Requirements
+### 8. Snapshot Requirements
 
 Define the timestamped snapshot path, exact captured state, integrity checks, retention, and a guarded restore procedure. Create and verify the snapshot before modifying task targets.
 
-### 8. Risk Assessment
+### 9. Risk Assessment
 
 List security, stability, data-loss, compatibility, localization, permission, operational, and rollback risks. Rate each relevant risk and document its mitigation or acceptance authority.
 
-### 9. Planned Work
+### 10. Planned Work
 
 Describe the smallest safe sequence, target paths or systems, decision points, assumptions requiring verification, expected outputs, and non-goals.
 
-### 10. Rollback Plan
+### 11. Rollback Plan
 
 Define exact bounded targets, preconditions, confirmation for destructive steps, commands or procedures, retained evidence, and post-rollback verification. Never rely on unsafe wildcard deletion.
 
-### 11. Verification Checklist
+### 12. Verification Checklist
 
 Provide task-specific checks with expected results. Include scope, content, tests where applicable, security, localization, ownership, permissions, ACLs, excluded work, documentation consistency, rollback validity, Git diff, and final status.
 
-### 12. Documentation Updates
+### 13. Documentation Updates
 
 List every core document, prompt, reference, changelog, and chronological history record that must change. Record all actual modifications and justified deviations.
 
-### 13. Delivery Report
+### 14. Delivery Report
 
 Create an English engineering report containing the implementation record, reasoning, verification evidence, rollback information, unresolved issues, recommendations, Git record, and delivery result. Communicate the owner-facing summary separately in the verified preferred language.
 
-### 14. Completion Criteria
+### 15. Completion Criteria
 
 Define objective pass/fail conditions. A valid result is `complete`, `complete with disclosed limitations`, or `blocked`; the reason and unresolved items must be explicit.
 
@@ -100,7 +137,7 @@ The Web Console, Installer, and future end-user documentation must support multi
 
 The authoritative state-transition, completion-gate, transactional preparation, and No Task Without History rules are defined in `11_ENGINEERING_LIFECYCLE.md`.
 
-Every current engineering task has one active English prompt named `NNN_CURRENT_TASK.md` and one independent history file. When the latest task is complete and archived and no next task is authorized, `ai/prompts/` is empty; this is the canonical idle state, not a missing record. The prompt follows the required task structure above, uses the semantic states `draft`, `approved`, `active`, `complete`, `superseded`, or `archived without execution`, and separates definition from execution. Prior prompts move to `ai/archive_prompts/`; archived prompts and histories remain committed. Prompt creation or archiving never grants execution authority. Detailed numbering, naming, rotation, and compatibility rules are maintained in `14_PROMPT_WORKFLOW.md`.
+Every current engineering task has one active English prompt named `NNN_CURRENT_TASK.md` and one independent history file. When the latest task is complete and archived and no next task is authorized, `ai/prompts/` is empty; this is the canonical idle state, not a missing record. The prompt follows the required task structure above, uses the semantic states `draft`, `approved`, `active`, `complete`, `superseded`, or `archived without execution`, and separates unapproved preparation from approved execution. Prior prompts move to `ai/archive_prompts/`; archived prompts and histories remain committed. Draft preparation or prompt archiving never grants execution authority; Builder approval grants only the recorded Authority Envelope. Detailed numbering, naming, rotation, and compatibility rules are maintained in `14_PROMPT_WORKFLOW.md`.
 
 The general Engineering History remains a concise milestone index. It must not become an infinitely growing task log; detailed evidence belongs in the independent task history record.
 

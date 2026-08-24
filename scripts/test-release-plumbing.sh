@@ -110,6 +110,20 @@ grep -F 'QWSG-049-F002' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F 'QWSG-049-F003' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F 'git.quantumwizard.hu' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
 grep -F '`wget` and `curl` examples' "$repo/docs/release/ACCEPTANCE_1.1.0-rc.5.md" >/dev/null
+practical="$repo/docs/release/PRACTICAL_RELEASE_ACCEPTANCE.md"
+distribution="$repo/docs/release/FORGEJO_DISTRIBUTION.md"
+test -f "$practical"
+test "$(grep -cE '^[0-9]+\. \*\*' "$practical")" -eq 12
+grep -F 'one bounded Owner-authorized acceptance run' "$practical" >/dev/null
+grep -F 'mandatory evidence remains missing and is never converted to PASS' "$practical" >/dev/null
+grep -F 'reporting alone does not invalidate a clean host' "$practical" >/dev/null
+test -f "$distribution"
+grep -F 'FORGEJO_BASE/OWNER/REPOSITORY/releases/download/TAG/ASSET' "$distribution" >/dev/null
+grep -F 'wget "${release_base}/${archive}"' "$distribution" >/dev/null
+grep -F 'curl -fLO "${release_base}/${archive}"' "$distribution" >/dev/null
+grep -F 'sha256sum -c "${archive}.sha256"' "$distribution" >/dev/null
+grep -F 'no operational' "$distribution" >/dev/null
+grep -F 'Future Smart Installer contract' "$distribution" >/dev/null
 grep -F -- '-buildvcs=false' "$repo/Makefile" >/dev/null
 grep -F '1.1.0-rc.4' "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.4.md" >/dev/null
 grep -F '1.1.0-rc.5' "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.5.md" >/dev/null

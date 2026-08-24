@@ -183,7 +183,7 @@ validate_command_file() {
 validate_command_file
 
 validate_active_task_structure() {
-    local prompt heading section='' trimmed
+    local prompt heading section='' trimmed status
     mapfile -d '' active_prompts < <(
         find -P "$project_root/${config[prompts_dir]}" -maxdepth 1 -type f \
             -name '*.md' -print0
@@ -194,19 +194,32 @@ validate_active_task_structure() {
     prompt="${active_prompts[0]}"
     iconv -f UTF-8 -t UTF-8 "$prompt" >/dev/null 2>&1 ||
         fail 'active task is not valid UTF-8'
-    if grep -Eq '\[REQUIRES HUMAN EDITING\]|\[TODO\]|\bTBD\b|@[A-Z0-9_]+@' "$prompt"; then
-        fail 'active task contains an unresolved placeholder'
-    fi
+    status="$(sed -nE 's/^- Status: `?([^`]+)`?$/\1/p' "$prompt")"
+    [[ -n "$status" ]] || fail 'active task lacks status metadata'
     for heading in 'Task Metadata' 'Title' 'Objective' 'Scope' 'Out of Scope' \
-        'Required Reading' 'Starting State Verification' 'Snapshot Requirements' \
+        'Authority Envelope' 'Required Reading' 'Starting State Verification' 'Snapshot Requirements' \
         'Risk Assessment' 'Planned Work' 'Rollback Plan' 'Deliverables' \
         'Verification' 'Documentation Updates' 'Completion Criteria' \
         'Owner Approval Requirements'; do
         [[ "$(grep -Fxc "## $heading" "$prompt")" == 1 ]] ||
             fail "active task requires exactly one section: $heading"
     done
-    grep -Fq 'through the Engineering Task Builder' "$prompt" ||
-        fail 'active task lacks generated owner approval evidence'
+    if [[ "$status" != draft* ]]; then
+        if grep -Eq '\[REQUIRES HUMAN EDITING\]|\[TODO\]|\bTBD\b|@[A-Z0-9_]+@' "$prompt"; then
+            fail 'active task contains an unresolved placeholder'
+        fi
+        grep -Fq 'through the Engineering Task Builder' "$prompt" ||
+            fail 'active task lacks generated owner approval evidence'
+        local authority_label
+        for authority_label in 'Authorized paths/components/systems' \
+            'Routine operations' 'Correction/retest authority' \
+            'Repository integration' 'Lifecycle completion' \
+            'Permitted external actions' 'Evidence and rollback' \
+            'Owner-reserved operations' 'Mandatory STOP conditions'; do
+            grep -Fq "**$authority_label:**" "$prompt" ||
+                fail "active task Authority Envelope lacks category: $authority_label"
+        done
+    fi
 
     while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ "$line" =~ ^##[[:space:]]+(.+)$ ]]; then

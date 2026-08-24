@@ -64,6 +64,7 @@ expect_success "$root" ./bin/job --prepared-check
 root="$(new_fixture noninteractive)"; expect_success "$root" ./ai/scripts/next-task.sh --prepare --slug core-alpha-platform-hardening
 expect_success "$root" ./bin/job --prepared-check
 grep -q 'Task ID: `011`' "$root/ai/prompts/011_CURRENT_TASK.md"; grep -q 'Task slug: `core-alpha-platform-hardening`' "$root/ai/history/011_${today}_core-alpha-platform-hardening.md"; passes=$((passes+1))
+grep -Fxq '## Authority Envelope' "$root/ai/prompts/011_CURRENT_TASK.md"; passes=$((passes+1))
 
 root="$(new_fixture interactive)"; expect_success "$root" bash -c "printf 'Interactive Slug\\n' | ./ai/scripts/next-task.sh"
 

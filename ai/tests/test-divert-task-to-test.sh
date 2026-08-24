@@ -76,10 +76,21 @@ new_input() {
     printf 'Attila — Project Owner\n' >"$dir/authority"
     printf 'Hungarian\n' >"$dir/language"
     printf 'APPROVE\n' >"$dir/approval"
-    for field in objective scope out-of-scope starting-state snapshot risk \
+    for field in objective scope out-of-scope authority-envelope starting-state snapshot risk \
         planned-work rollback deliverables verification documentation completion; do
         printf 'Validated %s content.\n' "$field" >"$dir/$field"
     done
+    printf '%s\n' \
+        '- **Authorized paths/components/systems:** fixture paths.' \
+        '- **Routine operations:** fixture operations.' \
+        '- **Correction/retest authority:** bounded fixture correction.' \
+        '- **Repository integration:** targeted fixture integration.' \
+        '- **Lifecycle completion:** fixture closure.' \
+        '- **Permitted external actions:** none.' \
+        '- **Evidence and rollback:** fixture evidence.' \
+        '- **Owner-reserved operations:** fixture reserved work.' \
+        '- **Mandatory STOP conditions:** fixture boundary failure.' \
+        >"$dir/authority-envelope"
     printf '%s\n' "$dir"
 }
 

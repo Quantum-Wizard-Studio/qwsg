@@ -9,33 +9,64 @@ This document is the authoritative lifecycle specification for QWSG engineering 
 1. **No Task Without History:** every active task prompt has exactly one matching history record with the same Task ID and slug.
 2. A prepared task is not approved, active, or executed. Preparation stops at `READY FOR OWNER REVIEW`.
 3. Only the Project Owner can approve a prepared task or expand its authority.
-4. Production task numbers are sequential and never reused after a completed,
+4. Builder approval of a task containing a valid Authority Envelope authorizes
+   task start and every routine operation explicitly contained in that envelope.
+   It does not authorize an Owner-reserved operation or scope expansion.
+5. Production task numbers are sequential and never reused after a completed,
    superseded, or normally archived production task. An incomplete active task
    may release its number only through the explicit Project Owner-authorized
    aborted-test diversion protocol below; the diverted record retains the
    original identity and proves that production completion was not claimed.
-5. Lifecycle transitions are transactional: either prompt archive, next prompt, matching history, and validation all succeed, or the original state is restored.
-6. Zero active prompts is valid only as the idle state: the highest-numbered archived prompt and its unique matching history must both be complete and consistent, and no next-task prompt or history may exist.
+6. Lifecycle transitions are transactional: either prompt archive, next prompt, matching history, and validation all succeed, or the original state is restored.
+7. Zero active prompts is valid only as the idle state: the highest-numbered archived prompt and its unique matching history must both be complete and consistent, and no next-task prompt or history may exist.
 
 ## Lifecycle states
 
 1. **Creation:** the Engineering Task Builder collects structured owner input and generates one prompt plus one matching history record. The compatibility workflow `next-task.sh` may still prepare an explicitly unapproved draft pair for later owner review.
 2. **Owner review:** the owner supplies the substantive objective, scope, exclusions, evidence requirements, authority, communication language, and approval. Tooling validates but does not invent these fields.
-3. **Approval:** the owner explicitly approves the structured definition. The builder records that approval while generating the documents; draft preparation alone grants no authority.
-4. **Start:** the agent validates the executable task with `bin/job --check`, reads governing material, records the exact starting state, and stops on material variance.
+3. **Approval and execution authority:** the owner explicitly approves the
+   structured definition and Authority Envelope. The builder records that
+   approval while generating the documents. This approval authorizes immediate
+   task start and routine in-envelope execution; draft preparation grants no
+   authority.
+4. **Start:** the agent validates the executable task with `bin/job --check`,
+   reads governing material, and records the exact starting state. A recoverable
+   in-scope variance is diagnosed and corrected; a boundary or safety variance
+   stops.
 5. **Snapshot:** before target changes, the agent creates and verifies a bounded rollback-capable snapshot.
 6. **Implementation:** only approved scope is changed; history is updated throughout.
-7. **Verification gates:** all task-mandated checks, rollback validation, documentation consistency, permissions, and Git-state checks must pass truthfully.
+7. **Verification:** all task-mandated checks, rollback validation,
+   documentation consistency, permissions, and Git-state checks must pass
+   truthfully. A recoverable failure inside the envelope follows diagnose ->
+   correct -> retest -> continue. Missing evidence is never a PASS.
 8. **History finalization:** the history records starting state, snapshot, decisions, changes, exact verification evidence, limitations, rollback, and completion state. The prompt and history must both be complete before rotation.
 9. **Completion:** completion means the authorized objective and every mandatory gate passed. It does not authorize the next task.
 10. **Idle closure or next-task generation:** after completion, the prompt may be archived without creating a successor, producing the canonical idle state. When a new task is separately authorized, invoke `./ai/scripts/task-builder.sh` and complete its structured owner workflow; it uses the latest completed archived task as the numbering baseline when idle. If an active completed prompt still exists, it is archived in the same transaction. For a separate review cycle, `./ai/scripts/next-task.sh --prepare --slug <slug>` remains available and stops with an unapproved draft.
-11. **Handoff:** a builder-generated task reports `APPROVED AND READY FOR IMPLEMENTATION` but does not execute it. A compatibility draft reports `READY FOR OWNER REVIEW` and remains unapproved and unexecuted.
+11. **Handoff:** a builder-generated task reports `APPROVED AND AUTHORIZED FOR
+    EXECUTION`; no second routine start approval is required. A compatibility
+    draft reports `READY FOR OWNER REVIEW` and remains unapproved and
+    unexecuted.
+
+## Authority-envelope decision rule
+
+Routine inspection, snapshot, editing, testing, bounded correction, retesting,
+documentation, targeted staging, staged review, commit, push dry-run, clean
+fast-forward push, post-push verification, and lifecycle closure may proceed
+when the approved envelope lists them. Test failure, documentation mismatch,
+or late reporting alone does not create a new gate.
+
+Stop and obtain Owner direction for material scope or architecture expansion,
+unplanned destructive or irreversible work, unavailable rollback, a security
+or privacy boundary failure or meaningful uncertainty, credentials or
+Owner-only interaction, unexpected external infrastructure mutation,
+unapproved privilege escalation, meaningful damage risk, tags, Releases,
+publication, deployment, or any operation reserved by the envelope.
 
 ## Controlled failure containment and production-sequence recovery
 
-Normal production completion gates remain strict. Failed attempts and rejected
-methods are recorded inside the active history and do not by themselves change
-task identity:
+Normal completion criteria remain strict. Failed attempts and rejected methods
+are recorded inside the active history and do not by themselves change task
+identity or require a new approval while correction remains in scope:
 
 - `attempt-failed`: one execution attempt failed; record its inputs, outputs,
   and evidence before another attempt.
@@ -82,6 +113,6 @@ These modes prevent a correct draft from being mistaken for an executable task w
 
 ## Failure and rollback
 
-Generation checks current completion evidence, structured input, and every destination before mutation. Temporary files are created inside destination directories. The transaction archives the completed prompt, installs the next prompt, installs its matching history, and performs the appropriate validation. An error or tested injected failure removes installed next-task artifacts, restores the archived prompt, and removes temporary files. It never commits, pushes, or starts implementation. Only the builder may record approval, and only after receiving the exact explicit owner approval token defined by its input contract.
+Generation checks current completion evidence, structured input, and every destination before mutation. Temporary files are created inside destination directories. The transaction archives the completed prompt, installs the next prompt, installs its matching history, and performs the appropriate validation. An error or tested injected failure removes installed next-task artifacts, restores the archived prompt, and removes temporary files. The Builder transaction itself never commits, pushes, or performs implementation. Its approved output, however, authorizes the agent to start and execute the recorded Authority Envelope. Only the Builder may record approval, and only after receiving the exact explicit Owner approval token defined by its input contract.
 
 Rollback and failure reports must name exact bounded targets. Broad repository resets or cleanups are forbidden. If automatic rollback cannot prove restoration, stop and request owner direction.
