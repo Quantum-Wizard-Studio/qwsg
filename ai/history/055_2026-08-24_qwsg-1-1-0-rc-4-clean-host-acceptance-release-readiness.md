@@ -4,7 +4,7 @@
 
 - Task ID: `055`
 - Task slug: `qwsg-1-1-0-rc-4-clean-host-acceptance-release-readiness`
-- Status: `in progress — Gate C evidence integrated; Gate D authorization pending`
+- Status: `complete with disclosed limitations — NOT READY FOR QWSG 1.1.0 RELEASE`
 - Date generated: `2026-08-24` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
@@ -116,6 +116,43 @@ results. Private build-root identities, host identities, credentials and
 private evidence payloads are excluded. No candidate rebuild, transfer,
 external execution or external acceptance occurred.
 
+## RC.4 external acceptance finding
+
+Gate D used the separately authorized Owner-workstation fallback. Exactly the
+verified build-one archive and sidecar were privately transferred. Destination
+evidence proved two regular non-symlink files, exact size and digests, and a
+passing sidecar check without retaining credentials, private host identity or
+private paths. External Checkpoints 01–09 then passed, including the fresh
+Smart Install F002/F003 regression and immutable installation. Configuration
+was written safely before the guided activation boundary. No SMTP credential or
+receipt checkpoint was performed.
+
+The Owner followed only the documented guided RC.4 workflow. Guardian
+activation successfully reached the validated user manager, completed
+`daemon-reload`, and completed `enable --now`. The unit was enabled and its
+configuration condition passed, but the Guardian exited with
+`guardian_state_unsafe`. `ExecStopPost` reported unavailable exit-checkpoint
+evidence. `Restart=on-failure` made three restart attempts before the start
+limit, leaving the service failed and inactive without fresh canonical
+Guardian evidence.
+
+Privacy-safe bounded diagnostics established that systemd created a
+compatibility symlink at the requested user state directory because that state
+directory was absent while the same-name QWSG configuration directory already
+existed. This is systemd's user-service migration behavior for layouts from
+systemd 253 or older. The packaged `StateDirectory=qwsg` contract therefore
+collides with setup's existing same-name configuration directory. The unit's
+`WorkingDirectory`, `QWSG_STATE_DIR`, and writable-path directives route the
+Guardian to that symlink, while QWSG correctly rejects symlinked state roots.
+
+Finding `QWSG-055-F001` is an `OPEN, BLOCKING` `RELEASE BLOCKER`: packaged
+systemd user-unit/state-storage integration is incompatible with QWSG's
+state-path security contract. The compatibility symlink also explains the
+post-install `filesystem.local_semantics` regression from satisfied absent-path
+evidence to unsafe-path uncertainty. External acceptance stopped. No symlink,
+permission, unit or service state was manually changed; no workaround and no
+later SMTP, reboot, uninstall or reinstall checkpoint was attempted.
+
 ## Rollback
 
 After Owner authorization, restore only the exact Gate A paths from the private
@@ -124,4 +161,7 @@ alter historical evidence, candidate bytes, tags, remote state or Owner content.
 
 ## Completion state
 
-`in progress — Gate C evidence integrated; private candidate retained; Gate D transfer remains separately Owner-gated`
+`complete with disclosed limitations — NOT READY FOR QWSG 1.1.0 RELEASE`.
+QWSG-055-F001 remains `OPEN, BLOCKING`; Checkpoints 11–13 and 17–25 remain
+unexecuted. A separately authorized correction task, new candidate identity,
+and clean-host acceptance restart from Checkpoint 01 are required.
