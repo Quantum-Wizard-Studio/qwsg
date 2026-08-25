@@ -97,6 +97,14 @@ Execution baseline and rollback state were established.
 
 Builder input, metadata, prompt/history identity, Framework 1.1.0, active lifecycle, diverted test-task audit, release plumbing, Git whitespace, repository identity, snapshot readability, modes, hashes, absence claims, protected-history identity, and rollback instructions validated successfully. Focused Framework (24), Builder (44), lifecycle (29), and diversion (36) assertions passed. Full `go test ./...`, repository-wide `go test -race ./...`, `go vet ./...`, Go formatting, and release-plumbing validation passed. Privacy scanning found no credential, provider/account, recipient, private host/network identity, message/header data, or Owner content in Task 059 integration paths. Exact comparisons prove Task 057 prompt/history/protocol/acceptance evidence remains unchanged.
 
+## Git integration
+
+- Evidence commit: `ae4f6258a93a53d6b1f5c8c7604d59634f558aaa` (`docs: record RC.5 practical acceptance failure`).
+- Exact evidence paths: Task 059 prompt, Task 059 history, and new practical RC.5 acceptance report; three paths, no product source.
+- Explicit staging, staged path/mode/content review, `git diff --cached --check`, secret/privacy/exclusion review, post-commit lifecycle/Framework/release-plumbing/full-test validation, push dry-run, and clean fast-forward push passed.
+- Direct Forgejo `refs/heads/main`, local `HEAD`, and `origin/main` matched the evidence commit after push; ahead/behind `0/0`.
+- The excluded Owner blueprint remained untracked and untouched.
+
 ## Rollback
 
 Use `/tmp/qwsg-task059-execution.pyvqOw/ROLLBACK.md` only for the literal Task 059 repository targets after identity and collision checks. Never rewrite published history or historical Task 057 evidence.
