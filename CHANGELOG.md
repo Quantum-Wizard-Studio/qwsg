@@ -4,6 +4,13 @@ All notable changes to Quantum Wizard Server Guardian will be recorded here. Thi
 
 ## [Unreleased]
 
+### Fixed
+
+- Recovered Guardian processes now replace persisted Scheduler state owned by
+  a superseded effective configuration, allowing fresh canonical evidence to
+  converge after systemd automatic recovery while retaining same-generation
+  restart and failure evidence.
+
 - Added a versioned resumable Smart Setup plan, explicit fixed user-service
   activation, and operator-first README/installation packaging guidance.
 

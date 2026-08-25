@@ -92,6 +92,28 @@ func TestExitReportIsGenerationCorrelatedAndDemotionOnly(t *testing.T) {
 	if demoted.Overview.Guardian != presentationmodel.GuardianDegraded || demoted.Overview.Condition == presentationmodel.Healthy {
 		t.Fatalf("unsafe exit projection: %#v", demoted.Overview)
 	}
+	recoveredCheckpoint := checkpoint("generation.recovered")
+	if err = checkpoints.Save(recoveredCheckpoint); err != nil {
+		t.Fatal(err)
+	}
+	recovered := stored
+	if err = current.Publish(recovered); err != nil {
+		t.Fatal(err)
+	}
+	if err = ReportExit(checkpoints, current, value.Generation, "signal", at.Add(4*time.Second), time.Minute); err != nil {
+		t.Fatal(err)
+	}
+	afterStaleExit, _ := current.Load()
+	if afterStaleExit.ID != recovered.ID || afterStaleExit.Overview.Guardian != presentationmodel.GuardianStarting {
+		t.Fatal("superseded generation degraded recovered evidence")
+	}
+	if err = ReportExit(checkpoints, current, recoveredCheckpoint.Generation, "signal", at.Add(5*time.Second), time.Minute); err != nil {
+		t.Fatal(err)
+	}
+	afterCurrentExit, _ := current.Load()
+	if afterCurrentExit.Overview.Guardian != presentationmodel.GuardianDegraded {
+		t.Fatal("genuine current-generation failure was hidden")
+	}
 }
 
 func TestExitEvidenceAcceptsSystemdTokens(t *testing.T) {

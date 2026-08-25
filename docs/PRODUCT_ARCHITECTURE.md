@@ -751,6 +751,14 @@ configuration, private bounded restart handoff, generation-correlated exit
 demotion, and Current Operator State publication. Production delivery and
 release hardening remain separate concerns.
 
+Scheduler persistence is configuration-owned. A cycle may retain restart and
+in-progress-request evidence only while its persisted state matches the active
+effective configuration identity. After an operator configuration change, the
+first recovered cycle atomically initializes Scheduler state for the new
+identity before evaluation; integrity-invalid state still fails closed. This
+prevents superseded configuration state from causing every recovered Runtime
+cycle to fail while preserving ordinary same-configuration restart recovery.
+
 ## Canonical operator presentation
 
 Canonical engineering and operational data now feeds one presentation-

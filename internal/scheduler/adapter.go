@@ -65,6 +65,8 @@ func (cycle Cycle) Run(ctx context.Context) (CycleResult, error) {
 		state = NewState(cycle.Configuration.ID)
 	} else if err != nil {
 		return CycleResult{}, err
+	} else if state.ConfigurationID != cycle.Configuration.ID {
+		state = NewState(cycle.Configuration.ID)
 	}
 	observation := cycle.Clock.Observe()
 	evaluation, err := Evaluate(cycle.Configuration, state, observation, cycle.TimeZones)

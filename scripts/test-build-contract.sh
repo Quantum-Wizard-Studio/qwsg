@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
 version=$(tr -d '\r\n' < "$repo/VERSION")
-[[ "$version" == 1.1.0-rc.5 ]]
+[[ "$version" == 1.1.0-rc.6 ]]
 [[ -z ${GOFLAGS+x} ]] || {
     printf '%s\n' 'build contract: run with GOFLAGS unset' >&2
     exit 1

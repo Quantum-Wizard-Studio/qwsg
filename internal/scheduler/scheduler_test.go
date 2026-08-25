@@ -266,6 +266,50 @@ func TestCycleExecutesCanonicalProfileAndCapturesPolicy(t *testing.T) {
 	}
 }
 
+func TestCycleReinitializesPersistedStateForChangedConfiguration(t *testing.T) {
+	oldConfig := effective(t, 1, intervalSchedule("schedule.old", 1, configuration.MisfireRunOnce))
+	newConfig := effective(t, 1, intervalSchedule("schedule.new", 1, configuration.MisfireRunOnce))
+	directory := filepath.Join(t.TempDir(), "cycle")
+	store, _ := OpenFileStore(directory)
+	locker, _ := NewFileLocker(directory)
+	if err := store.Save(NewState(oldConfig.ID)); err != nil {
+		t.Fatal(err)
+	}
+	start := time.Date(2026, 8, 25, 12, 0, 0, 0, time.UTC)
+	executor := &fakePipeline{}
+	cycle := Cycle{
+		Configuration: newConfig,
+		Selection:     command.Selection{Source: "live"},
+		LockOwnerID:   "cycle.recovered",
+		Store:         store,
+		Locker:        locker,
+		Clock: &sequenceClock{values: []ClockObservation{
+			{WallTime: start, SessionID: "generation.recovered"},
+			{WallTime: start.Add(time.Minute), SessionID: "generation.recovered", MonotonicNS: int64(time.Minute)},
+			{WallTime: start.Add(time.Minute), SessionID: "generation.recovered", MonotonicNS: int64(time.Minute)},
+			{WallTime: start.Add(time.Minute), SessionID: "generation.recovered", MonotonicNS: int64(time.Minute)},
+		}},
+		TimeZones:      SystemTimeZones{},
+		ResolveCommand: ResolveCanonicalCommand,
+		Pipeline:       executor,
+	}
+	result, err := cycle.Run(context.Background())
+	if err != nil {
+		t.Fatalf("recovered cycle did not converge after configuration change: %v", err)
+	}
+	if result.FinalState.ConfigurationID != newConfig.ID || result.FinalState.SessionID != "generation.recovered" {
+		t.Fatalf("recovered state retained superseded ownership: %#v", result.FinalState)
+	}
+	loaded, err := store.Load()
+	if err != nil || loaded.ID != result.FinalState.ID {
+		t.Fatalf("recovered scheduler state was not published atomically: %#v %v", loaded, err)
+	}
+	result, err = cycle.Run(context.Background())
+	if err != nil || executor.calls != 1 || len(result.Traces) != 1 || !result.Traces[0].Execution.Complete {
+		t.Fatalf("recovered generation did not complete fresh canonical work: %#v calls=%d err=%v", result, executor.calls, err)
+	}
+}
+
 func TestStrictStateValidationAndCanonicalSerialization(t *testing.T) {
 	state := NewState("config:fixture")
 	data, err := MarshalStateCanonical(state)
