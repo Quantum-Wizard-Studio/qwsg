@@ -1,0 +1,108 @@
+# Task History 059: Approved Task
+
+## Task metadata
+
+- Task ID: `059`
+- Task slug: `qwsg-1-1-0-rc-5-practical-clean-host-acceptance`
+- Status: `complete with release-blocking product defect — practical acceptance FAIL`
+- Date generated: `2026-08-25` UTC
+- Human authority: Project Owner
+- Preferred owner communication language: English
+- Related prompt: `ai/prompts/059_CURRENT_TASK.md`
+
+## Lifecycle state
+
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded. On 2026-08-25 UTC the Project Owner authorized the complete twelve-step Practical Release Acceptance as one bounded run under the approved Authority Envelope. Task execution started through the canonical `qwsg-job` workflow.
+
+## Starting state
+
+- Repository root `/home/qws/web/qwsg.quantumwizard.hu/qwsg`, branch `main`, canonical HTTPS origin, `HEAD == origin/main == 6d5b71e82bba7b89828b8a69cdfa09c3c3acdcc6`, ahead/behind `0/0` after authorized fetch.
+- Framework `1.1.0`, QWSG `1.1.0-rc.5`, active Task 059 prompt/history identity, Builder input, lifecycle, diversion/test-task audit, and release plumbing validated.
+- Index and tracked tree were clean. Task 059's generated prompt/history and the excluded Owner blueprint were the only untracked paths. The blueprint was inspected by pathname metadata only and remained untouched.
+- Historical Task 057 prompt/history and RC.5 acceptance records were hashed into the private snapshot. The exact candidate identities in the Task 059 prompt match preserved Task 057 evidence.
+- No VPS access, candidate operation, credential handling, tag, Release, upload, publication, deployment, announcement, or Task 060 occurred before task start.
+- Initial validation used two obsolete test command paths; inspection resolved them to `ai/tests/test-next-task.sh` and `scripts/test-release-plumbing.sh`, which passed. The sandboxed fetch attempt could not write `.git/FETCH_HEAD`; the authorized elevated `git fetch origin main` then passed. These were recoverable local orchestration issues, not product defects.
+
+## Snapshot
+
+- Private execution snapshot: `/tmp/qwsg-task059-execution.pyvqOw`, mode `0700`.
+- Readable tracked-HEAD archive SHA-256: `9c24b00bb786a4c3c679797d7017d4719f4df44050ba917f35000b34614b6ae0`.
+- The snapshot contains exact Task 059 prompt/history before-images, separate immutable Task 057 prompt/history copies, RC.5 protocol/acceptance copies, the new practical-evidence absence record, and bounded rollback instructions. Candidate bytes, credentials, private infrastructure identity, caches, unrelated files, and Owner content are excluded.
+- A basename collision in the first protected-history copy layout was diagnosed before repository mutation; separate prompt/history directories were created and exact comparison passed.
+
+## Work performed
+
+Execution baseline and rollback state were established.
+
+### Practical steps 1–2
+
+- **Step 1 — Fresh supported host baseline: PASS.** The first external interaction was Owner-operated privacy-safe baseline verification on the freshly reinstalled disposable host. Evidence reports Ubuntu `24.04`, `amd64`, ordinary-user context, and absence of installed QWSG, QWSG configuration/state, user unit, and acceptance directory before mutation. No private host/account identity was retained.
+- **Step 2 — Exact candidate receipt: PASS.** Because direct private VPS authentication is intentionally unavailable to the agent, the authorized Owner-workstation fallback transferred the exact two preserved RC.5 files after local source verification. Destination evidence reports exactly two regular non-symlink files, archive size `2951350`, archive SHA-256 `cfe300c0f1f312d80120f74a9f24bed4a64387471bf2097ddc63d94f0fb2f7b0`, sidecar SHA-256 `69f3eb4bf89dc126a7eafd08354eec37a941014171b3d1d70c6e6a4cf52e5eb0`, and `sha256sum -c` PASS.
+- Independent retained-local verification proved both Task 057 build twins remain byte-identical and match those archive/sidecar identities. The transfer was an inherent Owner-side action under the same Task 059 authorization, not a new engineering gate.
+
+### Practical steps 3–7
+
+- **Step 3 — Integrity and package safety: PASS.** Pre-extraction checks proved one canonical 25-member root, no duplicate/absolute/traversal entry, and only regular files/directories. Extraction was bounded to the acceptance directory. All 18 manifest entries passed; `MANIFEST.sha256` SHA-256 is `ae51aca0bc4ddc61b0daea3a87f0acabcde5ec9fd8fadddc050f0786d6915e9e`; binary SHA-256 is `5484aab96d5c3748e81b065fdb11ec8c34385589bb07ee7ea1b2b35fdffa6b93`. LICENSE, README, INSTALL, and RC.5 notes exist. The binary reports QWSG `1.1.0-rc.5`, commit `1025d36d05b2f6f919f0ea4ec4a7029f67536000`, controlled build time `2026-08-24T18:01:03Z`.
+- **Step 4 — Smart Install/readiness: PASS.** Unmodified `./bin/qwsg install --check` reported Ubuntu 24.04 amd64, glibc 2.39, non-root context, systemd 255, running user manager, and `filesystem.local_semantics` satisfied. Environment and installation domains were `ready`; product-visible next actions were install, setup, readiness. Historical F002/F003 boundaries receive additive RC.5 PASS evidence.
+- **Step 5 — Documented installation: PASS.** The packaged installer reverified every manifest entry, installed the immutable artifacts, did not enable/start the service, identified installed documentation, and handed off to `qwsg setup`/`qwsg readiness` exactly as documented.
+- **Step 6 — Guided setup: PASS.** Interactive setup displayed defaults, received explicit write confirmation, wrote the private configuration safely, and separately received explicit guided Guardian activation confirmation. No notification credential was entered and no manual service workaround was used.
+- **Step 7 — Guardian and state contract: PASS.** Guided activation prepared state, requested activation, and produced fresh canonical evidence. Independent checks proved no symlink at the state root or required path components, real state directory, current-user ownership, state/config directory mode `0700`, configuration file mode `0600`, configuration/state separation, no compatibility-migration evidence, and enabled/active service. Readiness reported installation, environment, and configuration ready; canonical evidence, service active/enabled/unit installed, and `filesystem.local_semantics` satisfied. Overall remained correctly `partial` only because external notification and lingering were not yet configured.
+- The Owner transcript included private host/path text despite the redaction request. Those identities are intentionally omitted from canonical evidence; only the privacy-safe classifications above are retained. No credential or notification identity was exposed.
+
+### Step 8 first notification attempt and diagnosis
+
+- Protected local SMTP configuration and credential storage completed without credential disclosure. Product preflight reported SMTP configuration and credential satisfied while TLS trust and network remained `unknown_requires_verification`, as designed before a real connection.
+- The single authorized controlled notification attempt failed with the privacy-safe product token `smtp_delivery_failed`; no receipt exists and no retry has been sent.
+- RC.5 source inspection confirms `starttls` opens ordinary TCP to the configured endpoint, creates an SMTP client, requires the advertised `STARTTLS` extension, negotiates TLS 1.2 or newer using SNI plus the system trust store, then performs password authentication with Go `smtp.PlainAuth`, followed by MAIL FROM, RCPT TO, DATA, and QUIT. This behavior matches standard explicit STARTTLS submission on port 587 when the provider advertises STARTTLS and AUTH PLAIN after TLS.
+- The RC.5 CLI deliberately collapses delivery-stage errors to `smtp_delivery_failed`. Its internal provider mapping distinguishes only some authentication/certificate text and otherwise records retryable failure; it cannot by itself separate TCP, TLS, AUTH mechanism/credential, sender, recipient, or later protocol rejection for this attempt.
+- Changing notification configuration changed the effective configuration identity. The still-running Guardian's prior canonical evidence therefore became correctly `missing_required` rather than being falsely reused. The service remains enabled and active; no restart or workaround has been performed. A natural scheduled cycle must publish fresh evidence for the new identity.
+- One bounded non-authenticating OpenSSL diagnostic connection passed TCP reachability, explicit SMTP STARTTLS negotiation, system certificate trust, and post-TLS `AUTH PLAIN` advertisement. This rules out TCP/network failure, TLS negotiation/trust failure, STARTTLS/implicit-TLS mismatch, and unsupported QWSG password-auth mechanism for the configured endpoint. The remaining safe categories are authentication rejection, sender rejection, recipient rejection, later SMTP policy/protocol rejection, or no safely available classification. No configuration/credential change and no second notification test occurred.
+- The provider's protected activity view returned `NO_CONNECTION_RECORDED` for the failed QWSG attempt. This does not contradict the successful transport probe because such views may omit pre-authentication or rejected sessions; it provides no safe basis for changing configuration. The next bounded diagnostic is authentication-only over the already verified TLS channel, with no SMTP envelope or message transmission.
+- The first authentication-only probe returned `OTHER_PROTOCOL_FAILURE`; it did not observe a standard success, recognized authentication rejection, temporary failure, or timeout. The returned terminal transcript showed command-text interleaving at the OpenSSL boundary, so orchestration corruption remains plausible. No configuration change or notification retry is justified from this ambiguous result. A final authentication-only diagnostic may retain and report only three-digit SMTP reply codes.
+- The intact authentication-only retry returned reply-code sequence `250,250,250,250,250,250,250,250,525,221`. The `525` occurred immediately after `AUTH PLAIN`; therefore the safe stage classification is `AUTHENTICATION_REJECTED`. TCP, STARTTLS, certificate trust, advertised AUTH PLAIN support, sender, recipient, and message transmission are not the failing stages. The initial classifier recognized common `530`/`534`/`535` responses but omitted provider-specific `525`; this was a diagnostic-classifier limitation, not a second product attempt. No SMTP envelope or message was sent.
+- The Owner privately verified/corrected the SMTP credential and QWSG reported `SMTP credential stored safely`; protected type/mode/ownership had already passed. A provider identity appeared in chat and is intentionally not retained in canonical evidence. No credential value was exposed. Authentication-only revalidation remains required before a second notification test.
+- Authentication-only revalidation returned reply-code sequence `250,250,250,250,250,250,250,250,235,221` and classification `PASS`. SMTP `235` proves the corrected protected credential is accepted over the verified STARTTLS channel. One controlled QWSG notification retry is now technically justified. The first failure is classified as a recoverable Owner-entered credential issue corrected within scope, not an RC.5 product/source/candidate defect.
+- A subsequent readiness report still classified `guardian.canonical_evidence` as `missing_required`, notification as `unknown_requires_verification`, Guardian domain `not_ready`, and overall `not_ready`, while service enabled/active and filesystem semantics remained satisfied. This evidence is retained truthfully and is not PASS.
+- Source diagnosis confirms the Guardian resolves and retains the effective configuration identity at process start; an ordinary scheduled cycle does not reload a changed configuration identity. The earlier expectation that a natural cycle alone would refresh it was incorrect. The already-required physical reboot or later documented restart can legitimately start Guardian with the new configuration and publish matching fresh evidence; neither may be used to relabel the pre-restart readiness result.
+- The returned console output again included private host/network identities. They are intentionally excluded from canonical evidence. The output did not include the controlled notification retry result, receipt confirmation, or independently sufficient physical-reboot evidence.
+- Owner clarification established that the reported receipt does not reliably correlate to the first failed QWSG test. It is therefore excluded from Task 059 acceptance evidence. The corrected-credential QWSG retry has not yet run, and no physical reboot has occurred. No false-negative delivery product defect is inferred from uncorrelated receipt evidence.
+- The single corrected-credential QWSG retry reported SMTP configuration and credential satisfied, then `QWSG test notification accepted by the configured SMTP server.` Product-side preflight/test therefore PASS. Independent receipt confirmation for this exact retry remains pending; SMTP acceptance alone is not counted as delivery.
+- **Step 8 — Protected notification: PASS.** The Owner independently confirmed receipt of the exact corrected-credential retry. Evidence includes protected regular current-user mode-0600 credential storage, preflight configuration/credential satisfaction, verified TCP/STARTTLS/TLS trust/AUTH PLAIN behavior, accepted authentication, QWSG SMTP acceptance, and actual receipt. No credential, address, provider/account identity, private response, host identity, or message/header content is retained. The first attempt's rejected credential was diagnosed and corrected within scope without source/candidate change; its uncorrelated receipt claim was excluded.
+
+### Step 9 reboot verification in progress
+
+- Post-reboot diagnostic evidence reports Guardian service `active`, `enabled`, and lingering `yes`; service/session monotonic timestamps were available. The additional assertion that Guardian must enter active state before the immediately reconnected SSH session returned FAIL.
+- That ordering assertion is stronger than Task 059's mandatory physical-reboot contract and is timing-sensitive during immediate reconnection. The required proof is a changed physical boot identity, new automatically recovered Guardian process, enabled/active service, persistence, and fresh post-reboot canonical evidence. No service restart or product workaround is authorized or performed; verification continues against those actual requirements.
+- The bounded timestamp diagnostic reproduced a material ordering failure, superseding the earlier timing-only hypothesis: physical boot identity changed; Guardian process identity changed; packaged unit is loaded, enabled, active, linked from `default.target`, and lingering is enabled. The user manager and user `default.target` both became active before login, but Guardian `ExecStart` and active entry occurred only after login. The failure boundary is `QWSG_EXEC_STARTED_AFTER_LOGIN_DESPITE_READY_USER_TARGET`. No corrective action or restart occurred. Read-only journal classification is required to distinguish a pre-login failed/skipped attempt from absence of a pre-login QWSG job.
+- Current-boot unit journal classification found six QWSG-unit-associated entries before login and seven after login, with no text-pattern match for start, started, condition failure, or service failure. Therefore absence of a pre-login job is ruled out, but raw-text-independent invocation correlation is still needed to decide whether the current invocation existed before login or a separate pre-login invocation failed/restarted. No correction has occurred.
+- Invocation correlation found one distinct pre-login invocation and two post-login invocation identities. The current active invocation has zero pre-login entries and six post-login entries; therefore a separate pre-login Guardian invocation did autostart but was replaced after login. Automatic start occurred, but survival/recovery is not yet PASS. The prior invocation's terminal-result category must be classified read-only before deciding whether this is a QWSG failure, user-manager replacement, or external stop.
+- Final read-only classification reports `NRestarts=1`, with no detected condition failure, explicit clean stop, manager replacement, signal/timeout/resource result, or manual restart evidence. Under the packaged `Restart=on-failure` contract, systemd started a pre-login Guardian invocation, encountered one privacy-safely unclassified transient failure, and performed one automatic restart. The current active invocation is that recovered process; its post-login timestamp does not prove login triggered initial autostart. No corrective action is justified. Stability plus fresh canonical evidence remain required before Step 9 can PASS; the unclassified first-invocation cause remains a disclosed evidence limitation unless later canonical evidence identifies it.
+- After more than one complete configured five-minute interval without restart or correction, readiness still reported canonical evidence `missing_required`, notification `unknown_requires_verification`, Guardian domain `not_ready`, and overall `not_ready`, while service active/enabled and lingering remained satisfied. This disproves a merely early readiness check.
+- Identity/state inspection proved the active invocation owns an active checkpoint with matching current configuration identity and a completed cycle. The current operator state also matches the CLI configuration identity and has publication reason `guardian_observed`, freshness `current`, Guardian `degraded`, completeness `partial`, and recommendations `inspect_evidence`/`verify_guardian_operation`.
+- **QWSG-059-F001 — post-reboot recovered Guardian fails canonical-evidence convergence — RELEASE BLOCKER.** RC.5 automatically started before login, suffered one unclassified transient invocation failure, and systemd recovered it through `Restart=on-failure`. The recovered active/running current invocation owns the matching checkpoint and completed a cycle, yet fresh canonical state remains persistently degraded rather than converging to running. Readiness therefore remains correctly not-ready. This is not stale/missing evidence, configuration mismatch, disabled/inactive service, absent lingering, missing unit dependency, or insufficient wait time. Correcting restart/exit/cycle evidence reconciliation requires product source and new candidate bytes, which is outside Task 059 authority and triggers mandatory STOP.
+- Step 9 physical reboot/recovery is **FAIL**. Steps 10–12 are not executed. No restart, configuration rewrite, notification resend, uninstall, reinstall, source change, candidate modification, or workaround occurred after the defect was established.
+
+### Owner decision and terminal verdict
+
+- On 2026-08-25 UTC the Project Owner accepted the mandatory STOP and `QWSG-059-F001` as a genuine RC.5 product defect and release blocker. No further RC.5 practical steps are authorized.
+- Twelve-step result: Steps 1–8 PASS; Step 9 FAIL; Steps 10–12 NOT EXECUTED.
+- Practical Acceptance: **FAIL**.
+- QWSG `1.1.0-rc.5`: **NOT READY FOR RELEASE**.
+- Final VPS state at STOP: exact RC.5 remains installed; Guardian service is enabled and active with lingering enabled, but fresh matching canonical state is degraded/partial and readiness is not-ready. The VPS is not modified further.
+- Product defect: `QWSG-059-F001` requires a separately authorized source correction and replacement candidate. No other RC.5 product defect was established. The first SMTP failure was a corrected Owner-input credential issue; the exact corrected retry and actual receipt passed.
+- Evidence limitations: the first pre-login invocation's exact transient terminal cause was not privacy-safely classified, and Steps 10–12 were not executed because the release-blocking Step 9 defect triggered mandatory STOP. Neither limitation is converted to PASS.
+- Technical suitability: RC.5 is not technically suitable to proceed directly toward QWSG 1.1.0 release preparation. A correction and replacement-candidate acceptance are required.
+
+## Verification
+
+Builder input, metadata, prompt/history identity, Framework 1.1.0, active lifecycle, diverted test-task audit, release plumbing, Git whitespace, repository identity, snapshot readability, modes, hashes, absence claims, protected-history identity, and rollback instructions validated successfully. Focused Framework (24), Builder (44), lifecycle (29), and diversion (36) assertions passed. Full `go test ./...`, repository-wide `go test -race ./...`, `go vet ./...`, Go formatting, and release-plumbing validation passed. Privacy scanning found no credential, provider/account, recipient, private host/network identity, message/header data, or Owner content in Task 059 integration paths. Exact comparisons prove Task 057 prompt/history/protocol/acceptance evidence remains unchanged.
+
+## Rollback
+
+Use `/tmp/qwsg-task059-execution.pyvqOw/ROLLBACK.md` only for the literal Task 059 repository targets after identity and collision checks. Never rewrite published history or historical Task 057 evidence.
+
+## Completion state
+
+`complete with release-blocking product defect — practical acceptance FAIL`
+
+Task 059 completed truthfully at the accepted mandatory STOP boundary. Practical Acceptance is FAIL; RC.5 is NOT READY FOR RELEASE. No claim is made that QWSG 1.1.0 is released.
