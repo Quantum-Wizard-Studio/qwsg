@@ -84,6 +84,11 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - Packaged systemd, installer/uninstaller, notification, credential,
   configuration-store, user-service, and Task 059/RC.5 evidence paths are
   unchanged. No RC.6 archive/sidecar or rc.6 tag exists.
+- Implementation/evidence commit
+  `7e3f94667fa57cae91969ab3de80e99a87eb1730` was explicitly staged from the
+  twelve reviewed Task 060 paths, committed as `fix: restore Guardian evidence
+  convergence`, clean-fast-forward pushed, and verified identical at local
+  `HEAD`, `origin/main`, and direct Forgejo `refs/heads/main`.
 
 ## Rollback
 
@@ -91,6 +96,9 @@ The Engineering Task Builder generated and transactionally installed this matchi
   proving current identities. Remove only new Task 060 files whose prior
   absence and current identity are proven. Do not use broad reset, checkout,
   restore, clean, history rewriting, or touch excluded Owner content.
+- Lifecycle closure snapshot: `/tmp/qwsg-task060-lifecycle-close.hXY85y`, mode
+  `0700`, with hashed prompt/history before-images and exact bounded restore
+  instructions.
 
 ## Completion state
 
