@@ -18,6 +18,8 @@ import (
 
 type localUpdateRecord struct{ Schema, Installed, Previous, Backup, UpdatedAt string }
 
+var installedQWSGBinary = "/usr/local/bin/qwsg"
+
 func runUpdate(args []string, out, errout io.Writer) int {
 	if len(args) > 0 && isHelp(args[0]) {
 		writeUpdateHelp(out)
@@ -55,14 +57,19 @@ func runUpdate(args []string, out, errout io.Writer) int {
 }
 
 func runUpdateCheck(out, errout io.Writer) int {
+	installed, err := installedVersion()
+	if err != nil {
+		fmt.Fprintln(errout, "Update check failed: installed QWSG identity unavailable.")
+		return 1
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
 	defer cancel()
-	release, relation, err := updatecore.Discover(ctx, updatecore.HTTPClient(), "", version)
+	release, relation, err := updatecore.Discover(ctx, updatecore.HTTPClient(), "", installed)
 	if err != nil {
 		fmt.Fprintln(errout, "Update check failed: release discovery unavailable.")
 		return 1
 	}
-	fmt.Fprintf(out, "Installed: %s\nAvailable: %s\nRelation: %s\n", safeText(version), safeText(release.Version), relation)
+	fmt.Fprintf(out, "Installed: %s\nAvailable: %s\nRelation: %s\n", safeText(installed), safeText(release.Version), relation)
 	return 0
 }
 
@@ -92,6 +99,11 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Update orchestration must run as the intended non-root QWSG user.")
 		return 1
 	}
+	installed, err := installedVersion()
+	if err != nil {
+		fmt.Fprintln(errout, "Update failed: installed QWSG identity unavailable.")
+		return 1
+	}
 	state, err := localStateRoot()
 	if err != nil {
 		fmt.Fprintln(errout, "Update failed: local state unavailable.")
@@ -104,7 +116,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 	}
 	var staged updatecore.Staged
 	if localArchive != "" {
-		if updatecore.Classify(version, target) != updatecore.Newer {
+		if updatecore.Classify(installed, target) != updatecore.Newer {
 			fmt.Fprintln(errout, "Update refused: target is not a supported newer version.")
 			return 1
 		}
@@ -114,7 +126,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		defer cancel()
 		var release updatecore.Release
 		var relation updatecore.Relation
-		release, relation, err = updatecore.Discover(ctx, updatecore.HTTPClient(), "", version)
+		release, relation, err = updatecore.Discover(ctx, updatecore.HTTPClient(), "", installed)
 		if err == nil && relation != updatecore.Newer {
 			fmt.Fprintf(out, "QWSG is not updated: available release is %s (%s).\n", safeText(release.Version), relation)
 			return 0
@@ -133,7 +145,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Update failed: package verification failed.")
 		return 1
 	}
-	migration, err := updatecore.PlanMigration(version, pkg.Provenance.Version)
+	migration, err := updatecore.PlanMigration(installed, pkg.Provenance.Version)
 	if err != nil || migration.Validate() != nil {
 		fmt.Fprintln(errout, "Update refused: no deterministic compatible migration path.")
 		return 1
@@ -149,7 +161,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 	uid := strconv.Itoa(os.Getuid())
 	txid := time.Now().UTC().Format("20060102T150405.000000000Z")
 	backup := filepath.Join("/var/lib/qwsg/rollback", uid, txid)
-	err = runSudo("privileged-apply", "--archive", staged.Archive, "--sidecar", staged.Sidecar, "--version", pkg.Provenance.Version, "--sha256", staged.SHA256, "--backup", backup, "--from", version)
+	err = runSudo("privileged-apply", "--archive", staged.Archive, "--sidecar", staged.Sidecar, "--version", pkg.Provenance.Version, "--sha256", staged.SHA256, "--backup", backup, "--from", installed)
 	if err == nil {
 		err = runSystemctl("daemon-reload")
 	}
@@ -174,12 +186,12 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Update failed after mutation; automatic package rollback was attempted.")
 		return 1
 	}
-	record := localUpdateRecord{Schema: "qwsg.update-local/1", Installed: pkg.Provenance.Version, Previous: version, Backup: backup, UpdatedAt: time.Now().UTC().Format(time.RFC3339Nano)}
+	record := localUpdateRecord{Schema: "qwsg.update-local/1", Installed: pkg.Provenance.Version, Previous: installed, Backup: backup, UpdatedAt: time.Now().UTC().Format(time.RFC3339Nano)}
 	if err = saveUpdateRecord(updateRoot, record); err != nil {
 		fmt.Fprintln(errout, "Update installed but local rollback metadata could not be recorded.")
 		return 1
 	}
-	fmt.Fprintf(out, "QWSG updated safely: %s -> %s\nRollback available: qwsg update rollback\n", safeText(version), safeText(pkg.Provenance.Version))
+	fmt.Fprintf(out, "QWSG updated safely: %s -> %s\nRollback available: qwsg update rollback\n", safeText(installed), safeText(pkg.Provenance.Version))
 	return 0
 }
 
@@ -370,7 +382,7 @@ func runSystemctl(action string) error {
 }
 
 func validateInstalledVersion(want string) error {
-	output, err := exec.Command("/usr/local/bin/qwsg", "version").Output()
+	output, err := exec.Command(installedQWSGBinary, "version").Output()
 	if err != nil {
 		return err
 	}
@@ -379,6 +391,22 @@ func validateInstalledVersion(want string) error {
 		return fmt.Errorf("installed version mismatch")
 	}
 	return exec.Command("/usr/local/bin/qwsg", "config", "validate").Run()
+}
+
+func installedVersion() (string, error) {
+	output, err := exec.Command(installedQWSGBinary, "version").Output()
+	if err != nil {
+		return "", err
+	}
+	line := strings.SplitN(string(output), "\n", 2)[0]
+	if !strings.HasPrefix(line, "QWSG ") {
+		return "", fmt.Errorf("installed version output invalid")
+	}
+	value := strings.TrimPrefix(line, "QWSG ")
+	if _, err = updatecore.ParseVersion(value); err != nil {
+		return "", err
+	}
+	return value, nil
 }
 func runSudo(args ...string) error {
 	executable, err := os.Executable()
