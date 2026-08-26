@@ -2,31 +2,32 @@
 set -eu
 
 repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
-test "$(tr -d '\r\n' < "$repo/VERSION")" = 1.1.0-rc.6
+test "$(tr -d '\r\n' < "$repo/VERSION")" = 1.1.0
+test -f "$repo/docs/release/RELEASE_NOTES_1.1.0.md"
 test -f "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.6.md"
 test -f "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.5.md"
 test -f "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.4.md"
 test -f "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.3.md"
 test -f "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.2.md"
-test ! -e "$repo/dist/qwsg-1.1.0-rc.6-linux-amd64.tar.gz"
+test ! -e "$repo/dist/qwsg-1.1.0-linux-amd64.tar.gz"
 test "$(QWSG_RELEASE_VALIDATE_ONLY=1 "$repo/scripts/build-release.sh")" = \
-  'release build: identity 1.1.0-rc.6 is valid'
-grep -F '1.1 RC requires explicit SOURCE_DATE_EPOCH' "$repo/scripts/build-release.sh" >/dev/null
-grep -F '1.1 RC requires the full 40-character commit' "$repo/scripts/build-release.sh" >/dev/null
+  'release build: identity 1.1.0 is valid'
+grep -F 'QWSG 1.1 requires explicit SOURCE_DATE_EPOCH' "$repo/scripts/build-release.sh" >/dev/null
+grep -F 'QWSG 1.1 requires the full 40-character commit' "$repo/scripts/build-release.sh" >/dev/null
 grep -F 'output archive or sidecar already exists' "$repo/scripts/build-release.sh" >/dev/null
 
 work=$(mktemp -d /tmp/qwsg-release-check.XXXXXX)
 trap 'rm -rf "$work"' EXIT HUP INT TERM
 if "$repo/scripts/build-release.sh" >"$work/missing-metadata" 2>&1; then exit 1; fi
-grep -F '1.1 RC requires explicit SOURCE_DATE_EPOCH' "$work/missing-metadata" >/dev/null
+grep -F 'QWSG 1.1 requires explicit SOURCE_DATE_EPOCH' "$work/missing-metadata" >/dev/null
 if SOURCE_DATE_EPOCH=0 BUILD_COMMIT=0123456789abcdef "$repo/scripts/build-release.sh" >"$work/short-commit" 2>&1; then exit 1; fi
-grep -F '1.1 RC requires the full 40-character commit' "$work/short-commit" >/dev/null
+grep -F 'QWSG 1.1 requires the full 40-character commit' "$work/short-commit" >/dev/null
 mkdir "$work/dist"
-touch "$work/dist/qwsg-1.1.0-rc.6-linux-amd64.tar.gz"
+touch "$work/dist/qwsg-1.1.0-linux-amd64.tar.gz"
 if SOURCE_DATE_EPOCH=0 BUILD_COMMIT=0123456789abcdef0123456789abcdef01234567 DIST_DIR="$work/dist" \
   "$repo/scripts/build-release.sh" >"$work/collision" 2>&1; then exit 1; fi
 grep -F 'output archive or sidecar already exists' "$work/collision" >/dev/null
-grep -F 'qwsg-1.1.0-rc.6-linux-amd64.tar.gz' "$repo/docs/installation/INSTALL.md" >/dev/null
+grep -F 'qwsg-1.1.0-linux-amd64.tar.gz' "$repo/docs/installation/INSTALL.md" >/dev/null
 grep -F 'README.md' "$repo/docs/installation/INSTALL.md" >/dev/null
 grep -F 'INSTALL.md' "$repo/README.md" >/dev/null
 
@@ -129,5 +130,6 @@ grep -F -- '-buildvcs=false' "$repo/Makefile" >/dev/null
 grep -F '1.1.0-rc.4' "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.4.md" >/dev/null
 grep -F '1.1.0-rc.5' "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.5.md" >/dev/null
 grep -F '1.1.0-rc.6' "$repo/docs/release/RELEASE_NOTES_1.1.0-rc.6.md" >/dev/null
+grep -F 'QWSG 1.1.0' "$repo/docs/release/RELEASE_NOTES_1.1.0.md" >/dev/null
 
-printf '%s\n' 'PASS: QWSG 1.1.0-rc.6 release plumbing'
+printf '%s\n' 'PASS: QWSG 1.1.0 final release plumbing'

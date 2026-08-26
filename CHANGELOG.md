@@ -4,6 +4,8 @@ All notable changes to Quantum Wizard Server Guardian will be recorded here. Thi
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-26
+
 ### Fixed
 
 - Recovered Guardian processes now replace persisted Scheduler state owned by

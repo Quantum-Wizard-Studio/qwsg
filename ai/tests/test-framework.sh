@@ -169,7 +169,11 @@ expect_failure "$root" ./ai/scripts/framework-check.sh
 
 root="$(new_fixture incomplete-authority-envelope)"
 cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
-sed -i '/\*\*Mandatory STOP conditions:\*\*/d' "$root/ai/prompts/001_CURRENT_TASK.md"
+if grep -Fq '**Task-specific STOP conditions:**' "$root/ai/prompts/001_CURRENT_TASK.md"; then
+    sed -i '/\*\*Task-specific STOP conditions:\*\*/d' "$root/ai/prompts/001_CURRENT_TASK.md"
+else
+    sed -i '/\*\*Mandatory STOP conditions:\*\*/d' "$root/ai/prompts/001_CURRENT_TASK.md"
+fi
 expect_failure "$root" ./ai/scripts/framework-check.sh
 
 root="$(new_fixture concise-v2-authority-envelope)"
