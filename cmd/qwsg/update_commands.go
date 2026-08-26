@@ -31,6 +31,9 @@ func runUpdate(args []string, out, errout io.Writer) int {
 	if len(args) > 0 && args[0] == "privileged-rollback" {
 		return runPrivilegedRollback(args[1:], errout)
 	}
+	if len(args) > 0 && args[0] == "privileged-discard" {
+		return runPrivilegedDiscard(args[1:], errout)
+	}
 	if len(args) > 0 && args[0] == "check" {
 		if len(args) != 1 {
 			return usageError(errout, "update check does not accept options")
@@ -114,6 +117,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Update failed: private update state unavailable.")
 		return 1
 	}
+	previousRecord, _ := loadUpdateRecord(updateRoot)
 	var staged updatecore.Staged
 	if localArchive != "" {
 		if updatecore.Classify(installed, target) != updatecore.Newer {
@@ -191,6 +195,9 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Update installed but local rollback metadata could not be recorded.")
 		return 1
 	}
+	if previousRecord.Backup != "" && previousRecord.Backup != backup {
+		_ = runSudo("privileged-discard", "--backup", previousRecord.Backup)
+	}
 	fmt.Fprintf(out, "QWSG updated safely: %s -> %s\nRollback available: qwsg update rollback\n", safeText(installed), safeText(pkg.Provenance.Version))
 	return 0
 }
@@ -248,6 +255,29 @@ func runPrivilegedRollback(args []string, errout io.Writer) int {
 	}
 	if err = updatecore.Rollback("/", values["--backup"]); err != nil {
 		fmt.Fprintln(errout, "privileged rollback transaction failed")
+		return 1
+	}
+	if err = os.RemoveAll(values["--backup"]); err != nil {
+		fmt.Fprintln(errout, "privileged rollback cleanup failed")
+		return 1
+	}
+	return 0
+}
+
+func runPrivilegedDiscard(args []string, errout io.Writer) int {
+	if os.Geteuid() != 0 {
+		return usageError(errout, "privileged discard helper requires root")
+	}
+	values, err := parsePairs(args, "--backup")
+	if err != nil || !validBackup(values["--backup"]) {
+		return usageError(errout, "unsafe discard request")
+	}
+	if _, err = updatecore.ReadTransaction(values["--backup"]); err != nil {
+		fmt.Fprintln(errout, "privileged discard validation failed")
+		return 1
+	}
+	if err = os.RemoveAll(values["--backup"]); err != nil {
+		fmt.Fprintln(errout, "privileged discard failed")
 		return 1
 	}
 	return 0
