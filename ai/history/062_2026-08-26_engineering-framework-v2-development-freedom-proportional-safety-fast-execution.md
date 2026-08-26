@@ -4,11 +4,11 @@
 
 - Task ID: `062`
 - Task slug: `engineering-framework-v2-development-freedom-proportional-safety-fast-execution`
-- Status: `active`
+- Status: `complete`
 - Date generated: `2026-08-26` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/062_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/062_2026-08-26_engineering-framework-v2-development-freedom-proportional-safety-fast-execution.md`
 
 ## Lifecycle state
 
@@ -119,6 +119,19 @@ Use `/tmp/qwsg-task062-prechange.Eg2dU9/ROLLBACK.md` only for literal
 Task 062 targets after verifying current identities and collision safety. Broad
 reset/checkout/clean/history rewrite and Owner-content access are forbidden.
 
+## Integration and closure
+
+- Implementation commit:
+  `1ff91badf1467b0344757990a8cc45a331aec7c7`
+  (`framework: deliver engineering framework 2.0.0`).
+- Pre-push `HEAD == origin/main` at `d3ee69bc3bbbc012eaaff88100764404a5856313`
+  and divergence was `0 0`. The implementation push was a clean fast-forward.
+- Push dry-run and push both reported `d3ee69b..1ff91ba main -> main`.
+- Direct Forgejo `refs/heads/main` returned
+  `1ff91badf1467b0344757990a8cc45a331aec7c7` after the implementation push.
+- Task 062 is archived without a successor. Canonical idle and the closure
+  commit's direct Forgejo identity are verified after the closure push.
+
 ## Completion state
 
-`complete — Framework 2.0.0 implemented and validated; integration and canonical archival follow in the authorized closure cycle`
+`complete — Framework 2.0.0 implemented, validated, integrated, and archived to canonical idle`

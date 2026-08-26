@@ -1,4 +1,4 @@
-# Current Engineering Task 062: Engineering Framework v2 — Development Freedom, Proportional Safety and Fast Execution
+# Archived Engineering Task 062: Engineering Framework v2 — Development Freedom, Proportional Safety and Fast Execution
 
 ## Task Metadata
 
