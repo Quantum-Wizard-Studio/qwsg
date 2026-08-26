@@ -4,15 +4,15 @@
 
 - Task ID: `064`
 - Task slug: `native-update-rollback-system`
-- Status: `active`
+- Status: `complete`
 - Date generated: `2026-08-26` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/064_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/064_2026-08-26_native-update-rollback-system.md`
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded and implementation began under Framework 2.0 Standard Execution Authority.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded and implementation completed under Framework 2.0 Standard Execution Authority. Task 064 closed after validated local implementation, deterministic private candidate construction, real external update/rollback acceptance, evidence integration, clean-fast-forward push and canonical archival.
 
 ## Starting state
 
@@ -157,6 +157,10 @@ The Engineering Task Builder generated and transactionally installed this matchi
   verifier, privacy checks, Git whitespace and repository safety PASS.
 - Deterministic twin construction, frozen candidate verification and bounded
   external update/rollback acceptance PASS.
+- Evidence integration commit
+  `fd32498a69205f3b23770bc5aed623835a9408ee` was pushed clean-fast-forward;
+  `HEAD`, `origin/main` and direct Forgejo `main` verification agreed before
+  lifecycle archival.
 
 ## Rollback
 
@@ -168,5 +172,4 @@ credentials and compatible state remain outside package rollback payloads.
 
 ## Completion state
 
-Implementation and external acceptance complete; final integration and
-canonical lifecycle closure in progress.
+`complete — native update and explicit rollback foundation validated locally and externally; private QWSG 1.2.0-rc.1 candidate remains unpublished; final VPS product state is operational official QWSG 1.1.0; Task 064 canonically archived and lifecycle idle`
