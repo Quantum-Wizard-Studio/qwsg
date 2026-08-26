@@ -264,6 +264,10 @@ The Engineering Task Builder generated and transactionally installed this matchi
   source changed in Task 061; the frozen candidate identities remain
   immutable, and the unrelated Owner blueprint remained excluded and
   untouched.
+- Evidence integration commit `6677e5e6c5fa515412302dde8fd9e76060b07fa4`
+  was clean-fast-forward pushed to `origin/main` and verified directly at the
+  Forgejo `refs/heads/main`. Canonical lifecycle closure then archived the
+  completed prompt and returned the active prompt namespace to idle.
 
 ## Rollback
 

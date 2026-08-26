@@ -1,4 +1,4 @@
-# Current Engineering Task 061: QWSG 1.1.0-rc.6 Candidate Construction and Targeted External Re-Acceptance
+# Archived Engineering Task 061: QWSG 1.1.0-rc.6 Candidate Construction and Targeted External Re-Acceptance
 
 ## Task Metadata
 
