@@ -180,6 +180,8 @@ prepare_next() {
 - `ai/core/11_ENGINEERING_LIFECYCLE.md`
 - `ai/core/14_PROMPT_WORKFLOW.md`
 - `ai/core/16_GIT_POLICY.md`
+- `ai/core/17_EXECUTION_MODEL.md`
+- `ai/core/18_BOUNDED_DIAGNOSTIC_RUNNER.md`
 - `ai/config/engineering-project.conf`
 
 ## Starting State Verification

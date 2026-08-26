@@ -6,7 +6,7 @@ This document is the official, reusable, AI-friendly standard for defining, exec
 
 ## Status
 
-Definitive and mandatory from `2026-07-18`, refined by Engineering Update E001. It does not authorize work by itself; task scope still requires human authority.
+Definitive and mandatory from `2026-07-18`, revised for Framework 2.0.0. It does not authorize work by itself; task scope still requires human authority.
 
 ## Backward compatibility
 
@@ -15,9 +15,9 @@ The original job fields remain required with their original meanings: Objective 
 ## Mandatory task lifecycle
 
 1. **Authority and scope:** identify the human-authorized objective, Authority
-   Envelope, deliverables, exclusions, and stop conditions. Do not broaden scope
-   by assumption. Builder approval of a complete envelope authorizes task start
-   and its routine in-envelope execution; it does not authorize reserved work.
+   Envelope, deliverables, exclusions, and boundaries. Builder approval grants
+   Standard Execution Authority from `17_EXECUTION_MODEL.md`; it does not
+   authorize reserved work or broaden scope by assumption.
 2. **Read governing documents:** read the constitution, agent rules, relevant standards, policies, system records, and prior task history before changing the project. Validate the versioned project configuration and canonical Git policy; never source configuration or treat project-overridable data as authority to weaken mandatory safeguards.
 3. **Inspect:** record the exact relevant environment, Git, ownership,
    permission, ACL, dependency, and file state. Diagnose and correct recoverable
@@ -57,30 +57,22 @@ Explicit exclusions, forbidden actions, deferred work, and the next milestone th
 
 ### 5. Authority Envelope
 
-Every newly Builder-approved task must explicitly define all of these
-categories:
+Framework 2.0 tasks use a concise envelope with four categories:
 
-1. authorized paths, components, systems, and people;
-2. authorized routine operation categories;
-3. bounded diagnosis, correction, and retest authority;
-4. repository integration authority;
-5. lifecycle completion authority;
-6. explicitly permitted external actions;
-7. evidence and rollback requirements;
-8. Owner-reserved operations; and
-9. mandatory STOP conditions.
+1. **Task targets and boundaries:** the objective, authorized components, and
+   exclusions that bound Standard Execution Authority.
+2. **Permitted external actions:** external systems, people, privilege, or
+   physical actions explicitly authorized; `none` is valid.
+3. **Owner-reserved decisions:** task-specific decisions retained by the Owner.
+4. **Task-specific STOP conditions:** additional boundaries beyond the mandatory
+   STOP semantics in `17_EXECUTION_MODEL.md`; `none beyond the standard` is
+   valid.
 
-The envelope is the complete execution authority for the approved task. It may
-authorize snapshot, edits, tests, documentation, explicit path staging, staged
-diff review, task-scoped commits, push dry-run, clean fast-forward push,
-post-push validation, and canonical closure without intermediate approval.
-Ambiguity does not expand authority. Credentials, material scope or architecture
-changes, unplanned destructive or external mutation, unresolved security or
-privacy uncertainty, privilege escalation, tags, Releases, publication, and
-deployment remain reserved unless the Project Owner explicitly says otherwise.
-
-Historical tasks created before Framework 1.1.0 remain valid under their
-recorded authority and are not rewritten to add this section.
+Snapshot, rollback, ordinary local edits, diagnose/fix/retest iterations,
+proportional validation, task-scoped documentation, safe targeted Git
+integration, and lifecycle closure are inherited. Ambiguity never expands the
+task's targets or external authority. Legacy nine-category Framework 1.1
+envelopes remain valid and are not rewritten.
 
 ### 6. Required Reading
 
@@ -137,7 +129,7 @@ The Web Console, Installer, and future end-user documentation must support multi
 
 The authoritative state-transition, completion-gate, transactional preparation, and No Task Without History rules are defined in `11_ENGINEERING_LIFECYCLE.md`.
 
-Every current engineering task has one active English prompt named `NNN_CURRENT_TASK.md` and one independent history file. When the latest task is complete and archived and no next task is authorized, `ai/prompts/` is empty; this is the canonical idle state, not a missing record. The prompt follows the required task structure above, uses the semantic states `draft`, `approved`, `active`, `complete`, `superseded`, or `archived without execution`, and separates unapproved preparation from approved execution. Prior prompts move to `ai/archive_prompts/`; archived prompts and histories remain committed. Draft preparation or prompt archiving never grants execution authority; Builder approval grants only the recorded Authority Envelope. Detailed numbering, naming, rotation, and compatibility rules are maintained in `14_PROMPT_WORKFLOW.md`.
+Every current engineering task has one active English prompt named `NNN_CURRENT_TASK.md` and one independent history file. When the latest task is complete and archived and no next task is authorized, `ai/prompts/` is empty; this is the canonical idle state, not a missing record. The prompt follows the required task structure above, uses the semantic states `draft`, `approved`, `active`, `complete`, `superseded`, or `archived without execution`, and separates unapproved preparation from approved execution. Prior prompts move to `ai/archive_prompts/`; archived prompts and histories remain committed. Draft preparation or prompt archiving never grants execution authority; Builder approval grants Standard Execution Authority bounded by the recorded Authority Envelope. Detailed numbering, naming, rotation, and compatibility rules are maintained in `14_PROMPT_WORKFLOW.md`.
 
 The general Engineering History remains a concise milestone index. It must not become an infinitely growing task log; detailed evidence belongs in the independent task history record.
 
@@ -150,6 +142,11 @@ referenced validation file. `ai/scripts/framework-check.sh` validates them.
 Explicit approval, one-active-task enforcement, snapshots, rollback, targeted
 staging, history, and completion evidence are mandatory core rules and cannot be
 disabled by project configuration.
+
+Failure classification, proportional validation, development/release
+separation, and evidence reuse follow `17_EXECUTION_MODEL.md`. External
+multi-check diagnostics should use `18_BOUNDED_DIAGNOSTIC_RUNNER.md` when
+practical.
 
 ## Completion gate
 

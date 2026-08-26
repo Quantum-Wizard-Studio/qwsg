@@ -210,15 +210,7 @@ validate_active_task_structure() {
         fi
         grep -Fq 'through the Engineering Task Builder' "$prompt" ||
             fail 'active task lacks generated owner approval evidence'
-        local authority_label
-        for authority_label in 'Authorized paths/components/systems' \
-            'Routine operations' 'Correction/retest authority' \
-            'Repository integration' 'Lifecycle completion' \
-            'Permitted external actions' 'Evidence and rollback' \
-            'Owner-reserved operations' 'Mandatory STOP conditions'; do
-            grep -Fq "**$authority_label:**" "$prompt" ||
-                fail "active task Authority Envelope lacks category: $authority_label"
-        done
+        validate_authority_envelope "$prompt" 'active task Authority Envelope'
     fi
 
     while IFS= read -r line || [[ -n "$line" ]]; do
@@ -235,6 +227,24 @@ validate_active_task_structure() {
                 fail "unsafe broad staging command outside Out of Scope: $trimmed"
         fi
     done <"$prompt"
+}
+
+validate_authority_envelope() {
+    local file="$1" label="$2" authority_label legacy=true concise=true
+    for authority_label in 'Authorized paths/components/systems' \
+        'Routine operations' 'Correction/retest authority' \
+        'Repository integration' 'Lifecycle completion' \
+        'Permitted external actions' 'Evidence and rollback' \
+        'Owner-reserved operations' 'Mandatory STOP conditions'; do
+        grep -Fq "**$authority_label:**" "$file" || legacy=false
+    done
+    for authority_label in 'Task targets and boundaries' \
+        'Permitted external actions' 'Owner-reserved decisions' \
+        'Task-specific STOP conditions'; do
+        grep -Fq "**$authority_label:**" "$file" || concise=false
+    done
+    [[ "$legacy" == true || "$concise" == true ]] ||
+        fail "$label must use either the Framework 1.1 legacy or Framework 2.0 concise categories"
 }
 
 validate_active_task_structure

@@ -39,7 +39,7 @@ At most one active Markdown prompt may exist in `ai/prompts/`. Governance docume
 
 ## Required structure
 
-Each Framework 1.1.0 active prompt follows `ai/core/08_JOB_TEMPLATE.md` and
+Each Framework 2.0.0 active prompt follows `ai/core/08_JOB_TEMPLATE.md` and
 contains Task ID, title, task slug, Objective, Scope, Out of Scope, Authority
 Envelope, Required Reading, Starting State Verification, Snapshot Requirements,
 Risk Assessment, Planned Work, Rollback Plan, Deliverables, Verification,
@@ -94,8 +94,10 @@ paths, and configured validation argv. Older isolated compatibility fixtures
 without `ai/framework/VERSION` retain their bounded legacy validation behavior.
 
 Preparing or reviewing a draft does not authorize execution. Canonical Builder
-installation with explicit Owner approval creates an executable task and
-authorizes its complete Authority Envelope without a second routine start gate.
+installation with explicit Owner approval creates an executable task and grants
+Standard Execution Authority bounded by its Authority Envelope without a
+second routine start gate. New envelopes may use the concise v2 categories;
+legacy nine-category envelopes remain valid.
 Archiving never creates authority for another task. Prompts contain
 instructions and acceptance criteria, not secrets, credentials, unverified
 environment claims, application output, or completed architecture decisions.

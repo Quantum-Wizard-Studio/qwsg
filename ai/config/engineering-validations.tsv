@@ -2,6 +2,10 @@
 job-check	bin/job	--check
 lifecycle-check	ai/scripts/next-task.sh	--check
 test-task-check	bin/job	--check-test-tasks
+framework-self-test	ai/tests/test-framework.sh
+builder-self-test	ai/tests/test-task-builder.sh
+framework-v2-test	ai/tests/test-framework-v2.sh
+diagnostic-runner-test	ai/tests/test-bounded-diagnostic-runner.sh
 go-test	make	test
 go-vet	make	vet
 go-format	make	fmt-check

@@ -1,5 +1,12 @@
 # Engineering History
 
+- 2026-08-26 — Task 062 delivered Reusable Engineering Framework `2.0.0`:
+  inherited Standard Execution Authority, iterative in-task correction,
+  boundary-based STOP semantics, contract-first failure classification,
+  proportional validation, explicit development/release separation, concise
+  Authority Envelopes, and a bounded privacy-safe diagnostic runner while
+  retaining Builder/lifecycle/rollback/Git/release controls.
+
 - 2026-08-20 — Task 047 established the read-only Smart Install and operational
   readiness foundation: one versioned five-state assessment model and registry,
   bounded supported-host probes, archive bootstrap preflight, composite

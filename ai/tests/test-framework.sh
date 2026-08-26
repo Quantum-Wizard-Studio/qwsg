@@ -172,6 +172,17 @@ cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
 sed -i '/\*\*Mandatory STOP conditions:\*\*/d' "$root/ai/prompts/001_CURRENT_TASK.md"
 expect_failure "$root" ./ai/scripts/framework-check.sh
 
+root="$(new_fixture concise-v2-authority-envelope)"
+cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
+sed -i '/\*\*Authorized paths\/components\/systems:\*\*/,/\*\*Mandatory STOP conditions:\*\*/d' "$root/ai/prompts/001_CURRENT_TASK.md"
+sed -i '/^## Required Reading$/i\
+- **Task targets and boundaries:** fixture target only.\
+- **Permitted external actions:** none.\
+- **Owner-reserved decisions:** scope and release.\
+- **Task-specific STOP conditions:** none beyond the standard.\
+' "$root/ai/prompts/001_CURRENT_TASK.md"
+expect_success "$root" ./ai/scripts/framework-check.sh
+
 root="$(new_fixture unsafe-task-git)"
 cp "$reference_task" "$root/ai/prompts/001_CURRENT_TASK.md"
 sed -i '/^## Owner Approval Requirements$/i git add .' \

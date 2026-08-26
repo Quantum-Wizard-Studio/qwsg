@@ -11,7 +11,8 @@ Framework.
 Before changes, record the project root, current branch, HEAD, configured
 remotes, local-to-remote relationship, tags relevant to the task, and complete
 status. Compare the current remote and primary branch with the validated project
-configuration. Stop on an unexplained difference.
+configuration. Diagnose and classify an unexplained difference; stop only when
+it establishes an authority, identity, safety, or rollback boundary.
 
 QWSG uses:
 
@@ -55,7 +56,7 @@ commits.
 Before a real push, run a dry-run push against the configured remote and branch.
 Push only the reviewed commit and record the command, result, commit hash, and
 remote relationship. Automatic or implicit push is prohibited. An approved
-Authority Envelope may explicitly authorize task-scoped targeted staging,
+Standard Execution Authority includes task-scoped targeted staging,
 commit, push dry-run, clean fast-forward push, post-push verification, and
 lifecycle closure as one routine engineering cycle; those operations then
 require no additional micro-gate. Force push, history rewriting, tags,

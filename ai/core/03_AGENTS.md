@@ -24,11 +24,12 @@ Mandatory collaboration baseline for `0.0.1-prealpha`.
 - Every implementation or documentation task must follow the workflow and required record fields in `08_JOB_TEMPLATE.md`.
 - Before any implementation work, every agent must read `00_PROJECT_PHILOSOPHY.md`, `01_CONSTITUTION.md`, `03_AGENTS.md`, and `08_JOB_TEMPLATE.md`.
 - Every agent follows `11_ENGINEERING_LIFECYCLE.md`; after verified completion it prepares, but never approves or executes, the next task when the active prompt requires it.
-- A Builder-approved task with a valid Authority Envelope is executable without
-  a second routine start gate. Within that envelope, an agent completes ordinary
-  inspect, snapshot, implementation, correction, verification, integration,
-  clean-fast-forward push, and lifecycle work autonomously. It stops only when
-  the envelope or a mandatory higher-level safeguard reserves the decision.
+- A Builder-approved task receives the Standard Execution Authority defined in
+  `17_EXECUTION_MODEL.md` without a second routine start gate. Within stated
+  scope, the agent may iterate through inspection, diagnosis, classification,
+  implementation, correction, verification, integration, and closure. The task
+  envelope records boundaries and exceptional external authority; it does not
+  need to enumerate ordinary reversible engineering operations.
 - A recoverable in-scope failure is evidence to diagnose, correct, and retest;
   it is not by itself a reason to request new authority. Never convert missing
   evidence into success or use this rule to cross a security, privacy,
@@ -38,5 +39,8 @@ Mandatory collaboration baseline for `0.0.1-prealpha`.
   branch, lifecycle paths, required reading, or validation commands.
 - Validation command configuration is data and must never be sourced or
   evaluated. Mandatory safety rules remain non-configurable.
+- Before changing implementation for a failed observation, classify it against
+  the documented contract. Tests serve engineering; they do not override the
+  product or framework contract.
 
 Role boundaries, verification duties, and delivery expectations belong here. Prompts, secrets, unverified claims, and implementation-specific design do not. These rules will evolve during development with human approval.

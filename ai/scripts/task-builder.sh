@@ -26,6 +26,8 @@ Required input files:
   documentation completion approval
 
 The approval file must contain exactly APPROVE (apart from a final newline).
+The authority-envelope file may use the concise Framework 2.0 categories or the
+legacy Framework 1.1 nine-category form.
 EOF
 }
 
@@ -99,15 +101,24 @@ validate_input_dir() {
     read_single_value approval approval
     [[ -n "$title" && -n "$authority" && -n "$language" ]] || fail 'title, authority, and language must be single non-empty lines'
     [[ "$approval" == APPROVE ]] || fail 'explicit owner approval is required: approval must be exactly APPROVE'
-    local label
+    validate_authority_envelope "$input_dir/authority-envelope"
+}
+
+validate_authority_envelope() {
+    local file="$1" label legacy=true concise=true
     for label in 'Authorized paths/components/systems' 'Routine operations' \
         'Correction/retest authority' 'Repository integration' \
         'Lifecycle completion' 'Permitted external actions' \
         'Evidence and rollback' 'Owner-reserved operations' \
         'Mandatory STOP conditions'; do
-        grep -Fq "**$label:**" "$input_dir/authority-envelope" ||
-            fail "authority-envelope lacks required category: $label"
+        grep -Fq "**$label:**" "$file" || legacy=false
     done
+    for label in 'Task targets and boundaries' 'Permitted external actions' \
+        'Owner-reserved decisions' 'Task-specific STOP conditions'; do
+        grep -Fq "**$label:**" "$file" || concise=false
+    done
+    [[ "$legacy" == true || "$concise" == true ]] ||
+        fail 'authority-envelope must use either the Framework 1.1 legacy or Framework 2.0 concise categories'
 }
 
 read_single_value() {
@@ -205,6 +216,8 @@ EOF
 - `ai/core/11_ENGINEERING_LIFECYCLE.md`
 - `ai/core/14_PROMPT_WORKFLOW.md`
 - `ai/core/16_GIT_POLICY.md`
+- `ai/core/17_EXECUTION_MODEL.md`
+- `ai/core/18_BOUNDED_DIAGNOSTIC_RUNNER.md`
 - `ai/config/engineering-project.conf`
 EOF
     append_section 'Starting State Verification' starting-state
@@ -222,7 +235,7 @@ EOF
 
 Approved by $authority through the Engineering Task Builder on $today UTC.
 
-The structured task definition and Authority Envelope have been explicitly approved. The task is authorized to start and execute every routine operation inside that envelope without another Owner gate. Further scope changes and every Owner-reserved operation require explicit Project Owner approval.
+The structured task definition and Authority Envelope have been explicitly approved. Framework 2.0 Standard Execution Authority permits iterative, reversible in-scope engineering without another Owner gate. Further scope changes, exceptional external actions, and Owner-reserved decisions require explicit Project Owner approval.
 EOF
 
     cat >"$temp_history" <<EOF

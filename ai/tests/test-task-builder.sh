@@ -63,6 +63,16 @@ new_input() {
     printf '%s\n' "$dir"
 }
 
+use_v2_envelope() {
+    local dir="$1"
+    printf '%s\n' \
+        '- **Task targets and boundaries:** fixture target only.' \
+        '- **Permitted external actions:** none.' \
+        '- **Owner-reserved decisions:** scope and release.' \
+        '- **Task-specific STOP conditions:** none beyond the standard.' \
+        >"$dir/authority-envelope"
+}
+
 expect_success() {
     local root="$1"; shift
     (cd "$root" && "$@") >/dev/null || { printf 'FAIL expected success: %s\n' "$*" >&2; exit 1; }
@@ -100,11 +110,19 @@ grep -Fq 'First objective line.' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq 'Second objective line.' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq '**Authorized paths/components/systems:** fixture paths.' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq 'Approved by Project Owner' "$root/ai/prompts/014_CURRENT_TASK.md"
-grep -Fq 'authorized to start and execute every routine operation' "$root/ai/prompts/014_CURRENT_TASK.md"
+grep -Fq 'Standard Execution Authority permits iterative' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq -- '- `ai/core/16_GIT_POLICY.md`' "$root/ai/prompts/014_CURRENT_TASK.md"
+grep -Fq -- '- `ai/core/17_EXECUTION_MODEL.md`' "$root/ai/prompts/014_CURRENT_TASK.md"
+grep -Fq -- '- `ai/core/18_BOUNDED_DIAGNOSTIC_RUNNER.md`' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq -- '- `ai/config/engineering-project.conf`' "$root/ai/prompts/014_CURRENT_TASK.md"
 grep -Fq -- '- Status: `approved — task not started`' "$root/ai/history/014_${today}_next-engineering-task.md"
-passes=$((passes + 9))
+passes=$((passes + 11))
+
+root="$(new_fixture v2-envelope)"; input="$(new_input v2-envelope)"; use_v2_envelope "$input"
+expect_success "$root" ./ai/scripts/task-builder.sh --check-input "$input"
+expect_success "$root" ./ai/scripts/task-builder.sh --input-dir "$input"
+grep -Fq '**Task targets and boundaries:** fixture target only.' "$root/ai/prompts/014_CURRENT_TASK.md"
+passes=$((passes + 1))
 
 root="$(new_fixture idle-install)"; input="$(new_input idle-install)"
 mv "$root/ai/prompts/013_CURRENT_TASK.md" "$root/ai/archive_prompts/013_${today}_engineering-task-builder.md"

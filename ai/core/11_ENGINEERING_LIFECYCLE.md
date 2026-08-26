@@ -9,9 +9,10 @@ This document is the authoritative lifecycle specification for QWSG engineering 
 1. **No Task Without History:** every active task prompt has exactly one matching history record with the same Task ID and slug.
 2. A prepared task is not approved, active, or executed. Preparation stops at `READY FOR OWNER REVIEW`.
 3. Only the Project Owner can approve a prepared task or expand its authority.
-4. Builder approval of a task containing a valid Authority Envelope authorizes
-   task start and every routine operation explicitly contained in that envelope.
-   It does not authorize an Owner-reserved operation or scope expansion.
+4. Builder approval of a task containing a valid Authority Envelope grants
+   Standard Execution Authority from `17_EXECUTION_MODEL.md`, bounded by the
+   stated targets and exclusions. Ordinary reversible operations need not be
+   individually enumerated.
 5. Production task numbers are sequential and never reused after a completed,
    superseded, or normally archived production task. An incomplete active task
    may release its number only through the explicit Project Owner-authorized
@@ -35,7 +36,8 @@ This document is the authoritative lifecycle specification for QWSG engineering 
    stops.
 5. **Snapshot:** before target changes, the agent creates and verifies a bounded rollback-capable snapshot.
 6. **Implementation:** only approved scope is changed; history is updated throughout.
-7. **Verification:** all task-mandated checks, rollback validation,
+7. **Verification:** classify unexpected results against the documented
+   contract, then run task-mandated checks, rollback validation,
    documentation consistency, permissions, and Git-state checks must pass
    truthfully. A recoverable failure inside the envelope follows diagnose ->
    correct -> retest -> continue. Missing evidence is never a PASS.
@@ -49,18 +51,16 @@ This document is the authoritative lifecycle specification for QWSG engineering 
 
 ## Authority-envelope decision rule
 
-Routine inspection, snapshot, editing, testing, bounded correction, retesting,
-documentation, targeted staging, staged review, commit, push dry-run, clean
-fast-forward push, post-push verification, and lifecycle closure may proceed
-when the approved envelope lists them. Test failure, documentation mismatch,
-or late reporting alone does not create a new gate.
+Routine inspection, snapshot, editing, refactoring, local builds, testing,
+bounded correction, retesting, documentation, targeted staging, staged review,
+commit, authorized clean-fast-forward push, post-push verification, and
+lifecycle closure are standard authority for an approved in-scope task. Test
+failure, documentation mismatch, incomplete evidence, or late reporting alone
+does not create a gate.
 
-Stop and obtain Owner direction for material scope or architecture expansion,
-unplanned destructive or irreversible work, unavailable rollback, a security
-or privacy boundary failure or meaningful uncertainty, credentials or
-Owner-only interaction, unexpected external infrastructure mutation,
-unapproved privilege escalation, meaningful damage risk, tags, Releases,
-publication, deployment, or any operation reserved by the envelope.
+Use the boundary-based STOP conditions in `17_EXECUTION_MODEL.md`. An
+inherently private Owner interaction or authorized physical action pauses only
+for that interaction and does not require a new engineering approval afterward.
 
 ## Controlled failure containment and production-sequence recovery
 
@@ -79,12 +79,11 @@ identity or require a new approval while correction remains in scope:
 - `aborted-test`: an incomplete active production task is diverted into the
   independent test-task namespace by explicit Project Owner override.
 
-The same materially unchanged failing method must not be repeated more than
-three times by default. A different command label does not make a new method
-when commands, inputs, assumptions, and expected outcome remain materially
-unchanged. At the limit, record the evidence, mark the method rejected, and use
-another approved method. If none remains, stop and request owner deferment or
-aborted-test diversion. Critical safety failures always stop immediately.
+Do not repeat a materially unchanged failing method without an evidence-based
+reason. There is no arbitrary retry limit: classify the result, change the
+method when evidence warrants it, and continue within scope. Stop only when a
+real boundary is reached or safe diagnosis cannot resolve an inconclusive
+result. Critical safety failures always stop immediately.
 
 `ai/scripts/divert-task-to-test.sh` is the only canonical diversion command. It
 requires Project Owner authority, a nonempty reason, disposition
