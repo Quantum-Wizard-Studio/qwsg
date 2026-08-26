@@ -92,6 +92,40 @@ test-fixture correction.
 - Release-source change classification: release identity/documentation/plumbing
   only; runtime behavior mutation NONE; Task 061 acceptance reuse VALID.
 
+## Release-source integration and deterministic construction
+
+- Exact release-source commit:
+  `305f4088e94b14d6cbb3114eb8cce4e32d847c16`, tree
+  `696127b54f2c1e39289fa3e020a5b7e23de9694a`, epoch `1787752902`, UTC
+  `2026-08-26T14:01:42Z`.
+- Commit subject: `release: establish QWSG 1.1.0 source`. Dry-run and actual
+  push clean-fast-forwarded `main`; direct Forgejo main matched the full commit.
+- Two separate `git archive` exports used distinct source roots, output roots
+  and Go build caches under private
+  `/tmp/qwsg-task063-final-build.TuJFQg`. Archive and sidecar bytes are
+  byte-identical.
+- Twin one was selected exactly once and its archive/sidecar frozen mode `0400`.
+  Frozen identity: archive `qwsg-1.1.0-linux-amd64.tar.gz`, size `2951638`,
+  SHA-256
+  `10a39d96b93b72a3f4799a76d769bc264afd6845a32a1ecc5531b062d6f42349`;
+  sidecar SHA-256
+  `b9414bba5a6d9bc100f7c391c11867ceda6c2139002272a0f46fbf55dc9d3cc1`;
+  manifest SHA-256
+  `310d41f9a8c71599290fd1d25efb7a2da8fd210e34cbf2666e40189c988ebc3d`;
+  binary SHA-256
+  `e7b5a2234221baa32a9c3fa79e0758ea49e7ed1996c99e9e1ddbc19628a5e924`.
+- Sidecar, safe unique 25-member root, regular/directory types, no symlinks,
+  all 18 manifest entries, LICENSE/docs/final notes, modes, static amd64,
+  version/full commit/build time and absence of ambient VCS metadata PASS.
+- Extracted local Smart Install correctly found its current user manager
+  unreachable and returned not-ready while satisfying filesystem/platform/
+  runtime checks. Classified `ENVIRONMENTAL ISSUE`; Task 061's supported-host
+  Smart Install PASS is reused because no relevant behavior changed. No
+  candidate byte changed or rebuild occurred.
+- Added `docs/release/ACCEPTANCE_1.1.0.md` with frozen identities, package
+  proof, Task 061 reuse matrix, limitations and the conditional publication
+  ledger. Pre-publication technical verdict: `READY FOR RELEASE`.
+
 ## Rollback
 
 Use `/tmp/qwsg-task063-execution.1QW3IP/ROLLBACK.txt` only after exact identity
