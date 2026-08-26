@@ -4,8 +4,8 @@ set -eu
 repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 version=$(tr -d '\r\n' < "$repo/VERSION")
 case "$version" in
-  1.0.0|1.1.0) :;;
-  1.0.0-rc.*|1.1.0-rc.*)
+  1.0.0|1.1.0|1.2.0) :;;
+  1.0.0-rc.*|1.1.0-rc.*|1.2.0-rc.*)
     rc_number=${version##*-rc.}
     case "$rc_number" in ''|*[!0-9]*) printf '%s\n' 'release build: VERSION has an invalid RC number' >&2; exit 1;; esac
     ;;
@@ -23,9 +23,9 @@ command -v go >/dev/null && command -v sha256sum >/dev/null && command -v tar >/
   printf '%s\n' 'release build: go, sha256sum and GNU tar are required' >&2; exit 1;
 }
 case "$version" in
-  1.1.0|1.1.0-rc.*)
-    test "${SOURCE_DATE_EPOCH+x}" = x || { printf '%s\n' 'release build: QWSG 1.1 requires explicit SOURCE_DATE_EPOCH' >&2; exit 1; }
-    test "${BUILD_COMMIT+x}" = x || { printf '%s\n' 'release build: QWSG 1.1 requires explicit BUILD_COMMIT' >&2; exit 1; }
+  1.1.0|1.1.0-rc.*|1.2.0|1.2.0-rc.*)
+    test "${SOURCE_DATE_EPOCH+x}" = x || { printf '%s\n' 'release build: QWSG 1.1+ requires explicit SOURCE_DATE_EPOCH' >&2; exit 1; }
+    test "${BUILD_COMMIT+x}" = x || { printf '%s\n' 'release build: QWSG 1.1+ requires explicit BUILD_COMMIT' >&2; exit 1; }
     ;;
 esac
 epoch=${SOURCE_DATE_EPOCH:-0}
@@ -33,9 +33,9 @@ case "$epoch" in ''|*[!0-9]*) printf '%s\n' 'release build: SOURCE_DATE_EPOCH mu
 commit=${BUILD_COMMIT:-unknown}
 case "$commit" in unknown) :;; *[!0-9a-fA-F]*|'') printf '%s\n' 'release build: BUILD_COMMIT must be hexadecimal or unknown' >&2; exit 1;; esac
 case "$version" in
-  1.1.0|1.1.0-rc.*)
-    test "${#commit}" -eq 40 || { printf '%s\n' 'release build: QWSG 1.1 requires the full 40-character commit' >&2; exit 1; }
-    case "$commit" in *[!0-9a-f]*) printf '%s\n' 'release build: QWSG 1.1 commit must be lowercase hexadecimal' >&2; exit 1;; esac
+  1.1.0|1.1.0-rc.*|1.2.0|1.2.0-rc.*)
+    test "${#commit}" -eq 40 || { printf '%s\n' 'release build: QWSG 1.1+ requires the full 40-character commit' >&2; exit 1; }
+    case "$commit" in *[!0-9a-f]*) printf '%s\n' 'release build: QWSG 1.1+ commit must be lowercase hexadecimal' >&2; exit 1;; esac
     ;;
 esac
 build_date=$(date -u -d "@$epoch" '+%Y-%m-%dT%H:%M:%SZ')
@@ -55,6 +55,7 @@ cp "$repo/packaging/systemd/qwsg-guardian.service" "$root/lib/systemd/user/"
 cp "$repo/packaging/release/install.sh" "$repo/packaging/release/uninstall.sh" "$root/"
 cp "$repo/packaging/release/qwsg-config.json" "$root/"
 cp "$repo/LICENSE" "$repo/CHANGELOG.md" "$root/"
+printf '{"Schema":"qwsg.release/1","Version":"%s","Commit":"%s","Built":"%s","Platform":"linux-amd64"}\n' "$version" "$commit" "$build_date" > "$root/RELEASE.json"
 cp "$repo/README.md" "$root/README.md"
 cp "$repo/docs/installation/INSTALL.md" "$root/INSTALL.md"
 release_notes_name="RELEASE_NOTES_$version"

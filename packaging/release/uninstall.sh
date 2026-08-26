@@ -13,6 +13,6 @@ remove_one() {
 }
 remove_one "$root/bin/qwsg" "$destdir/usr/local/bin/qwsg"
 remove_one "$root/lib/systemd/user/qwsg-guardian.service" "$destdir/usr/local/lib/systemd/user/qwsg-guardian.service"
-for file in "$root"/docs/*.md "$root/README.md" "$root/INSTALL.md" "$root/LICENSE" "$root/CHANGELOG.md" "$root/qwsg-config.json"; do remove_one "$file" "$destdir/usr/local/share/doc/qwsg/$(basename "$file")"; done
+for file in "$root"/docs/*.md "$root/README.md" "$root/INSTALL.md" "$root/LICENSE" "$root/CHANGELOG.md" "$root/qwsg-config.json" "$root/RELEASE.json"; do remove_one "$file" "$destdir/usr/local/share/doc/qwsg/$(basename "$file")"; done
 rmdir "$destdir/usr/local/share/doc/qwsg" 2>/dev/null || true
 printf '%s\n' 'QWSG release artifacts removed. User configuration and state were preserved.'

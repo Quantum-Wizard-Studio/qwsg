@@ -1,4 +1,13 @@
-# QWSG 1.0 Operations
+# QWSG 1.2 Operations
+
+## Native updates
+
+Run `qwsg update check` without privilege. `qwsg update` performs anonymous
+discovery, private staging and full verification before it stops Guardian or
+invokes the narrow privileged helper. After replacement QWSG restores previous
+enabled/active service intent and validates installed identity and
+configuration. Inspect rollback availability with `qwsg update status`; use
+`qwsg update rollback` to restore the prior verified package artifacts.
 
 Use `qwsg` for the current read-only operator view and `qwsg observe` for an explicit full observation. The supervised Guardian runs the same canonical Runtime Service; it does not duplicate engine decisions.
 

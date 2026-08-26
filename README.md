@@ -10,6 +10,12 @@ with the dedicated [installation guide](docs/installation/INSTALL.md). A
 release archive exposes it as `INSTALL.md`; after installation it is at
 `/usr/local/share/doc/qwsg/INSTALL.md`.
 
+QWSG 1.2 adds a native, rollback-capable update path. Use `qwsg update check`
+to inspect the canonical public Release source, `qwsg update` to verify and
+apply a newer supported release, `qwsg update status` to inspect local rollback
+availability, and `qwsg update rollback` to restore the integrity-verified
+previous package while preserving user configuration, credentials and state.
+
 ## Normal journey
 
 ```text
@@ -31,6 +37,7 @@ qwsg config show
 qwsg notification preflight
 qwsg notification test
 qwsg readiness
+qwsg update check
 qwsg observe
 qwsg console
 ```

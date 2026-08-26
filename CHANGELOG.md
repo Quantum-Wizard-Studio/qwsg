@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0-rc.1] - 2026-08-26
+
+- Added canonical public Release discovery and strict SemVer update ordering.
+- Added private bounded acquisition plus archive, sidecar, manifest and release-provenance verification.
+- Added rollback-capable fixed-destination package transactions preserving configuration, credentials, state and Guardian service intent.
+- Added deterministic migration planning and explicit native rollback metadata/workflow.
+
 All notable changes to Quantum Wizard Server Guardian will be recorded here. This changelog currently tracks pre-alpha engineering milestones and will evolve during development; transient logs, secrets, and unverified work do not belong here.
 
 ## [Unreleased]

@@ -1,4 +1,13 @@
-# QWSG 1.0 Troubleshooting
+# QWSG 1.2 Troubleshooting
+
+## Native update failures
+
+Acquisition or verification failures occur before installed files or Guardian
+state change. A package replacement or post-install validation failure triggers
+an automatic restoration attempt. Do not manually overwrite `/usr/local`;
+preserve the private rollback root and use `qwsg update status` or
+`qwsg update rollback`. Missing, tampered, symlinked or incomplete rollback
+records fail closed.
 
 - `missing_required`: resolve the blocker and rerun `qwsg install --check` or
   `qwsg readiness`.

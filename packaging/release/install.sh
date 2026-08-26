@@ -29,7 +29,7 @@ install_one() {
 }
 install_one "$root/bin/qwsg" "$destdir/usr/local/bin/qwsg" 0755
 install_one "$root/lib/systemd/user/qwsg-guardian.service" "$destdir/usr/local/lib/systemd/user/qwsg-guardian.service" 0644
-for file in "$root"/docs/*.md "$root/README.md" "$root/INSTALL.md" "$root/LICENSE" "$root/CHANGELOG.md" "$root/qwsg-config.json"; do install_one "$file" "$destdir/usr/local/share/doc/qwsg/$(basename "$file")" 0644; done
+for file in "$root"/docs/*.md "$root/README.md" "$root/INSTALL.md" "$root/LICENSE" "$root/CHANGELOG.md" "$root/qwsg-config.json" "$root/RELEASE.json"; do install_one "$file" "$destdir/usr/local/share/doc/qwsg/$(basename "$file")" 0644; done
 printf '%s\n' 'QWSG artifacts installed. Service was not enabled or started.'
 printf '%s\n' 'Instructions: /usr/local/share/doc/qwsg/README.md and /usr/local/share/doc/qwsg/INSTALL.md'
 printf '%s\n' 'Next (as the intended non-root user): qwsg setup'

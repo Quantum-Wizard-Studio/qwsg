@@ -1,4 +1,29 @@
-# QWSG 1.0 Upgrade, Rollback, and Uninstall
+# QWSG Upgrade, Rollback, and Uninstall
+
+## Native workflow (QWSG 1.2 and later)
+
+```sh
+qwsg update check
+qwsg update
+qwsg update status
+qwsg update rollback
+```
+
+Update discovery and download use the anonymous canonical Forgejo Release
+source. QWSG verifies the sidecar, archive layout, manifest, required package
+files, platform and embedded `RELEASE.json` provenance before stopping the
+Guardian or requesting privilege. Configuration, credentials and persistent
+state are never package replacement targets or rollback payloads.
+
+QWSG 1.1.0 has no native update command. For the single transition from 1.1.0,
+run the verified newer archive binary with its own archive identity:
+
+```sh
+./bin/qwsg update --archive /absolute/path/qwsg-1.2.0-rc.1-linux-amd64.tar.gz --version 1.2.0-rc.1
+```
+
+The matching `.sha256` file must be adjacent. This private-candidate form is for
+controlled acceptance; ordinary published updates use `qwsg update`.
 
 Stop the exact user unit before replacing artifacts. Verify the new archive, preserve a private backup of the old binary/unit and state, then use `./install.sh --replace --backup-dir ABSOLUTE_NEW_DIRECTORY`. Reload the user manager and start only if it was previously active.
 

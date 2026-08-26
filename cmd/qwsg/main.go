@@ -131,6 +131,8 @@ func runWithConsole(args []string, in io.Reader, out, errout io.Writer, interact
 		return runInstallAssessment(args[1:], out, errout)
 	case "readiness":
 		return runReadiness(args[1:], out, errout)
+	case "update":
+		return runUpdate(args[1:], out, errout)
 	default:
 		return usageError(errout, "unknown command: %s", safeText(args[0]))
 	}
@@ -967,6 +969,10 @@ func runHelp(args []string, out, errout io.Writer) int {
 		writeVersionHelp(out)
 		return 0
 	}
+	if args[0] == "update" && len(args) == 1 {
+		writeUpdateHelp(out)
+		return 0
+	}
 	if args[0] == "compare" {
 		if len(args) != 1 {
 			return usageError(errout, "compare help does not accept a subcommand")
@@ -1439,6 +1445,7 @@ Usage:
   qwsg notification <preflight|test|credential> ...
   qwsg install --check [--format human|json]
   qwsg readiness [--format human|json]
+  qwsg update <check|status|rollback> | qwsg update
   qwsg help [command]
   qwsg version
   qwsg <status|check|observe|changes|health|report> [options]
@@ -1454,6 +1461,7 @@ Commands:
   notification Assess readiness, store a private SMTP credential, or send a test
   install     Assess installation and host requirements without mutation
   readiness   Show composite operational readiness
+  update      Discover, verify, install, inspect, or roll back QWSG updates
   status     Execute the canonical live Inventory profile
   check      Execute the canonical live Inventory and Snapshot profile
   observe    Establish a baseline or run the full canonical operator evaluation
