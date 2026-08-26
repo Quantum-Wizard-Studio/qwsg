@@ -216,5 +216,12 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   `wget`, `curl`, checksum verification, and future Smart Installer use without
   publishing an artifact. See
   `ai/history/058_2026-08-24_streamlined-engineering-governance-forgejo-distribution-practical-release-acceptance.md`.
+- `2026-08-26`: Task 063 promoted the externally accepted RC.6 lineage to
+  QWSG 1.1.0, proved byte-identical deterministic release artifacts, reused
+  unchanged-behavior practical acceptance, published the immutable annotated
+  `v1.1.0` tag and final Forgejo Release, and independently verified both public
+  archive and sidecar downloads with `wget`, `curl`, exact hashes and sidecar
+  validation. See
+  `ai/history/063_2026-08-26_qwsg-1-1-0-final-release.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

@@ -11,7 +11,7 @@
 - QWSG-059-F001: **EXTERNALLY CORRECTED**
 - Product defects in accepted RC.6/final behavior: **NONE**
 - Final release readiness: **READY FOR RELEASE**
-- Publication: **PENDING VERIFIED TAG/RELEASE/ASSET GATES**
+- Publication: **PASS — QWSG 1.1.0 RELEASED**
 
 The final release-source diff changes release identity, documentation,
 deterministic release plumbing and one Framework test fixture only. It changes
@@ -98,12 +98,31 @@ requirements and no observed product defect follows from them.
 | Task 061 acceptance reuse | PASS |
 | security/privacy review | PASS |
 | exact release-source push and direct verification | PASS |
-| release-boundary snapshot | PENDING |
-| annotated tag identity/push | PENDING |
-| final Forgejo Release and exact two assets | PENDING |
-| anonymous wget/curl artifact verification | PENDING |
+| release-boundary snapshot | PASS |
+| annotated tag identity/push | PASS |
+| final Forgejo Release and exact two assets | PASS |
+| repository anonymous readability | PASS |
+| anonymous Release-page accessibility | PASS |
+| anonymous wget/curl artifact verification | PASS |
 
-Publication may proceed only after the release-boundary snapshot passes. The
-remaining publication rows are updated from direct evidence after their
-authorized actions. This document does not authorize mutable or replacement
-assets, production deployment or an unrelated announcement.
+Release-boundary snapshot `/tmp/qwsg-task063-release-boundary.tkqAUW` passed.
+Annotated tag object `b14347636f6c9873a5acf759c950d900a39bf1a7` is pushed and
+peels exactly to the release-source commit. Forgejo Release `QWSG 1.1.0`
+exists as final/non-prerelease and contains exactly the frozen archive and
+sidecar with expected sizes.
+
+Following explicit Owner authorization, the canonical repository became public.
+Anonymous repository and final Release pages return successfully. Independent
+clean-environment `wget` and `curl -fLO` downloads retrieved the exact archive
+and sidecar; both archive copies are `2951638` bytes with SHA-256
+`10a39d96b93b72a3f4799a76d769bc264afd6845a32a1ecc5531b062d6f42349`,
+both sidecars have SHA-256
+`b9414bba5a6d9bc100f7c391c11867ceda6c2139002272a0f46fbf55dc9d3cc1`,
+and `sha256sum -c` passes for both clients. Tag object and peel remain unchanged,
+the Release remains final/non-draft/non-prerelease, and its asset count remains
+exactly two. No release byte changed.
+
+Authoritative release page:
+`https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/tag/v1.1.0`.
+This evidence establishes **QWSG 1.1.0 RELEASED**. It does not authorize mutable
+or replacement assets, production deployment, or an unrelated announcement.

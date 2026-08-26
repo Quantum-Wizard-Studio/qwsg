@@ -3,15 +3,22 @@
 ## Status and boundary
 
 QWSG release artifacts are distributed as immutable, version-specific Forgejo
-Release assets. This document defines the contract but does not claim that a
-particular future asset currently exists. Tag creation, Forgejo Release
-creation, asset upload, and publication remain separate Owner-reserved actions.
+Release assets. Tag creation, Forgejo Release creation, asset upload, and
+publication remain separate Owner-reserved actions.
 
-Anonymous read-only checks on 2026-08-24 did not expose the QWSG repository or
-a Release endpoint. Therefore no operational
-`git.quantumwizard.hu` asset URL is asserted by Task 058. The publication task
-must verify the expanded URLs using unauthenticated `wget` and `curl` after the
-tag, Release, and assets exist.
+QWSG `1.1.0` is the first release verified under this contract. On 2026-08-26,
+anonymous repository and Release access, independent clean-environment `wget`
+and `curl -fLO` downloads, and sidecar verification all passed for:
+
+```text
+https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/download/v1.1.0/qwsg-1.1.0-linux-amd64.tar.gz
+https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/download/v1.1.0/qwsg-1.1.0-linux-amd64.tar.gz.sha256
+```
+
+The archive size is `2951638` bytes, its SHA-256 is
+`10a39d96b93b72a3f4799a76d769bc264afd6845a32a1ecc5531b062d6f42349`,
+and the sidecar SHA-256 is
+`b9414bba5a6d9bc100f7c391c11867ceda6c2139002272a0f46fbf55dc9d3cc1`.
 
 ## Immutable asset model
 
