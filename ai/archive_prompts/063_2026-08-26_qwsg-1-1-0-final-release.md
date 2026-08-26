@@ -4,7 +4,7 @@
 
 - Task ID: `063`
 - Task slug: `qwsg-1-1-0-final-release`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-08-26` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English

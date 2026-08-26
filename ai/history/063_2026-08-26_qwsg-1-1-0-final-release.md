@@ -4,15 +4,15 @@
 
 - Task ID: `063`
 - Task slug: `qwsg-1-1-0-final-release`
-- Status: `active`
+- Status: `complete`
 - Date generated: `2026-08-26` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/063_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/063_2026-08-26_qwsg-1-1-0-final-release.md`
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured Owner input. The Project Owner authorized full Task 063 execution under Framework 2.0 Standard Execution Authority on 2026-08-26 UTC. Implementation is active through final evidence integration and lifecycle closure.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured Owner input. The Project Owner authorized full Task 063 execution under Framework 2.0 Standard Execution Authority on 2026-08-26 UTC. Task 063 completed after deterministic construction, publication, anonymous distribution verification, validated evidence integration and canonical archival.
 
 ## Starting state
 
@@ -177,6 +177,9 @@ test-fixture correction.
   visibility work. Temporary authentication material and anonymous download
   directories were removed.
 - Final verdict: **QWSG 1.1.0 RELEASED**.
+- Release-evidence integration commit:
+  `b0970f9ec68122d63c8f3a7455a76ed72e109393`; clean-fast-forward push and
+  direct Forgejo `main` verification PASS.
 
 ## Rollback
 
@@ -187,4 +190,4 @@ Owner content.
 
 ## Completion state
 
-`active — QWSG 1.1.0 released; exact frozen assets anonymously downloadable and verified; final evidence integration and canonical archive/idle closure remain`
+`complete — QWSG 1.1.0 released; exact frozen assets anonymously downloadable and verified; Task 063 canonically archived and repository lifecycle idle`
