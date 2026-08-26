@@ -223,5 +223,12 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   archive and sidecar downloads with `wget`, `curl`, exact hashes and sidecar
   validation. See
   `ai/history/063_2026-08-26_qwsg-1-1-0-final-release.md`.
+- `2026-08-26`: Task 064 established the native QWSG update foundation with
+  canonical public discovery, private package verification, fixed-destination
+  transactional replacement, versioned migration planning, automatic recovery
+  and explicit rollback. A frozen unpublished `1.2.0-rc.1` candidate passed a
+  real official `1.1.0 -> 1.2.0-rc.1 -> 1.1.0` preservation and service-intent
+  lifecycle on the existing disposable VPS. See
+  `ai/history/064_2026-08-26_native-update-rollback-system.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.
