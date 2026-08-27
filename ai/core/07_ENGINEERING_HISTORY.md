@@ -230,5 +230,12 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   real official `1.1.0 -> 1.2.0-rc.1 -> 1.1.0` preservation and service-intent
   lifecycle on the existing disposable VPS. See
   `ai/history/064_2026-08-26_native-update-rollback-system.md`.
+- `2026-08-27`: Task 065 added the QWSG-owned guided terminal installer with
+  deterministic truthful progress, English/Hungarian/German catalogs and
+  fallback, strict Ubuntu 24.04 amd64 preflight, understandable planning,
+  optional notification guidance, explicit update policy, Guardian activation
+  and readiness. Private `1.2.0-rc.2` passed deterministic construction and a
+  corrected real clean-host journey without publication. See
+  `ai/history/065_2026-08-27_guided-installation-setup-experience.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

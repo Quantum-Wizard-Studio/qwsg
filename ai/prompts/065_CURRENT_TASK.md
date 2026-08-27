@@ -4,7 +4,7 @@
 
 - Task ID: `065`
 - Task slug: `guided-installation-setup-experience`
-- Status: `approved`
+- Status: `complete`
 - Date opened: `2026-08-27` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English
