@@ -1,8 +1,14 @@
-# QWSG 1.2.0-rc.1 Known Limitations
+# QWSG 1.2.0-rc.2 Known Limitations
 
 The first native transition from QWSG 1.1.0 must be initiated with the fully
 verified newer archive binary because 1.1.0 predates the `update` command.
 Future supported updates use the installed command directly.
+
+The guided installer currently explains the SMTP values and protected
+credential workflow, but provider-specific values are entered through the
+existing `qwsg config` and `qwsg notification credential` commands. The
+`notify` update policy records operator preference; a background update
+notifier and automatic privileged updater are not implemented.
 
 - The supported production contract is limited to Ubuntu 24.04 LTS, systemd 255+, and linux-amd64.
 - The Console is local terminal output; there is no Web Dashboard, REST API, listener, fleet or remote management.

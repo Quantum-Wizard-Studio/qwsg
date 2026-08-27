@@ -5,13 +5,21 @@
 Run setup as the ordinary user who will run Guardian:
 
 ```sh
+qwsg install --guided
 qwsg setup
 qwsg config show
 qwsg config validate
 qwsg readiness
 ```
 
-On a terminal, setup guides the configuration write and separately asks before
+For new installations, `install --guided` selects English, Hungarian, or
+German; verifies the supported platform; presents a pre-mutation plan; invokes
+the narrow archive package helper only after consent; initializes safe defaults;
+explains optional SMTP setup; records manual or notify update preference; and
+offers Guardian activation and readiness verification. `--line-mode` disables
+dashboard cursor control.
+
+On a terminal, standalone setup guides the configuration write and separately asks before
 activating the fixed QWSG user service. It is resumable from canonical state.
 Use `qwsg setup --plan [--format human|json]` for a read-only deterministic
 plan; it never prompts, writes, contacts SMTP, or changes a service.
@@ -53,7 +61,8 @@ qwsg config set KEY VALUE [--format human|json]
 ```
 
 The base mutable keys are `locale`, `time_zone`, `snapshot_retention`,
-`guardian.interval`, and `guardian.cycle_timeout`. Task 046 also supports
+`guardian.interval`, `guardian.cycle_timeout`, and `update.policy` (`manual` or
+`notify`; automatic is rejected). Task 046 also supports
 `notification.email.enabled`, `.recipient`, `.host`, `.port`, `.sender`,
 `.security`, `.auth`, `.username`, `.credential_ref`, and `.timeout`.
 Community permits exactly one administrator recipient. Durations use forms such as

@@ -45,7 +45,10 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - Focused race tests for installer/update/CLI: PASS.
 - `go vet ./...`, gofmt, release-plumbing regression and `git diff --check`: PASS.
 - Pseudo-terminal Hungarian line-mode acceptance proved language selection, truthful 0-percent preflight, localized stage/explanation, strict supported-platform identity and graceful existing assessment blocker. The managed engineering session lacks a reachable user systemd manager, so this run truthfully stopped before plan/mutation and is not clean-host acceptance.
-- External disposable-host fresh-install acceptance and frozen candidate construction remain pending; no public release action occurred.
+- Implementation commit `0788b1ad822a71bd7538129a7b7eb9ec0385e7cf` was clean-fast-forward pushed to canonical `main` after dry-run.
+- Two deterministic RC.2 builds from that commit were byte-identical. The archive SHA-256 was `03cc1e2d77768e9ae16b4e9bfd901036968d652cc6d9b2f915ffacb70f812fbe`; sidecar SHA-256 was `933bf3cba245198f0e2f8a3cfa55b4fb250d53d0e125eaa5fc093a0838b1cb53`; manifest and embedded version/provenance passed.
+- Package review then found the packaged living `KNOWN_LIMITATIONS.md` still named RC.1 and omitted guided-installer limitations. Classified `PRODUCT DOCUMENTATION DEFECT`; those candidate bytes are preserved as superseded and are not eligible for external acceptance. Current packaged setup/limitations documentation is being corrected before a new provenance identity is built.
+- External disposable-host fresh-install acceptance remains pending; no public release action occurred.
 
 ## Rollback
 
