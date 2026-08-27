@@ -185,15 +185,19 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 	complete(installer.PhaseActivation)
 
 	render(installer.PhaseReadiness)
-	legacyOut.Reset()
-	legacyErr.Reset()
-	readinessCode := runReadiness(nil, &legacyOut, &legacyErr)
-	if readinessCode != 0 && active {
+	report = buildOperationalReport(context.Background(), assessment.LocalHost{Runner: assessment.DefaultRunner()}, time.Now().UTC())
+	readinessState := assessment.Unknown
+	for _, domain := range report.Domains {
+		if domain.Domain == "overall" {
+			readinessState = domain.State
+		}
+	}
+	if active && readinessState == assessment.NotReady {
 		progress.Fail(installer.PhaseReadiness, false)
 		fmt.Fprintln(errout, catalog.Text("readiness.partial"))
-		return readinessCode
+		return 4
 	}
-	if readinessCode == 0 {
+	if readinessState == assessment.Ready {
 		fmt.Fprintln(out, catalog.Text("readiness.ready"))
 	} else {
 		fmt.Fprintln(out, catalog.Text("readiness.partial"))
@@ -205,7 +209,11 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 	if active {
 		guardian = catalog.Text("summary.active")
 	}
-	fmt.Fprintf(out, "[%s] 100%%\n%s\n%s\n%s\n%s\n%s\n", progressBar(100), catalog.Text("summary.version", version), catalog.Text("summary.guardian", guardian), catalog.Text("summary.notification"), catalog.Text("summary.policy", policy), catalog.Text("next"))
+	readiness := catalog.Text("summary.partial")
+	if readinessState == assessment.Ready {
+		readiness = catalog.Text("summary.ready")
+	}
+	fmt.Fprintf(out, "[%s] 100%%\n%s\n%s\n%s\n%s\n%s\n%s\n", progressBar(100), catalog.Text("summary.version", version), catalog.Text("summary.guardian", guardian), catalog.Text("summary.notification"), catalog.Text("summary.policy", policy), catalog.Text("summary.readiness", readiness), catalog.Text("next"))
 	return 0
 }
 
