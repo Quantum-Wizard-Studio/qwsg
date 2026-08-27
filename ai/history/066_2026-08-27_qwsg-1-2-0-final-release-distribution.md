@@ -41,6 +41,7 @@ Established the exact starting state, independently fetched canonical remote `ma
 - An exact `c260dc1` source export with identical logical bytes, commit, epoch and toolchain but ordinary `0644` non-executable modes produced archive SHA-256 `5b32df3b090658cfb9a08a7d670848c65af4d5d048dc053e3ad0973d11f0082a`, not the frozen hash. Extracted payload content compared byte-identical; representative `README.md` modes were `0660` frozen versus `0644` clean export. Cross-mode deterministic construction and least-privilege archive permissions therefore fail.
 - Per the approved STOP boundary, no final identity, tag, Forgejo Release/asset, OVH mutation, Contabo mutation or announcement was attempted. Task 065's prior clean-host claims remain valid but missing Task 066 clean/full/update/restorative rollback/physical reboot/notification/published-download gates are not PASS.
 - Added `docs/release/ACCEPTANCE_1.2.0.md` with the blocked decision, evidence and smallest remediation: normalize package modes before manifest/tar creation, add cross-umask/mode reproducibility tests, issue new private RC.3 provenance and repeat every mandatory acceptance gate.
+- Targeted staging, staged diff/mode/privacy review, commit and push dry-run passed. Blocker evidence commit `4c2b469c87e8e98cae3312c29f9d07b6dc715f76` was clean-fast-forward pushed; fresh fetch proved `HEAD == origin/main` with `0 0` divergence before lifecycle archival.
 
 ## Verification
 
@@ -56,6 +57,7 @@ Established the exact starting state, independently fetched canonical remote `ma
 - Full Contabo coexistence: NOT EXECUTED after mandatory STOP.
 - Final update/restorative rollback acceptance: NOT EXECUTED after mandatory STOP; local update/rollback tests passed but are insufficient for release.
 - Forgejo final wget/curl distribution: NOT EXECUTED; tag/Release/assets remain absent.
+- Exact-path staged review, blocker commit, dry-run push, real clean-fast-forward push and post-push fetch/identity: PASS.
 
 ## Rollback
 
