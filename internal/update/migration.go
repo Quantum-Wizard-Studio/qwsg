@@ -8,7 +8,7 @@ type Migration struct {
 }
 
 func PlanMigration(from, to string) (Migration, error) {
-	if from == "1.1.0" && to == "1.2.0-rc.1" {
+	if (from == "1.1.0" && (to == "1.2.0-rc.1" || to == "1.2.0-rc.2")) || (from == "1.2.0-rc.1" && to == "1.2.0-rc.2") {
 		return Migration{From: from, To: to, ConfigurationSchema: "1.0", GuardianSchema: "1.0", SchedulerSchema: "1.0", OperatorState: "1.0-1.2", Mutation: false}, nil
 	}
 	fromV, e1 := ParseVersion(from)

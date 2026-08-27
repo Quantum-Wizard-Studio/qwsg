@@ -22,12 +22,11 @@ URLs are documented only after their Release assets exist and anonymous
 authorized private transfer boundary.
 
 ```sh
-sha256sum -c qwsg-1.2.0-rc.1-linux-amd64.tar.gz.sha256
-tar -xzf qwsg-1.2.0-rc.1-linux-amd64.tar.gz
-cd qwsg-1.2.0-rc.1-linux-amd64
+sha256sum -c qwsg-1.2.0-rc.2-linux-amd64.tar.gz.sha256
+tar -xzf qwsg-1.2.0-rc.2-linux-amd64.tar.gz
+cd qwsg-1.2.0-rc.2-linux-amd64
 sha256sum -c MANIFEST.sha256
-./bin/qwsg install --check
-sudo ./install.sh
+./bin/qwsg install --guided
 ```
 
 Smart Install is read-only. For every supported actionable finding it explains
@@ -39,15 +38,18 @@ command safe. Apply any host change yourself, then rerun:
 ```sh
 qwsg install --check
 ```
-`install.sh` copies immutable artifacts only; it never configures SMTP,
-lingering, a user, or a service.
+The wizard checks compatibility, displays an exact plan, and asks for consent
+before invoking the archive's narrow `install.sh` through `sudo`. The Go binary
+owns language, progress, setup, service and readiness behavior; the shell layer
+copies immutable package artifacts only. Experts may use `install --check` and
+then `sudo ./install.sh` followed by `qwsg setup`.
 
 ## Guided setup and notification
 
 As the ordinary Guardian user:
 
 ```sh
-qwsg setup
+qwsg install --guided
 qwsg readiness
 ```
 

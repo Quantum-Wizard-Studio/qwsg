@@ -458,8 +458,22 @@ func setConfigValue(source configuration.Source, found bool, effective configura
 		}
 		schedules := []configuration.Schedule{schedule}
 		source.Patch.Schedules = &schedules
-	case "notification.email.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout":
+	case "notification.email.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout", "update.policy":
 		extensions := append([]configuration.Extension{}, effective.Values.Extensions...)
+		if key == "update.policy" {
+			if value != "manual" && value != "notify" {
+				return source, fmt.Errorf("update.policy must be manual or notify")
+			}
+			for i := range extensions {
+				if extensions[i].ID == "installer.update-policy" {
+					extensions = append(extensions[:i], extensions[i+1:]...)
+					break
+				}
+			}
+			extensions = append(extensions, configuration.Extension{ID: "installer.update-policy", Version: "1.0", Required: false, Fields: map[string]string{"policy": value}})
+			source.Patch.Extensions = &extensions
+			return configuration.NormalizeSource(source)
+		}
 		fields := map[string]string{}
 		foundExtension := false
 		for i := range extensions {
@@ -498,7 +512,15 @@ func getConfigValue(effective configuration.Effective, key string) (string, erro
 		return guardianInterval(effective).String(), nil
 	case "guardian.cycle_timeout":
 		return guardianTimeout(effective).String(), nil
-	case "notification.email.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout":
+	case "notification.email.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout", "update.policy":
+		if key == "update.policy" {
+			for _, x := range effective.Values.Extensions {
+				if x.ID == "installer.update-policy" {
+					return x.Fields["policy"], nil
+				}
+			}
+			return "manual", nil
+		}
 		field := strings.TrimPrefix(key, "notification.email.")
 		if field == "recipient" {
 			field = "recipients"

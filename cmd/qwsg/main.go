@@ -128,7 +128,7 @@ func runWithConsole(args []string, in io.Reader, out, errout io.Writer, interact
 	case "notification":
 		return runNotification(args[1:], out, errout)
 	case "install":
-		return runInstallAssessment(args[1:], out, errout)
+		return runInstall(args[1:], in, out, errout, interactive)
 	case "readiness":
 		return runReadiness(args[1:], out, errout)
 	case "update":

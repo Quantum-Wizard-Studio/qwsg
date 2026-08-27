@@ -19,18 +19,21 @@ previous package while preserving user configuration, credentials and state.
 ## Normal journey
 
 ```text
-verify archive -> ./bin/qwsg install --check -> sudo ./install.sh
--> qwsg setup -> qwsg readiness
+verify archive -> ./bin/qwsg install --guided -> localized plan and consent
+-> narrow package installation -> configuration -> Guardian readiness
 ```
 
-Setup is resumable and guides configuration, optional external notification,
-and explicit Guardian activation. QWSG never installs packages, invokes sudo,
-or enables lingering for you. Readiness distinguishes working Guardian core
-from external notification and requires fresh evidence—not process state alone.
+The wizard supports English, Magyar, and Deutsch, derives progress from actual
+phase state, and invokes the archive's fixed package helper through `sudo` only
+after consent. It never enables lingering automatically. The concise expert
+path remains `install --check`, `sudo ./install.sh`, `qwsg setup`, then
+`qwsg readiness`. Readiness distinguishes working Guardian core from optional
+external notification and requires fresh evidence—not process state alone.
 
 ## Principal commands
 
 ```sh
+qwsg install --guided
 qwsg setup
 qwsg setup --plan --format json
 qwsg config show

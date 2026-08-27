@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0-rc.2] - 2026-08-27
+
+- Added a QWSG-owned guided terminal installer with explicit preflight, plan,
+  package, configuration, optional notification, update-policy, activation,
+  readiness, and completion phases.
+- Added truthful state-derived progress, a terminal dashboard and line-mode
+  fallback, plus English, Hungarian, and German catalogs with English fallback.
+- Added strict Ubuntu 24.04 LTS amd64 platform gating and reusable installer
+  engine contracts for future concise and unattended adapters.
+- Added explicit manual/notify update-policy configuration. Unattended
+  privileged automatic updating remains disabled.
+
 ## [1.2.0-rc.1] - 2026-08-26
 
 - Added canonical public Release discovery and strict SemVer update ordering.
