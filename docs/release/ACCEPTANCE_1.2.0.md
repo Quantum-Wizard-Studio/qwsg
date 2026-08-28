@@ -4,6 +4,27 @@
 
 `BLOCKED — QWSG 1.2.0 was not tagged, published or distributed.`
 
+Task 067 corrected QWSG-066-F001 and produced a deterministic private RC.3
+candidate ready for the separately authorized final acceptance matrix. The
+final `1.2.0` decision remains blocked until that matrix passes; no tag,
+publication, Forgejo Release, or VPS mutation was performed by Task 067.
+
+## Task 067 remediation and private RC.3
+
+- Canonical modes: directories `0755`; `bin/qwsg`, `install.sh`, and
+  `uninstall.sh` `0755`; all other regular files `0644`.
+- Source commit: `b6eb357ad03a02b41ac93536fc3be91ecf929803`.
+- Controlled build epoch: `1787905053` (`2026-08-28T08:17:33Z`).
+- Private artifact: `qwsg-1.2.0-rc.3-linux-amd64.tar.gz`.
+- SHA-256: `8543c3e09b48085b01c037d7db5106ea793374dc099b0b9be5f6cacb55af13ee`.
+- Rebuild from a normalized Git export under `umask 0077` matched the
+  group-writable worktree build byte-for-byte with the same SHA-256.
+- Extraction under `umask 0002` and `0077` produced identical canonical modes;
+  archive ownership was numeric `0/0`, no regular file was group/world
+  writable, and exactly the three intended files were executable.
+- Automated `release-check` now includes the cross-umask/source-mode SHA-256
+  regression and exact mode allowlist.
+
 Task 066 audited the exact private `1.2.0-rc.2` candidate before promotion. A
 release-builder permission-normalization defect makes the archive depend on
 ambient worktree modes and leaves the frozen candidate's extracted

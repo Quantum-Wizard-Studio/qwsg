@@ -4,7 +4,7 @@
 
 - Task ID: `067`
 - Task slug: `deterministic-release-packaging-rc3`
-- Status: `active — deterministic packaging remediation in progress`
+- Status: `complete — private RC.3 ready for final acceptance`
 - Date generated: `2026-08-28` UTC
 - Human authority: Project Owner: Attila
 - Preferred owner communication language: English
@@ -32,15 +32,31 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - Confirmed QWSG-066-F001 as a `PRODUCT/FRAMEWORK DEFECT`: directories and non-executable files are not normalized before manifest/tar creation.
 - Defined the canonical package policy: directories `0755`; intended executables `0755`; every other regular file `0644`.
 - The first focused regression correctly found that normalizing before manifest creation still allowed the newly generated `MANIFEST.sha256` mode to inherit caller umask. Classified `PRODUCT/FRAMEWORK DEFECT`; moved the complete normalization pass after manifest creation so every final archive entry is covered.
+- Added `scripts/test-release-reproducibility.sh` to construct equivalent normalized/`umask 0022` and group-writable/`umask 0002` inputs, compare artifacts byte-for-byte and by SHA-256, and enforce the exact tar mode allowlist. Integrated it into `make release-check`.
+- Advanced only the private candidate metadata and canonical installation/release documentation to `1.2.0-rc.3`. RC.2 remains rejected immutable historical evidence.
+- Full validation passed, then remediation commit `b6eb357ad03a02b41ac93536fc3be91ecf929803` was created as frozen RC.3 provenance.
+- Built private `qwsg-1.2.0-rc.3-linux-amd64.tar.gz` with epoch `1787905053`; SHA-256 is `8543c3e09b48085b01c037d7db5106ea793374dc099b0b9be5f6cacb55af13ee` and sidecar-file SHA-256 is `ae6a9de6d8430ba51d6895dd85219ba2f86422425424f78d31b6ef2952467fdd`.
+- Independently rebuilt from a normalized Git export under `umask 0077`; it matched the group-writable worktree build byte-for-byte at the same archive SHA-256.
+- Independent extraction under `umask 0002` and `0077` matched recursively. Every directory was `0755`, every ordinary file `0644`, exactly `bin/qwsg`, `install.sh`, and `uninstall.sh` were `0755`, and every archive owner/group was numeric `0/0`.
 
 ## Verification
 
-Builder input, metadata, prompt/history identity, approval state, and lifecycle installation validated successfully.
+- Builder input/check/install, `bin/job --check`, lifecycle and Framework validation: PASS.
+- Mandatory snapshot checksum, readability and isolated restore rehearsal: PASS.
+- Focused build contract and release plumbing: PASS.
+- Cross-umask (`0022` versus `0002`) artifact byte/SHA-256 identity: PASS.
+- Group-writable versus normalized source regular-file and directory modes: PASS.
+- Executable preservation and exact three-file executable allowlist: PASS.
+- `make engineering-test test vet fmt-check release-check`: PASS; Framework 25, diversion 36, lifecycle 29 and Builder 49 assertions passed.
+- `go test -race ./...`: PASS across all packages.
+- RC.3 internal manifest, embedded version/full commit/build time, repeat-build identity, numeric ownership, archive modes, two-umask extraction and forbidden writable-mode checks: PASS.
+- No `v1.2.0` tag, publication, Forgejo Release, or VPS mutation occurred.
+- A post-freeze `release-check` first met its intentional existing-output guard because the private candidate occupied `dist/`; classified `EXPECTED BEHAVIOR`. The archive and sidecar were moved to protected temporary holding, the complete check passed, both were restored, and archive/sidecar verification passed unchanged.
 
 ## Rollback
 
-[PENDING UNTIL TASK START]
+Verify `/tmp/qwsg-task067-execution.Ha0m3I/SHA256SUMS`, follow its collision-safe `ROLLBACK.md`, and restore only exact reviewed task paths from isolated extraction. After integration, use a forward corrective commit; never reset, clean broadly, rewrite history, or alter release refs.
 
 ## Completion state
 
-`active — implementation and verification in progress`
+`complete — QWSG-066-F001 corrected; private RC.3 is READY FOR FINAL ACCEPTANCE, while final QWSG 1.2.0 acceptance/publication remains separately gated`
