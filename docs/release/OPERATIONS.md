@@ -14,6 +14,9 @@ Use `qwsg` for the current read-only operator view and `qwsg observe` for an exp
 Use `qwsg readiness` for the composite operational gate. Guardian core may be
 `ready`, notification `not_ready`, and overall `partial`. A ready Guardian claim
 requires fresh canonical evidence, not merely an installed or active unit.
+Guided activation uses the same bounded fresh-evidence waiter as guided setup
+and requires the post-activation evidence identity to differ from any preserved
+pre-activation record.
 
 Before activation or after a configuration change, run `qwsg config validate`
 and `qwsg config show`. Guardian discovers that primary configuration and uses

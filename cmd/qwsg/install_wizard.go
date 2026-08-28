@@ -14,11 +14,17 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/assessment"
 	"quantumwizard.hu/qwsg/internal/changenotification"
+	"quantumwizard.hu/qwsg/internal/configurationstore"
 	"quantumwizard.hu/qwsg/internal/installer"
 	"quantumwizard.hu/qwsg/internal/userservice"
 )
 
 var wizardInstallPackage = installReleasePackage
+var wizardEvidenceProbe guardianEvidenceProbe = currentGuardianEvidence
+var wizardEvidencePause guardianEvidencePause = guardianEvidenceSleep
+var wizardOperationalReport = func() assessment.Report {
+	return buildOperationalReport(context.Background(), assessment.LocalHost{Runner: assessment.DefaultRunner()}, time.Now().UTC())
+}
 
 func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive bool) int {
 	if len(args) > 0 && args[0] == "--check" {
@@ -180,6 +186,7 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 	fmt.Fprint(out, catalog.Text("activation.prompt")+" ")
 	answer, _ = reader.ReadString('\n')
 	active := yes(answer, language, true)
+	previousEvidence, _ := wizardEvidenceProbe()
 	if active {
 		if err = prepareGuardianState(); err == nil {
 			err = userservice.New().Activate(context.Background())
@@ -194,9 +201,32 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 		fmt.Fprintln(out, catalog.Text("activation.skipped"))
 	}
 	complete(installer.PhaseActivation)
-
 	render(installer.PhaseReadiness)
-	report = buildOperationalReport(context.Background(), assessment.LocalHost{Runner: assessment.DefaultRunner()}, time.Now().UTC())
+	if active {
+		path, pathErr := configurationstore.SelectPath("", os.Getenv)
+		if pathErr != nil {
+			progress.Fail(installer.PhaseReadiness, false)
+			fmt.Fprintln(errout, catalog.Text("readiness.timeout"))
+			return 4
+		}
+		source, found, loadErr := configurationstore.Load(path)
+		effective, configErr := resolveLocalConfiguration(source, found, nil)
+		if loadErr != nil || configErr != nil || waitForFreshGuardianEvidence(context.Background(), previousEvidence, guardianTimeout(effective)+5*time.Second, wizardEvidenceProbe, wizardEvidencePause) != nil {
+			progress.Fail(installer.PhaseReadiness, false)
+			fmt.Fprintln(errout, catalog.Text("readiness.timeout"))
+			return 4
+		}
+	}
+
+	report = wizardOperationalReport()
+	code := finishGuidedInstallation(catalog, &progress, active, policy, report, out, errout, render, complete)
+	if code == 0 {
+		installOutcome = changenotification.Success
+	}
+	return code
+}
+
+func finishGuidedInstallation(catalog installer.Catalog, progress *installer.Progress, active bool, policy string, report assessment.Report, out, errout io.Writer, render func(installer.PhaseID), complete func(installer.PhaseID)) int {
 	readinessState := assessment.Unknown
 	for _, domain := range report.Domains {
 		if domain.Domain == "overall" {
@@ -225,7 +255,6 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 		readiness = catalog.Text("summary.ready")
 	}
 	fmt.Fprintf(out, "[%s] 100%%\n%s\n%s\n%s\n%s\n%s\n%s\n", progressBar(100), catalog.Text("summary.version", version), catalog.Text("summary.guardian", guardian), catalog.Text("summary.notification"), catalog.Text("summary.policy", policy), catalog.Text("summary.readiness", readiness), catalog.Text("next"))
-	installOutcome = changenotification.Success
 	return 0
 }
 

@@ -1,5 +1,11 @@
 # QWSG 1.2.0 Final Release Decision
 
+## Task 071 guided-installer remediation and private RC.6
+
+Task 069 remains `BLOCKED` by QWSG-069-F001; Task 070 remediated that blocker and produced private RC.5. During Owner-operated manual RC.5 pre-release acceptance on the clean OVH host, archive/manifest verification, first guided installation, administrator-enabled lingering, reboot-autostart, Guardian resource limits/readiness and supported uninstall preservation passed. The exact preserved-state reinstall installed the package and activated a healthy Guardian, but its immediate readiness assessment ran before the new Guardian's first canonical evidence cycle. The wizard returned exit 4 at 87%, omitted the completion phase/summary, and subsequent readiness immediately proved all mandatory domains ready with only optional notification partial. No package, configuration, state or Guardian corruption occurred. RC.5 was not promoted.
+
+Task 071 remediates this synchronization defect with a shared bounded fresh-evidence waiter and explicit pre/post activation evidence identity. Deterministic regressions cover clean/delayed/preserved-state success, stale rejection, timeout/cancellation, optional Partial completion and localized diagnostics. RC.6 supersedes RC.5 as the next private acceptance candidate; final real-host acceptance remains pending.
+
 ## Task 070 blocker remediation and private RC.5
 
 Task 069 remains truthfully `BLOCKED` by `QWSG-069-F001`; RC.4 was not promoted. Task 070 implements an explicit deterministic `1.2.0-rc.2` -> `1.2.0-rc.5` compatibility path, installed-configuration preflight, independent privileged-boundary migration revalidation and a credential-free RC.2 installed-state regression fixture. The fixture proves RC.5 package replacement, byte-preservation of valid configuration/protected credential/relevant state, Guardian unit/resource/path semantics, protected rollback metadata and exact restoration of the RC.2 binary/unit state.

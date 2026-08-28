@@ -22,9 +22,9 @@ URLs are documented only after their Release assets exist and anonymous
 authorized private transfer boundary.
 
 ```sh
-sha256sum -c qwsg-1.2.0-rc.5-linux-amd64.tar.gz.sha256
-tar -xzf qwsg-1.2.0-rc.5-linux-amd64.tar.gz
-cd qwsg-1.2.0-rc.5-linux-amd64
+sha256sum -c qwsg-1.2.0-rc.6-linux-amd64.tar.gz.sha256
+tar -xzf qwsg-1.2.0-rc.6-linux-amd64.tar.gz
+cd qwsg-1.2.0-rc.6-linux-amd64
 sha256sum -c MANIFEST.sha256
 ./bin/qwsg install --guided
 ```
@@ -86,6 +86,13 @@ qwsg readiness
 READY requires fresh integrity-checked Guardian evidence. Allow the bounded
 first cycle to complete and rerun readiness when instructed. Working core with
 unverified notification is PARTIAL.
+
+After guided activation, the installer waits for a new canonical evidence
+identity within the validated Guardian cycle-timeout contract. A preserved
+state record from a previous installation is never accepted as proof for the
+new activation. Delayed valid evidence continues to the completion phase;
+timeout preserves installation data, reports `qwsg readiness`/`qwsg setup`
+recovery guidance and exits 4 without a false 100% summary.
 
 ## Logout, reboot, uninstall, and rollback
 

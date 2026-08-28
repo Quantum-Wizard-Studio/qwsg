@@ -24,13 +24,13 @@ func TestRequiredEventsLocalizationRedactionAndIdempotency(t *testing.T) {
 	now := time.Date(2026, 8, 28, 9, 0, 0, 0, time.UTC)
 	for _, typ := range []EventType{Install, Update, Rollback, VersionChanged, ConfigurationChanged, GuardianChanged} {
 		for _, locale := range []string{"en", "hu", "de"} {
-			e := Event{ID: string(typ) + locale, Host: "server.example", Type: typ, Result: Success, PreviousVersion: "1.2.0-rc.2", NewVersion: "1.2.0-rc.5", At: now}
+			e := Event{ID: string(typ) + locale, Host: "server.example", Type: typ, Result: Success, PreviousVersion: "1.2.0-rc.2", NewVersion: "1.2.0-rc.6", At: now}
 			f := &fakeSender{}
 			d := &Dispatcher{}
 			if got := d.Deliver(true, locale, e, f); got != DeliveryAccepted {
 				t.Fatalf("%s %s: %s", typ, locale, got)
 			}
-			if len(f.messages) != 1 || !strings.Contains(f.messages[0].Subject, "[QWSG]") || !strings.Contains(f.messages[0].Body, "1.2.0-rc.2") || !strings.Contains(f.messages[0].Body, "1.2.0-rc.5") {
+			if len(f.messages) != 1 || !strings.Contains(f.messages[0].Subject, "[QWSG]") || !strings.Contains(f.messages[0].Body, "1.2.0-rc.2") || !strings.Contains(f.messages[0].Body, "1.2.0-rc.6") {
 				t.Fatalf("bad message: %#v", f.messages)
 			}
 			if got := d.Deliver(true, locale, e, f); got != DeliveryDuplicate || len(f.messages) != 1 {
@@ -61,7 +61,7 @@ func TestUpdateAndRollbackFailureDirection(t *testing.T) {
 	now := time.Date(2026, 8, 28, 9, 0, 0, 0, time.UTC)
 	for _, e := range []Event{
 		{ID: "update-failed", Host: "server.example", Type: Update, Result: Failed, PreviousVersion: "1.2.0-rc.2", NewVersion: "1.2.0-rc.2", Reason: "update_failed", At: now, ActionRequired: true},
-		{ID: "rollback-failed", Host: "server.example", Type: Rollback, Result: Failed, PreviousVersion: "1.2.0-rc.5", NewVersion: "1.2.0-rc.2", Reason: "rollback_failed", At: now, ActionRequired: true},
+		{ID: "rollback-failed", Host: "server.example", Type: Rollback, Result: Failed, PreviousVersion: "1.2.0-rc.6", NewVersion: "1.2.0-rc.2", Reason: "rollback_failed", At: now, ActionRequired: true},
 	} {
 		f := &fakeSender{}
 		if (&Dispatcher{}).Deliver(true, "en", e, f) != DeliveryAccepted {

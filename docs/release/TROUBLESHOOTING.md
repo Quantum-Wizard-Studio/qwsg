@@ -18,6 +18,9 @@ records fail closed.
 - `incompatible`: the observed host violates the supported boundary.
 - `overall: partial`: core operation can be ready while optional notification
   remains unavailable or unverified.
+- A guided installer fresh-evidence timeout exits 4 before the 100% summary,
+  preserves package/configuration/state, and directs the operator to `qwsg
+  readiness` and `qwsg setup`. It does not mean package installation failed.
 
 - `systemd.user_manager`: perform the displayed ordinary-user verification.
   QWSG distinguishes a missing/unsafe runtime directory, transient manager,

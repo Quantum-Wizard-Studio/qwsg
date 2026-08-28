@@ -269,6 +269,7 @@ func runSetupWithActivator(args []string, in io.Reader, out, errout io.Writer, i
 		fmt.Fprint(out, "Activate QWSG Guardian now? [y/N]: ")
 		var answer string
 		if _, scanErr := fmt.Fscanln(in, &answer); scanErr == nil && strings.EqualFold(answer, "y") {
+			previousEvidence, _ := currentGuardianEvidence()
 			if err = prepareGuardianState(); err != nil {
 				fmt.Fprintln(errout, guardianStatePreparationFailure(err))
 				return 1
@@ -278,13 +279,9 @@ func runSetupWithActivator(args []string, in io.Reader, out, errout io.Writer, i
 				return 1
 			}
 			fmt.Fprintln(out, "Guardian activation requested. Waiting for fresh Guardian evidence...")
-			deadline := time.Now().Add(guardianTimeout(effective) + 5*time.Second)
-			for time.Now().Before(deadline) {
-				if guardianEvidenceFinding().Classification == assessment.Satisfied {
-					fmt.Fprintln(out, "Guardian produced fresh canonical evidence.")
-					return runReadiness(nil, out, errout)
-				}
-				time.Sleep(time.Second)
+			if waitForFreshGuardianEvidence(context.Background(), previousEvidence, guardianTimeout(effective)+5*time.Second, currentGuardianEvidence, guardianEvidenceSleep) == nil {
+				fmt.Fprintln(out, "Guardian produced fresh canonical evidence.")
+				return runReadiness(nil, out, errout)
 			}
 			fmt.Fprintln(out, "Fresh Guardian evidence was not available before the bounded timeout. Run: qwsg readiness")
 			return 4

@@ -18,6 +18,10 @@ privileged helper revalidates the migration decision. Unsupported or malformed
 identities fail closed. Rollback metadata and before-images are private,
 integrity protected and contain only release-owned package destinations; secret
 values are neither logged nor composed into lifecycle notifications.
+Guided activation accepts only a new integrity-checked canonical evidence
+identity after service activation; a still-current preserved record cannot
+impersonate the newly started Guardian. Waiting is cancellable and bounded by
+validated configuration.
 
 Smart Install assessment is read-only. Direct evidence is preferred; external
 probes are compiled, absolute, allowlisted, fixed-argument, bounded, and

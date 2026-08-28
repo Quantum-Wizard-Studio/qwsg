@@ -1,4 +1,4 @@
-# QWSG 1.2.0-rc.5 Known Limitations
+# QWSG 1.2.0-rc.6 Known Limitations
 
 The first native transition from QWSG 1.1.0 must be initiated with the fully
 verified newer archive binary because 1.1.0 predates the `update` command.

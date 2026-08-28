@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0-rc.6] - 2026-08-28
+
+- Synchronize guided completion with the newly activated Guardian's first fresh canonical evidence using the setup path's shared bounded waiter.
+- Reject preserved stale evidence by lifecycle identity; retain bounded timeout, cancellation, diagnostic exit 4 and optional-notification Partial exit 0 semantics.
+- Add deterministic installer completion, delayed evidence, preserved-state, timeout, localization and RC.2-to-RC.6 migration regressions.
+
 ## [1.2.0-rc.5] - 2026-08-28
 
 - Add a declarative, fail-closed compatibility path for deterministic updates from the real installed `1.2.0-rc.2` predecessor.
