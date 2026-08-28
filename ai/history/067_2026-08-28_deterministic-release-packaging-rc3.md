@@ -52,6 +52,7 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - RC.3 internal manifest, embedded version/full commit/build time, repeat-build identity, numeric ownership, archive modes, two-umask extraction and forbidden writable-mode checks: PASS.
 - No `v1.2.0` tag, publication, Forgejo Release, or VPS mutation occurred.
 - A post-freeze `release-check` first met its intentional existing-output guard because the private candidate occupied `dist/`; classified `EXPECTED BEHAVIOR`. The archive and sidecar were moved to protected temporary holding, the complete check passed, both were restored, and archive/sidecar verification passed unchanged.
+- Targeted staging, staged whitespace/mode/privacy review, remediation commit `b6eb357ad03a02b41ac93536fc3be91ecf929803`, evidence commit `06bfa7addfcb3ba4fa9c1c4e57c6cb3f340fcf65`, push dry-run and clean fast-forward push passed. Fresh fetch proved `HEAD == origin/main == 06bfa7addfcb3ba4fa9c1c4e57c6cb3f340fcf65` with `0 0` divergence before lifecycle archival.
 
 ## Rollback
 
