@@ -58,6 +58,7 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - The first pre-sudo configuration rehearsal exposed that installed RC.2 rejects RC.4's new lifecycle field and briefly restarted. Each attempt was immediately restored from the exact pre-update configuration snapshot; the empty failed-update state directory was removed, config/readiness passed, and restart counts stabilized. Final Contabo binary, unit and configuration hashes exactly matched the pre-task RC.2 snapshot.
 - Post-blocker coexistence retained the baseline service states: active HestiaCP, Nginx, Apache, MariaDB, PostgreSQL, Exim, Dovecot, BIND/named, Fail2Ban, ClamAV daemon and twelve PHP-FPM services; baseline-inactive SpamAssassin, freshclam, UFW/nftables units and zero quota mounts remained unchanged. The server hostname's HTTPS endpoint was unreachable both as a safe post-check and lacked a matching pre-proof, so web/webmail/SSL remained `ENVIRONMENTAL ISSUE / INCONCLUSIVE`, not a QWSG regression. No package replacement occurred.
 - Preserved the protected Owner update log/exit in the local Contabo snapshot, removed the exact Task 069 Contabo acceptance directory, and verified RC.2 config/readiness plus active enabled Guardian and resource limits.
+- Targeted staging, staged diff/mode/privacy review, `git diff --cached --check`, commit `3f7af8361496340b3d9b602b19ccf1566a05c53e`, push dry-run and clean fast-forward push passed. The completed prompt was then moved to its exact Task 069 archive path for canonical idle closure.
 
 ## Verification
 
@@ -94,6 +95,6 @@ Contabo is restored to the protected `/tmp/qwsg-task069-contabo-preupdate.I5SwQ1
 4. Candidate: QWSG `1.2.0-rc.4`, SHA-256 `adeb591605c0d37a5fc98d541125ca388cd4561703d0f0823bba931bc7d08684`.
 5. Affected environment: Contabo production-like acceptance host; failure occurred before package replacement.
 6. Host mutation: temporary QWSG notification configuration and acceptance files only; exact pre-update QWSG identity restored and task-created paths removed. OVH acceptance mutations were fully rolled back to sterile state.
-7. Repository: no candidate/product repair and no final metadata/tag/release/publication.
-8. Lifecycle: Task 069 closed truthfully as BLOCKED.
+7. Repository: no candidate/product repair and no final metadata/tag/release/publication; BLOCKED evidence commit `3f7af8361496340b3d9b602b19ccf1566a05c53e` was pushed cleanly.
+8. Lifecycle: Task 069 prompt archived and closed truthfully as BLOCKED in canonical idle state.
 9. Smallest remediation: add explicit compatible RC.2 -> new-candidate migration plus deterministic tests, freeze a new candidate, and repeat the complete mandatory final acceptance/release matrix.
