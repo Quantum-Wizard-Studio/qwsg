@@ -45,6 +45,7 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - RC.4 `make engineering-test test vet fmt-check release-check` and `go test -race ./...`: PASS, including deterministic cross-mode/umask packaging.
 - Required event matrix (installation, update, rollback, version transition, configuration and Guardian activation), success/failure direction, disabled behavior, transport failure separation, redaction, EN/HU/DE and duplicate suppression: PASS with deterministic in-memory transport.
 - No external SMTP delivery, VPS mutation, `v1.2.0` tag, Forgejo Release or publication occurred.
+- Targeted staging, diff/mode/privacy review, source commit `4f7dcc11b5ccc9f078755946995baebd31ad6870`, evidence commit `28d9a1176141b0a8fc24b92ec60b9a5914306756`, push dry-run and clean fast-forward push passed. Fresh fetch proved `HEAD == origin/main == 28d9a1176141b0a8fc24b92ec60b9a5914306756` with `0 0` divergence before lifecycle archival.
 
 ## Rollback
 
