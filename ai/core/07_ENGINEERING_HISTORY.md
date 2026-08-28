@@ -245,5 +245,12 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   were restored, and no final tag, artifact or Forgejo Release was published.
   See
   `ai/history/069_2026-08-28_qwsg-1-2-0-final-acceptance-release.md`.
+- `2026-08-28`: Task 070 remediated QWSG-069-F001 with a declarative,
+  fail-closed `1.2.0-rc.2 -> 1.2.0-rc.5` compatibility path, privileged-boundary
+  revalidation, configuration preflight and a credential-free installed-state
+  fixture proving preservation and exact RC.2 rollback. Full/race/release
+  validation and deterministic private RC.5 construction passed; RC.5 is ready
+  for a separate real final-acceptance task and was not published. See
+  `ai/history/070_2026-08-28_deterministic-update-migration-rc5.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

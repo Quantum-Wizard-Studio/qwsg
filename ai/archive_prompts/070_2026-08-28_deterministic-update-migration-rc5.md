@@ -4,7 +4,7 @@
 
 - Task ID: `070`
 - Task slug: `deterministic-update-migration-rc5`
-- Status: `approved`
+- Status: `complete`
 - Date opened: `2026-08-28` UTC
 - Human authority: Project Owner: Attila
 - Owner or lead-developer communication language: English

@@ -4,7 +4,9 @@
 
 Task 069 remains truthfully `BLOCKED` by `QWSG-069-F001`; RC.4 was not promoted. Task 070 implements an explicit deterministic `1.2.0-rc.2` -> `1.2.0-rc.5` compatibility path, installed-configuration preflight, independent privileged-boundary migration revalidation and a credential-free RC.2 installed-state regression fixture. The fixture proves RC.5 package replacement, byte-preservation of valid configuration/protected credential/relevant state, Guardian unit/resource/path semantics, protected rollback metadata and exact restoration of the RC.2 binary/unit state.
 
-RC.5 supersedes RC.4 as the next private candidate. Artifact identity, SHA-256, frozen source commit and reproducibility evidence are recorded here only after candidate construction. Real OVH/Contabo update, restorative rollback, re-update, reboot, coexistence and mailbox acceptance remain pending for the subsequent final-acceptance task. Task 070 does not authorize a final tag or public release.
+RC.5 supersedes RC.4 as the next private candidate. Private artifact `qwsg-1.2.0-rc.5-linux-amd64.tar.gz` has SHA-256 `ca3123f313c2fb95138fceb0fc2af17c5a8295b28e7b13e60f5d7fd57ed19faf` and frozen source commit `3f2f7822473d3d97c38c171f006e8b263250321c` at controlled build time `2026-08-28T19:01:18Z`. A rebuild from a deliberately group-writable normalized Git export under `umask 0077` matched the primary archive and sidecar byte-for-byte. Manifest, provenance, numeric `0/0` ownership, canonical modes, intended executable allowlist, archive integrity and extraction passed.
+
+Task 070 classification: `READY FOR FINAL ACCEPTANCE`. Real OVH/Contabo update, restorative rollback, re-update, reboot, coexistence and mailbox acceptance remain pending for the subsequent final-acceptance task. Task 070 does not authorize a final tag or public release.
 
 ## Task 069 final acceptance result
 

@@ -4,7 +4,7 @@
 
 - Task ID: `070`
 - Task slug: `deterministic-update-migration-rc5`
-- Status: `active — implementation in progress`
+- Status: `complete — READY FOR FINAL ACCEPTANCE`
 - Date generated: `2026-08-28` UTC
 - Human authority: Project Owner: Attila
 - Preferred owner communication language: English
@@ -37,6 +37,9 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - Added a credential-free deterministic RC.2 installed-state fixture and an isolated end-to-end transaction test. It selects the exact path, replaces the binary/unit with RC.5, proves configuration/credential/state byte preservation, validates transaction metadata, rolls back and proves the RC.2 binary/unit plus user data byte-for-byte.
 - Advanced private source identity and release plumbing to `1.2.0-rc.5`; added RC.5 notes, changelog, installation commands, compatibility/rollback/security documentation and Task 069-preserving acceptance status.
 - The first fixture run selected the correct migration but its snake-case JSON schema did not populate untagged Go fields. Classified `TEST OR ACCEPTANCE DEFECT`; explicit JSON tags corrected the fixture contract and the unchanged product path passed.
+- Created reviewed candidate-source commit `3f2f7822473d3d97c38c171f006e8b263250321c`. Built private `qwsg-1.2.0-rc.5-linux-amd64.tar.gz` with controlled epoch `1787943678` (`2026-08-28T19:01:18Z`).
+- The first independent export rebuild was invoked from the live repository instead of the exported module root and Go rejected the external package path before creating output. Classified `TEST OR ACCEPTANCE DEFECT`; rerunning the identical normalized export from its own root succeeded without changing candidate source or bytes.
+- Independently rebuilt from a deliberately group-writable Git export under `umask 0077`; archive and sidecar matched byte-for-byte. Audited integrity, manifest, provenance, version, numeric `0/0` ownership, canonical `0755` directories, exactly binary/install/uninstall executable, all other files `0644`, and extraction behavior.
 
 ## Verification
 
@@ -48,6 +51,9 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - Framework v2 semantic (15), bounded diagnostic runner (11), active lifecycle and diverted-task audit: PASS.
 - Repository-wide `go test -race ./...`: PASS.
 - `make release-check`: RC.5 plumbing PASS and Task 067 cross-umask/source-mode byte reproducibility regression PASS.
+- Candidate archive SHA-256: `ca3123f313c2fb95138fceb0fc2af17c5a8295b28e7b13e60f5d7fd57ed19faf`; sidecar-file SHA-256: `17e09c6c54a1f502b9dcd745b931f7ec3c8db4bd4a26088d72916dad12187b76`.
+- Primary versus independent normalized/group-writable export archive and sidecar `cmp`: PASS. `gzip -t`, internal `sha256sum -c MANIFEST.sha256`, embedded CLI identity/provenance and tar ownership/mode inspection: PASS.
+- Final focused update/change-notification/CLI tests after RC.2/RC.5 event-direction assertions: PASS.
 
 ## Rollback
 
@@ -55,4 +61,18 @@ Verify `/tmp/qwsg-task070-execution.ulaK8c/SHA256SUMS` and follow its `ROLLBACK.
 
 ## Completion state
 
-`active — implementation in progress`
+`complete — QWSG-069-F001 remediated; private RC.5 READY FOR FINAL ACCEPTANCE`
+
+## Final decision
+
+1. Decision: `COMPLETE`.
+2. Remediation: explicit reusable declarative compatibility registry plus preflight and privileged-boundary revalidation; no version bypass or guessed path.
+3. Supported required path: `QWSG 1.2.0-rc.2 -> QWSG 1.2.0-rc.5`; undeclared paths fail closed before Guardian/package mutation.
+4. Preservation/security: compatible schemas require no transformation; configuration, protected credential and persistent state fixtures remain byte-identical and secret values are not emitted.
+5. Guardian/systemd: managed user unit is transactionally replaced/restored with fixed `/usr/local/bin/qwsg` path and preserved `MemoryMax=128M`/`TasksMax=32`; enabled/active orchestration remains unchanged and validated by existing suites. Real service acceptance is intentionally deferred.
+6. Rollback: protected transaction metadata records versions/commit/destinations/modes/hashes; isolated RC.5 -> RC.2 restored binary/unit and preserved data byte-for-byte; tamper/failure tests remain fail-safe.
+7. Notifications: Task 068 dispatcher remains transport-independent; update/rollback SUCCESS/FAILED, RC.2/RC.5 direction, operation identity/action requirement, EN/HU/DE, duplicate behavior, redaction and transport-result separation pass deterministic tests.
+8. Fixture/regression: credential-free `internal/update/testdata/rc2-installed-state.json` reproduces the compatibility-relevant RC.2 state without live-host/private data.
+9. Candidate: `qwsg-1.2.0-rc.5-linux-amd64.tar.gz`, SHA-256 `ca3123f313c2fb95138fceb0fc2af17c5a8295b28e7b13e60f5d7fd57ed19faf`, source `3f2f7822473d3d97c38c171f006e8b263250321c`; reproducibility PASS.
+10. Remaining limitation: real OVH/Contabo update/rollback/re-update/reboot/coexistence and mailbox acceptance remains mandatory in the subsequent final-acceptance task. No final tag, public artifact, Forgejo Release, VPS mutation or external SMTP delivery occurred.
+11. Classification: `READY FOR FINAL ACCEPTANCE`.
