@@ -4,7 +4,7 @@
 
 - Task ID: `071`
 - Task slug: `guided-installer-readiness-synchronization-rc6`
-- Status: `active — implementation and verification in progress`
+- Status: `complete`
 - Date generated: `2026-08-28` UTC
 - Human authority: Project Owner: Attila
 - Preferred owner communication language: English
@@ -43,6 +43,10 @@ The Engineering Task Builder generated and transactionally installed this first 
 - Full `go test -race ./...`: PASS across every package.
 - Framework v2 (15), bounded runner (11), lifecycle (29), Builder (49), active Task 071 and diverted-test-task audit: PASS. One initial verification command referenced a nonexistent legacy lifecycle test filename; this was a test-invocation error and the canonical `test-next-task.sh` suite subsequently passed.
 - Release plumbing and cross-umask/source-mode reproducibility regression: PASS.
+- Frozen candidate source `6355022fd08ae4461d79edfc86943418fc1958d0`, controlled epoch `1787954048` (`2026-08-28T21:54:08Z`). Private `dist/qwsg-1.2.0-rc.6-linux-amd64.tar.gz` SHA-256 `7f29f4cfe361412680c439eba7d8da5ae7d949b8702ce25c460baf991de99e33`.
+- Independent build from a group-writable Git export under `umask 0077` matched archive and sidecar byte-for-byte. Gzip/tar integrity, every manifest member, embedded version/provenance, numeric `0/0`, canonical archive modes, three-file executable allowlist, normal secure umask contraction and `tar -p` canonical extraction passed.
+- Task 070 RC.2 fixture proves RC.2 -> RC.6 package replacement, byte-preserved configuration/protected credentials/state, protected rollback metadata, exact RC.2 restoration and fail-closed unsupported transitions. Notification operation/transport separation and localized lifecycle regressions passed.
+- No OVH/Contabo access, final tag, public release or new transport occurred.
 
 ## Rollback
 
@@ -50,4 +54,4 @@ Verify `/tmp/qwsg-task071-execution.3zJbjO/SHA256SUMS` and follow its bounded `R
 
 ## Completion state
 
-`active — implementation and verification in progress`
+`complete — QWSG 1.2.0-rc.6 READY FOR FINAL ACCEPTANCE`

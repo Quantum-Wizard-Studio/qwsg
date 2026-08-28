@@ -252,5 +252,12 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   validation and deterministic private RC.5 construction passed; RC.5 is ready
   for a separate real final-acceptance task and was not published. See
   `ai/history/070_2026-08-28_deterministic-update-migration-rc5.md`.
+- `2026-08-28`: Task 071 corrected the RC.5 guided reinstall race by sharing
+  one bounded, cancellable fresh-Guardian-evidence waiter across setup and the
+  installer, rejecting preserved stale evidence while retaining real exit-4
+  readiness failures. Clean/delayed/preserved-state, localization, race,
+  migration/rollback and deterministic release gates passed; private RC.6 is
+  ready for separate final acceptance and was not published. See
+  `ai/history/071_2026-08-28_guided-installer-readiness-synchronization-rc6.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.
