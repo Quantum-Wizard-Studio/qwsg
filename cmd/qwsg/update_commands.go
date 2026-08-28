@@ -167,6 +167,10 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 		fmt.Fprintln(errout, "Update refused: no deterministic compatible migration path.")
 		return 1
 	}
+	if err = validateInstalledConfiguration(); err != nil {
+		fmt.Fprintln(errout, "Update failed: installed configuration preflight failed.")
+		return 1
+	}
 	enabled := commandState("is-enabled")
 	active := commandState("is-active")
 	if active == "yes" {
@@ -251,6 +255,11 @@ func runPrivilegedApply(args []string, errout io.Writer) int {
 	pkg, err := updatecore.VerifyPackage(staged)
 	if err != nil {
 		fmt.Fprintln(errout, "privileged package re-verification failed")
+		return 1
+	}
+	migration, err := updatecore.PlanMigration(values["--from"], pkg.Provenance.Version)
+	if err != nil || migration.Validate() != nil {
+		fmt.Fprintln(errout, "privileged migration compatibility verification failed")
 		return 1
 	}
 	if _, err = updatecore.Apply(pkg.Root, "/", values["--backup"], values["--from"]); err != nil {
@@ -444,7 +453,11 @@ func validateInstalledVersion(want string) error {
 	if first != "QWSG "+want {
 		return fmt.Errorf("installed version mismatch")
 	}
-	return exec.Command("/usr/local/bin/qwsg", "config", "validate").Run()
+	return validateInstalledConfiguration()
+}
+
+func validateInstalledConfiguration() error {
+	return exec.Command(installedQWSGBinary, "config", "validate").Run()
 }
 
 func installedVersion() (string, error) {

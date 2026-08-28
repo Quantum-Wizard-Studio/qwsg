@@ -34,6 +34,21 @@ func TestBootstrapUsesInstalledIdentity(t *testing.T) {
 		t.Fatal("bootstrap target not newer than installed identity")
 	}
 }
+
+func TestRC2InstalledIdentityAndConfigurationPreflight(t *testing.T) {
+	root := t.TempDir()
+	binary := filepath.Join(root, "qwsg")
+	if err := os.WriteFile(binary, []byte("#!/bin/sh\ncase \"$1 $2\" in\n  'version ') printf 'QWSG 1.2.0-rc.2\\ncommit: fixture\\nbuilt: fixture\\n';;\n  'config validate') exit 0;;\n  *) exit 1;;\nesac\n"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	previous := installedQWSGBinary
+	installedQWSGBinary = binary
+	defer func() { installedQWSGBinary = previous }()
+	got, err := installedVersion()
+	if err != nil || got != "1.2.0-rc.2" || validateInstalledConfiguration() != nil {
+		t.Fatalf("RC.2 preflight failed: %q %v", got, err)
+	}
+}
 func TestUpdateLocalArguments(t *testing.T) {
 	archive, target, err := parseUpdateArgs([]string{"--archive", "/tmp/qwsg-1.2.0-rc.1-linux-amd64.tar.gz", "--version", "1.2.0-rc.1"})
 	if err != nil || archive == "" || target != "1.2.0-rc.1" {

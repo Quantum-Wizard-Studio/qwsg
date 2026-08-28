@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0-rc.5] - 2026-08-28
+
+- Add a declarative, fail-closed compatibility path for deterministic updates from the real installed `1.2.0-rc.2` predecessor.
+- Revalidate migration compatibility in the privileged transaction boundary and require installed-configuration preflight before Guardian or package mutation.
+- Add a credential-free RC.2 fixture proving configuration, credential, state and Guardian-unit preservation plus exact package rollback to RC.2.
+
 ## [1.2.0-rc.4] - 2026-08-28
 
 - Added localized administrator notifications for QWSG-managed installation,

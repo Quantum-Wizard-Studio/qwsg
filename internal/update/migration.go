@@ -3,13 +3,27 @@ package update
 import "fmt"
 
 type Migration struct {
-	From, To, ConfigurationSchema, GuardianSchema, SchedulerSchema, OperatorState string
-	Mutation                                                                      bool
+	ID, From, To, ConfigurationSchema, GuardianSchema, SchedulerSchema, OperatorState string
+	Mutation                                                                          bool
+	PreserveConfiguration, PreserveCredentials, PreserveState, ReplaceGuardianUnit    bool
+}
+
+var migrationPaths = []Migration{
+	compatibilityPath("compat-1.1.0-to-1.2.0-rc.1", "1.1.0", "1.2.0-rc.1"),
+	compatibilityPath("compat-1.1.0-to-1.2.0-rc.2", "1.1.0", "1.2.0-rc.2"),
+	compatibilityPath("compat-1.2.0-rc.1-to-1.2.0-rc.2", "1.2.0-rc.1", "1.2.0-rc.2"),
+	compatibilityPath("compat-1.2.0-rc.2-to-1.2.0-rc.5", "1.2.0-rc.2", "1.2.0-rc.5"),
+}
+
+func compatibilityPath(id, from, to string) Migration {
+	return Migration{ID: id, From: from, To: to, ConfigurationSchema: "1.0", GuardianSchema: "1.0", SchedulerSchema: "1.0", OperatorState: "1.0-1.2", PreserveConfiguration: true, PreserveCredentials: true, PreserveState: true, ReplaceGuardianUnit: true}
 }
 
 func PlanMigration(from, to string) (Migration, error) {
-	if (from == "1.1.0" && (to == "1.2.0-rc.1" || to == "1.2.0-rc.2")) || (from == "1.2.0-rc.1" && to == "1.2.0-rc.2") {
-		return Migration{From: from, To: to, ConfigurationSchema: "1.0", GuardianSchema: "1.0", SchedulerSchema: "1.0", OperatorState: "1.0-1.2", Mutation: false}, nil
+	for _, path := range migrationPaths {
+		if path.From == from && path.To == to {
+			return path, nil
+		}
 	}
 	fromV, e1 := ParseVersion(from)
 	toV, e2 := ParseVersion(to)
@@ -23,7 +37,7 @@ func PlanMigration(from, to string) (Migration, error) {
 }
 
 func (m Migration) Validate() error {
-	if m.From == "" || m.To == "" || m.ConfigurationSchema != "1.0" || m.GuardianSchema != "1.0" || m.SchedulerSchema != "1.0" || m.OperatorState != "1.0-1.2" || m.Mutation {
+	if m.ID == "" || m.From == "" || m.To == "" || m.ConfigurationSchema != "1.0" || m.GuardianSchema != "1.0" || m.SchedulerSchema != "1.0" || m.OperatorState != "1.0-1.2" || m.Mutation || !m.PreserveConfiguration || !m.PreserveCredentials || !m.PreserveState || !m.ReplaceGuardianUnit {
 		return fmt.Errorf("invalid compatibility migration")
 	}
 	return nil

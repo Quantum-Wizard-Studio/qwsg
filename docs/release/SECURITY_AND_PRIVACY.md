@@ -12,6 +12,12 @@ privileged mutation. The privileged helper re-copies and re-verifies the
 candidate in private root-owned staging and writes only fixed package
 destinations. Configuration, credential and persistent state paths are excluded
 from package transactions and rollback payloads.
+The updater selects only an exact declared source/target compatibility record,
+validates installed configuration before service or package mutation, and the
+privileged helper revalidates the migration decision. Unsupported or malformed
+identities fail closed. Rollback metadata and before-images are private,
+integrity protected and contain only release-owned package destinations; secret
+values are neither logged nor composed into lifecycle notifications.
 
 Smart Install assessment is read-only. Direct evidence is preferred; external
 probes are compiled, absolute, allowlisted, fixed-argument, bounded, and

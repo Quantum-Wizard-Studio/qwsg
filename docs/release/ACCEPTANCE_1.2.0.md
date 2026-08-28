@@ -1,5 +1,11 @@
 # QWSG 1.2.0 Final Release Decision
 
+## Task 070 blocker remediation and private RC.5
+
+Task 069 remains truthfully `BLOCKED` by `QWSG-069-F001`; RC.4 was not promoted. Task 070 implements an explicit deterministic `1.2.0-rc.2` -> `1.2.0-rc.5` compatibility path, installed-configuration preflight, independent privileged-boundary migration revalidation and a credential-free RC.2 installed-state regression fixture. The fixture proves RC.5 package replacement, byte-preservation of valid configuration/protected credential/relevant state, Guardian unit/resource/path semantics, protected rollback metadata and exact restoration of the RC.2 binary/unit state.
+
+RC.5 supersedes RC.4 as the next private candidate. Artifact identity, SHA-256, frozen source commit and reproducibility evidence are recorded here only after candidate construction. Real OVH/Contabo update, restorative rollback, re-update, reboot, coexistence and mailbox acceptance remain pending for the subsequent final-acceptance task. Task 070 does not authorize a final tag or public release.
+
 ## Task 069 final acceptance result
 
 `BLOCKED — QWSG 1.2.0-rc.4 is not promotable.`

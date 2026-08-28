@@ -1,0 +1,12 @@
+{
+  "schema": "qwsg.update-fixture/1",
+  "version": "1.2.0-rc.2",
+  "configuration_schema": "1.0",
+  "guardian_schema": "1.0",
+  "scheduler_schema": "1.0",
+  "operator_state": "1.0-1.2",
+  "guardian_unit": "[Service]\nExecStart=/usr/local/bin/qwsg guardian run\nMemoryMax=128M\nTasksMax=32\n",
+  "configuration": "{\"schema\":\"qwsg.configuration/1\",\"locale\":\"hu\"}\n",
+  "credential": "fixture-placeholder-not-a-secret\n",
+  "state": "fixture-guardian-state\n"
+}
