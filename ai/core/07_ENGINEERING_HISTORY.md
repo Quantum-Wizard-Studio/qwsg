@@ -237,5 +237,13 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   and readiness. Private `1.2.0-rc.2` passed deterministic construction and a
   corrected real clean-host journey without publication. See
   `ai/history/065_2026-08-27_guided-installation-setup-experience.md`.
+- `2026-08-28`: Task 069 completed the full local and clean-OVH acceptance
+  journey for immutable `1.2.0-rc.4`, then blocked final promotion when the
+  real Contabo `1.2.0-rc.2 -> 1.2.0-rc.4` canonical update proved that RC.4
+  lacks the required deterministic migration path. Operation failure and
+  SMTP-accepted failure notification remained separately truthful; both hosts
+  were restored, and no final tag, artifact or Forgejo Release was published.
+  See
+  `ai/history/069_2026-08-28_qwsg-1-2-0-final-acceptance-release.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

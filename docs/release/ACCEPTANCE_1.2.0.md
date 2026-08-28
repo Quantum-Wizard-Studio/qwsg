@@ -1,5 +1,45 @@
 # QWSG 1.2.0 Final Release Decision
 
+## Task 069 final acceptance result
+
+`BLOCKED — QWSG 1.2.0-rc.4 is not promotable.`
+
+Task 069 verified the immutable RC.4 candidate locally and completed real clean
+OVH installation, restart, uninstall/reinstall, configuration/state
+preservation and reboot-readiness acceptance. The designated Contabo host was
+then tested from its actual installed QWSG `1.2.0-rc.2` state through the
+candidate's canonical private-archive update command.
+
+The mandatory update gate failed before package replacement. RC.4 correctly
+classified RC.2 -> RC.4 as newer, verified the candidate, and then refused the
+operation with `no deterministic compatible migration path`. Source inspection
+confirmed that `internal/update.PlanMigration` contains compatibility paths
+only for `1.1.0` -> RC.1/RC.2 and RC.1 -> RC.2. It contains no RC.2 -> RC.4
+path and no regression test for that required transition. This is
+`QWSG-069-F001`, a `PRODUCT/FRAMEWORK DEFECT — RELEASE BLOCKER`.
+
+The failed operation remained visible independently from notification delivery:
+the update returned failure while the configured credential-free Community SMTP
+transport reported `Admin notification: ACCEPTED`. SMTP acceptance is not
+mailbox-receipt proof; actual mailbox receipt was not claimed or requested after
+the underlying mandatory update gate had already failed.
+
+No Contabo package replacement or native rollback transaction occurred. The
+pre-update RC.2 binary, unit and configuration were restored byte-identically;
+configuration validation, readiness, Guardian stability, resource controls and
+the named Hestia/web/database/mail/DNS/security services returned to their
+recorded baseline. The Task 069 acceptance directory was removed. The OVH host
+was restored to its sterile QWSG-free state after its successful acceptance
+journey. No final `v1.2.0` tag, final artifact, Forgejo Release, asset upload or
+external final-download claim was created.
+
+Smallest remediation: create a new private candidate that explicitly supports
+and tests the real prior-candidate transition (at minimum RC.2 -> the new
+candidate) without schema mutation, then repeat notification-enabled update,
+restorative rollback, re-update, reboot, full coexistence, final packaging,
+Forgejo publication and external wget/curl acceptance. RC.4 remains immutable
+historical evidence and must not be silently repaired or relabelled.
+
 ## Decision
 
 `BLOCKED — QWSG 1.2.0 was not tagged, published or distributed.`
