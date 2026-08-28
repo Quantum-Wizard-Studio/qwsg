@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0-rc.4] - 2026-08-28
+
+- Added localized administrator notifications for QWSG-managed installation,
+  update, rollback, configuration and guided Guardian activation changes.
+- Reused Community SMTP configuration and protected credentials while keeping
+  lifecycle operation and notification-delivery results independent.
+- Preserved deterministic canonical release packaging from RC.3.
+
 ## [1.2.0-rc.2] - 2026-08-27
 
 - Added a QWSG-owned guided terminal installer with explicit preflight, plan,

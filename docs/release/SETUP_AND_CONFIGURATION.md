@@ -65,6 +65,8 @@ The base mutable keys are `locale`, `time_zone`, `snapshot_retention`,
 `notify`; automatic is rejected). Task 046 also supports
 `notification.email.enabled`, `.recipient`, `.host`, `.port`, `.sender`,
 `.security`, `.auth`, `.username`, `.credential_ref`, and `.timeout`.
+`notification.lifecycle.enabled` independently enables QWSG-managed change
+messages while reusing that same SMTP transport and recipient.
 Community permits exactly one administrator recipient. Durations use forms such as
 `30s`, `2m`, or `1h`. Unknown keys and arbitrary JSON paths are rejected.
 
@@ -91,6 +93,9 @@ file with `qwsg notification credential set --from-file FILE`, enable email,
 then run `qwsg notification preflight` and `qwsg notification test`. Passwords
 are never command arguments or output. Pro multiple-recipient support remains
 future work.
+
+See `CHANGE_NOTIFICATIONS.md` for supported events, localization, redaction,
+duplicate behavior and operation-versus-delivery result semantics.
 
 After validation, guided setup may activate the shipped user unit only after
 explicit confirmation. It uses the same validated effective-UID user-runtime

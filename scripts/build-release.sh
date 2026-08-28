@@ -59,7 +59,7 @@ printf '{"Schema":"qwsg.release/1","Version":"%s","Commit":"%s","Built":"%s","Pl
 cp "$repo/README.md" "$root/README.md"
 cp "$repo/docs/installation/INSTALL.md" "$root/INSTALL.md"
 release_notes_name="RELEASE_NOTES_$version"
-for doc in QUICK_START SETUP_AND_CONFIGURATION OPERATIONS TROUBLESHOOTING UPGRADE_ROLLBACK_UNINSTALL SUPPORT SECURITY_AND_PRIVACY KNOWN_LIMITATIONS "$release_notes_name"; do cp "$repo/docs/release/$doc.md" "$root/docs/"; done
+for doc in QUICK_START SETUP_AND_CONFIGURATION OPERATIONS TROUBLESHOOTING UPGRADE_ROLLBACK_UNINSTALL CHANGE_NOTIFICATIONS SUPPORT SECURITY_AND_PRIVACY KNOWN_LIMITATIONS "$release_notes_name"; do cp "$repo/docs/release/$doc.md" "$root/docs/"; done
 find "$root" -type f ! -name MANIFEST.sha256 -printf '%P\n' | LC_ALL=C sort | while IFS= read -r file; do sha256sum "$root/$file"; done | sed "s#  $root/#  #" > "$root/MANIFEST.sha256"
 find "$root" -type d -exec chmod 0755 {} +
 find "$root" -type f -exec chmod 0644 {} +

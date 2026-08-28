@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"quantumwizard.hu/qwsg/internal/changenotification"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
 )
 
@@ -97,7 +98,7 @@ func parseUpdateArgs(args []string) (archive, target string, err error) {
 	return
 }
 
-func executeUpdate(localArchive, target string, out, errout io.Writer) int {
+func executeUpdate(localArchive, target string, out, errout io.Writer) (code int) {
 	if os.Geteuid() == 0 {
 		fmt.Fprintln(errout, "Update orchestration must run as the intended non-root QWSG user.")
 		return 1
@@ -107,6 +108,17 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Update failed: installed QWSG identity unavailable.")
 		return 1
 	}
+	notify, outcome, resulting := true, changenotification.Failed, installed
+	operationID := "update-" + time.Now().UTC().Format("20060102T150405.000000000Z")
+	defer func() {
+		if notify {
+			reason := ""
+			if outcome == changenotification.Failed {
+				reason = "update_failed"
+			}
+			managedChangeDelivery(managedEvent(changenotification.Update, outcome, operationID, installed, resulting, reason), errout)
+		}
+	}()
 	state, err := localStateRoot()
 	if err != nil {
 		fmt.Fprintln(errout, "Update failed: local state unavailable.")
@@ -132,6 +144,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		var relation updatecore.Relation
 		release, relation, err = updatecore.Discover(ctx, updatecore.HTTPClient(), "", installed)
 		if err == nil && relation != updatecore.Newer {
+			notify = false
 			fmt.Fprintf(out, "QWSG is not updated: available release is %s (%s).\n", safeText(release.Version), relation)
 			return 0
 		}
@@ -199,6 +212,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) int {
 		_ = runSudo("privileged-discard", "--backup", previousRecord.Backup)
 	}
 	fmt.Fprintf(out, "QWSG updated safely: %s -> %s\nRollback available: qwsg update rollback\n", safeText(installed), safeText(pkg.Provenance.Version))
+	outcome, resulting = changenotification.Success, pkg.Provenance.Version
 	return 0
 }
 
@@ -300,7 +314,7 @@ func runUpdateStatus(out, errout io.Writer) int {
 	fmt.Fprintf(out, "Installed by updater: %s\nPrevious: %s\nRollback: available\n", safeText(record.Installed), safeText(record.Previous))
 	return 0
 }
-func runUpdateRollback(out, errout io.Writer) int {
+func runUpdateRollback(out, errout io.Writer) (code int) {
 	if os.Geteuid() == 0 {
 		fmt.Fprintln(errout, "Rollback orchestration must run as the intended non-root QWSG user.")
 		return 1
@@ -314,6 +328,15 @@ func runUpdateRollback(out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Rollback unavailable: local metadata missing or invalid.")
 		return 1
 	}
+	outcome := changenotification.Failed
+	operationID := "rollback-" + time.Now().UTC().Format("20060102T150405.000000000Z")
+	defer func() {
+		reason := ""
+		if outcome == changenotification.Failed {
+			reason = "rollback_failed"
+		}
+		managedChangeDelivery(managedEvent(changenotification.Rollback, outcome, operationID, record.Installed, record.Previous, reason), errout)
+	}()
 	active := commandState("is-active")
 	enabled := commandState("is-enabled")
 	if active == "yes" {
@@ -338,6 +361,7 @@ func runUpdateRollback(out, errout io.Writer) int {
 		return 1
 	}
 	fmt.Fprintf(out, "QWSG rolled back safely: %s -> %s\n", safeText(record.Installed), safeText(record.Previous))
+	outcome = changenotification.Success
 	return 0
 }
 

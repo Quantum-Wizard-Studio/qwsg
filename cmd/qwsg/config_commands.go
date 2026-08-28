@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/assessment"
+	"quantumwizard.hu/qwsg/internal/changenotification"
 	"quantumwizard.hu/qwsg/internal/configuration"
 	"quantumwizard.hu/qwsg/internal/configurationstore"
 	"quantumwizard.hu/qwsg/internal/credentialstore"
@@ -133,6 +134,7 @@ func runConfig(args []string, out, errout io.Writer) int {
 		if setErr = configurationstore.Save(path, updated); setErr != nil {
 			return configFailure(errout, setErr)
 		}
+		managedChangeDelivery(managedEvent(changenotification.ConfigurationChanged, changenotification.Success, "configuration-"+resolved.ID, "", "", "configuration_key_"+key), out)
 		if options.format == formatJSON {
 			return writeJSON(out, errout, configResult{Status: "updated", Path: path, Configured: true, Effective: resolved})
 		}
@@ -458,7 +460,7 @@ func setConfigValue(source configuration.Source, found bool, effective configura
 		}
 		schedules := []configuration.Schedule{schedule}
 		source.Patch.Schedules = &schedules
-	case "notification.email.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout", "update.policy":
+	case "notification.email.enabled", "notification.lifecycle.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout", "update.policy":
 		extensions := append([]configuration.Extension{}, effective.Values.Extensions...)
 		if key == "update.policy" {
 			if value != "manual" && value != "notify" {
@@ -488,6 +490,9 @@ func setConfigValue(source configuration.Source, found bool, effective configura
 		}
 		_ = foundExtension
 		field := strings.TrimPrefix(key, "notification.email.")
+		if key == "notification.lifecycle.enabled" {
+			field = "lifecycle_enabled"
+		}
 		if field == "recipient" {
 			field = "recipients"
 		}
@@ -512,7 +517,7 @@ func getConfigValue(effective configuration.Effective, key string) (string, erro
 		return guardianInterval(effective).String(), nil
 	case "guardian.cycle_timeout":
 		return guardianTimeout(effective).String(), nil
-	case "notification.email.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout", "update.policy":
+	case "notification.email.enabled", "notification.lifecycle.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout", "update.policy":
 		if key == "update.policy" {
 			for _, x := range effective.Values.Extensions {
 				if x.ID == "installer.update-policy" {
@@ -522,6 +527,9 @@ func getConfigValue(effective configuration.Effective, key string) (string, erro
 			return "manual", nil
 		}
 		field := strings.TrimPrefix(key, "notification.email.")
+		if key == "notification.lifecycle.enabled" {
+			field = "lifecycle_enabled"
+		}
 		if field == "recipient" {
 			field = "recipients"
 		}

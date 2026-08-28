@@ -9,6 +9,11 @@ qwsg update status
 qwsg update rollback
 ```
 
+When lifecycle notification is enabled and ready, update reports the previous
+and resulting version and rollback reports the installed and restored version.
+Operation success/failure and administrator-notification delivery are recorded
+separately; SMTP failure never rewrites the package transaction result.
+
 Update discovery and download use the anonymous canonical Forgejo Release
 source. QWSG verifies the sidecar, archive layout, manifest, required package
 files, platform and embedded `RELEASE.json` provenance before stopping the

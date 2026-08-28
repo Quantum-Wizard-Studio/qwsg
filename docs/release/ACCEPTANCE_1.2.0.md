@@ -5,7 +5,9 @@
 `BLOCKED — QWSG 1.2.0 was not tagged, published or distributed.`
 
 Task 067 corrected QWSG-066-F001 and produced a deterministic private RC.3
-candidate ready for the separately authorized final acceptance matrix. The
+candidate, but Task 068 supersedes it because the Project Owner required
+QWSG-managed administrator change notifications before final acceptance. RC.3
+must not be promoted. Private RC.4 is the next acceptance subject. The
 final `1.2.0` decision remains blocked until that matrix passes; no tag,
 publication, Forgejo Release, or VPS mutation was performed by Task 067.
 

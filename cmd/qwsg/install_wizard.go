@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/assessment"
+	"quantumwizard.hu/qwsg/internal/changenotification"
 	"quantumwizard.hu/qwsg/internal/installer"
 	"quantumwizard.hu/qwsg/internal/userservice"
 )
@@ -139,6 +140,15 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 	}
 	fmt.Fprintln(out, catalog.Text("configuration.done"))
 	complete(installer.PhaseConfiguration)
+	installOutcome := changenotification.Failed
+	installOperationID := "installation-" + time.Now().UTC().Format("20060102T150405.000000000Z")
+	defer func() {
+		reason := ""
+		if installOutcome == changenotification.Failed {
+			reason = "installation_failed"
+		}
+		managedChangeDelivery(managedEvent(changenotification.Install, installOutcome, installOperationID, "", version, reason), errout)
+	}()
 
 	render(installer.PhaseNotification)
 	fmt.Fprint(out, catalog.Text("notification.prompt")+" ")
@@ -179,6 +189,7 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 			fmt.Fprintln(errout, catalog.Text("activation.failure"))
 			return 1
 		}
+		managedChangeDelivery(managedEvent(changenotification.GuardianChanged, changenotification.Success, installOperationID+"-guardian", "inactive", "active", ""), out)
 	} else {
 		fmt.Fprintln(out, catalog.Text("activation.skipped"))
 	}
@@ -214,6 +225,7 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 		readiness = catalog.Text("summary.ready")
 	}
 	fmt.Fprintf(out, "[%s] 100%%\n%s\n%s\n%s\n%s\n%s\n%s\n", progressBar(100), catalog.Text("summary.version", version), catalog.Text("summary.guardian", guardian), catalog.Text("summary.notification"), catalog.Text("summary.policy", policy), catalog.Text("summary.readiness", readiness), catalog.Text("next"))
+	installOutcome = changenotification.Success
 	return 0
 }
 

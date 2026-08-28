@@ -23,7 +23,7 @@ const ExtensionID = "notification.email"
 const ProviderID = "community.smtp"
 
 type Config struct {
-	Enabled                                                          bool
+	Enabled, LifecycleEnabled                                        bool
 	Recipient, Host, Sender, Security, Auth, Username, CredentialRef string
 	Port                                                             int
 	Timeout                                                          time.Duration
@@ -58,15 +58,19 @@ func FromEffective(e configuration.Effective) (Config, error) {
 	if fields == nil {
 		return c, nil
 	}
-	allowed := map[string]bool{"enabled": true, "recipients": true, "host": true, "port": true, "sender": true, "security": true, "auth": true, "username": true, "credential_ref": true, "timeout": true}
+	allowed := map[string]bool{"enabled": true, "lifecycle_enabled": true, "recipients": true, "host": true, "port": true, "sender": true, "security": true, "auth": true, "username": true, "credential_ref": true, "timeout": true}
 	for k := range fields {
 		if !allowed[k] {
 			return c, fmt.Errorf("unsupported email field")
 		}
 	}
 	c.Enabled = fields["enabled"] == "true"
+	c.LifecycleEnabled = fields["lifecycle_enabled"] == "true"
 	if fields["enabled"] != "" && fields["enabled"] != "true" && fields["enabled"] != "false" {
 		return c, fmt.Errorf("invalid email enabled value")
+	}
+	if fields["lifecycle_enabled"] != "" && fields["lifecycle_enabled"] != "true" && fields["lifecycle_enabled"] != "false" {
+		return c, fmt.Errorf("invalid lifecycle notification enabled value")
 	}
 	recipients := strings.Split(fields["recipients"], ",")
 	if fields["recipients"] != "" && len(recipients) != 1 {
@@ -181,6 +185,24 @@ func (p Provider) Deliver(ctx context.Context, req notification.Request) notific
 	return result
 }
 func (p Provider) send(ctx context.Context, req notification.Request) error {
+	return p.sendMessage(ctx, renderMessage(p.Config, req))
+}
+
+// DeliverText sends a pre-rendered privacy-reviewed message through the same
+// configured SMTP transport used by canonical alert delivery.
+func (p Provider) DeliverText(ctx context.Context, subject, body string) notification.ProviderResult {
+	now := time.Now().UTC()
+	result := notification.ProviderResult{SchemaName: notification.ProviderResultSchema, SchemaVersion: notification.SchemaVersion, CompletedAt: now, EvidenceTokens: []string{"smtp_attempted"}}
+	message := []byte("From: " + p.Config.Sender + "\r\nTo: " + p.Config.Recipient + "\r\nSubject: " + subject + "\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + strings.ReplaceAll(body, "\n", "\r\n"))
+	if err := p.sendMessage(ctx, message); err != nil {
+		result.Status, result.Failure, result.EvidenceTokens = notification.StatusRetryableFailure, notification.FailureRetryable, []string{"smtp_delivery_failed"}
+		return result
+	}
+	result.Status, result.Failure, result.EvidenceTokens = notification.StatusAccepted, notification.FailureNone, []string{"smtp_server_accepted"}
+	return result
+}
+
+func (p Provider) sendMessage(ctx context.Context, message []byte) error {
 	deadline := time.Now().Add(p.Config.Timeout)
 	if d, ok := ctx.Deadline(); ok && d.Before(deadline) {
 		deadline = d
@@ -236,7 +258,7 @@ func (p Provider) send(ctx context.Context, req notification.Request) error {
 	if err != nil {
 		return err
 	}
-	_, err = w.Write(renderMessage(p.Config, req))
+	_, err = w.Write(message)
 	if closeErr := w.Close(); err == nil {
 		err = closeErr
 	}
