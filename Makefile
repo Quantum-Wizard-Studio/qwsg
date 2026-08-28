@@ -40,6 +40,7 @@ release:
 
 release-check:
 	./scripts/test-release-plumbing.sh
+	./scripts/test-release-reproducibility.sh
 
 test:
 	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go test ./...

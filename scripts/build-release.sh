@@ -60,8 +60,10 @@ cp "$repo/README.md" "$root/README.md"
 cp "$repo/docs/installation/INSTALL.md" "$root/INSTALL.md"
 release_notes_name="RELEASE_NOTES_$version"
 for doc in QUICK_START SETUP_AND_CONFIGURATION OPERATIONS TROUBLESHOOTING UPGRADE_ROLLBACK_UNINSTALL SUPPORT SECURITY_AND_PRIVACY KNOWN_LIMITATIONS "$release_notes_name"; do cp "$repo/docs/release/$doc.md" "$root/docs/"; done
-chmod 0755 "$root/bin/qwsg" "$root/install.sh" "$root/uninstall.sh"
 find "$root" -type f ! -name MANIFEST.sha256 -printf '%P\n' | LC_ALL=C sort | while IFS= read -r file; do sha256sum "$root/$file"; done | sed "s#  $root/#  #" > "$root/MANIFEST.sha256"
+find "$root" -type d -exec chmod 0755 {} +
+find "$root" -type f -exec chmod 0644 {} +
+chmod 0755 "$root/bin/qwsg" "$root/install.sh" "$root/uninstall.sh"
 find "$root" -exec touch -h -d "@$epoch" {} +
 LC_ALL=C tar --sort=name --mtime="@$epoch" --owner=0 --group=0 --numeric-owner --format=ustar -C "$work" -cf - "$name" | gzip -n > "$archive"
 (cd "$out" && sha256sum "$name.tar.gz") > "$archive.sha256"
