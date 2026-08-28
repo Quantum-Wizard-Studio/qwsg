@@ -11,6 +11,18 @@ must not be promoted. Private RC.4 is the next acceptance subject. The
 final `1.2.0` decision remains blocked until that matrix passes; no tag,
 publication, Forgejo Release, or VPS mutation was performed by Task 067.
 
+## Task 068 private RC.4 preparation
+
+- Source commit: `4f7dcc11b5ccc9f078755946995baebd31ad6870`.
+- Controlled epoch: `1787907901` (`2026-08-28T09:05:01Z`).
+- Artifact: `qwsg-1.2.0-rc.4-linux-amd64.tar.gz`.
+- SHA-256: `adeb591605c0d37a5fc98d541125ca388cd4561703d0f0823bba931bc7d08684`.
+- Rebuild from a normalized Git export under `umask 0077` matched the primary
+  build byte-for-byte. Manifest, embedded provenance, numeric `0/0` ownership,
+  canonical `0755`/`0644` modes and extraction under two umasks passed.
+- RC.4 is ready for the later full final-acceptance matrix; no real SMTP/VPS or
+  publication action was performed by Task 068.
+
 ## Task 067 remediation and private RC.3
 
 - Canonical modes: directories `0755`; `bin/qwsg`, `install.sh`, and
