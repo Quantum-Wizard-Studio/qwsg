@@ -19,13 +19,10 @@ func TestUpdateHelp(t *testing.T) {
 
 func TestBootstrapUsesInstalledIdentity(t *testing.T) {
 	root := t.TempDir()
-	binary := filepath.Join(root, "qwsg")
-	if err := os.WriteFile(binary, []byte("#!/bin/sh\nprintf 'QWSG 1.1.0\\ncommit: old\\nbuilt: old\\n'\n"), 0700); err != nil {
-		t.Fatal(err)
-	}
-	previous := installedQWSGBinary
-	installedQWSGBinary = binary
-	defer func() { installedQWSGBinary = previous }()
+	installedPackageFixture(t, root, "1.1.0", false)
+	previousRoot := installedQWSGRoot
+	installedQWSGRoot = root
+	defer func() { installedQWSGRoot = previousRoot }()
 	got, err := installedVersion()
 	if err != nil || got != "1.1.0" {
 		t.Fatalf("got %q %v", got, err)
@@ -37,17 +34,67 @@ func TestBootstrapUsesInstalledIdentity(t *testing.T) {
 
 func TestRC2InstalledIdentityAndConfigurationPreflight(t *testing.T) {
 	root := t.TempDir()
-	binary := filepath.Join(root, "qwsg")
-	if err := os.WriteFile(binary, []byte("#!/bin/sh\ncase \"$1 $2\" in\n  'version ') printf 'QWSG 1.2.0-rc.2\\ncommit: fixture\\nbuilt: fixture\\n';;\n  'config validate') exit 0;;\n  *) exit 1;;\nesac\n"), 0700); err != nil {
-		t.Fatal(err)
-	}
-	previous := installedQWSGBinary
-	installedQWSGBinary = binary
-	defer func() { installedQWSGBinary = previous }()
+	binary := installedPackageFixture(t, root, "1.2.0-rc.2", true)
+	previousBinary, previousRoot := installedQWSGBinary, installedQWSGRoot
+	installedQWSGBinary, installedQWSGRoot = binary, root
+	defer func() { installedQWSGBinary, installedQWSGRoot = previousBinary, previousRoot }()
 	got, err := installedVersion()
 	if err != nil || got != "1.2.0-rc.2" || validateInstalledConfiguration() != nil {
 		t.Fatalf("RC.2 preflight failed: %q %v", got, err)
 	}
+}
+
+func TestBinaryVersionOutputAloneIsNotInstalledIdentity(t *testing.T) {
+	root := t.TempDir()
+	binary := filepath.Join(root, "usr/local/bin/qwsg")
+	if err := os.MkdirAll(filepath.Dir(binary), 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(binary, []byte("#!/bin/sh\nprintf 'QWSG 1.2.0\\ncommit: 1111111111111111111111111111111111111111\\nbuilt: 2026-08-29T00:00:00Z\\n'\n"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	previousRoot := installedQWSGRoot
+	installedQWSGRoot = root
+	defer func() { installedQWSGRoot = previousRoot }()
+	if _, err := installedVersion(); err == nil {
+		t.Fatal("binary-only version output established installed identity")
+	}
+}
+
+func installedPackageFixture(t *testing.T, root, releaseVersion string, configValid bool) string {
+	t.Helper()
+	commit, built := "1111111111111111111111111111111111111111", "2026-08-29T00:00:00Z"
+	binary := filepath.Join(root, "usr/local/bin/qwsg")
+	for _, path := range []string{
+		binary,
+		filepath.Join(root, "usr/local/lib/systemd/user/qwsg-guardian.service"),
+		filepath.Join(root, "usr/local/share/doc/qwsg/RELEASE.json"),
+		filepath.Join(root, "usr/local/share/doc/qwsg/README.md"),
+		filepath.Join(root, "usr/local/share/doc/qwsg/INSTALL.md"),
+		filepath.Join(root, "usr/local/share/doc/qwsg/LICENSE"),
+		filepath.Join(root, "usr/local/share/doc/qwsg/CHANGELOG.md"),
+		filepath.Join(root, "usr/local/share/doc/qwsg/qwsg-config.json"),
+	} {
+		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+			t.Fatal(err)
+		}
+		body, mode := []byte("fixture"), os.FileMode(0600)
+		switch filepath.Base(path) {
+		case "qwsg":
+			configurationExit := "exit 1"
+			if configValid {
+				configurationExit = "exit 0"
+			}
+			body = []byte("#!/bin/sh\nif test \"$1\" = version; then printf 'QWSG " + releaseVersion + "\\ncommit: " + commit + "\\nbuilt: " + built + "\\n'; exit 0; fi\nif test \"$1 $2\" = 'config validate'; then " + configurationExit + "; fi\nexit 1\n")
+			mode = 0700
+		case "RELEASE.json":
+			body = []byte(`{"Schema":"qwsg.release/1","Version":"` + releaseVersion + `","Commit":"` + commit + `","Built":"` + built + `","Platform":"linux-amd64"}`)
+		}
+		if err := os.WriteFile(path, body, mode); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return binary
 }
 func TestUpdateLocalArguments(t *testing.T) {
 	archive, target, err := parseUpdateArgs([]string{"--archive", "/tmp/qwsg-1.2.0-rc.1-linux-amd64.tar.gz", "--version", "1.2.0-rc.1"})

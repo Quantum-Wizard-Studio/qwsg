@@ -198,6 +198,12 @@ Manifest signing/key lifecycle, SMTP diagnostic refinement, external-delivery
 evidence, central subscriptions and every Pro/fleet capability remain separate
 Owner decisions.
 
+Task 075 delivers the first stage: one evidence-based installed-package
+classifier shared by guided installation and native update orchestration, with
+fail-closed legacy/unknown/inconsistent handling and the final 1.2.0 field
+regression covered. It does not begin release-index, Guardian scheduling,
+notification or Pro work. Those remain separately authorized future tasks.
+
 ## Stream 4 — Provider Operations
 
 Provider outcomes build on verified Professional control-plane contracts:

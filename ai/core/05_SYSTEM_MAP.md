@@ -191,3 +191,16 @@ privileged installation or rollback behavior. Guardian may schedule it at low
 frequency with bounded failure isolation; release-source failure cannot block
 the primary local monitoring flow. The canonical contract is
 `docs/architecture/UPDATE_DISCOVERY_AND_RELEASE_AWARENESS.md`.
+
+Local installed identity is a separate read-only input:
+
+```text
+canonical package layout + installed RELEASE.json + binary identity
+    -> Installed Package Classifier
+       +-> guided-install package decision
+       `-> existing updater -> declared migration -> transaction/rollback
+```
+
+The classifier owns no installation mutation, remote release trust,
+configuration/readiness interpretation, Guardian state or rollback state. Its
+contract is `docs/architecture/INSTALLED_PACKAGE_CLASSIFICATION.md`.

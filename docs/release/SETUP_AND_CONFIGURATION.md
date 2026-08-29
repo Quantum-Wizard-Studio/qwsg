@@ -1,5 +1,15 @@
 # QWSG Setup and Configuration
 
+## Existing installation safety
+
+Guided installation verifies the canonical installed package layout and
+release provenance before deciding that QWSG is already installed. A file
+named `/usr/local/bin/qwsg`, a PATH entry, old configuration, or state alone is
+not sufficient. Legacy or unverified artifacts are not overwritten: back them
+up, review their origin, and resolve them explicitly before retrying. Supported
+older packages use the explicit `qwsg update` workflow rather than guided
+installation.
+
 ## Normal path
 
 Run setup as the ordinary user who will run Guardian:

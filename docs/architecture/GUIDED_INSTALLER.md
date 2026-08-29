@@ -9,11 +9,20 @@ a visible plan, and consent. Task 064 remains the archive provenance, update
 transaction, and rollback contract.
 
 `internal/installer` is presentation-neutral. It owns ordered phases,
-deterministic weights, phase states, installation classification, plans,
+deterministic weights, phase states, plans,
 update-policy vocabulary, supported-platform detection, stable message IDs,
 and catalogs. CLI rendering and process execution are adapters. Future concise,
 answer-file, or fleet interfaces must consume this engine rather than
 reimplement installation decisions.
+
+Task 075 places installed-package identity in the single
+`internal/installation` classifier. The wizard consumes its bounded states and
+reasons. A complete safe package whose executable and installed
+`qwsg.release/1` provenance agree may skip package copying; an exact declared
+migration route is sent to `qwsg update`; legacy, unknown, partial,
+inconsistent, or unsafe artifacts stop before mutation. Binary presence alone
+never proves installation. See
+`docs/architecture/INSTALLED_PACKAGE_CLASSIFICATION.md`.
 
 ## Truthful progress
 

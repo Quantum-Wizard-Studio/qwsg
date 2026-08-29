@@ -10,8 +10,37 @@ import (
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/assessment"
+	"quantumwizard.hu/qwsg/internal/installation"
 	"quantumwizard.hu/qwsg/internal/installer"
 )
+
+func TestGuidedPackageClassificationDecisions(t *testing.T) {
+	tests := []struct {
+		state   installation.State
+		fresh   bool
+		refused bool
+	}{
+		{installation.NoInstallation, true, false},
+		{installation.VerifiedSupported, false, false},
+		{installation.SupportedUpgradeSource, false, true},
+		{installation.LegacyInstallation, false, true},
+		{installation.UnknownInstallation, false, true},
+		{installation.InconsistentInstallation, false, true},
+	}
+	for _, tc := range tests {
+		fresh, _, refusal := guidedPackageDecision(installation.Result{State: tc.state})
+		if fresh != tc.fresh || (refusal != "") != tc.refused {
+			t.Fatalf("state=%s fresh=%t refusal=%q", tc.state, fresh, refusal)
+		}
+	}
+}
+
+func TestServerQuantumWizardLegacyBinaryRegression(t *testing.T) {
+	fresh, mode, refusal := guidedPackageDecision(installation.Result{State: installation.LegacyInstallation, Reason: installation.ReasonLegacyBinaryOnly, Version: "0.0.1-prealpha"})
+	if fresh || mode == "plan.mode.existing" || refusal == "" {
+		t.Fatalf("legacy binary incorrectly treated as installed package: fresh=%t mode=%q refusal=%q", fresh, mode, refusal)
+	}
+}
 
 func TestFreshGuardianEvidenceWaitImmediateDelayedAndPreservedStale(t *testing.T) {
 	tests := []struct {

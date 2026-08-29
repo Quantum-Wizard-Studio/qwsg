@@ -14,12 +14,14 @@ import (
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/changenotification"
+	"quantumwizard.hu/qwsg/internal/installation"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
 )
 
 type localUpdateRecord struct{ Schema, Installed, Previous, Backup, UpdatedAt string }
 
 var installedQWSGBinary = "/usr/local/bin/qwsg"
+var installedQWSGRoot = "/"
 
 func runUpdate(args []string, out, errout io.Writer) int {
 	if len(args) > 0 && isHelp(args[0]) {
@@ -445,12 +447,8 @@ func runSystemctl(action string) error {
 }
 
 func validateInstalledVersion(want string) error {
-	output, err := exec.Command(installedQWSGBinary, "version").Output()
-	if err != nil {
-		return err
-	}
-	first := strings.SplitN(string(output), "\n", 2)[0]
-	if first != "QWSG "+want {
+	result := installation.Classify(installation.Options{Root: installedQWSGRoot})
+	if result.State != installation.VerifiedSupported || result.Version != want {
 		return fmt.Errorf("installed version mismatch")
 	}
 	return validateInstalledConfiguration()
@@ -461,19 +459,11 @@ func validateInstalledConfiguration() error {
 }
 
 func installedVersion() (string, error) {
-	output, err := exec.Command(installedQWSGBinary, "version").Output()
-	if err != nil {
-		return "", err
+	result := installation.Classify(installation.Options{Root: installedQWSGRoot})
+	if result.State != installation.VerifiedSupported && result.State != installation.SupportedUpgradeSource {
+		return "", fmt.Errorf("installed QWSG package is not verified: %s", result.Reason)
 	}
-	line := strings.SplitN(string(output), "\n", 2)[0]
-	if !strings.HasPrefix(line, "QWSG ") {
-		return "", fmt.Errorf("installed version output invalid")
-	}
-	value := strings.TrimPrefix(line, "QWSG ")
-	if _, err = updatecore.ParseVersion(value); err != nil {
-		return "", err
-	}
-	return value, nil
+	return result.Version, nil
 }
 func runSudo(args ...string) error {
 	executable, err := os.Executable()

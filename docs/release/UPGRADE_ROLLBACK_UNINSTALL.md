@@ -22,7 +22,17 @@ state are never package replacement targets or rollback payloads.
 
 ## Deterministic compatibility and migration contract
 
-Before any Guardian stop or package mutation, the updater identifies the installed binary version and the candidate's verified `RELEASE.json` target, requires the target to be newer, and selects one exact declared migration record. The record identifies its source/target pair, configuration/Guardian/scheduler/operator-state schemas, whether schema mutation is required, preservation rules, and the managed Guardian-unit replacement boundary. Missing, malformed, equal, older, major-incompatible or undeclared identities fail closed; QWSG never guesses a path.
+Before any Guardian stop or package mutation, the updater classifies the
+installed package from its complete safe layout, strict installed
+`RELEASE.json` and exactly matching embedded binary identity. A binary or its
+version output alone is unverified. The candidate's independently verified
+`RELEASE.json` target must be newer, and one exact declared migration record
+must exist. The record identifies its source/target pair,
+configuration/Guardian/scheduler/operator-state schemas, whether schema
+mutation is required, preservation rules, and the managed Guardian-unit
+replacement boundary. Missing, malformed, partial, inconsistent, equal, older,
+major-incompatible or undeclared identities fail closed; QWSG never guesses a
+path or silently overwrites unknown artifacts.
 
 RC.7 declares `compat-1.2.0-rc.2-to-1.2.0-rc.7`. Both sides use compatible Configuration 1.0, Guardian 1.0, Scheduler 1.0 and Operator State 1.0–1.2 contracts, so this path performs no configuration or state-schema transformation. Existing user configuration, protected notification credentials and persistent QWSG state remain byte-preserved outside package destinations. Only the verified binary, Guardian user unit and release-owned documentation are replaced.
 

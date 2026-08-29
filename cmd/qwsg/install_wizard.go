@@ -15,11 +15,15 @@ import (
 	"quantumwizard.hu/qwsg/internal/assessment"
 	"quantumwizard.hu/qwsg/internal/changenotification"
 	"quantumwizard.hu/qwsg/internal/configurationstore"
+	"quantumwizard.hu/qwsg/internal/installation"
 	"quantumwizard.hu/qwsg/internal/installer"
 	"quantumwizard.hu/qwsg/internal/userservice"
 )
 
 var wizardInstallPackage = installReleasePackage
+var wizardClassifyInstallation = func(candidate string) installation.Result {
+	return installation.Classify(installation.Options{Root: "/", CandidateVersion: candidate})
+}
 var wizardEvidenceProbe guardianEvidenceProbe = currentGuardianEvidence
 var wizardEvidencePause guardianEvidencePause = guardianEvidenceSleep
 var wizardOperationalReport = func() assessment.Report {
@@ -107,11 +111,14 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 	complete(installer.PhasePreflight)
 
 	render(installer.PhasePlan)
-	_, installedErr := os.Lstat("/usr/local/bin/qwsg")
-	fresh := os.IsNotExist(installedErr)
-	mode := catalog.Text("plan.mode.existing")
-	if fresh {
-		mode = catalog.Text("plan.mode.fresh")
+	classification := wizardClassifyInstallation(version)
+	fresh, modeID, refusalID := guidedPackageDecision(classification)
+	mode := catalog.Text(modeID)
+	if refusalID != "" {
+		progress.Fail(installer.PhasePlan, false)
+		fmt.Fprintln(out, catalog.Text("plan.mode", mode))
+		fmt.Fprintln(errout, catalog.Text(refusalID))
+		return 1
 	}
 	fmt.Fprintln(out, catalog.Text("plan.mode", mode))
 	fmt.Fprintln(out, catalog.Text("plan.package"))
@@ -224,6 +231,23 @@ func runInstall(args []string, in io.Reader, out, errout io.Writer, interactive 
 		installOutcome = changenotification.Success
 	}
 	return code
+}
+
+func guidedPackageDecision(result installation.Result) (bool, installer.MessageID, installer.MessageID) {
+	switch result.State {
+	case installation.NoInstallation:
+		return true, "plan.mode.fresh", ""
+	case installation.VerifiedSupported:
+		return false, "plan.mode.existing", ""
+	case installation.SupportedUpgradeSource:
+		return false, "plan.mode.upgrade", "install.upgrade"
+	case installation.LegacyInstallation:
+		return false, "plan.mode.legacy", "install.legacy"
+	case installation.InconsistentInstallation:
+		return false, "plan.mode.inconsistent", "install.inconsistent"
+	default:
+		return false, "plan.mode.unknown", "install.unknown"
+	}
 }
 
 func finishGuidedInstallation(catalog installer.Catalog, progress *installer.Progress, active bool, policy string, report assessment.Report, out, errout io.Writer, render func(installer.PhaseID), complete func(installer.PhaseID)) int {

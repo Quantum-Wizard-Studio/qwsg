@@ -274,5 +274,14 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   operator installation. It adds no production behavior or central/Pro
   feature. See
   `ai/history/074_2026-08-29_update-discovery-release-awareness-architecture.md`.
+- `2026-08-29`: Task 075 replaced binary-presence and version-output trust with
+  one fail-closed installed-package classifier shared by guided installation
+  and the existing updater. Canonical layout, strict installed release
+  provenance, exact executable identity and declared migration evidence now
+  distinguish verified, supported-upgrade, legacy, unknown and inconsistent
+  states. The server.quantumwizard.hu `0.0.1-prealpha` regression is covered;
+  no discovery, unattended update, external-host or QWSG 1.2.0 release change
+  was introduced. See
+  `ai/history/075_2026-08-29_installed-package-legacy-installation-classification.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

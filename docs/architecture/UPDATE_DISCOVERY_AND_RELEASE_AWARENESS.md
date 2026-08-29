@@ -95,7 +95,9 @@ historical `/usr/local/bin/qwsg` reporting `QWSG 0.0.1-prealpha` caused the
 guided 1.2.0 installer to classify the host as already installed and skip
 package installation. Guardian could not activate. After the operator safely
 backed up and removed the legacy binary, the final installer correctly selected
-new installation. Task 074 does not fix this. A later installer task must make
+new installation. Task 075 fixes this boundary with the canonical evidence-based
+installed-package classifier. Future update discovery must consume that
+verified local result and must not fall back to binary presence. It must make
 classification evidence-based and must never automatically delete or replace
 unknown legacy material.
 

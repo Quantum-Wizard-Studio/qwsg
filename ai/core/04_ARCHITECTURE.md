@@ -208,3 +208,17 @@ manifest, explicit authenticity model, private awareness state, isolated
 Guardian schedule and persistent notification transitions. It does not create
 a second updater, treat discovery as Health/readiness, or authorize automatic
 installation, telemetry, registration, central access or Pro implementation.
+
+## Installed Package Classification
+
+Task 075 implements the local installed-identity prerequisite in
+`internal/installation`, documented by
+`docs/architecture/INSTALLED_PACKAGE_CLASSIFICATION.md`. Complete safe package
+layout, strict installed `qwsg.release/1` provenance and exact binary identity
+agreement establish a verified supported installation. Binary presence,
+version output, configuration and runtime state cannot do so. A supplied
+candidate becomes a supported upgrade only through the existing declared
+migration registry; legacy, unknown, incomplete and inconsistent evidence
+fails closed before mutation. Guided installation and native update
+orchestration share this classifier. Remote release authenticity remains an
+independent Update Discovery concern.
