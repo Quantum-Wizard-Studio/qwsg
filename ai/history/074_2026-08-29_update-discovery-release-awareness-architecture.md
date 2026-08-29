@@ -8,11 +8,15 @@
 - Date generated: `2026-08-29` UTC
 - Human authority: Attila — Project Owner
 - Preferred owner communication language: Hungarian
-- Related prompt: `ai/prompts/074_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/074_2026-08-29_update-discovery-release-awareness-architecture.md`
 
 ## Lifecycle state
 
 The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured Owner input. Exact `APPROVE` was received, the active pair passed lifecycle validation, and documentation-only execution began under the approved Framework 2.0 envelope.
+
+After completion validation, the reviewed documentation commit was pushed by
+clean fast-forward and the complete prompt was archived without creating a
+successor. The repository returned to canonical idle for Owner review.
 
 ## Starting state
 
@@ -26,6 +30,7 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - Builder snapshot `/tmp/qwsg-task074-builder-install.AvAmIG`: mode `0700`, files `0600`; clean Git/idle identity, Task 074 absence, Task 073 reference payloads, complete tracked-HEAD bundle, checksums and bounded rollback; all checks passed.
 - Execution snapshot `/tmp/qwsg-task074-execution.oJDIxu`: mode `0700`, files `0600`; exact target before-images/new-file absence, Git/upstream/tag/artifact identities, ownership/modes/ACLs, complete tracked-HEAD bundle, checksums and literal bounded rollback; all checks passed.
 - Both snapshots exclude credentials, runtime data, caches and unrelated payloads and are retained through Owner review.
+- Closure snapshot `/tmp/qwsg-task074-closure.E0UUJR`: mode `0700`, files `0600`; exact committed prompt/history, archive-destination absence, synchronized commit identity, complete tracked bundle, checksums and bounded rollback; all checks passed before prompt archival.
 
 ## Work performed
 
@@ -59,6 +64,7 @@ Builder input, metadata, prompt/history identity, approval state, lifecycle inst
 - `git diff --check`, documentation key-section/reference checks, target ownership/mode review, production-source exclusion, snapshot checksum/bundle checks and protected tag/artifact identity checks: PASS.
 - The first completion-time snapshot checksum command ran from the repository rather than each snapshot root and therefore reported relative members missing. Classified `TEST OR ACCEPTANCE DEFECT`; rerunning from both recorded roots verified every member and both complete bundles without changing repository content.
 - No `cmd`, `internal`, packaging, release script, `VERSION`, Makefile, runtime, infrastructure, release, tag or published artifact behavior/content was modified. No SMTP, monitored server, central service or other external runtime was contacted.
+- Reviewed documentation commit `3f7aeff5ff8eaa3a7966471d9b78394a7e585d5f` (`docs: design QWSG 1.3 update discovery architecture`) passed targeted staging and push dry-run, then clean-fast-forwarded canonical `main`. The lifecycle-closure and final synchronized identities are reported in the Owner handoff because a commit cannot truthfully contain its own final identity.
 
 ## Implementation gaps and recommended sequence
 
