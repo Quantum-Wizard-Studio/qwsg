@@ -8,11 +8,11 @@
 - Date generated: `2026-08-29` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/075_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/075_2026-08-29_installed-package-legacy-installation-classification.md`
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded, and the Project Owner separately directed canonical execution.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded, and the Project Owner separately directed canonical execution. After validation, implementation commit `034de68ea6eba89a3863ee95231df826b6899e75` was clean-fast-forwarded to `origin/main`; the completed prompt was then archived without creating a successor, returning the repository to canonical idle for Owner review.
 
 ## Starting state
 
@@ -36,6 +36,10 @@ The Engineering Task Builder generated and transactionally installed this matchi
   payloads or prior-absence facts, metadata/ACL evidence, checksums, a readable
   bundle, and bounded literal rollback instructions.
 - Snapshot checksum and readability validation: PASS before production change.
+- Closure snapshot: `/tmp/qwsg-task075-closure.xN2dvI`; exact committed
+  prompt/history, archive-destination absence, synchronized repository and
+  protected-release identities, complete bundle, checksums and bounded
+  rollback instructions; mode/checksum/bundle verification PASS.
 
 ## Work performed
 
@@ -107,4 +111,4 @@ touch published release evidence.
 
 ## Completion state
 
-`complete — implementation and mandatory validation passed; pending canonical idle closure and Owner review`
+`complete — implementation validated and canonically closed for Owner review`
