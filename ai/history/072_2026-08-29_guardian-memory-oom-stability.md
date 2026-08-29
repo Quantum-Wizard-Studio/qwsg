@@ -4,7 +4,7 @@
 
 - Task ID: `072`
 - Task slug: `guardian-memory-oom-stability`
-- Status: `active — diagnosis in progress`
+- Status: `complete — private RC.7 READY FOR FINAL ACCEPTANCE`
 - Date generated: `2026-08-29` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
@@ -12,7 +12,7 @@
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Explicit approval was recorded; implementation has not started.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured owner input. Task 072 completed under the approved Authority Envelope and produced private RC.7.
 
 ## Starting state
 
@@ -33,10 +33,19 @@ The Engineering Task Builder generated and transactionally installed this matchi
 - Captured and verified repository, lifecycle, release-artifact, remote, ownership, and permission baselines.
 - Began code-path inspection. The Guardian retains one scheduler cycle trace in `guardian.CapturingScheduler` for end-of-cycle publication; live observation loads the previous persisted Inventory before collecting the next one; Inventory/Snapshot stage values share typed data but persistence and deterministic identity validation perform repeated JSON encodings. These are candidate transient-amplification paths, not yet a final root-cause conclusion.
 - Local one-shot inventory on the engineering host produced a 306,520-byte JSON document at 13,312 KiB maximum process RSS. The local user-bus service collector was unavailable in the sandbox, so this measurement is a clean lower-cardinality baseline rather than loaded-host proof.
+- A deterministic 367-service qualified-observation fixture reproduced the loaded-workload allocation shape. One isolated cycle allocated 112,176,808 bytes cumulatively and peaked at 54,136 KiB process RSS. Runtime GC traces showed approximately 36 MiB transient managed heap and approximately 18 MiB live heap. Five cycles under the stricter diagnostic `GOMEMLIMIT=32MiB` completed at 43,204 KiB maximum RSS with no upward live-heap trend.
+- Root cause: `PRODUCT/FRAMEWORK DEFECT`. Go had no cgroup-relative soft budget, while `CapturingScheduler` retained the prior full Scheduler execution trace until replacement. The cgroup also accounts collector subprocesses, non-heap mappings, and charged file cache, so process RSS and post-restart `systemctl MemoryPeak` do not describe the complete OOM boundary. Evidence did not justify increasing the 128 MiB hard ceiling.
+- Added `CapturingScheduler.Take`; publication consumes and clears the full trace before the next collection. Added regression coverage proving release of the execution graph.
+- Retained `MemoryMax=128M`, `TasksMax=32`, `CPUQuota=25%`, hardening, restart semantics, and `oom-kill` reporting. Added `GOMEMLIMIT=64MiB`, above the observed managed-heap working region and leaving 64 MiB for non-Go/cgroup-accounted memory. This controls GC pacing; it does not suppress or recover from OOM.
+- Advanced the private identity to `1.2.0-rc.7` and declared `compat-1.2.0-rc.2-to-1.2.0-rc.7`. Fixture migration proved exact RC.2 binary/unit rollback plus configuration, credential, and state preservation.
+- Candidate source commit: `07d30315cebba4bd213e76fe9fb9c32e82aa9b38`; controlled epoch `1788004085` (`2026-08-29T11:48:05Z`). Private artifact: `dist/qwsg-1.2.0-rc.7-linux-amd64.tar.gz`; SHA-256 `fe5fdeb93efe0363376d5d4b85ac915b61817a3f7775c8158c5d62cb7db7c631`.
 
 ## Verification
 
 - Builder input, metadata, prompt/history identity, approval state, lifecycle installation, Framework validation, remote convergence, snapshot hashes, bundle readability, and RC.6 archive readability passed.
+- Focused Guardian/update/CLI tests, full Go tests, full race tests, vet, formatting, Framework (25), Builder (49), Framework v2 (15), bounded diagnostic runner (11), lifecycle, test-task, build-contract, release-plumbing, migration/rollback, notification, security/redaction, and systemd unit verification passed.
+- Reproducibility passed across normalized/group-writable source modes and umasks. Independent RC.7 rebuilds matched byte-for-byte. Archive/sidecar, gzip/tar integrity, manifest, numeric `0/0` ownership, canonical modes, and executable allowlist passed.
+- No OVH/Contabo mutation, final tag, public artifact, Forgejo Release, or publication occurred. Real-host acceptance remains a separate Owner-controlled manual gate.
 
 ## Rollback
 
@@ -44,4 +53,6 @@ The Engineering Task Builder generated and transactionally installed this matchi
 
 ## Completion state
 
-`active — root cause not yet established; no remediation or candidate produced`
+`complete — root cause established; bounded remediation implemented; private RC.7 READY FOR FINAL ACCEPTANCE`
+
+Candidate source commit is recorded above. The lifecycle-closing repository commit and `origin/main` convergence are verified after final integration.

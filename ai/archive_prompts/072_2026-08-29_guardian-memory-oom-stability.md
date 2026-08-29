@@ -4,7 +4,7 @@
 
 - Task ID: `072`
 - Task slug: `guardian-memory-oom-stability`
-- Status: `approved`
+- Status: `complete`
 - Date opened: `2026-08-29` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: English
