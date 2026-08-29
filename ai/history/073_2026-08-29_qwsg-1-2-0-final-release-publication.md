@@ -8,11 +8,11 @@
 - Date generated: `2026-08-29` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: Hungarian
-- Related prompt: `ai/prompts/073_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/073_2026-08-29_qwsg-1-2-0-final-release-publication.md`
 
 ## Lifecycle state
 
-The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured Owner input. Explicit approval was recorded and release-only execution is active.
+The Engineering Task Builder generated and transactionally installed this matching prompt/history pair from validated structured Owner input. Explicit approval was recorded, release-only execution completed, and Task 073 was canonically archived to idle without creating a successor.
 
 ## Starting state
 

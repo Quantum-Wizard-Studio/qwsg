@@ -53,7 +53,7 @@ Final 1.2.0 declares a direct deterministic compatibility path from an actual in
 - Forgejo Release: `PASS` — Release ID `3`, title `QWSG 1.2.0`, final/non-draft/non-prerelease, exact target commit, exactly the versioned archive (`3524214` bytes) and sidecar (`96` bytes).
 - Independent external retrieval: `PASS` — credential-free wget and `curl -fLO` each returned the two actual versioned Release assets into separate directories. Both archives were non-empty, matched SHA-256 `44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`, passed their downloaded sidecars, opened as tar, passed every extracted MANIFEST entry and contained the expected executable/package structure and embedded provenance.
 - Canonical archive URL: `https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/download/v1.2.0/qwsg-1.2.0-linux-amd64.tar.gz`.
-- Final repository/lifecycle state: `PASS after the separately recorded evidence and lifecycle closure commits converge on canonical `main` and Task 073 archives to idle`.
+- Final repository/lifecycle state: `PASS` — the release evidence commit was pushed, Task 073 was archived without a successor, canonical idle validation passed, and the lifecycle-closure commit converged on canonical `main`.
 
 ## Decision
 
