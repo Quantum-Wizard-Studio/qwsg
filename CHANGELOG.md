@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0] - 2026-08-29
+
+- Promote the externally accepted RC.7 implementation unchanged to final 1.2.0.
+- Record loaded production-like and clean-host installation, update, rollback, reboot, resource-bound, readiness and SMTP acceptance.
+- Declare the deterministic compatibility route from an installed 1.2.0-rc.2 system directly to final 1.2.0 with exact rollback and preserved configuration, credentials and state.
+
 ## [1.2.0-rc.7] - 2026-08-29
 
 - Bound Go-managed Guardian memory below the unchanged 128 MiB systemd cgroup ceiling with measured headroom for subprocess, non-heap, and file-cache accounting.

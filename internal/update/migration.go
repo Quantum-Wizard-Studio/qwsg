@@ -13,6 +13,7 @@ var migrationPaths = []Migration{
 	compatibilityPath("compat-1.1.0-to-1.2.0-rc.2", "1.1.0", "1.2.0-rc.2"),
 	compatibilityPath("compat-1.2.0-rc.1-to-1.2.0-rc.2", "1.2.0-rc.1", "1.2.0-rc.2"),
 	compatibilityPath("compat-1.2.0-rc.2-to-1.2.0-rc.7", "1.2.0-rc.2", "1.2.0-rc.7"),
+	compatibilityPath("compat-1.2.0-rc.2-to-1.2.0", "1.2.0-rc.2", "1.2.0"),
 }
 
 func compatibilityPath(id, from, to string) Migration {
