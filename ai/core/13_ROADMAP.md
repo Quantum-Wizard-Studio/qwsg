@@ -185,6 +185,19 @@ broader automation remain optional or later.
 Automation acceptance requires evidence that failure leaves local manual
 engineering available and does not corrupt or reinterpret core records.
 
+### QWSG 1.3 update-awareness sequence
+
+Task 074 approves architecture only. Implementation remains divided into
+separately authorized, reviewable stages: installed-package classification;
+versioned public release-index and trust/source adapters; private awareness
+state and network-free status; CLI integration over the existing updater;
+isolated low-frequency Guardian checks; persistent transition notification and
+localization; then outage, privacy, withdrawal, migration, update and rollback
+acceptance. Community remains credential-free and operator-controlled.
+Manifest signing/key lifecycle, SMTP diagnostic refinement, external-delivery
+evidence, central subscriptions and every Pro/fleet capability remain separate
+Owner decisions.
+
 ## Stream 4 — Provider Operations
 
 Provider outcomes build on verified Professional control-plane contracts:

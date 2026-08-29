@@ -266,5 +266,13 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   wget/curl checksum and MANIFEST verification. No feature or unrelated
   behavior change was introduced. See
   `ai/history/073_2026-08-29_qwsg-1-2-0-final-release-publication.md`.
+- `2026-08-29`: Task 074 opened the QWSG 1.3 cycle with a repository-backed
+  Update Discovery and Release Awareness architecture. It inventories the
+  existing 1.2.0 updater, defines a versioned source-neutral release index and
+  authenticity path, separates private awareness state from Guardian health,
+  specifies persistent notification transitions and preserves explicit
+  operator installation. It adds no production behavior or central/Pro
+  feature. See
+  `ai/history/074_2026-08-29_update-discovery-release-awareness-architecture.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

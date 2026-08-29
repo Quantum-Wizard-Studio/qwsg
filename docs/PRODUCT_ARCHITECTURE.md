@@ -759,6 +759,28 @@ identity before evaluation; integrity-invalid state still fails closed. This
 prevents superseded configuration state from causing every recovered Runtime
 cycle to fail while preserving ordinary same-configuration restart recovery.
 
+## Update discovery and release awareness
+
+Community release awareness is an optional outbound-only local capability. A
+credential-free public source supplies a versioned QWSG release index through
+a source adapter; the local client validates authority, channel, version,
+platform, compatibility metadata and artifact identity, then records a small
+private awareness state. Guardian may refresh that state on a bounded
+low-frequency schedule and reuse existing local notification delivery for a
+new-release transition. Source failure does not alter local engineering truth,
+Guardian health or readiness.
+
+Discovery and installation are separate authority boundaries. The client may
+check, compare, persist and notify automatically, but installation always
+requires an explicit administrator action and delegates to the existing
+deterministic package verification, declared migration, transaction and
+rollback infrastructure. Community sends no product telemetry or server
+inventory and requires no registration; ordinary HTTPS still exposes normal
+network metadata such as source IP. Central subscriptions, accounts, fleet
+inventory and richer Pro update management are opt-in future services and do
+not grant remote shell or silent root-update authority. The detailed contract
+is `docs/architecture/UPDATE_DISCOVERY_AND_RELEASE_AWARENESS.md`.
+
 ## Canonical operator presentation
 
 Canonical engineering and operational data now feeds one presentation-

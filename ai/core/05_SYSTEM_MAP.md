@@ -174,3 +174,20 @@ operator Overview for replaceable interfaces without calling engines or
 probing operational state:
 
 `Canonical Engineering and Operational Data -> Operator Presentation Model -> Replaceable Interface`.
+
+Public release awareness is an independent outbound-only side flow:
+
+```text
+approved HTTPS source -> Release Source adapter -> validated release-index
+                      -> Update Discovery -> private Update Awareness State
+                                           +-> network-free update status
+                                           `-> transition -> existing Notification transport
+
+explicit operator action -> existing acquire/package/migration/update/rollback transaction
+```
+
+Update Discovery owns no Health, readiness, local observation, SMTP,
+privileged installation or rollback behavior. Guardian may schedule it at low
+frequency with bounded failure isolation; release-source failure cannot block
+the primary local monitoring flow. The canonical contract is
+`docs/architecture/UPDATE_DISCOVERY_AND_RELEASE_AWARENESS.md`.

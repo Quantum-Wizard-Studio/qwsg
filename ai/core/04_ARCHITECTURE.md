@@ -197,3 +197,14 @@ their ownership and uncertainty, and produces one bounded operator Overview.
 It owns no engineering evaluation, interface, monitoring, persistence,
 process observation, or remediation. The permanent contract is
 `docs/architecture/CANONICAL_OPERATOR_PRESENTATION_MODEL.md`.
+
+## Update Discovery and Release Awareness
+
+Task 074 defines the QWSG 1.3 read-only public release-awareness boundary in
+`docs/architecture/UPDATE_DISCOVERY_AND_RELEASE_AWARENESS.md`. It extends the
+existing QWSG 1.2.0 Forgejo discovery, strict versioning, package verification,
+migration and transactional rollback path through a source-neutral versioned
+manifest, explicit authenticity model, private awareness state, isolated
+Guardian schedule and persistent notification transitions. It does not create
+a second updater, treat discovery as Health/readiness, or authorize automatic
+installation, telemetry, registration, central access or Pro implementation.
