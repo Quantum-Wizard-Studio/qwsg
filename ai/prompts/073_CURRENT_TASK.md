@@ -4,7 +4,7 @@
 
 - Task ID: `073`
 - Task slug: `qwsg-1-2-0-final-release-publication`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-08-29` UTC
 - Human authority: Project Owner
 - Owner or lead-developer communication language: Hungarian

@@ -4,7 +4,7 @@
 
 - Task ID: `073`
 - Task slug: `qwsg-1-2-0-final-release-publication`
-- Status: `active — release preparation and validation in progress`
+- Status: `complete — QWSG 1.2.0 RELEASED`
 - Date generated: `2026-08-29` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: Hungarian
@@ -47,10 +47,27 @@ Builder input, metadata, prompt/history identity, approval state, lifecycle inst
 - Release plumbing, deterministic build provenance, cross-umask/source-mode reproducibility, shell syntax, static systemd verification, Git whitespace, security/redaction, notification and migration regressions PASS. Static systemd verification emitted expected sandbox bus-access warnings and returned success.
 - The first focused Go attempt selected the sandbox-read-only default cache and failed before test setup. Classified `ENVIRONMENTAL ISSUE`; the unchanged command passed with task-private writable `GOCACHE`/`GOMODCACHE`.
 
+## Release-source integration and deterministic construction
+
+- Release commit: `348d927ffcf4c8cd4c9a50fc3eacad71d8bfe5c2`; tree `e7aa50f4ed405598b0d7b9a9224d8dd183e9a703`; epoch `1788022414`; UTC build time `2026-08-29T16:53:34Z`.
+- Commit subject: `release: establish QWSG 1.2.0 source`; dry-run and actual push clean-fast-forwarded canonical `main`.
+- Two independent exact-commit exports with isolated source/output/cache roots under `/tmp/qwsg-task073-final-build.T9zOvS` produced byte-identical archives and sidecars.
+- Frozen artifact `qwsg-1.2.0-linux-amd64.tar.gz`: size `3524214`, SHA-256 `44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`; sidecar SHA-256 `22242a8d0702e7dbe33c9beee84b8ef497e6372bf08e26747b754a01382e81c6`; MANIFEST SHA-256 `76fdd7809eaeffe1d923338a29b248e9413e5d1517375a5c651359ae62b118b3`; binary SHA-256 `c922f51873ee9e9428da4b900aedec31f08f9e16f86b7aba680a5bf4e96755a6`.
+- Archive readability, all 18 MANIFEST file entries, safe 27-member single-root structure, numeric `0/0` ownership, canonical modes, exact executable allowlist, static linux-amd64 format, absence of ambient VCS metadata, and exact embedded final version/full commit/build time PASS.
+
+## Publication and external distribution acceptance
+
+- Release-boundary snapshot: `/tmp/qwsg-task073-release-boundary.rs8K4n`, mode `0700`; source archive, frozen checksum identity, proposed tag, publication ledger, containment instructions and all snapshot checksums verified.
+- Annotated tag object `ac395b568b8e1f83c0ef85c9aa02f98c15402af0` was created and pushed as `v1.2.0`; local and direct remote peel is exactly release commit `348d927ffcf4c8cd4c9a50fc3eacad71d8bfe5c2`.
+- Forgejo Release ID `3`, title `QWSG 1.2.0`, is final/non-draft/non-prerelease and targets the exact release commit. It contains exactly the frozen archive (`3524214` bytes) and sidecar (`96` bytes).
+- Anonymous direct `wget` and `curl -fLO` retrieval from the actual Forgejo Release endpoint succeeded into independent directories. Both downloaded archives were non-empty, matched canonical SHA-256 `44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`, passed downloaded-sidecar verification, opened as tar, passed every MANIFEST entry and contained the expected executable/package structure and provenance.
+- No Contabo or OVH host was contacted or mutated. The real-host facts recorded in `docs/release/ACCEPTANCE_1.2.0.md` are explicitly Project Owner-supplied acceptance evidence.
+- Final release decision: `RELEASED`.
+
 ## Rollback
 
 Use `/tmp/qwsg-task073-snapshot.kFyNI3/ROLLBACK.md` only after exact repository and target identity checks. Restore only individually reviewed Task 073 targets from isolated archive extraction; never use broad reset, checkout, clean, wildcard removal or published-identity rewrite.
 
 ## Completion state
 
-`active — mandatory local release gates and deterministic final construction pending`
+`complete — QWSG 1.2.0 released; annotated tag, final Forgejo Release and independent external artifact verification PASS`

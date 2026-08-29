@@ -259,5 +259,12 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   migration/rollback and deterministic release gates passed; private RC.6 is
   ready for separate final acceptance and was not published. See
   `ai/history/071_2026-08-28_guided-installer-readiness-synchronization-rc6.md`.
+- `2026-08-29`: Task 073 promoted the fully accepted RC.7 implementation to
+  final QWSG 1.2.0 with an explicit deterministic RC.2-to-final compatibility
+  route, byte-identical exact-commit builds, canonical package provenance and
+  modes, annotated `v1.2.0`, a final Forgejo Release, and independent anonymous
+  wget/curl checksum and MANIFEST verification. No feature or unrelated
+  behavior change was introduced. See
+  `ai/history/073_2026-08-29_qwsg-1-2-0-final-release-publication.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

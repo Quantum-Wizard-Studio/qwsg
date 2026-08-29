@@ -44,12 +44,17 @@ Final 1.2.0 declares a direct deterministic compatibility path from an actual in
 ## Publication ledger
 
 - Mandatory local release validation: `PASS` — focused final-version update/rollback, full Go, repository-wide race, vet, formatting, Framework/configured engineering suites, Builder/lifecycle/diversion/test-task, shell syntax, systemd static, release plumbing, build provenance, cross-umask/source-mode reproducibility, security/redaction and notification coverage passed. The first focused attempt selected a read-only default Go cache; it was classified as an environmental issue and passed unchanged with task-private writable caches.
-- Deterministic twin-build identity: `PENDING`.
-- Final release commit and epoch: `PENDING`.
-- Frozen archive, sidecar, MANIFEST and binary identities: `PENDING`.
-- Annotated `v1.2.0` local/remote tag: `PENDING`.
-- Forgejo v1.2.0 Release and assets: `PENDING`.
-- Independent external wget/curl retrieval, checksum, tar, MANIFEST and structure verification: `PENDING`.
-- Final repository/lifecycle state: `PENDING`.
+- Deterministic twin-build identity: `PASS` — two independent `git archive` exports of the exact release commit used isolated source, output and Go-cache roots and produced byte-identical archive and sidecar bytes.
+- Final release commit and epoch: `348d927ffcf4c8cd4c9a50fc3eacad71d8bfe5c2`; tree `e7aa50f4ed405598b0d7b9a9224d8dd183e9a703`; `SOURCE_DATE_EPOCH=1788022414`; `2026-08-29T16:53:34Z`.
+- Frozen archive: `qwsg-1.2.0-linux-amd64.tar.gz`; size `3524214`; SHA-256 `44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`.
+- Frozen sidecar SHA-256: `22242a8d0702e7dbe33c9beee84b8ef497e6372bf08e26747b754a01382e81c6`; MANIFEST SHA-256: `76fdd7809eaeffe1d923338a29b248e9413e5d1517375a5c651359ae62b118b3`; binary SHA-256: `c922f51873ee9e9428da4b900aedec31f08f9e16f86b7aba680a5bf4e96755a6`.
+- Package validation: `PASS` — 27 readable members, safe single-root layout, every MANIFEST entry verified, static linux-amd64 binary, exact version/full commit/build time, numeric `0/0` archive ownership, canonical directory/file modes, and only `bin/qwsg`, `install.sh`, and `uninstall.sh` executable.
+- Annotated `v1.2.0`: `PASS` — tag object `ac395b568b8e1f83c0ef85c9aa02f98c15402af0` exists locally and remotely and peels exactly to `348d927ffcf4c8cd4c9a50fc3eacad71d8bfe5c2`.
+- Forgejo Release: `PASS` — Release ID `3`, title `QWSG 1.2.0`, final/non-draft/non-prerelease, exact target commit, exactly the versioned archive (`3524214` bytes) and sidecar (`96` bytes).
+- Independent external retrieval: `PASS` — credential-free wget and `curl -fLO` each returned the two actual versioned Release assets into separate directories. Both archives were non-empty, matched SHA-256 `44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`, passed their downloaded sidecars, opened as tar, passed every extracted MANIFEST entry and contained the expected executable/package structure and embedded provenance.
+- Canonical archive URL: `https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/download/v1.2.0/qwsg-1.2.0-linux-amd64.tar.gz`.
+- Final repository/lifecycle state: `PASS after the separately recorded evidence and lifecycle closure commits converge on canonical `main` and Task 073 archives to idle`.
 
-No `RELEASED` decision is valid while any mandatory ledger item remains pending or failed.
+## Decision
+
+`RELEASED` — every mandatory local, provenance, packaging, tag, publication and external distribution invariant passed. No product feature, architecture redesign, unrelated refactor or host mutation was introduced by final promotion.
