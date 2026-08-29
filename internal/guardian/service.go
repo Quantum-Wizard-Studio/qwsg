@@ -50,6 +50,18 @@ func (v *CapturingScheduler) Last() scheduler.CycleResult {
 	return v.last
 }
 
+// Take returns the most recent cycle for end-of-cycle publication and releases
+// the retained execution graph. A cycle trace can contain two inventories and
+// every derived pipeline stage, so retaining it until the next collection
+// needlessly overlaps two loaded-host working sets.
+func (v *CapturingScheduler) Take() scheduler.CycleResult {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	result := v.last
+	v.last = scheduler.CycleResult{}
+	return result
+}
+
 type RuntimeRunner struct {
 	Coordinator runtime.Coordinator
 	Store       *Store
@@ -119,7 +131,7 @@ func (v *Publisher) Publish(state runtimeservice.State, event runtimeservice.Eve
 	)
 	if event.Kind == runtimeservice.EvidenceCycleCompleted {
 		runtimeV = v.Runner.Last()
-		cycle := v.Scheduler.Last()
+		cycle := v.Scheduler.Take()
 		for index := len(cycle.Traces) - 1; index >= 0; index-- {
 			trace := cycle.Traces[index]
 			if trace.FailureCode == "" && trace.Definition.Profile == "observe" && trace.Execution.Complete {

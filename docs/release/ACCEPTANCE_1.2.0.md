@@ -1,5 +1,24 @@
 # QWSG 1.2.0 Final Release Decision
 
+## Task 072 Guardian memory remediation and private RC.7
+
+Loaded Contabo acceptance exposed repeated unit-scoped OOM kills under the
+existing 128 MiB Guardian cgroup contract; the same behavior existed under
+RC.2 and was not an RC.6 regression. Task 072 modeled the loaded inventory
+pipeline locally and identified transient Go allocation pressure combined with
+one retained prior scheduler execution graph. The remediation retains
+`MemoryMax=128M`, `TasksMax=32`, restart/failure visibility, and every other
+hardening control; it adds `GOMEMLIMIT=64MiB` and releases the consumed trace
+after publication.
+
+The 367-record qualified fixture allocated approximately 112 MiB cumulatively
+and reached about 54 MiB process RSS in isolation. Five repeated cycles with a
+stricter 32 MiB diagnostic Go limit remained bounded at about 43 MiB RSS, with
+no goroutine/process/ticker/channel lifecycle added by the remediation. RC.7
+retains deterministic RC.2 migration and exact rollback. Real OVH/Contabo
+acceptance is a separate Owner-controlled manual gate and was not performed by
+Task 072.
+
 ## Task 071 guided-installer remediation and private RC.6
 
 Task 069 remains `BLOCKED` by QWSG-069-F001; Task 070 remediated that blocker and produced private RC.5. During Owner-operated manual RC.5 pre-release acceptance on the clean OVH host, archive/manifest verification, first guided installation, administrator-enabled lingering, reboot-autostart, Guardian resource limits/readiness and supported uninstall preservation passed. The exact preserved-state reinstall installed the package and activated a healthy Guardian, but its immediate readiness assessment ran before the new Guardian's first canonical evidence cycle. The wizard returned exit 4 at 87%, omitted the completion phase/summary, and subsequent readiness immediately proved all mandatory domains ready with only optional notification partial. No package, configuration, state or Guardian corruption occurred. RC.5 was not promoted.

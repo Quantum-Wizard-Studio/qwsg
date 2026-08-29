@@ -21,7 +21,7 @@ type rc2Fixture struct {
 	State               string `json:"state"`
 }
 
-func TestRC2FixtureMigratesToRC5AndRollsBackExactly(t *testing.T) {
+func TestRC2FixtureMigratesToRC7AndRollsBackExactly(t *testing.T) {
 	data, err := os.ReadFile("testdata/rc2-installed-state.json")
 	if err != nil {
 		t.Fatal(err)
@@ -30,7 +30,7 @@ func TestRC2FixtureMigratesToRC5AndRollsBackExactly(t *testing.T) {
 	if json.Unmarshal(data, &fixture) != nil || fixture.Schema != "qwsg.update-fixture/1" || fixture.Version != "1.2.0-rc.2" {
 		t.Fatalf("invalid RC.2 fixture: %+v", fixture)
 	}
-	migration, err := PlanMigration(fixture.Version, "1.2.0-rc.6")
+	migration, err := PlanMigration(fixture.Version, "1.2.0-rc.7")
 	if err != nil || migration.Validate() != nil || migration.ConfigurationSchema != fixture.ConfigurationSchema || migration.GuardianSchema != fixture.GuardianSchema || migration.SchedulerSchema != fixture.SchedulerSchema || migration.OperatorState != fixture.OperatorState {
 		t.Fatalf("fixture compatibility mismatch: %+v %v", migration, err)
 	}
@@ -38,9 +38,9 @@ func TestRC2FixtureMigratesToRC5AndRollsBackExactly(t *testing.T) {
 	root := t.TempDir()
 	pkg, dest, backup := filepath.Join(root, "pkg"), filepath.Join(root, "dest"), filepath.Join(root, "rollback")
 	files := map[string]string{
-		"bin/qwsg": "QWSG 1.2.0-rc.6\n", "lib/systemd/user/qwsg-guardian.service": "[Service]\nExecStart=/usr/local/bin/qwsg guardian run\nMemoryMax=128M\nTasksMax=32\n",
+		"bin/qwsg": "QWSG 1.2.0-rc.7\n", "lib/systemd/user/qwsg-guardian.service": "[Service]\nExecStart=/usr/local/bin/qwsg guardian run\nEnvironment=GOMEMLIMIT=64MiB\nMemoryMax=128M\nTasksMax=32\n",
 		"README.md": "readme", "INSTALL.md": "install", "LICENSE": "license", "CHANGELOG.md": "changes", "qwsg-config.json": "example",
-		"RELEASE.json":       `{"Schema":"qwsg.release/1","Version":"1.2.0-rc.6","Commit":"1111111111111111111111111111111111111111","Built":"2026-08-28T00:00:00Z","Platform":"linux-amd64"}`,
+		"RELEASE.json":       `{"Schema":"qwsg.release/1","Version":"1.2.0-rc.7","Commit":"1111111111111111111111111111111111111111","Built":"2026-08-28T00:00:00Z","Platform":"linux-amd64"}`,
 		"docs/OPERATIONS.md": "ops",
 	}
 	manifest := ""
@@ -68,7 +68,7 @@ func TestRC2FixtureMigratesToRC5AndRollsBackExactly(t *testing.T) {
 	}
 
 	tx, err := Apply(pkg, dest, backup, fixture.Version)
-	if err != nil || !tx.Complete || tx.FromVersion != fixture.Version || tx.ToVersion != "1.2.0-rc.6" {
+	if err != nil || !tx.Complete || tx.FromVersion != fixture.Version || tx.ToVersion != "1.2.0-rc.7" {
 		t.Fatalf("migration failed: %+v %v", tx, err)
 	}
 	for rel, want := range preserved {
@@ -76,8 +76,8 @@ func TestRC2FixtureMigratesToRC5AndRollsBackExactly(t *testing.T) {
 			t.Fatalf("preserved data changed: %s", rel)
 		}
 	}
-	if got, _ := os.ReadFile(filepath.Join(dest, "usr/local/bin/qwsg")); string(got) != "QWSG 1.2.0-rc.6\n" {
-		t.Fatalf("resulting version is not RC.6: %q", got)
+	if got, _ := os.ReadFile(filepath.Join(dest, "usr/local/bin/qwsg")); string(got) != "QWSG 1.2.0-rc.7\n" {
+		t.Fatalf("resulting version is not RC.7: %q", got)
 	}
 	if err = Rollback(dest, backup); err != nil {
 		t.Fatal(err)

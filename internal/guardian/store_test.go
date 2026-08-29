@@ -14,7 +14,19 @@ import (
 	"quantumwizard.hu/qwsg/internal/presentationmodel"
 	"quantumwizard.hu/qwsg/internal/runtime"
 	"quantumwizard.hu/qwsg/internal/runtimeservice"
+	"quantumwizard.hu/qwsg/internal/scheduler"
 )
+
+func TestCapturingSchedulerTakeReleasesCycleTrace(t *testing.T) {
+	captured := &CapturingScheduler{last: scheduler.CycleResult{ID: "cycle", Traces: make([]scheduler.ExecutionTrace, 512)}}
+	result := captured.Take()
+	if result.ID != "cycle" || len(result.Traces) != 512 {
+		t.Fatalf("unexpected captured result: id=%q traces=%d", result.ID, len(result.Traces))
+	}
+	if after := captured.Last(); after.ID != "" || after.Traces != nil {
+		t.Fatalf("cycle execution graph remained retained: %#v", after)
+	}
+}
 
 func TestCheckpointRoundTripIntegrityAndInstanceLock(t *testing.T) {
 	root := filepath.Join(t.TempDir(), "guardian")

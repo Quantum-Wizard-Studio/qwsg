@@ -22,9 +22,9 @@ URLs are documented only after their Release assets exist and anonymous
 authorized private transfer boundary.
 
 ```sh
-sha256sum -c qwsg-1.2.0-rc.6-linux-amd64.tar.gz.sha256
-tar -xzf qwsg-1.2.0-rc.6-linux-amd64.tar.gz
-cd qwsg-1.2.0-rc.6-linux-amd64
+sha256sum -c qwsg-1.2.0-rc.7-linux-amd64.tar.gz.sha256
+tar -xzf qwsg-1.2.0-rc.7-linux-amd64.tar.gz
+cd qwsg-1.2.0-rc.7-linux-amd64
 sha256sum -c MANIFEST.sha256
 ./bin/qwsg install --guided
 ```

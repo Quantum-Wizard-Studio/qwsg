@@ -19,6 +19,11 @@ StateDirectory=qwsg
 StateDirectoryMode=0700
 WorkingDirectory=%S/qwsg
 Environment=QWSG_STATE_DIR=%S/qwsg
+# Keep the Go-managed memory budget below the cgroup ceiling so garbage
+# collection reacts before transient inventory/pipeline allocations can force
+# a unit-scoped OOM. The remaining 64 MiB covers runtime, subprocess, and
+# cgroup-accounted file-cache/non-heap memory.
+Environment=GOMEMLIMIT=64MiB
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict

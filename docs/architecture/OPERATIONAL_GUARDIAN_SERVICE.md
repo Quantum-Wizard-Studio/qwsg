@@ -57,7 +57,12 @@ with `guardian_active` instead of racing or replacing Guardian evidence.
 The supported unit uses `Type=simple`, SIGTERM, bounded stop and restart
 policies, `UMask=0077`, `NoNewPrivileges`, private temporary storage, a
 read-only system/home view with only the QWSG state exception, `MemoryMax=128M`,
-`TasksMax=32`, and `CPUQuota=25%`. There is no PID file, self-daemonization,
+Go soft memory limit `GOMEMLIMIT=64MiB`, `TasksMax=32`, and `CPUQuota=25%`.
+The Go budget leaves 64 MiB under the hard cgroup ceiling for runtime/non-heap
+memory, bounded collector subprocesses, and cgroup-accounted file cache. A
+completed Scheduler execution graph is retained only through end-of-cycle
+canonical publication and is then released before the next collection. There
+is no PID file, self-daemonization,
 watchdog, network listener, privileged collector, or internal restart loop.
 
 Alert records remain local with the default empty Notification policy. The

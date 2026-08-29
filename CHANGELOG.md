@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0-rc.7] - 2026-08-29
+
+- Bound Go-managed Guardian memory below the unchanged 128 MiB systemd cgroup ceiling with measured headroom for subprocess, non-heap, and file-cache accounting.
+- Release the completed scheduler execution graph after canonical publication so consecutive loaded-host inventory working sets do not overlap.
+- Add repeated-cycle memory diagnostics and preserve deterministic RC.2 migration and rollback through the RC.7 unit replacement.
+
 ## [1.2.0-rc.6] - 2026-08-28
 
 - Synchronize guided completion with the newly activated Guardian's first fresh canonical evidence using the setup path's shared bounded waiter.
