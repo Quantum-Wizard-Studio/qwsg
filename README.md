@@ -1,20 +1,33 @@
-# Quantum Wizard Server Guardian
+<p align="center">
+  <img src="assets/branding/qwsg-logo.png" alt="QWSG logo" width="240">
+</p>
 
-QWSG is a local Linux Server Guardian for operators who need trustworthy,
-privacy-preserving evidence about server health and change. Community runs as
-an ordinary user, keeps evidence locally, and supports one administrator email
-recipient through operator-controlled SMTP without a QWS account.
+<h1 align="center">Quantum Wizard Server Guardian</h1>
+
+<p align="center"><strong>QWSG</strong> — trustworthy, privacy-preserving Linux server monitoring for operators.</p>
+
+QWSG is a local Linux Server Guardian that provides trustworthy,
+privacy-preserving evidence about server health and change. The Community
+edition runs as an ordinary user, keeps evidence locally, and supports one
+administrator email recipient through operator-controlled SMTP without a QWS
+account.
+
+The canonical source repository is hosted by
+[Quantum Wizard Studio on Forgejo](https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg).
+Public mirrors are read-only distribution points.
 
 The supported platform is Ubuntu 24.04 LTS on amd64 with systemd 255+. Start
 with the dedicated [installation guide](docs/installation/INSTALL.md). A
 release archive exposes it as `INSTALL.md`; after installation it is at
 `/usr/local/share/doc/qwsg/INSTALL.md`.
 
-QWSG 1.2 adds a native, rollback-capable update path. Use `qwsg update check`
-to inspect the canonical public Release source, `qwsg update` to verify and
-apply a newer supported release, `qwsg update status` to inspect local rollback
-availability, and `qwsg update rollback` to restore the integrity-verified
-previous package while preserving user configuration, credentials and state.
+QWSG 1.2.0 is the current stable baseline and includes a native,
+rollback-capable, operator-controlled update path. `qwsg update` verifies and
+applies a supported release only after explicit administrator invocation, and
+`qwsg update rollback` restores the integrity-verified previous package while
+preserving user configuration, credentials and state. QWSG 1.3 update
+discovery and local awareness work is under development; unattended
+installation remains disabled.
 
 ## Normal journey
 
