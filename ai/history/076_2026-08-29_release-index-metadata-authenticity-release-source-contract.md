@@ -4,11 +4,11 @@
 
 - Task ID: `076`
 - Task slug: `release-index-metadata-authenticity-release-source-contract`
-- Status: `complete — validated; pending canonical idle closure and Owner review`
+- Status: `complete — validated and canonically closed for Owner review`
 - Date generated: `2026-08-29` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/076_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/076_2026-08-29_release-index-metadata-authenticity-release-source-contract.md`
 
 ## Lifecycle state
 
@@ -39,6 +39,11 @@ The Engineering Task Builder generated and transactionally installed this matchi
   modes/ACLs, complete bundle, checksums and literal bounded rollback;
   directory `0700`, evidence `0600`, checksums/bundle PASS before production
   modification.
+- Closure snapshot: `/tmp/qwsg-task076-closure.CM0O9V`; committed active-task
+  prompt/history, Git/lifecycle/framework and protected-release identities,
+  complete repository bundle, bounded rollback, modes and checksums; directory
+  `0700`, evidence `0600`, checksums and bundle verification PASS before prompt
+  archival.
 
 ## Work performed
 
@@ -110,4 +115,4 @@ identity checks.
 
 ## Completion state
 
-`complete — implementation and mandatory validation passed; pending canonical idle closure and Owner review`
+`complete — implementation validated and canonically closed for Owner review`
