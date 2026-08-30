@@ -291,5 +291,11 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   persistence, Guardian scheduling, notification, automatic installation,
   publication, external mutation or Pro behavior was added. See
   `ai/history/076_2026-08-29_release-index-metadata-authenticity-release-source-contract.md`.
+- `2026-08-30`: Task 077 implemented strict private atomic Update Awareness
+  State with separate attempt/success freshness, authenticated cache and
+  withdrawal handling, explicit read-only check and network-free status. It
+  preserved Task 075/076 trust, the existing updater and all Guardian,
+  notification, installation, Pro and external boundaries. See
+  `ai/history/077_2026-08-30_update-awareness-state-operator-check-status.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

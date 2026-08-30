@@ -46,6 +46,11 @@ updater. Artifact acquisition, package verification, privileged transaction,
 migration execution and rollback remain here. See
 `docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`.
 
+Task 077 adds `internal/updateawareness`, a separate integrity-checked private
+record for explicit read-only check transitions and network-free status. It
+does not own or modify acquisition, installation, migration, transaction or
+rollback state. See `docs/architecture/UPDATE_AWARENESS_STATE.md`.
+
 ## Version and migration model
 
 Version ordering follows SemVer: major, minor, patch, then prerelease ordering;

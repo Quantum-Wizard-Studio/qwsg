@@ -22,9 +22,12 @@ func NewDiscoverer(source ReleaseSource, verifier Verifier, evaluator Evaluator)
 }
 
 type CheckResult struct {
-	NotModified bool
-	Source      SourceEvidence
-	Evaluation  Evaluation
+	NotModified       bool
+	Source            SourceEvidence
+	IndexGeneratedAt  string
+	WithdrawnVersions []string
+	Authenticity      AuthenticityEvidence
+	Evaluation        Evaluation
 }
 
 func (d Discoverer) Check(ctx context.Context, request FetchRequest, platform string, allowPrerelease bool) (CheckResult, error) {
@@ -43,11 +46,27 @@ func (d Discoverer) Check(ctx context.Context, request FetchRequest, platform st
 	if err != nil {
 		return CheckResult{}, err
 	}
+	result := CheckResult{Source: fetched.Evidence, IndexGeneratedAt: index.GeneratedAt, Authenticity: authenticated.Authenticity()}
+	for _, channel := range index.Channels {
+		if channel.Name != request.Channel {
+			continue
+		}
+		for _, release := range channel.Releases {
+			if release.Status == "withdrawn" {
+				for _, artifact := range release.Artifacts {
+					if artifact.Platform == platform {
+						result.WithdrawnVersions = append(result.WithdrawnVersions, release.Version)
+					}
+				}
+			}
+		}
+	}
 	evaluation, err := d.evaluator.Evaluate(authenticated, request.Channel, platform, allowPrerelease)
 	if err != nil {
-		return CheckResult{}, err
+		return result, err
 	}
-	return CheckResult{Source: fetched.Evidence, Evaluation: evaluation}, nil
+	result.Evaluation = evaluation
+	return result, nil
 }
 
 type InstalledClassifier func(candidateVersion string) installation.Result

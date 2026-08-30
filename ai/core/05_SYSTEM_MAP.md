@@ -193,10 +193,12 @@ frequency with bounded failure isolation; release-source failure cannot block
 the primary local monitoring flow. The canonical contract is
 `docs/architecture/UPDATE_DISCOVERY_AND_RELEASE_AWARENESS.md`.
 
-Task 076 implements only the flow through installed-aware evaluation. No
-production endpoint or trust anchor is activated, and the shown awareness
-state/notification consumers remain future work. The implemented contract is
-`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`.
+Task 076 implements the flow through installed-aware evaluation. Task 077 adds
+the independent strict atomic awareness state plus explicit check and
+network-free status. No production endpoint or trust anchor is activated, and
+the notification/schedule consumers remain future work. The implemented
+contracts are `docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md` and
+`docs/architecture/UPDATE_AWARENESS_STATE.md`.
 
 Local installed identity is a separate read-only input:
 

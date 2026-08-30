@@ -56,3 +56,12 @@ only for due Alert delivery or an explicit test. TLS verification cannot be
 disabled. Its separate credential store is `0700/0600`; messages contain
 bounded Alert metadata rather than raw host evidence. Delivery failure never
 disables local monitoring.
+
+Update awareness persists only bounded source/channel tokens, verified
+installed/release identities, Task 076 authenticity evidence, artifact digest
+identity, timestamps, validators and safe failure categories. It stores no raw
+manifest/body/header, URL, hostname, IP, credential, account, email, inventory,
+Guardian finding or notification destination. Its strict digest-checked
+single-link mode-`0600` record is atomically published under private mode-`0700`
+storage. The local SHA-256 detects out-of-contract mutation but is not publisher
+authenticity.

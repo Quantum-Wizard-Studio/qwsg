@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -16,12 +17,14 @@ import (
 	"quantumwizard.hu/qwsg/internal/changenotification"
 	"quantumwizard.hu/qwsg/internal/installation"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
+	"quantumwizard.hu/qwsg/internal/updateawareness"
 )
 
 type localUpdateRecord struct{ Schema, Installed, Previous, Backup, UpdatedAt string }
 
 var installedQWSGBinary = "/usr/local/bin/qwsg"
 var installedQWSGRoot = "/"
+var updateAwarenessChecker updateawareness.Checker
 
 func runUpdate(args []string, out, errout io.Writer) int {
 	if len(args) > 0 && isHelp(args[0]) {
@@ -63,19 +66,31 @@ func runUpdate(args []string, out, errout io.Writer) int {
 }
 
 func runUpdateCheck(out, errout io.Writer) int {
-	installed, err := installedVersion()
+	root, err := localStateRoot()
+	if err != nil || ensureLocalStateRoot(root) != nil {
+		fmt.Fprintln(errout, "Update check failed: private awareness state unavailable.")
+		return 1
+	}
+	store, err := updateawareness.Open(root)
 	if err != nil {
+		fmt.Fprintln(errout, "Update check failed: private awareness state unavailable.")
+		return 1
+	}
+	manager := updateawareness.Manager{Store: store, Checker: updateAwarenessChecker, SourceID: "community-release-index", Channel: "stable", Platform: "linux-amd64", Freshness: updateawareness.DefaultFresh, Classify: func() installation.Result {
+		return installation.Classify(installation.Options{Root: installedQWSGRoot})
+	}}
+	ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
+	defer cancel()
+	state, err := manager.Check(ctx)
+	if errors.Is(err, updateawareness.ErrInstalledIdentity) {
 		fmt.Fprintln(errout, "Update check failed: installed QWSG identity unavailable.")
 		return 1
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
-	defer cancel()
-	release, relation, err := updatecore.Discover(ctx, updatecore.HTTPClient(), "", installed)
 	if err != nil {
-		fmt.Fprintln(errout, "Update check failed: release discovery unavailable.")
+		fmt.Fprintf(errout, "Update check failed: %s. Last authenticated result, if any, was preserved.\n", safeText(state.LastAttempt.Failure))
 		return 1
 	}
-	fmt.Fprintf(out, "Installed: %s\nAvailable: %s\nRelation: %s\n", safeText(installed), safeText(release.Version), relation)
+	writeAwareness(out, state, time.Now().UTC())
 	return 0
 }
 
@@ -311,19 +326,41 @@ func runPrivilegedDiscard(args []string, errout io.Writer) int {
 func runUpdateStatus(out, errout io.Writer) int {
 	root, err := localStateRoot()
 	if err != nil {
+		fmt.Fprintln(errout, "Update status unavailable: local state root unavailable.")
 		return 1
 	}
-	record, err := loadUpdateRecord(filepath.Join(root, "update"))
-	if os.IsNotExist(err) {
-		fmt.Fprintln(out, "No native update transaction is recorded.")
+	store, err := updateawareness.Open(root)
+	if err != nil {
+		fmt.Fprintln(errout, "Update status unavailable: awareness state path unsafe.")
+		return 1
+	}
+	state, err := store.Load()
+	if errors.Is(err, updateawareness.ErrMissing) {
+		fmt.Fprintln(out, "Update awareness: never_checked")
 		return 0
 	}
 	if err != nil {
-		fmt.Fprintln(errout, "Update status unavailable: local metadata invalid.")
+		fmt.Fprintln(errout, "Update status unavailable: awareness state invalid.")
 		return 1
 	}
-	fmt.Fprintf(out, "Installed by updater: %s\nPrevious: %s\nRollback: available\n", safeText(record.Installed), safeText(record.Previous))
+	installed := installation.Classify(installation.Options{Root: installedQWSGRoot})
+	if installed.State != installation.VerifiedSupported || installed.Version != state.Installed.Version {
+		fmt.Fprintf(out, "Update awareness: installed_identity_changed\nStored installed version: %s\n", safeText(state.Installed.Version))
+		return 0
+	}
+	writeAwareness(out, state, time.Now().UTC())
 	return 0
+}
+
+func writeAwareness(out io.Writer, state updateawareness.State, now time.Time) {
+	fmt.Fprintf(out, "Update awareness: %s\nInstalled: %s\n", state.Status, safeText(state.Installed.Version))
+	if state.LastSuccess != nil {
+		fmt.Fprintf(out, "Available: %s\nChannel: %s\nLast successful check: %s\nFreshness: %s\n", safeText(state.LastSuccess.ReleaseVersion), safeText(state.Channel), state.LastSuccess.ObservedAt.Format(time.RFC3339), map[bool]string{true: "stale", false: "fresh"}[updateawareness.IsStale(state, now)])
+	}
+	fmt.Fprintf(out, "Last attempt: %s (%s)\n", state.LastAttempt.At.Format(time.RFC3339), state.LastAttempt.Outcome)
+	if state.LastAttempt.Failure != "" {
+		fmt.Fprintf(out, "Last failure: %s\n", safeText(state.LastAttempt.Failure))
+	}
 }
 func runUpdateRollback(out, errout io.Writer) (code int) {
 	if os.Geteuid() == 0 {

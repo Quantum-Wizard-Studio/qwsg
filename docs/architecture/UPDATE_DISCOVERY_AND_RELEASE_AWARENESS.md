@@ -4,13 +4,14 @@
 
 This document defines the approved QWSG 1.3 architecture for public Community
 release discovery and local release awareness. Task 074 established the design;
-Task 075 implemented installed-package identity, and Task 076 implements the
+Task 075 implemented installed-package identity, Task 076 implements the
 strict release-index, Ed25519 verification, source-neutral retrieval, bounded
 static HTTPS adapter, and pure installed-aware evaluation described in
-`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`. No production
-endpoint/key is activated and no awareness state, schedule, notification,
-installation automation, telemetry, registration, publication, or Pro feature
-is added.
+`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`, and Task 077
+implements the separate private awareness state and explicit check/network-free
+status contract in `docs/architecture/UPDATE_AWARENESS_STATE.md`. No production
+endpoint/key, schedule, notification, installation automation, telemetry,
+registration, publication, or Pro feature is activated.
 
 The default policy is:
 
@@ -250,8 +251,8 @@ malformed, unsupported-major and ambiguous candidates remain distinct.
 
 ## Persistent Update Awareness State
 
-Use a dedicated private atomic integrity-protected record under the canonical
-QWSG state root, for example `update/awareness.json`, with schema
+The implemented dedicated private atomic integrity-protected record is
+`update/awareness.json` under the canonical QWSG state root, with schema
 `qwsg.update-awareness/1`. It is not the Guardian checkpoint or rollback
 transaction. Store only:
 
@@ -263,9 +264,10 @@ transaction. Store only:
   compatibility result;
 - `last_attempt_at`, `last_success_at`, last bounded failure category and
   consecutive-failure count;
-- last transition identity, last notification release/state identity, and
-  notification outcome time/status;
 - cache validators only when bound to the validated source/manifest.
+
+Notification identity and outcome remain outside Task 077 and belong to a
+later notification-transition task.
 
 Never persist raw responses, HTTP headers, IPs, credentials, tokens, hostnames,
 email addresses, full release notes, SMTP errors or Guardian findings. Writes

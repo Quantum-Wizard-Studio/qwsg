@@ -2,13 +2,26 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
 )
+
+type commandAwarenessChecker struct {
+	calls  int
+	result releasediscovery.CheckResult
+	err    error
+}
+
+func (c *commandAwarenessChecker) Check(context.Context, releasediscovery.FetchRequest, string, bool) (releasediscovery.CheckResult, error) {
+	c.calls++
+	return c.result, c.err
+}
 
 func TestUpdateHelp(t *testing.T) {
 	var out, errout bytes.Buffer
@@ -103,6 +116,37 @@ func TestUpdateLocalArguments(t *testing.T) {
 	}
 	if _, _, err = parseUpdateArgs([]string{"--archive", "x"}); err == nil {
 		t.Fatal("incomplete local identity accepted")
+	}
+}
+
+func TestUpdateCheckPublishesAuthenticatedAwarenessAndStatusIsNetworkFree(t *testing.T) {
+	root := t.TempDir()
+	installedPackageFixture(t, root, "1.2.0", true)
+	t.Setenv("QWSG_STATE_DIR", filepath.Join(t.TempDir(), "state"))
+	checker := &commandAwarenessChecker{result: releasediscovery.CheckResult{
+		Source:           releasediscovery.SourceEvidence{SourceID: "community-release-index", TransportAuthenticated: true, Validators: releasediscovery.Validators{ETag: "\"one\""}},
+		IndexGeneratedAt: "2026-08-30T11:00:00Z",
+		Authenticity:     releasediscovery.AuthenticityEvidence{Scheme: "ed25519", KeyID: "test-key"},
+		Evaluation: releasediscovery.Evaluation{
+			InstalledVersion: "1.2.0", Channel: "stable", Platform: "linux-amd64",
+			Release:  releasediscovery.Release{Version: "1.3.0", PublishedAt: "2026-08-30T10:00:00Z", Status: "active"},
+			Artifact: releasediscovery.Artifact{Name: "qwsg-1.3.0-linux-amd64.tar.gz", SHA256: strings.Repeat("a", 64), Size: 1234},
+			Relation: updatecore.Newer, Compatibility: releasediscovery.CompatibilitySupported, MigrationID: "compat-1.2.0-to-1.3.0",
+			Authenticity: releasediscovery.AuthenticityEvidence{Scheme: "ed25519", KeyID: "test-key"},
+		},
+	}}
+	previousRoot, previousChecker := installedQWSGRoot, updateAwarenessChecker
+	installedQWSGRoot, updateAwarenessChecker = root, checker
+	defer func() { installedQWSGRoot, updateAwarenessChecker = previousRoot, previousChecker }()
+	var out, errout bytes.Buffer
+	if code := runUpdateCheck(&out, &errout); code != 0 || !strings.Contains(out.String(), "update_available") {
+		t.Fatalf("code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	checker.calls = 0
+	out.Reset()
+	errout.Reset()
+	if code := runUpdateStatus(&out, &errout); code != 0 || checker.calls != 0 || !strings.Contains(out.String(), "update_available") {
+		t.Fatalf("code=%d calls=%d out=%q err=%q", code, checker.calls, out.String(), errout.String())
 	}
 }
 func TestPrivilegedBackupPathBoundary(t *testing.T) {

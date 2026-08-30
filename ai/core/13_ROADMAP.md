@@ -212,6 +212,12 @@ activation, Guardian scheduling, notification, automatic installation,
 publication or Pro work. Production trust-anchor and source activation remain
 Project Owner decisions.
 
+Task 077 delivers the third stage: strict private atomic
+`qwsg.update-awareness/1`, distinct attempt/success freshness, safe failure and
+withdrawal handling, explicit authenticated check orchestration and network-free
+status. It does not activate production release authority, schedule Guardian,
+notify, acquire/install, or begin Pro work.
+
 ## Stream 4 — Provider Operations
 
 Provider outcomes build on verified Professional control-plane contracts:

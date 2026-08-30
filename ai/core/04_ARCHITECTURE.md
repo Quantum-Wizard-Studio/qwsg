@@ -219,6 +219,12 @@ and the existing local migration registry. It activates no production source
 or key and owns no awareness state, Guardian schedule, notification, artifact
 acquisition, installation, rollback, publication, telemetry or Pro behavior.
 
+Task 077 implements the separate `internal/updateawareness` boundary documented
+in `docs/architecture/UPDATE_AWARENESS_STATE.md`: strict private atomic state,
+last-attempt/last-authenticated-success freshness, withdrawal/failure
+preservation, explicit check and network-free status. It activates no source or
+key and owns no Guardian, notification, acquisition or installation behavior.
+
 ## Installed Package Classification
 
 Task 075 implements the local installed-identity prerequisite in

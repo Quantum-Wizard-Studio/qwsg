@@ -97,9 +97,9 @@ Stable failures are `source_authority_refused`, `source_canceled`,
 `source_too_large`, and `source_media_type`. Errors never include response
 bodies, credentials, URLs, host state, or raw transport diagnostics.
 
-`304 Not Modified` returns only safe source/validator evidence. Reuse of cached
-metadata will require a future authenticated persistent-state task; Task 076
-does not invent such state.
+`304 Not Modified` returns only safe source/validator evidence. Task 077 accepts
+it only when bound to a matching previously authenticated awareness observation;
+validators never become authenticity evidence.
 
 ## Deterministic evaluation
 
@@ -128,5 +128,6 @@ remain truthful relations and require no migration conclusion.
 Task 076 does not activate this source in the CLI or change existing Forgejo
 update behavior. The QWSG 1.2 updater, acquisition, package verification,
 transaction, and rollback remain authoritative and unchanged. A later task may
-activate an Owner-approved endpoint and trust anchors, then add awareness state
-separately; it must reuse this contract rather than create another updater.
+activate an Owner-approved endpoint and trust anchors. Task 077 consumes the
+result through an injected checker and fails closed while production authority
+is unconfigured; it does not create another updater.
