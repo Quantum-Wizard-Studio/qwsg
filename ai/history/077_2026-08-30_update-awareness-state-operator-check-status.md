@@ -4,11 +4,11 @@
 
 - Task ID: `077`
 - Task slug: `update-awareness-state-operator-check-status`
-- Status: `complete — validated; pending canonical idle closure and Owner review`
+- Status: `complete — validated and canonically closed for Owner review`
 - Date generated: `2026-08-30` UTC
 - Human authority: Project Owner
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/077_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/077_2026-08-30_update-awareness-state-operator-check-status.md`
 
 ## Lifecycle state
 
@@ -34,6 +34,10 @@ The Engineering Task Builder generated and transactionally installed this matchi
   before-images/absence, identities, modes/ACLs, rollback, checksums and complete
   bundle verified before production modification; directory `0700`, evidence
   `0600`.
+- Closure snapshot: `/tmp/qwsg-task077-closure.zpyCTG`; committed prompt/history,
+  Git/lifecycle/framework/protected-release identities, ACL evidence, bounded
+  rollback, checksums and complete bundle verified before archival; directory
+  `0700`, evidence `0600`.
 
 ## Work performed
 
@@ -89,4 +93,4 @@ focused/full/framework/lifecycle/Git/reproducibility/protected-release checks.
 
 ## Completion state
 
-`complete — implementation and mandatory validation passed; pending canonical idle closure and Owner review`
+`complete — implementation validated and canonically closed for Owner review`
