@@ -18,6 +18,19 @@ privileged helper revalidates the migration decision. Unsupported or malformed
 identities fail closed. Rollback metadata and before-images are private,
 integrity protected and contain only release-owned package destinations; secret
 values are neither logged nor composed into lifecycle notifications.
+
+The QWSG 1.3 release-index foundation keeps transport authentication,
+publisher authenticity and artifact integrity separate. Its static source sends
+only fixed product/media headers plus optional bounded HTTP cache validators;
+it sends no installed version, hostname, inventory, identity, email, findings,
+or state. It requires approved HTTPS authority/path policy, refuses insecure
+TLS/client credentials/cookies/proxy credentials and bounds redirects,
+timeouts, headers and body size. Ordinary HTTPS still reveals network-level
+source information such as source IP; Community checks are credential-free and
+privacy-minimized, not mathematically anonymous. Ed25519 verification requires
+an explicitly approved public key and valid signature. Task 076 provides no
+production key, endpoint, signing, publication, persistence or automatic
+network behavior.
 Guided activation accepts only a new integrity-checked canonical evidence
 identity after service activation; a still-current preserved record cannot
 impersonate the newly started Guardian. Waiting is cancellable and bounded by

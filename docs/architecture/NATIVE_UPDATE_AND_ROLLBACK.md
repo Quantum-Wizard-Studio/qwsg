@@ -38,6 +38,14 @@ modes, binary platform, and embedded version/source provenance. SHA-256 protects
 integrity after authoritative HTTPS discovery; signing remains a separate
 Owner decision.
 
+Task 076 adds the separate `qwsg.release-index/1` authenticity foundation in
+`internal/releasediscovery`: strict metadata, deterministic Ed25519 signature
+bytes, explicit trust anchors, and bounded source-neutral HTTPS retrieval. It
+does not activate a production endpoint or key and does not replace this
+updater. Artifact acquisition, package verification, privileged transaction,
+migration execution and rollback remain here. See
+`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`.
+
 ## Version and migration model
 
 Version ordering follows SemVer: major, minor, patch, then prerelease ordering;

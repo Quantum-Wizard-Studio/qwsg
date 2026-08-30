@@ -20,6 +20,12 @@ files, platform and embedded `RELEASE.json` provenance before stopping the
 Guardian or requesting privilege. Configuration, credentials and persistent
 state are never package replacement targets or rollback payloads.
 
+QWSG 1.3's Task 076 foundation also defines a source-neutral signed release
+index, but does not activate it in this operator workflow. When later activated
+under an approved endpoint and public trust anchor, index authenticity will be
+verified before its artifact size/SHA-256 can enter this existing acquisition
+and package-verification path. It will not create a second updater.
+
 ## Deterministic compatibility and migration contract
 
 Before any Guardian stop or package mutation, the updater classifies the

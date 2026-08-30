@@ -178,8 +178,9 @@ probing operational state:
 Public release awareness is an independent outbound-only side flow:
 
 ```text
-approved HTTPS source -> Release Source adapter -> validated release-index
-                      -> Update Discovery -> private Update Awareness State
+approved HTTPS source -> Release Source adapter -> strict release-index parse
+                      -> Ed25519 authenticity -> installed-aware evaluation
+                      -> private Update Awareness State
                                            +-> network-free update status
                                            `-> transition -> existing Notification transport
 
@@ -191,6 +192,11 @@ privileged installation or rollback behavior. Guardian may schedule it at low
 frequency with bounded failure isolation; release-source failure cannot block
 the primary local monitoring flow. The canonical contract is
 `docs/architecture/UPDATE_DISCOVERY_AND_RELEASE_AWARENESS.md`.
+
+Task 076 implements only the flow through installed-aware evaluation. No
+production endpoint or trust anchor is activated, and the shown awareness
+state/notification consumers remain future work. The implemented contract is
+`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`.
 
 Local installed identity is a separate read-only input:
 

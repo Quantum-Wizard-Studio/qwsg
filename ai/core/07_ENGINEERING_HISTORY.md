@@ -283,5 +283,13 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   no discovery, unattended update, external-host or QWSG 1.2.0 release change
   was introduced. See
   `ai/history/075_2026-08-29_installed-package-legacy-installation-classification.md`.
+- `2026-08-30`: Task 076 implemented the read-only release metadata foundation:
+  strict duplicate-aware `qwsg.release-index/1`, deterministic Ed25519 signing
+  bytes and explicit trust-anchor verification, a bounded source-neutral static
+  HTTPS adapter, and pure evaluation through Task 075 installation identity and
+  the existing local migration registry. No production endpoint/key,
+  persistence, Guardian scheduling, notification, automatic installation,
+  publication, external mutation or Pro behavior was added. See
+  `ai/history/076_2026-08-29_release-index-metadata-authenticity-release-source-contract.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

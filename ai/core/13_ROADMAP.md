@@ -204,6 +204,14 @@ fail-closed legacy/unknown/inconsistent handling and the final 1.2.0 field
 regression covered. It does not begin release-index, Guardian scheduling,
 notification or Pro work. Those remain separately authorized future tasks.
 
+Task 076 delivers the second stage: strict `qwsg.release-index/1`, deterministic
+Ed25519 verification with explicit trust anchors, bounded source-neutral static
+HTTPS retrieval, and pure Task 075-aware release/migration evaluation. It does
+not activate a production endpoint/key or begin awareness persistence, CLI
+activation, Guardian scheduling, notification, automatic installation,
+publication or Pro work. Production trust-anchor and source activation remain
+Project Owner decisions.
+
 ## Stream 4 — Provider Operations
 
 Provider outcomes build on verified Professional control-plane contracts:

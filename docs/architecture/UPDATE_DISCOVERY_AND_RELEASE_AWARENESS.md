@@ -3,9 +3,14 @@
 ## Status and scope
 
 This document defines the approved QWSG 1.3 architecture for public Community
-release discovery and local release awareness. Task 074 is architecture and
-analysis only: it adds no production behavior, network service, release
-manifest, signing key, telemetry, registration, installation, or Pro feature.
+release discovery and local release awareness. Task 074 established the design;
+Task 075 implemented installed-package identity, and Task 076 implements the
+strict release-index, Ed25519 verification, source-neutral retrieval, bounded
+static HTTPS adapter, and pure installed-aware evaluation described in
+`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`. No production
+endpoint/key is activated and no awareness state, schedule, notification,
+installation automation, telemetry, registration, publication, or Pro feature
+is added.
 
 The default policy is:
 
@@ -130,10 +135,11 @@ not cause acceptance from an unapproved host. Cache validators such as ETag may
 reduce transfer, but a `304` is usable only with a previously authenticated,
 validated local manifest.
 
-## Proposed manifest contract
+## Implemented manifest contract
 
 Media type: `application/vnd.quantumwizard.qwsg-releases+json`.
-Schema identity: `qwsg.release-index/1`. JSON is UTF-8, bounded, decoded with
+Schema identity: `qwsg.release-index/1`. Task 076 implements the contract in
+`internal/releasediscovery`. JSON is UTF-8, bounded, decoded with
 unknown fields rejected for schema 1, and contains one product plus a bounded
 set of channels/releases. JSON member ordering is irrelevant; signature input
 uses a specified canonical JSON serialization or detached digest file, never
@@ -211,9 +217,10 @@ an initial Community bootstrap only when the endpoint is controlled as an
 authoritative Quantum Wizard publishing surface. SHA-256 then binds the
 selected artifact bytes. SHA-256 alone does not authenticate the manifest.
 
-The recommended incremental Community trust model is:
+The implemented but not production-activated Community trust model is:
 
-1. ship one or more release-manifest public keys/key IDs in QWSG;
+1. supply one or more explicitly approved release-manifest public keys/key IDs
+   to the verifier (Task 076 embeds no unapproved production key);
 2. publish the detached/in-document Ed25519 signature with the static manifest;
 3. validate signature, schema, product, channel and constraints before state
    publication;

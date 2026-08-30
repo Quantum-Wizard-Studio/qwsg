@@ -209,6 +209,16 @@ Guardian schedule and persistent notification transitions. It does not create
 a second updater, treat discovery as Health/readiness, or authorize automatic
 installation, telemetry, registration, central access or Pro implementation.
 
+Task 076 implements the first remote-metadata layer as
+`internal/releasediscovery`, with the permanent contract in
+`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`. It strictly parses
+`qwsg.release-index/1`, verifies deterministic Ed25519 signatures against
+explicit trust anchors, retrieves through a bounded source-neutral HTTPS
+interface, and performs pure evaluation through Task 075 installed identity
+and the existing local migration registry. It activates no production source
+or key and owns no awareness state, Guardian schedule, notification, artifact
+acquisition, installation, rollback, publication, telemetry or Pro behavior.
+
 ## Installed Package Classification
 
 Task 075 implements the local installed-identity prerequisite in
