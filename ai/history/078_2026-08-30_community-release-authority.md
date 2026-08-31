@@ -127,6 +127,32 @@ intentionally absent: producing it requires the separately unauthorized
 production signature. The generator and transaction were positively verified
 with non-production fixtures and fail closed without that signature.
 
+On 2026-08-31 UTC, the Project Owner authorized the production signing
+operation exclusively on the dedicated Dell 1 Windows custodian workstation
+and authorized freezing and transferring only the non-secret signing input and
+returning only its detached signature plus privacy-safe evidence. Production
+signing on the QWSG host, private-key/passphrase transfer, DNS/TLS/hosting
+mutation, publication, production acceptance, Task 079, and SMTP work remain
+unauthorized.
+
+Frozen first-production signing input:
+`release/production/qwsg-release-index-first-signing-input.json`, exactly 738
+bytes with no trailing newline, generated-at `2026-08-31T18:19:25Z`, SHA-256
+`770759c7935c35c7d9c726837ceb4ce8237f6799aa38b1a449454023cf9c8b68`.
+It contains only the canonical Task 076 signed fields for the unchanged QWSG
+1.2.0 release and artifact. Two independent generator passes reproduced the
+exact bytes. Transfer package:
+`/tmp/qwsg-task078-dell1-signing-package.3sgP7f`, directory mode 0700 and
+single input mode 0600. No signature or private material was created on this
+host.
+
+The Windows amd64 offline signer was rebuilt reproducibly from the reviewed
+source: size `5118464`, SHA-256
+`c3f7e9459a8fa23cf6f87daf46046d0cd9bd67c7682efd2a450bf2bf1f7c8b0d`.
+Focused generator/assembler/offline-signer tests and repeated isolated
+release-authority binary/signing-input reproducibility passed after correcting
+the generator CLI to preserve the exact no-trailing-newline signature bytes.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.

@@ -3,11 +3,13 @@
 package main
 
 import (
+	"bufio"
 	"crypto/ed25519"
 	"encoding/base64"
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/term"
@@ -31,8 +33,9 @@ func run(args []string) error {
 		return err
 	}
 	fmt.Fprint(os.Stderr, "OpenSSH private-key file: ")
-	var keyPath string
-	if _, err = fmt.Fscanln(os.Stdin, &keyPath); err != nil {
+	keyPath, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	keyPath = strings.TrimSuffix(strings.TrimSuffix(keyPath, "\n"), "\r")
+	if err != nil || keyPath == "" {
 		return fmt.Errorf("private-key path unavailable")
 	}
 	keyPEM, err := readRegular(keyPath, 64<<10)

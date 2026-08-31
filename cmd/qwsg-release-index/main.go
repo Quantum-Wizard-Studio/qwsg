@@ -51,7 +51,6 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	output = append(output, '\n')
 	return writeExclusive(args[len(args)-1], output)
 }
 
