@@ -2,9 +2,9 @@
 
 ## Status
 
-Task 078 production authority: **Owner-approved; production public key and
-separate recovery verified; trust/source implementation complete; first
-publication unauthorized**.
+Task 078 production authority: **Owner-approved; production public key,
+recovery, and first signature verified; signed index checkpoint complete;
+first publication unauthorized**.
 
 The Project Owner explicitly approved the endpoint, hosting and provenance
 model, initial key ID, dedicated-workstation signing, private custody, separate

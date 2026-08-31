@@ -153,6 +153,37 @@ Focused generator/assembler/offline-signer tests and repeated isolated
 release-authority binary/signing-input reproducibility passed after correcting
 the generator CLI to preserve the exact no-trailing-newline signature bytes.
 
+The Project Owner then completed the authorized offline production signing on
+Dell 1. Reported evidence: key ID `qwsg-community-release-2026-01`, signing
+input SHA-256
+`770759c7935c35c7d9c726837ceb4ce8237f6799aa38b1a449454023cf9c8b68`,
+signing `PASS`, signer exit code `0`, and private-material exposure `NONE`.
+Only the detached Base64 signature was returned. The 89-byte signature file
+SHA-256 reproduced exactly as
+`42aa025eeff5bc25ec2292ebbd7127fff38840521770efeaa12d461315b0105d`
+and decoded to exactly 64 bytes.
+
+Local verification authenticated the signature against the exact frozen input
+and bundled production public anchor. Deterministic assembly produced the
+918-byte exact signed index SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`.
+The exact 433-byte `qwsg.release-publication-checkpoint/1` has SHA-256
+`e53fdff4c8b296c38d02e07eaa5167396a3e673066ec06801530a52d6ccc7587`
+and records `publication_authorized=false`. Repeated assembly and checkpoint
+generation were byte-identical. Full format/vet/test, focused race, frozen
+production artifact regression, malformed/wrong-key/wrong-signature,
+source-authority, rollback/future-metadata, Tasks 075–077 regression, Framework,
+and protected QWSG 1.2.0 checks passed. Snapshot:
+`/tmp/qwsg-task078-signature-verification.ZtBIc5`, directory mode 0700,
+evidence mode 0600, complete verified Git bundle and exact before-images.
+Exact signed-artifact checkpoint:
+`/tmp/qwsg-task078-first-signature-checkpoint.qOsZ4k`, directory mode 0700
+with the four exact mode-0600 input/signature/signed-index/checkpoint artifacts
+and independently reproduced SHA-256 identities.
+
+No private material was requested or handled. No DNS, TLS, hosting,
+publication, production acceptance, SMTP, or Task 079 action occurred.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
@@ -168,15 +199,12 @@ recovery custody, recovery decryption, and matching public-identity verification
 are approved or verified as applicable. Private material must not be sent or
 recorded here.
 
-Local implementation and deterministic verification are complete. The
-publication-checkpoint generator is verified with non-production fixtures; its
-final production record intentionally cannot exist until the Owner separately
-authorizes production signing and returns only the detached signature for the
-frozen canonical input.
+Local implementation, production signing verification, exact signed-index
+assembly, and the publication checkpoint are complete. The checkpoint remains
+explicitly unauthorized for publication.
 
 The remaining production actions require explicit Project Owner authorization:
-production signing on the custodian workstation; exact DNS/TLS/hosting
-mutation; transfer, no-clobber first publication, retrieval and authentication
-of the checkpointed exact bytes; and the separately approved real production
-acceptance target/protocol and execution. Stop without performing any of those
-actions and without beginning Task 079.
+exact DNS/TLS/hosting mutation; transfer, no-clobber first publication,
+retrieval and authentication of the checkpointed exact bytes; and the
+separately approved real production acceptance target/protocol and execution.
+Stop without performing any of those actions and without beginning Task 079.

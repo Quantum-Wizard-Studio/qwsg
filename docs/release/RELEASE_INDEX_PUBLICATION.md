@@ -132,6 +132,33 @@ the input hash after transfer and the signature hash before and after return.
 Do not modify line endings, reserialize JSON, paste the input through an editor,
 or sign a copy with different bytes.
 
+## First production signature and checkpoint
+
+The Project Owner completed the authorized Dell 1 signing operation and
+returned only the detached signature and privacy-safe evidence. Signing
+reported `PASS`, signer exit code `0`, and private-material exposure `NONE`.
+
+- Detached signature Base64:
+  `FFxm/ud3amnBze/XaX8pqQc+h/mw3wmX8nsIoMZIyixfkcV9DAh6QWUa58naap/0V1485guVrWAGmdAtNC1PBQ==`
+- Detached signature file: `qwsg-release-index-first-signature.base64`
+- Signature file size: `89` bytes
+- Signature file SHA-256:
+  `42aa025eeff5bc25ec2292ebbd7127fff38840521770efeaa12d461315b0105d`
+- Signed index: `qwsg-release-index-first-signed.json`
+- Signed index size: `918` bytes
+- Signed index SHA-256:
+  `f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`
+- Checkpoint: `qwsg-release-index-first-checkpoint.json`
+- Checkpoint size: `433` bytes
+- Checkpoint SHA-256:
+  `e53fdff4c8b296c38d02e07eaa5167396a3e673066ec06801530a52d6ccc7587`
+
+The signature verifies against the exact frozen input and bundled
+`qwsg-community-release-2026-01` public key. Repeated assembly and checkpoint
+generation reproduced exact bytes. The checkpoint intentionally records
+`publication_authorized=false`. These artifacts authorize no infrastructure
+mutation, upload, publication, retrieval, or production acceptance.
+
 ## Local verification
 
 `make release-authority-check` rebuilds the Linux publication tool and Windows

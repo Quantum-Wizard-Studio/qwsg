@@ -2,13 +2,37 @@ package releasepublication
 
 import (
 	"crypto/ed25519"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
 )
+
+func TestFrozenProductionIndexAndCheckpoint(t *testing.T) {
+	root := filepath.Join("..", "..", "release", "production")
+	signed, err := os.ReadFile(filepath.Join(root, "qwsg-release-index-first-signed.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest := sha256.Sum256(signed)
+	if len(signed) != 918 || hex.EncodeToString(digest[:]) != "f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704" {
+		t.Fatalf("frozen signed index identity changed: size=%d sha256=%s", len(signed), hex.EncodeToString(digest[:]))
+	}
+	checkpoint, err := BuildCheckpoint(signed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want, err := os.ReadFile(filepath.Join(root, "qwsg-release-index-first-checkpoint.json"))
+	if err != nil || string(checkpoint) != string(want) {
+		t.Fatalf("checkpoint changed: err=%v got=%s want=%s", err, checkpoint, want)
+	}
+}
 
 func TestGenerateAndAssembleAreDeterministic(t *testing.T) {
 	seed := make([]byte, ed25519.SeedSize)
