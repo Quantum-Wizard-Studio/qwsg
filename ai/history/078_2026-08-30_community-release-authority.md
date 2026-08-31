@@ -111,6 +111,22 @@ SHA-256 `44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`.
 No production endpoint request, signing, DNS/TLS/hosting mutation, publication,
 acceptance, SMTP work, or Task 079 work occurred.
 
+Implementation commit:
+`f52b24dd4b8da431c127b3b224204c534a0e18d5` (`Implement Task 078 production
+release authority`).
+
+Publication-readiness checkpoint:
+`/tmp/qwsg-task078-publication-checkpoint.yVcRXs`, directory mode 0700 and
+evidence mode 0600. It binds the exact implementation commit in a complete
+verified Git bundle and retains the public trust asset, authority record,
+publication runbook, and Task 078 history with recorded SHA-256 identities.
+The bundled trust asset SHA-256 is
+`a9fa371efbcf9e0724dfc72a313c36b1f6075f9139bfabb331f4fe3f1b1cfdd0`.
+The final `qwsg.release-publication-checkpoint/1` exact-index record remains
+intentionally absent: producing it requires the separately unauthorized
+production signature. The generator and transaction were positively verified
+with non-production fixtures and fail closed without that signature.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
