@@ -28,9 +28,15 @@ TLS/client credentials/cookies/proxy credentials and bounds redirects,
 timeouts, headers and body size. Ordinary HTTPS still reveals network-level
 source information such as source IP; Community checks are credential-free and
 privacy-minimized, not mathematically anonymous. Ed25519 verification requires
-an explicitly approved public key and valid signature. Task 076 provides no
-production key, endpoint, signing, publication, persistence or automatic
-network behavior.
+an explicitly approved public key and valid signature. Task 078 bundles only
+the approved public key and activates only the exact credential-free HTTPS
+source for explicit `update check`; it adds no scheduled or automatic network
+behavior. Production private keys and passphrases remain exclusively in the
+Owner's dedicated custody environments and are never accepted by QWSG runtime,
+CI, hosting, Forgejo, GitHub, or repository tooling. The separately built
+offline signer prompts locally for the encrypted OpenSSH key path and
+passphrase, writes only a detached signature with no-clobber mode, and is used
+only on the approved custodian workstation.
 Guided activation accepts only a new integrity-checked canonical evidence
 identity after service activation; a still-current preserved record cannot
 impersonate the newly started Guardian. Waiting is cancellable and bounded by

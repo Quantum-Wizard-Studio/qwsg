@@ -49,10 +49,13 @@ wrong-key, malformed, or otherwise unapproved metadata yields
 `unauthenticated_metadata`. Authenticated documents are deep-copied on entry
 and return so caller mutation cannot retain stale authenticity evidence.
 
-No production public key, private key, signing operation, endpoint activation,
-rotation, revocation, recovery, or publication is introduced by Task 076.
-Those remain Project Owner decisions. Test keys are deterministic fixtures
-only.
+Task 078 activates one exact production public authority on top of this Task
+076 contract: source ID `community-release-index`, endpoint
+`https://releases.quantumwizard.hu/qwsg/v1/release-index.json`, and key ID
+`qwsg-community-release-2026-01`. The bundled `qwsg.release-trust/1` record is
+strictly decoded and must reproduce the compiled 32-byte public key and
+fingerprint. It contains no private material. Test private keys remain
+unmistakably non-production fixtures only.
 
 Trust layers remain separate:
 
@@ -125,9 +128,8 @@ compatibility. Legacy, absent, unknown, inconsistent, incomplete, binary-only,
 or otherwise unverified local identity stops evaluation. Equal/older releases
 remain truthful relations and require no migration conclusion.
 
-Task 076 does not activate this source in the CLI or change existing Forgejo
-update behavior. The QWSG 1.2 updater, acquisition, package verification,
-transaction, and rollback remain authoritative and unchanged. A later task may
-activate an Owner-approved endpoint and trust anchors. Task 077 consumes the
-result through an injected checker and fails closed while production authority
-is unconfigured; it does not create another updater.
+Task 078 constructs this source and verifier for `qwsg update check`. The QWSG
+1.2 updater, acquisition, package verification, transaction, and rollback
+remain authoritative and unchanged. Task 077 consumes the result through the
+same checker seam; it does not create another updater. `update status` remains
+network-free.

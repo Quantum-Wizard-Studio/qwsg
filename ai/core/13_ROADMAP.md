@@ -218,6 +218,14 @@ withdrawal handling, explicit authenticated check orchestration and network-free
 status. It does not activate production release authority, schedule Guardian,
 notify, acquire/install, or begin Pro work.
 
+Task 078 activates the exact Owner-approved credential-free production source
+and bundled public Ed25519 anchor through the existing Task 076/077 path. It
+adds deterministic canonical generation, detached-signature assembly,
+custodian-only encrypted-OpenSSH offline signing, publication-checkpoint
+generation, packaging, and fail-closed verification. Production DNS, TLS,
+hosting, signing, first publication, acceptance, scheduling, notification,
+automatic installation, and Task 079 remain separate explicit gates.
+
 ## Stream 4 — Provider Operations
 
 Provider outcomes build on verified Professional control-plane contracts:

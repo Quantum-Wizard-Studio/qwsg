@@ -218,10 +218,11 @@ an initial Community bootstrap only when the endpoint is controlled as an
 authoritative Quantum Wizard publishing surface. SHA-256 then binds the
 selected artifact bytes. SHA-256 alone does not authenticate the manifest.
 
-The implemented but not production-activated Community trust model is:
+The Task 078 production-activated Community trust model is:
 
-1. supply one or more explicitly approved release-manifest public keys/key IDs
-   to the verifier (Task 076 embeds no unapproved production key);
+1. bundle the exact Owner-approved `qwsg-community-release-2026-01` public key
+   and fingerprint in a strict `qwsg.release-trust/1` asset and compiled
+   identity assertion;
 2. publish the detached/in-document Ed25519 signature with the static manifest;
 3. validate signature, schema, product, channel and constraints before state
    publication;
@@ -230,10 +231,9 @@ The implemented but not production-activated Community trust model is:
    the existing verifier before any migration or privileged action.
 
 This is small enough for Community and separates publisher authenticity from
-artifact integrity. Key introduction, rotation, revocation, threshold policy
-and recovery are Owner-reserved and require a dedicated implementation task.
-Until signing is approved and implemented, state must truthfully record
-`transport_authenticated` rather than claim cryptographic manifest signing.
+artifact integrity. Normal rotation uses bundled monotonic epochs and a
+dual-signed overlap; network content cannot introduce trust. Revocation,
+rotation, signing, and publication remain Owner-gated operational actions.
 Forgejo API fallback must never be described as independently signed.
 
 ## Evaluation and compatibility

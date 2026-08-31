@@ -239,3 +239,22 @@ func TestManagerFailsClosedForUnverifiedInstalledIdentityAndMissingAuthority(t *
 		t.Fatalf("state=%+v err=%v", state, err)
 	}
 }
+
+func TestManagerRejectsMetadataRollbackAndFutureGeneration(t *testing.T) {
+	checker := &fakeChecker{result: result("1.3.0", update.Newer, releasediscovery.CompatibilitySupported)}
+	manager := managerFixture(t, checker)
+	if _, err := manager.Check(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	checker.result.IndexGeneratedAt = "2026-08-30T10:59:59Z"
+	manager.Now = func() time.Time { return testTime.Add(time.Hour) }
+	state, err := manager.Check(context.Background())
+	if releasediscovery.FailureOf(err) != releasediscovery.MetadataRollback || state.LastAttempt.Failure != string(releasediscovery.MetadataRollback) || state.LastSuccess == nil || state.LastSuccess.IndexGeneratedAt != "2026-08-30T11:00:00Z" {
+		t.Fatalf("rollback state=%+v err=%v", state, err)
+	}
+	checker.result.IndexGeneratedAt = "2026-08-30T13:15:01Z"
+	state, err = manager.Check(context.Background())
+	if releasediscovery.FailureOf(err) != releasediscovery.MetadataFreshness || state.LastAttempt.Failure != string(releasediscovery.MetadataFreshness) || state.LastSuccess == nil {
+		t.Fatalf("future state=%+v err=%v", state, err)
+	}
+}

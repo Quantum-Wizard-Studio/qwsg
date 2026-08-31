@@ -87,6 +87,8 @@ const (
 	SourceMediaType         Failure = "source_media_type"
 	InstalledUnverified     Failure = "installed_identity_unverified"
 	NoEligibleRelease       Failure = "no_eligible_release"
+	MetadataRollback        Failure = "metadata_rollback"
+	MetadataFreshness       Failure = "metadata_freshness"
 )
 
 type ContractError struct{ Category Failure }

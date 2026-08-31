@@ -19,6 +19,9 @@ test "$(QWSG_RELEASE_VALIDATE_ONLY=1 "$repo/scripts/build-release.sh")" = \
 grep -F 'QWSG 1.1+ requires explicit SOURCE_DATE_EPOCH' "$repo/scripts/build-release.sh" >/dev/null
 grep -F 'QWSG 1.1+ requires the full 40-character commit' "$repo/scripts/build-release.sh" >/dev/null
 grep -F 'output archive or sidecar already exists' "$repo/scripts/build-release.sh" >/dev/null
+grep -F 'qwsg-release-trust.json' "$repo/scripts/build-release.sh" >/dev/null
+grep -F 'qwsg-release-trust.json' "$repo/packaging/release/install.sh" >/dev/null
+grep -F 'qwsg-community-release-2026-01' "$repo/internal/releasediscovery/trust/production.json" >/dev/null
 
 work=$(mktemp -d /tmp/qwsg-release-check.XXXXXX)
 trap 'rm -rf "$work"' EXIT HUP INT TERM

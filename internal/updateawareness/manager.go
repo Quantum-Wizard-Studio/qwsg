@@ -29,6 +29,8 @@ type Manager struct {
 	Now             func() time.Time
 }
 
+const maximumIndexClockSkew = 15 * time.Minute
+
 func (m Manager) Check(ctx context.Context) (State, error) {
 	if m.Store == nil || m.Classify == nil || m.SourceID == "" || m.Channel == "" {
 		return State{}, ErrCorrupt
@@ -70,6 +72,17 @@ func (m Manager) Check(ctx context.Context) (State, error) {
 		return state, &releasediscovery.ContractError{Category: releasediscovery.SourceAuthority}
 	}
 	result, checkErr := m.Checker.Check(ctx, releasediscovery.FetchRequest{Channel: m.Channel, Validators: validators}, m.Platform, m.AllowPrerelease)
+	if checkErr == nil && !result.NotModified {
+		generatedAt, generatedErr := time.Parse(time.RFC3339, result.IndexGeneratedAt)
+		if generatedErr != nil || generatedAt.After(now.Add(maximumIndexClockSkew)) {
+			checkErr = &releasediscovery.ContractError{Category: releasediscovery.MetadataFreshness}
+		} else if prior != nil && prior.LastSuccess != nil {
+			previousGeneratedAt, previousErr := time.Parse(time.RFC3339, prior.LastSuccess.IndexGeneratedAt)
+			if previousErr != nil || generatedAt.Before(previousGeneratedAt) {
+				checkErr = &releasediscovery.ContractError{Category: releasediscovery.MetadataRollback}
+			}
+		}
+	}
 	if checkErr != nil {
 		if releasediscovery.FailureOf(checkErr) == releasediscovery.NoEligibleRelease && prior != nil && prior.LastSuccess != nil && contains(result.WithdrawnVersions, prior.LastSuccess.ReleaseVersion) {
 			state, stateErr := NewWithdrawn(*prior, result, installed, now, m.Freshness)

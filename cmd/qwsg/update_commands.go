@@ -16,6 +16,7 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/changenotification"
 	"quantumwizard.hu/qwsg/internal/installation"
+	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
 	"quantumwizard.hu/qwsg/internal/updateawareness"
 )
@@ -24,7 +25,15 @@ type localUpdateRecord struct{ Schema, Installed, Previous, Backup, UpdatedAt st
 
 var installedQWSGBinary = "/usr/local/bin/qwsg"
 var installedQWSGRoot = "/"
-var updateAwarenessChecker updateawareness.Checker
+var updateAwarenessChecker = productionAwarenessChecker()
+
+func productionAwarenessChecker() updateawareness.Checker {
+	checker, err := releasediscovery.ProductionDiscoverer()
+	if err != nil {
+		return nil
+	}
+	return checker
+}
 
 func runUpdate(args []string, out, errout io.Writer) int {
 	if len(args) > 0 && isHelp(args[0]) {
@@ -76,7 +85,7 @@ func runUpdateCheck(out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Update check failed: private awareness state unavailable.")
 		return 1
 	}
-	manager := updateawareness.Manager{Store: store, Checker: updateAwarenessChecker, SourceID: "community-release-index", Channel: "stable", Platform: "linux-amd64", Freshness: updateawareness.DefaultFresh, Classify: func() installation.Result {
+	manager := updateawareness.Manager{Store: store, Checker: updateAwarenessChecker, SourceID: releasediscovery.ProductionSourceID, Channel: "stable", Platform: "linux-amd64", Freshness: updateawareness.DefaultFresh, Classify: func() installation.Result {
 		return installation.Classify(installation.Options{Root: installedQWSGRoot})
 	}}
 	ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)

@@ -215,15 +215,17 @@ Task 076 implements the first remote-metadata layer as
 `qwsg.release-index/1`, verifies deterministic Ed25519 signatures against
 explicit trust anchors, retrieves through a bounded source-neutral HTTPS
 interface, and performs pure evaluation through Task 075 installed identity
-and the existing local migration registry. It activates no production source
-or key and owns no awareness state, Guardian schedule, notification, artifact
+and the existing local migration registry. Task 078 builds on this boundary
+with the exact Owner-approved production source and bundled public anchor; it
+still owns no awareness state, Guardian schedule, notification, artifact
 acquisition, installation, rollback, publication, telemetry or Pro behavior.
 
 Task 077 implements the separate `internal/updateawareness` boundary documented
 in `docs/architecture/UPDATE_AWARENESS_STATE.md`: strict private atomic state,
 last-attempt/last-authenticated-success freshness, withdrawal/failure
-preservation, explicit check and network-free status. It activates no source or
-key and owns no Guardian, notification, acquisition or installation behavior.
+preservation, explicit check and network-free status. Task 078 injects the
+approved production discoverer through its existing checker seam; awareness
+owns no Guardian, notification, acquisition or installation behavior.
 
 ## Installed Package Classification
 

@@ -15,9 +15,10 @@ Task 075 verified installed identity
   -> update check/status presentation
 ```
 
-No production endpoint or trust anchor is activated. Until a later Owner
-decision supplies both, `update check` records `source_authority_refused` and
-fails closed; unsigned Forgejo data is never awareness truth.
+Task 078 supplies the exact Owner-approved production endpoint and bundled
+public trust anchor. `update check` now constructs that single strict source;
+construction failure still records `source_authority_refused`, and unsigned,
+wrong-key, or wrong-signature data is never awareness truth.
 
 ## Record and integrity
 

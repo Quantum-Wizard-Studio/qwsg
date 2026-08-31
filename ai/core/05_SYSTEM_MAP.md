@@ -195,10 +195,13 @@ the primary local monitoring flow. The canonical contract is
 
 Task 076 implements the flow through installed-aware evaluation. Task 077 adds
 the independent strict atomic awareness state plus explicit check and
-network-free status. No production endpoint or trust anchor is activated, and
-the notification/schedule consumers remain future work. The implemented
-contracts are `docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md` and
-`docs/architecture/UPDATE_AWARENESS_STATE.md`.
+network-free status. Task 078 fixes the single production endpoint and bundled
+public trust anchor, adds deterministic offline-signing/publication plumbing,
+and stops before infrastructure mutation or publication. Notification/schedule
+consumers remain future work. The implemented contracts are
+`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`,
+`docs/architecture/UPDATE_AWARENESS_STATE.md`, and
+`docs/release/RELEASE_INDEX_PUBLICATION.md`.
 
 Local installed identity is a separate read-only input:
 

@@ -54,12 +54,13 @@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOCACHE=${GOCACHE:-/tmp/qwsg-go-cache} GOM
 cp "$repo/packaging/systemd/qwsg-guardian.service" "$root/lib/systemd/user/"
 cp "$repo/packaging/release/install.sh" "$repo/packaging/release/uninstall.sh" "$root/"
 cp "$repo/packaging/release/qwsg-config.json" "$root/"
+cp "$repo/internal/releasediscovery/trust/production.json" "$root/qwsg-release-trust.json"
 cp "$repo/LICENSE" "$repo/CHANGELOG.md" "$root/"
 printf '{"Schema":"qwsg.release/1","Version":"%s","Commit":"%s","Built":"%s","Platform":"linux-amd64"}\n' "$version" "$commit" "$build_date" > "$root/RELEASE.json"
 cp "$repo/README.md" "$root/README.md"
 cp "$repo/docs/installation/INSTALL.md" "$root/INSTALL.md"
 release_notes_name="RELEASE_NOTES_$version"
-for doc in QUICK_START SETUP_AND_CONFIGURATION OPERATIONS TROUBLESHOOTING UPGRADE_ROLLBACK_UNINSTALL CHANGE_NOTIFICATIONS SUPPORT SECURITY_AND_PRIVACY KNOWN_LIMITATIONS "$release_notes_name"; do cp "$repo/docs/release/$doc.md" "$root/docs/"; done
+for doc in QUICK_START SETUP_AND_CONFIGURATION OPERATIONS TROUBLESHOOTING UPGRADE_ROLLBACK_UNINSTALL CHANGE_NOTIFICATIONS SUPPORT SECURITY_AND_PRIVACY KNOWN_LIMITATIONS RELEASE_INDEX_PUBLICATION "$release_notes_name"; do cp "$repo/docs/release/$doc.md" "$root/docs/"; done
 find "$root" -type f ! -name MANIFEST.sha256 -printf '%P\n' | LC_ALL=C sort | while IFS= read -r file; do sha256sum "$root/$file"; done | sed "s#  $root/#  #" > "$root/MANIFEST.sha256"
 find "$root" -type d -exec chmod 0755 {} +
 find "$root" -type f -exec chmod 0644 {} +

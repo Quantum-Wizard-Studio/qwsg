@@ -1,4 +1,4 @@
-.PHONY: build build-contract-check install install-service release release-check test vet fmt-check framework-check engineering-test
+.PHONY: build build-contract-check install install-service release release-check release-authority-check release-authority-tools test vet fmt-check framework-check engineering-test
 
 GOCACHE ?= /tmp/qwsg-go-cache
 GOMODCACHE ?= /tmp/qwsg-go-modcache
@@ -41,6 +41,14 @@ release:
 release-check:
 	./scripts/test-release-plumbing.sh
 	./scripts/test-release-reproducibility.sh
+
+release-authority-tools:
+	mkdir -p build/release-authority
+	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go build -trimpath -buildvcs=false -o build/release-authority/qwsg-release-index ./cmd/qwsg-release-index
+	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) GOOS=windows GOARCH=amd64 go build -trimpath -buildvcs=false -o build/release-authority/qwsg-release-sign-offline.exe ./cmd/qwsg-release-sign-offline
+
+release-authority-check:
+	./scripts/test-release-authority-reproducibility.sh
 
 test:
 	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go test ./...

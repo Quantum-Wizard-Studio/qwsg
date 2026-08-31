@@ -9,6 +9,14 @@ enabled/active service intent and validates installed identity and
 configuration. Inspect rollback availability with `qwsg update status`; use
 `qwsg update rollback` to restore the prior verified package artifacts.
 
+`qwsg update check` contacts only
+`https://releases.quantumwizard.hu/qwsg/v1/release-index.json`, requires the
+bundled `qwsg-community-release-2026-01` Ed25519 public identity, and fails
+closed on transport, source, schema, signature, key, or artifact-metadata
+failure. It neither downloads nor installs an artifact. `qwsg update status`
+remains network-free and preserves the last authenticated success separately
+from a later failed attempt.
+
 Use `qwsg` for the current read-only operator view and `qwsg observe` for an explicit full observation. The supervised Guardian runs the same canonical Runtime Service; it does not duplicate engine decisions.
 
 Use `qwsg readiness` for the composite operational gate. Guardian core may be
