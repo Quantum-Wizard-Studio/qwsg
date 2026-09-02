@@ -184,6 +184,120 @@ and independently reproduced SHA-256 identities.
 No private material was requested or handled. No DNS, TLS, hosting,
 publication, production acceptance, SMTP, or Task 079 action occurred.
 
+On 2026-09-02 UTC, the Project Owner authorized a read-only production
+infrastructure preflight after reporting that the Cloudflare DNS record had
+been created. Public DNS resolved `releases.quantumwizard.hu` directly to
+`207.231.111.245`, with no AAAA or CNAME answer. Reverse DNS and the local
+Hestia/server identity independently associated that address with
+`server.quantumwizard.hu`; the same address is the configured Hestia web IP on
+this Quantum Wizard-controlled host.
+
+No Hestia web-domain record, generated Nginx/Apache virtual host, filesystem
+tree, or certificate exists for `releases.quantumwizard.hu`. The current HTTP
+request falls through to the default Nginx/Apache boundary and returns `404`.
+HTTPS reaches Nginx but presents the valid, unexpired Let's Encrypt certificate
+for `server.quantumwizard.hu` only, so hostname verification fails; an
+unverified request receives the default-vhost redirect back to HTTP. Hestia's
+firewall already permits public TCP 80/443, five other Hestia-managed domains
+remain independently defined, and the standard static JSON template/document
+root convention introduces no discovered naming, listener, firewall, or
+filesystem conflict.
+
+The proposed Hestia-owned document root is
+`/home/qws/web/releases.quantumwizard.hu/public_html`, with the exact object at
+`qwsg/v1/release-index.json`. The minimum future mutation is: add that one web
+domain under Hestia user `qws` on the existing IP; obtain a matching certificate
+through Hestia/Let's Encrypt; enable HTTPS force through Hestia; create only the
+`qwsg/v1` subtree; stage and verify the checkpointed 918-byte signed index on
+the same filesystem; atomically install it only while the final path is absent;
+then perform the separately authorized HTTPS retrieval/authentication protocol.
+No generated Hestia configuration should be edited directly.
+
+The preflight stopped before every infrastructure mutation. During inspection,
+one Hestia certificate-listing command unexpectedly emitted existing TLS
+private-key material into transient session output. It was not copied into the
+repository, task evidence, snapshot, or any file by this task. The affected
+existing TLS identity must be treated as exposed and rotated through a
+separately authorized Hestia-managed certificate operation before production
+activation. Consequently, infrastructure is not yet ready for publication
+authorization despite the otherwise compatible target layout.
+
+Read-only infrastructure-preflight history snapshot:
+`/tmp/qwsg-task078-infra-preflight.wzisFh`, directory mode 0700 with mode-0600
+history before-image, Git state, complete verified Git bundle, and verified
+SHA-256 manifest. The signed production index remained exactly 918 bytes with
+SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`.
+
+The Project Owner then authorized preparation, but not execution, of TLS
+exposure remediation. Safe certificate and live-handshake inspection identified
+the exposed identity exactly as the Let's Encrypt RSA certificate for
+`server.quantumwizard.hu`, serial
+`05C790E23AD5CE0A8BFF8BBECB78C27B49F3`, certificate SHA-256 fingerprint
+`82:AD:63:86:E0:ED:B7:53:E0:AD:02:1C:73:AA:52:B6:B8:3F:28:E9:3D:77:40:00:26:D8:81:47:41:EC:3C:04`, valid from
+2026-08-18 05:31:46 UTC through 2026-11-16 05:31:45 UTC, with the sole SAN
+`server.quantumwizard.hu`. Its public-key SPKI SHA-256 is
+`adc1d95f232e60fdd903dfdbcef46082906458d666ed11cba459eb66bc951ec4`.
+This identity is unrelated to and shares no custody boundary with the QWSG
+Ed25519 release-signing key.
+
+The domain-specific Hestia web copy and Hestia system certificate copy use the
+same public key. Live handshakes reproduced the exact certificate fingerprint
+on Nginx HTTPS 443, Hestia control-panel HTTPS 8083, Exim implicit TLS 465 and
+STARTTLS 25/587, and Dovecot implicit TLS 993/995 and STARTTLS 143/110. Apache's
+default HTTPS backend and the `server.quantumwizard.hu` Apache/Nginx virtual
+host are configured with the same identity. Exim uses it only as the fallback
+when no separate mail-domain SNI identity applies. The independently configured
+`quantumwizard.hu` mail identity and every other named web-domain certificate
+are outside the affected mutation scope. No active FTP listener or current FTP
+configuration dependency was found, although Hestia's host-certificate update
+routine harmlessly invokes its configured FTP restart path.
+
+Installed Hestia 1.10.4 source confirms the supported replacement transaction:
+`v-add-letsencrypt-domain qws server.quantumwizard.hu` generates a fresh key
+and certificate, updates only that web-domain SSL identity, and reloads the web
+boundary; `v-update-host-certificate qws server.quantumwizard.hu` copies the
+new identity to Hestia's system certificate paths and reloads the configured
+mail, FTP, and Hestia services. `UPDATE_HOSTNAME_SSL='yes'` is already enabled.
+The higher-level `v-add-letsencrypt-host` is unsuitable for forced incident
+rotation because it deliberately reuses a currently valid certificate.
+
+The proposed incident transaction is to preserve the old certificate and key
+only in a root-only ephemeral revocation directory; issue and install the new
+web identity through `v-add-letsencrypt-domain`; verify a different public key,
+serial and fingerprint plus correct hostname/chain on the web vhost; propagate
+it through `v-update-host-certificate`; verify the new exact identity on ports
+443, 8083, 25, 465, 587, 110, 143, 993 and 995 and verify unrelated named web
+and mail identities remain unchanged; then revoke the old certificate with the
+already installed Certbot 2.9.0 using its old certificate/private key and
+reason `keycompromise`. Let's Encrypt recommends revocation for exposed private
+keys. Installed Hestia has no certificate-revocation command, so revocation is
+a separate ACME operation after successful cutover, not a Hestia configuration
+operation. Destroy the ephemeral revocation copy only after successful CA
+confirmation. Never restore the exposed key after revocation; any cutover
+failure is repaired forward with the new identity.
+
+TLS remediation pre-change snapshot:
+`/tmp/qwsg-task078-tls-remediation-prechange.0XYfu4`, mode 0700 with mode-0600
+public certificate identity/hashes, path metadata, exact non-secret affected
+configuration before-images, repository/history state, complete verified Git
+bundle, and verified SHA-256 manifest. It intentionally contains no private
+key, credential, account key, token, mail content, or QWSG signing material.
+Rollback may restore only proven configuration drift from these before-images.
+Before revocation, failure leaves the still-serving old identity in place if
+issuance did not install; after new identity installation, rollback is
+forward-only because restoring the exposed key would recreate the incident.
+
+Expected impact is a sequence of graceful web reloads plus brief Hestia,
+Exim/Dovecot and configured FTP reload-or-restart operations. Existing
+connections may complete; new connections should see the new identity within
+seconds. A short control-panel or mail handshake interruption is possible, but
+no unrelated domain content, mail-domain certificate, DNS, firewall, release
+artifact, release-signing identity, or publication state needs to change. The
+remediation plan is ready for a separate Owner mutation authorization. No TLS
+rotation, reissue, revocation, configuration reload, release-host creation,
+publication, production acceptance, SMTP repair, or Task 079 work occurred.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
