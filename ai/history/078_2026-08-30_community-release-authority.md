@@ -4,7 +4,7 @@
 
 - Task ID: `078`
 - Task slug: `community-release-authority`
-- Status: `active — production recovery verification passed; publication remains unauthorized`
+- Status: `active — first production publication authenticated; cache-policy correction required before acceptance`
 - Date prepared: `2026-08-30` UTC
 - Human authority: Project Owner — approved continuation on 2026-08-30 UTC
 - Preferred owner communication language: English
@@ -384,13 +384,63 @@ execution-environment privilege blocker; no transport/authentication acceptance
 claim is made. Production acceptance, TLS/DNS/Hestia mutation, SMTP work,
 private signing-material handling, and Task 079 were not begun.
 
+The Project Owner then executed the exact checkpointed script from a
+root-capable session and reported success. Independent post-publication
+verification confirmed the final object is a single regular file owned
+`qws:qws`, mode 0644, link count 1, exactly 918 bytes, with SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`.
+The staging name is absent. The final object is byte-identical to the protected
+authenticated source.
+
+Public HTTP returns `301` to the exact canonical HTTPS URL. HTTPS hostname and
+chain verification pass under the dedicated `releases.quantumwizard.hu`
+certificate, and HTTPS returns `200`, `Content-Type: application/json`, and
+`Content-Length: 918`. An independent private retrieval reproduced the exact
+918 bytes and SHA-256 and compared byte-identical with both source and final
+filesystem object. The production verifier authenticated the retrieved
+Ed25519 signature under key ID `qwsg-community-release-2026-01` and reproduced
+the exact 433-byte publication checkpoint with SHA-256
+`e53fdff4c8b296c38d02e07eaa5167396a3e673066ec06801530a52d6ccc7587`.
+The authenticated document is schema `qwsg.release-index/1`, product `qwsg`,
+stable active release `1.2.0`, source commit
+`348d927ffcf4c8cd4c9a50fc3eacad71d8bfe5c2`, canonical Quantum Wizard Studio
+Forgejo release/artifact URLs, artifact size 3524214, and artifact SHA-256
+`44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`.
+
+Generated release-vhost configuration and the protected
+`server.quantumwizard.hu` vhost configuration remain byte-identical to the
+publication-ready checkpoint. No unexpected filesystem object appeared in the
+publication directory. DNS, TLS identities, Hestia configuration, unrelated
+domains, SMTP, the QWSG signing key, and repository source were not mutated by
+the publication transaction.
+
+One post-publication gate failed. The default Hestia static-file template emits
+`Expires: Thu, 31 Dec 2037 23:55:55 GMT` and
+`Cache-Control: max-age=315360000` for the JSON release index. ETag and
+Last-Modified validators are present and an exact `If-None-Match` request
+returns `304` with no body, but a ten-year freshness lifetime permits conforming
+intermediaries to reuse stale release metadata without revalidation. This is
+not appropriate for the mutable release-index endpoint or its fail-closed
+freshness contract. The authentic published object was preserved; no
+unapproved vhost/header correction was made, and production client acceptance
+was not started.
+
+Post-publication verification evidence:
+`/tmp/qwsg-task078-first-publication-verification.wTYPOZ`, directory mode 0700
+with mode-0600 retrieved bytes, HTTP/HTTPS/conditional headers, zero-byte 304
+body evidence, reproduced checkpoint, filesystem metadata, configuration
+hashes, repository/history state, complete verified Git bundle, result record,
+and verified SHA-256 manifest. First publication and cryptographic
+authentication pass, while Task 078 remains stopped at the cache-policy
+configuration blocker before production acceptance.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
 
 ## Completion state
 
-`active — implementation validated; stopped at first-publication gate`
+`active — first publication authenticated; stopped at cache-policy gate before production acceptance`
 
 ## Current decision gate
 
@@ -400,11 +450,13 @@ are approved or verified as applicable. Private material must not be sent or
 recorded here.
 
 Local implementation, production signing verification, exact signed-index
-assembly, and the publication checkpoint are complete. The checkpoint remains
-explicitly unauthorized for publication.
+assembly, infrastructure activation, no-clobber first publication, public
+retrieval, and cryptographic authentication are complete. The exact authentic
+object is live at the approved endpoint.
 
-The remaining production actions require explicit Project Owner authorization:
-exact DNS/TLS/hosting mutation; transfer, no-clobber first publication,
-retrieval and authentication of the checkpointed exact bytes; and the
-separately approved real production acceptance target/protocol and execution.
-Stop without performing any of those actions and without beginning Task 079.
+Production acceptance must not begin while the endpoint advertises the unsafe
+ten-year static freshness lifetime. The remaining action is an explicitly
+bounded Hestia-compatible response-header correction followed by repeated
+transport/cache/authentication verification; after that passes, the separately
+approved real production acceptance target/protocol and execution remain.
+Stop without modifying unrelated infrastructure or beginning Task 079.
