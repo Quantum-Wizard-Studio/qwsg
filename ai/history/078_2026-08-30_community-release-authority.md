@@ -4,7 +4,7 @@
 
 - Task ID: `078`
 - Task slug: `community-release-authority`
-- Status: `active — production endpoint authenticated and cache-safe; ready for separately authorized production acceptance`
+- Status: `complete — production release authority published and accepted`
 - Date prepared: `2026-08-30` UTC
 - Human authority: Project Owner — approved continuation on 2026-08-30 UTC
 - Preferred owner communication language: English
@@ -582,13 +582,88 @@ a location-local `types` mapping for `json` to the required vendor media type),
 then repeat all endpoint and acceptance gates. No such additional production
 mutation was made.
 
+The Project Owner authorized the minimum location-local MIME override and
+executed the verified root transaction from
+`/tmp/qwsg-task078-location-mime-prechange.GBqyay`. Both Nginx validations
+passed and only Nginx was reloaded. The persistent Hestia-compatible exact
+location include is `root:qws` mode 0640 and has final SHA-256
+`d49a76d774343b6e4ccdda788e79991d2a170d9449d6522fb48c658d13b6e678`.
+Its location-local `types` mapping now assigns the required vendor media type
+to `.json` while preserving `expires off` and `Cache-Control: no-cache`.
+
+Final production acceptance on 2026-09-02 UTC used the Task-078-enabled client
+with a fresh isolated mode-0700 state root at
+`/tmp/qwsg-task078-final-acceptance.l9rseU/state` and the actual installed
+Community identity QWSG 1.2.0, source commit
+`348d927ffcf4c8cd4c9a50fc3eacad71d8bfe5c2`. Public and direct-origin HTTPS
+requests both returned exactly
+`application/vnd.quantumwizard.qwsg-releases+json`. HTTPS returned 200, HTTP
+returned the exact canonical 301 redirect, TLS hostname/chain verification
+passed, `Cache-Control: no-cache` remained effective with no `Expires`, and
+ETag/Last-Modified plus zero-body conditional 304 behavior passed.
+
+The real network-enabled `qwsg update check` exited 0 and reported `current`,
+installed 1.2.0, available 1.2.0, stable channel, and fresh successful state.
+The private `qwsg.update-awareness/1` record and lock are mode 0600 under
+mode-0700 directories. Digest validation passed through `qwsg update status`.
+The record proves source `community-release-index`, channel `stable`, installed
+classification `verified_supported_installation`, installed 1.2.0, authenticated
+transport, Ed25519 key ID `qwsg-community-release-2026-01`, status `current`,
+relation `equal`, fresh timestamps, active release 1.2.0, artifact
+`qwsg-1.2.0-linux-amd64.tar.gz`, size 3524214, and artifact SHA-256
+`44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`.
+Consecutive failures are zero.
+
+Independent production verification authenticated the retrieved signature with
+the embedded production trust anchor, key fingerprint
+`0d17ea178bb27820d5c7ca44c539dbf9d6ec1e399b29c536252e4658a5d1dcf6`,
+and reproduced the protected publication checkpoint byte-for-byte with SHA-256
+`e53fdff4c8b296c38d02e07eaa5167396a3e673066ec06801530a52d6ccc7587`.
+The authenticated index proves schema `qwsg.release-index/1`, product/channel
+`qwsg`/`stable`, active release 1.2.0, protected source commit, canonical
+Quantum Wizard Studio Forgejo URLs, and the exact approved artifact identity.
+The public, direct-origin, protected repository source, and production
+filesystem objects are byte-identical at 918 bytes with SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`.
+
+`qwsg update status` then succeeded inside the network-restricted execution
+sandbox and reproduced the same current/fresh state. The focused test
+`TestUpdateCheckPublishesAuthenticatedAwarenessAndStatusIsNetworkFree` passed
+and proves the status path performs zero checker/network calls. A ptrace-based
+supplemental trace and an unprivileged network namespace were unavailable under
+the host sandbox; this did not weaken the combined enforced-network restriction,
+runtime result, source-path inspection, and deterministic zero-call test.
+
+Acceptance created only the explicitly designed isolated awareness JSON and
+lock. Installed QWSG, signed source, published object, persistent include,
+listeners, and Guardian service state remained identical across the accepted
+check. No artifact acquisition, update installation, privileged update,
+Guardian configuration/state coupling, notification, credential, telemetry,
+registration, inbound listener, or unrelated service mutation occurred. The
+production signing private key was never handled. DNS, TLS, SMTP,
+`server.quantumwizard.hu`, the protected QWSG 1.2.0 release/tag/artifact, and
+Task 079 remained untouched.
+
+Final verification passed: formatting, vet, the complete Go test suite,
+Framework 2.0 engineering tests, build provenance contract, release plumbing,
+release reproducibility, release-authority reproducibility, focused
+network-free status behavior, full `go test -race ./...`, framework validation,
+lifecycle validation, Git diff checks, protected artifact/object hashes, and
+repository scope review. Release no-clobber/reproducibility validation ran from
+a clean local Git clone because the canonical workspace intentionally retains
+the protected ignored 1.2.0 artifact that the no-clobber fixture requires to be
+absent. The committed source under test was identical and all release gates
+passed. Closure snapshot `/tmp/qwsg-task078-closure.8yHbnB` is mode 0700 with
+mode-0600 prompt/history before-images, repository state, verified complete Git
+bundle, protected production hashes, and manifest.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
 
 ## Completion state
 
-`active — media-type correction ineffective due inherited Nginx MIME mapping; acceptance remains failed closed`
+`complete — production release authority, publication, and real Community acceptance passed`
 
 ## Current decision gate
 
@@ -602,10 +677,8 @@ assembly, infrastructure activation, no-clobber first publication, public
 retrieval, and cryptographic authentication are complete. The exact authentic
 object is live at the approved endpoint.
 
-The cache-policy correction and repeated transport/cache/authentication
-verification pass, but production still serves `application/json` because its
-inherited `.json` MIME mapping takes precedence over the newly corrected
-`default_type`. Production acceptance remains failed closed before signature
-authentication. Task 078 must remain active until the Owner authorizes a
-location-local MIME mapping override and the full acceptance protocol passes.
-Do not begin Task 079.
+All Task 078 authority, trust, publication, transport, cache, media-type,
+signature, provenance, awareness-state, privacy, fail-closed, production
+acceptance, verification, and lifecycle completion gates pass. Archive this
+completed prompt into the canonical idle state without preparing or beginning
+Task 079.

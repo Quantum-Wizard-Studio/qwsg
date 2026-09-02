@@ -4,7 +4,7 @@
 
 - Task ID: `078`
 - Task slug: `community-release-authority`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-08-30` UTC
 - Human authority: Project Owner — approved continuation on 2026-08-30 UTC
 - Owner or lead-developer communication language: English
