@@ -507,13 +507,57 @@ transport, cache, byte-identity, signature, provenance, persistence, and scope
 gates pass. Task 078 is ready for the separately authorized production
 acceptance protocol but that protocol has not begun.
 
+The Project Owner then authorized the final production acceptance protocol.
+On 2026-09-02 UTC a private acceptance checkpoint was created at
+`/tmp/qwsg-task078-production-acceptance.zdgCCi`. The real host installation
+identified itself as QWSG 1.2.0, source commit
+`348d927ffcf4c8cd4c9a50fc3eacad71d8bfe5c2`. The Task-078-enabled acceptance
+client was run with a new mode-0700 `QWSG_STATE_DIR` inside that checkpoint so
+the installed Guardian state remained outside the acceptance transaction.
+
+The first real network-enabled `qwsg update check` failed closed with exit 1
+and privacy-safe reason `source_media_type`; no successful authenticated result
+was recorded. The isolated mode-0600 `qwsg.update-awareness/1` record correctly
+contains installed classification `verified_supported_installation`, installed
+version `1.2.0`, status `unknown`, last-attempt outcome `failure`, failure
+`source_media_type`, and no `last_success` claim. The client contract requires
+`Content-Type: application/vnd.quantumwizard.qwsg-releases+json`, while a
+separate HTTPS retrieval proved that the production endpoint currently returns
+`Content-Type: application/json`. The retrieved object itself remains exactly
+918 bytes with SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`.
+
+Acceptance stopped at this first failed gate. The separately required
+network-isolated `qwsg update status`, authenticated-release/signature state
+acceptance, and lifecycle closure were not executed or claimed. Installed
+binary/source/publication identities and all inventoried release-vhost files
+remain byte-identical before and after the attempt; listening sockets were
+unchanged. The live Guardian continued its independently scheduled operation
+during the evidence interval, including its normal process restart and
+inventory/scheduler-state rotation; the acceptance command used only the
+isolated state path and did not write the live Guardian state. No artifact was
+downloaded or installed, no privileged action occurred, and no production,
+DNS, TLS, Hestia, SMTP, credential, telemetry, registration, listener,
+notification, signing-material, repository-source, or Task 079 mutation was
+performed.
+
+The exact production blocker is the persistent Hestia extension
+`/home/qws/conf/web/releases.quantumwizard.hu/nginx.ssl.conf_qwsg_release_index_cache`,
+whose exact-match location currently declares `default_type application/json`.
+A subsequent Owner-authorized bounded infrastructure correction must change
+only that response media type to
+`application/vnd.quantumwizard.qwsg-releases+json`, validate/reload Nginx, and
+repeat byte, cache, TLS, conditional-request, signature, scope, and production
+acceptance gates. No such production configuration mutation is performed by
+this failed acceptance attempt.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
 
 ## Completion state
 
-`active — production endpoint authenticated and cache-safe; stopped immediately before production acceptance`
+`active — production acceptance failed closed on source_media_type; lifecycle remains open`
 
 ## Current decision gate
 
@@ -528,8 +572,9 @@ retrieval, and cryptographic authentication are complete. The exact authentic
 object is live at the approved endpoint.
 
 The cache-policy correction and repeated transport/cache/authentication
-verification pass. The exact remaining production action is the separately
-approved real production acceptance target/protocol and execution using an
-authorized isolated Community-equivalent installation. Stop before that
-acceptance and without modifying unrelated infrastructure or beginning Task
-079.
+verification pass, but the first real production client check exposed a media
+type contract mismatch: production serves `application/json`, while the client
+requires `application/vnd.quantumwizard.qwsg-releases+json`. Production
+acceptance failed closed before signature authentication. Task 078 must remain
+active until the Owner authorizes and executes the bounded response-media-type
+correction and the full acceptance protocol passes. Do not begin Task 079.
