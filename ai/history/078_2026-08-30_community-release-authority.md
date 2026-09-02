@@ -434,6 +434,38 @@ and verified SHA-256 manifest. First publication and cryptographic
 authentication pass, while Task 078 remains stopped at the cache-policy
 configuration blocker before production acceptance.
 
+The Project Owner explicitly authorized the minimum cache-policy correction.
+Installed Hestia templates confirm that the generated SSL server block includes
+`/home/qws/conf/web/releases.quantumwizard.hu/nginx.ssl.conf_*`; this is the
+template-supported persistent extension point and survives domain rebuilds.
+The narrow correction is one exact-match HTTPS location for
+`/qwsg/v1/release-index.json` that serves the existing file from the existing
+document root, sets `expires off`, and returns `Cache-Control: no-cache` while
+retaining Nginx's normal ETag and Last-Modified behavior. No generated Hestia
+configuration needs direct editing.
+
+Cache-policy pre-change checkpoint:
+`/tmp/qwsg-task078-cache-policy-prechange.8Nrl8K`, mode 0700 with mode-0600
+candidate include, exact root-only apply/validate/reload script, target-absence
+record, all Hestia web-configuration hashes, published-object identity,
+generated SSL before-image, repository/history state, complete verified Git
+bundle, bounded exact-include rollback, and verified SHA-256 manifest. The
+script installs only
+`nginx.ssl.conf_qwsg_release_index_cache` as `root:qws` mode 0640, runs
+`nginx -t`, reloads only Nginx, removes the include and revalidates/reloads on
+failure, and verifies the published object before returning success.
+
+The exact script was invoked through `sudo -n`, but the operating-system
+boundary rejected it before script execution because root authentication is
+required. Post-attempt verification confirmed the target include remains
+absent, the published and repository source objects remain byte-identical at
+918 bytes with SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`,
+and the original unsafe long-lived headers remain active. This is the sole
+blocker. No configuration write, reload, republish, TLS/DNS/mail change,
+production acceptance, private signing-material handling, or Task 079 work
+occurred.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
