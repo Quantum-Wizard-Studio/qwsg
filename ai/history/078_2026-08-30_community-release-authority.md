@@ -551,13 +551,44 @@ repeat byte, cache, TLS, conditional-request, signature, scope, and production
 acceptance gates. No such production configuration mutation is performed by
 this failed acceptance attempt.
 
+The Project Owner authorized that exact one-line correction and executed the
+verified transaction from the mode-0700 checkpoint
+`/tmp/qwsg-task078-media-type-prechange.TwDp8s`. Both pre-change and post-change
+`nginx -t` passed, Nginx alone was reloaded, and the persistent include became
+the exact reviewed candidate with SHA-256
+`eb527e678b84300f4df3ac0504031691a0fd401f84abde922e8140712bceaf3a`.
+The include now declares the required vendor media type as its `default_type`;
+the signed production object remains byte-identical at 918 bytes and SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`.
+
+The immediate acceptance retry stopped at the effective-response precondition.
+Both the normal public request and a TLS-verified direct-origin request pinned
+to `207.231.111.245` still returned `Content-Type: application/json`. HTTPS
+remained `200`; HTTP remained an exact `301` to HTTPS; `Cache-Control: no-cache`
+remained active without `Expires`; ETag/Last-Modified and zero-body conditional
+`304` behavior remained valid; and the dedicated TLS hostname/chain remained
+valid. The response body remained exactly byte-identical to the protected
+source and published object.
+
+This is a distinct fail-closed Nginx configuration-semantics result:
+`default_type` applies only when no MIME mapping exists, while the inherited
+Nginx MIME table already maps the `.json` suffix to `application/json`.
+Therefore the exact authorized one-line directive cannot override the inherited
+mapping. No real `qwsg update check` retry was attempted against a response
+known to violate its required media-type gate, and no later production
+acceptance or closure claim was made. A further Owner-authorized narrow include
+change must override or clear the location-local JSON MIME mapping (for example,
+a location-local `types` mapping for `json` to the required vendor media type),
+then repeat all endpoint and acceptance gates. No such additional production
+mutation was made.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
 
 ## Completion state
 
-`active — production acceptance failed closed on source_media_type; lifecycle remains open`
+`active — media-type correction ineffective due inherited Nginx MIME mapping; acceptance remains failed closed`
 
 ## Current decision gate
 
@@ -572,9 +603,9 @@ retrieval, and cryptographic authentication are complete. The exact authentic
 object is live at the approved endpoint.
 
 The cache-policy correction and repeated transport/cache/authentication
-verification pass, but the first real production client check exposed a media
-type contract mismatch: production serves `application/json`, while the client
-requires `application/vnd.quantumwizard.qwsg-releases+json`. Production
-acceptance failed closed before signature authentication. Task 078 must remain
-active until the Owner authorizes and executes the bounded response-media-type
-correction and the full acceptance protocol passes. Do not begin Task 079.
+verification pass, but production still serves `application/json` because its
+inherited `.json` MIME mapping takes precedence over the newly corrected
+`default_type`. Production acceptance remains failed closed before signature
+authentication. Task 078 must remain active until the Owner authorizes a
+location-local MIME mapping override and the full acceptance protocol passes.
+Do not begin Task 079.
