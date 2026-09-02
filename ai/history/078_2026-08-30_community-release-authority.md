@@ -324,6 +324,50 @@ subdirectory creation already recorded. No production infrastructure,
 certificate, service, document-root, publication, acceptance, SMTP, signing-key,
 or Task 079 mutation occurred.
 
+The Project Owner then executed the exact previously verified privileged
+Hestia transaction. Independent post-change verification on 2026-09-02 UTC
+confirmed an active, unsuspended Hestia web domain
+`releases.quantumwizard.hu` under user `qws`, IPv4 `207.231.111.245`, document
+root `/home/qws/web/releases.quantumwizard.hu/public_html/`, default
+Nginx/Apache templates, Let's Encrypt enabled, SSL enabled, and SSL force
+enabled. Generated configuration names only the dedicated host, serves static
+JSON from that document root, and performs an exact-scheme HTTPS redirect.
+
+Public HTTP returns `301` with exact location
+`https://releases.quantumwizard.hu/qwsg/v1/release-index.json`. Verified HTTPS
+returns the expected pre-publication `404`. The dedicated Let's Encrypt
+certificate has sole SAN `releases.quantumwizard.hu`, serial
+`05BC3CBB1160463EB945D061F45B43002163`, validity 2026-09-02 17:56:19 UTC
+through 2026-12-01 17:56:18 UTC, and SHA-256 fingerprint
+`7C:68:1D:24:38:3A:FB:32:05:DA:09:DD:66:7E:6B:02:CC:9D:80:E4:BF:3A:B9:9F:E1:CC:A1:3E:04:7C:7B:C0`.
+Hostname and chain verification pass. Its serial/fingerprint differ from the
+unchanged `server.quantumwizard.hu` identity; no private TLS material was read,
+listed, copied, or emitted.
+
+The exact destination remains absent. The domain directory is `0551 qws:qws`,
+`public_html` is `0755 qws:www-data`, the Task-078-created intermediate `qwsg`
+directory is `0755 root:root`, and the final `v1` directory is `0755 qws:qws`.
+The root-owned intermediate is safely traversable and the publication owner
+controls the final directory, so no ownership correction is required or made.
+The signed source remains a single regular file of exactly 918 bytes with
+SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`.
+
+Publication-ready checkpoint:
+`/tmp/qwsg-task078-publication-ready.3O91WS`, directory mode 0700 with
+mode-0600 generated configuration copies, Hestia domain state, filesystem and
+destination-absence evidence, public-only certificate identity, unchanged
+server-vhost configuration hashes, exact source identity, repository/history
+state, complete verified Git bundle, bounded rollback, and verified SHA-256
+manifest. It includes a reviewed non-executable mode-0600
+`first-publication.sh`. That transaction revalidates the source and destination,
+copies the exact object to a unique same-filesystem staging file owned
+`qws:qws` mode 0644, revalidates size/hash/metadata, uses an atomic hard-link
+creation that fails if the destination exists, revalidates the published
+object, and removes only the staging name. The script was syntax-checked but
+not executed. Infrastructure is ready for first publication; publication and
+production acceptance remain unauthorized and were not begun.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
