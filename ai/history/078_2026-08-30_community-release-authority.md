@@ -298,6 +298,32 @@ remediation plan is ready for a separate Owner mutation authorization. No TLS
 rotation, reissue, revocation, configuration reload, release-host creation,
 publication, production acceptance, SMTP repair, or Task 079 work occurred.
 
+The Project Owner subsequently accepted that remediation plan for a separate
+maintenance operation, explicitly deferred it as non-blocking for Task 078,
+and authorized the minimum Hestia-managed production infrastructure mutation
+for `releases.quantumwizard.hu`. A new pre-change checkpoint at
+`/tmp/qwsg-task078-release-host-prechange.rTdMZX` records the exact absence of
+the target Hestia domain/configuration/filesystem, the existing Hestia web and
+firewall inventories, repository/history state, protected signed-index
+identity, bounded exact-domain rollback, a complete verified Git bundle, and a
+verified SHA-256 manifest. The directory is mode 0700 and its evidence is mode
+0600; it contains no certificate private key, credential, token, account key,
+mail content, or release-signing material.
+
+Execution could not begin because the engineering account has no
+noninteractive administrative path: `sudo -n` requires interactive
+authentication, while direct Hestia CLI execution is unsafe because
+`v-add-web-domain` performs privileged directory, ownership, log, generated
+configuration, and service operations after validation and would fail
+partially as the unprivileged account. No Hestia/API credential was requested,
+discovered, or used, and no attempt was made to bypass this boundary. This is a
+real execution-environment blocker, not an additional approval gate. The exact
+required privileged transaction remains the Owner-authorized Hestia domain
+creation, dedicated Let's Encrypt issuance, force-HTTPS enablement, and target
+subdirectory creation already recorded. No production infrastructure,
+certificate, service, document-root, publication, acceptance, SMTP, signing-key,
+or Task 079 mutation occurred.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
