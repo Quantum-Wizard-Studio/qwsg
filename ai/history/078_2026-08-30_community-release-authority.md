@@ -4,7 +4,7 @@
 
 - Task ID: `078`
 - Task slug: `community-release-authority`
-- Status: `active — first production publication authenticated; cache-policy correction required before acceptance`
+- Status: `active — production endpoint authenticated and cache-safe; ready for separately authorized production acceptance`
 - Date prepared: `2026-08-30` UTC
 - Human authority: Project Owner — approved continuation on 2026-08-30 UTC
 - Preferred owner communication language: English
@@ -466,13 +466,54 @@ blocker. No configuration write, reload, republish, TLS/DNS/mail change,
 production acceptance, private signing-material handling, or Task 079 work
 occurred.
 
+The Project Owner then executed the exact prepared privileged cache-policy
+transaction and reported successful Nginx configuration validation and command
+completion. Independent post-change verification confirmed the persistent
+Hestia extension file
+`/home/qws/conf/web/releases.quantumwizard.hu/nginx.ssl.conf_qwsg_release_index_cache`
+is `root:qws`, mode 0640, a single regular file, and byte-identical to the
+reviewed candidate with SHA-256
+`0bdbd32213e7c1a39f8dc06fa559f3493f254c5eced35f4bef2fad44b3c8e834`.
+Every pre-existing Hestia web configuration file remains byte-identical to the
+pre-change inventory.
+
+Effective HTTPS response is `200`, `Content-Type: application/json`,
+`Content-Length: 918`, with ETag, Last-Modified, and
+`Cache-Control: no-cache`; no `Expires` header or long fixed freshness remains.
+An exact `If-None-Match` request returns `304`, repeats
+`Cache-Control: no-cache`, retains ETag/Last-Modified, emits no `Expires`, and
+has a zero-byte body. HTTP continues to return `301` to the exact canonical
+HTTPS URL. Dedicated TLS hostname and chain verification remain valid with the
+unchanged `releases.quantumwizard.hu` certificate.
+
+The published and independently retrieved objects remain exactly 918 bytes,
+SHA-256
+`f9f95bf28d463a8403841d9cc56d817c248f1e0a01e3e65a5a9e1afc16d39704`,
+and byte-identical to the protected source. The production verifier again
+authenticated the retrieved Ed25519 signature under
+`qwsg-community-release-2026-01`, reproduced the exact publication checkpoint,
+and verified QWSG stable 1.2.0, protected source commit, canonical Forgejo
+provenance, and exact artifact identity. No release content was modified or
+republished; no unrelated configuration, domain, TLS identity, DNS, SMTP,
+private signing material, production acceptance, or Task 079 work changed.
+
+Cache-policy completion evidence:
+`/tmp/qwsg-task078-cache-policy-complete.yGXNgY`, directory mode 0700 with
+mode-0600 effective include, HTTP/HTTPS/conditional headers, zero-byte 304 body,
+retrieved bytes and checkpoint, production metadata, complete pre-existing
+configuration verification, repository/history state, complete verified Git
+bundle, rollback/result record, and verified SHA-256 manifest. All endpoint,
+transport, cache, byte-identity, signature, provenance, persistence, and scope
+gates pass. Task 078 is ready for the separately authorized production
+acceptance protocol but that protocol has not begun.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
 
 ## Completion state
 
-`active — first publication authenticated; stopped at cache-policy gate before production acceptance`
+`active — production endpoint authenticated and cache-safe; stopped immediately before production acceptance`
 
 ## Current decision gate
 
@@ -486,9 +527,9 @@ assembly, infrastructure activation, no-clobber first publication, public
 retrieval, and cryptographic authentication are complete. The exact authentic
 object is live at the approved endpoint.
 
-Production acceptance must not begin while the endpoint advertises the unsafe
-ten-year static freshness lifetime. The remaining action is an explicitly
-bounded Hestia-compatible response-header correction followed by repeated
-transport/cache/authentication verification; after that passes, the separately
-approved real production acceptance target/protocol and execution remain.
-Stop without modifying unrelated infrastructure or beginning Task 079.
+The cache-policy correction and repeated transport/cache/authentication
+verification pass. The exact remaining production action is the separately
+approved real production acceptance target/protocol and execution using an
+authorized isolated Community-equivalent installation. Stop before that
+acceptance and without modifying unrelated infrastructure or beginning Task
+079.
