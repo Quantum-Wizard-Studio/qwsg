@@ -368,6 +368,22 @@ object, and removes only the staging name. The script was syntax-checked but
 not executed. Infrastructure is ready for first publication; publication and
 production acceptance remain unauthorized and were not begun.
 
+The Project Owner then explicitly authorized first publication of only the
+checkpointed 918-byte signed object. Immediately before invocation, the
+checkpoint manifest and complete Git bundle reverified, the script passed
+shell syntax validation, the repository was clean and synchronized, the source
+was a single regular file with the exact expected size and SHA-256, the public
+endpoint returned the expected pre-publication `404`, and both the staging and
+destination paths were absent. The exact root-only prepared script was invoked
+through `sudo -n`, but the operating-system boundary rejected it before script
+execution because interactive authentication is required. No script statement
+or filesystem write ran. Post-attempt verification confirmed both staging and
+destination remained absent, the public endpoint remained unpublished, and the
+source identity remained exact. Publication therefore failed closed on an
+execution-environment privilege blocker; no transport/authentication acceptance
+claim is made. Production acceptance, TLS/DNS/Hestia mutation, SMTP work,
+private signing-material handling, and Task 079 were not begun.
+
 ## Rollback
 
 Before approval, rollback is limited to the exact prepared prompt/history paths whose pre-change absence is recorded. Preserve the draft, verify snapshot hashes/bundle and absence of later Owner edits, remove only those exact paths, then re-run lifecycle/framework/Git checks and Task 077 hashes. Never use broad reset/clean/checkout/restore or touch external systems, release refs, artifacts, endpoints, or keys.
