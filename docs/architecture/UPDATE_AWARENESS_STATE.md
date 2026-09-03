@@ -4,8 +4,9 @@
 
 Task 077 implements `qwsg.update-awareness/1` in
 `internal/updateawareness`. It is an ordinary-user, read-only awareness record,
-not Guardian checkpoint, Current Operator State, scheduler, rollback,
-notification, or installation state.
+not Guardian checkpoint, Current Operator State, scheduler, rollback queue, or
+installation state. Task 080 adds only one optional successful update-notice
+identity to this existing private record.
 
 ```text
 Task 075 verified installed identity
@@ -52,10 +53,17 @@ A failure preserves authenticated success only for the same source, channel
 and installed identity and never refreshes freshness. Changed installed
 identity is reported as `installed_identity_changed`. A `304` refresh requires
 a matching prior Ed25519-authenticated observation. An authenticated withdrawal
-makes the cached release non-actionable while retaining historic identity.
+makes the cached release non-actionable while retaining historic identity. The
+optional `last_notification` contains only a SHA-256 identity over authenticated
+source/channel/version/artifact/signing-key fields, those bounded provenance
+fields, and the successful SMTP acceptance time. It contains no credential,
+recipient, host identity, SMTP response or failure. Old schema-1 records without
+this optional member remain valid.
 
 `qwsg update check` remains the explicit operator network refresh and never
-acquires or installs. Task 079 also lets the Guardian invoke the same Manager
-through a separate due-time scheduler. `qwsg update status` opens no network
-source. Awareness never changes Guardian health/readiness. Notification
-transition/delivery identity remains a separate Task 080 boundary.
+acquires, installs or notifies. Task 079 also lets the Guardian invoke the same
+Manager through a separate due-time scheduler. `qwsg update status` opens no
+network source and sends no notification. Awareness never changes Guardian
+health/readiness. Guardian-only Task 080 delivery records success atomically
+after the existing SMTP provider reports accepted/delivered; a failed attempt
+leaves no success record and is retryable only on a later scheduled check.

@@ -58,8 +58,13 @@ All notable changes to Quantum Wizard Server Guardian will be recorded here. Thi
 ### Added
 
 - Guardian-driven authenticated release awareness with a restart-safe 24-hour
-  due interval, bounded cancellation, failure isolation, and no artifact,
-  installation, notification, or telemetry side effects.
+  due interval, bounded cancellation, and failure isolation.
+- Guardian-only localized update availability through configured Community
+  SMTP, with persistent authenticated-release deduplication, restart safety,
+  bounded failure retry, and no artifact acquisition or automatic installation.
+- Bound persisted Scheduler history to 64 results and reject state larger than
+  8 MiB before decoding, preventing high-cardinality result history from
+  amplifying into recurring Guardian cgroup OOM kills.
 
 ## [1.1.0] - 2026-08-26
 

@@ -39,6 +39,7 @@ import (
 	"quantumwizard.hu/qwsg/internal/scheduler"
 	"quantumwizard.hu/qwsg/internal/smtpnotification"
 	"quantumwizard.hu/qwsg/internal/updateawareness"
+	"quantumwizard.hu/qwsg/internal/updatenotification"
 )
 
 var (
@@ -414,14 +415,24 @@ func executeGuardian(options guardianOptions) error {
 		return awarenessErr
 	}
 	awarenessManager := updateAwarenessManager(awarenessStore)
+	updateNotifier := updatenotification.Service{
+		Enabled: emailConfig.Enabled && updateNotificationEnabled(effective),
+		Locale:  effective.Values.Locale,
+		Source:  updatenotification.ProductionSource,
+		Store:   awarenessStore,
+		Sender:  smtpUpdateSender{provider: smtpnotification.Provider{Config: emailConfig, Password: password}},
+	}
 	signalContext, stopSignals := runtimeservice.OSSignalContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	var releaseChecks sync.WaitGroup
 	releaseChecks.Add(1)
 	go func() {
 		defer releaseChecks.Done()
 		(guardian.ReleaseCheckService{Store: awarenessStore, Ready: ready, Interval: guardian.DefaultReleaseCheckInterval, Timeout: guardian.DefaultReleaseCheckTimeout, Check: func(ctx context.Context) error {
-			_, checkErr := awarenessManager.Check(ctx)
-			return checkErr
+			state, checkErr := awarenessManager.Check(ctx)
+			if checkErr != nil {
+				return checkErr
+			}
+			return updateNotifier.Notify(ctx, state)
 		}}).Run(signalContext)
 	}()
 	result, err := service.Run(signalContext, runtimeservice.Input{Definition: definition, StartedAt: started, InitialState: runtimeservice.NewState(checkpoint.ServiceID), Seed: seed})

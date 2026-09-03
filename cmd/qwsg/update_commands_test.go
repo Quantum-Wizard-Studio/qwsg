@@ -10,6 +10,7 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
+	"quantumwizard.hu/qwsg/internal/updateawareness"
 )
 
 type commandAwarenessChecker struct {
@@ -122,7 +123,8 @@ func TestUpdateLocalArguments(t *testing.T) {
 func TestUpdateCheckPublishesAuthenticatedAwarenessAndStatusIsNetworkFree(t *testing.T) {
 	root := t.TempDir()
 	installedPackageFixture(t, root, "1.2.0", true)
-	t.Setenv("QWSG_STATE_DIR", filepath.Join(t.TempDir(), "state"))
+	stateRoot := filepath.Join(t.TempDir(), "state")
+	t.Setenv("QWSG_STATE_DIR", stateRoot)
 	checker := &commandAwarenessChecker{result: releasediscovery.CheckResult{
 		Source:           releasediscovery.SourceEvidence{SourceID: "community-release-index", TransportAuthenticated: true, Validators: releasediscovery.Validators{ETag: "\"one\""}},
 		IndexGeneratedAt: "2026-08-30T11:00:00Z",
@@ -141,6 +143,14 @@ func TestUpdateCheckPublishesAuthenticatedAwarenessAndStatusIsNetworkFree(t *tes
 	var out, errout bytes.Buffer
 	if code := runUpdateCheck(&out, &errout); code != 0 || !strings.Contains(out.String(), "update_available") {
 		t.Fatalf("code=%d out=%q err=%q", code, out.String(), errout.String())
+	}
+	store, err := updateawareness.Open(stateRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	checked, err := store.Load()
+	if err != nil || checked.LastNotification != nil {
+		t.Fatalf("manual check sent or recorded a notification: %+v %v", checked.LastNotification, err)
 	}
 	checker.calls = 0
 	out.Reset()

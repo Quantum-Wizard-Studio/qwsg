@@ -55,12 +55,18 @@ qwsg notification preflight
 qwsg notification test
 qwsg readiness
 qwsg update check
+qwsg update status
 qwsg observe
 qwsg console
 ```
 
 Automation retains `qwsg setup --accept-defaults`, `qwsg setup --set
 KEY=VALUE`, and `qwsg config ...`.
+
+Guardian performs authenticated release awareness on a restart-safe 24-hour
+schedule. With `update.policy=notify` and configured Community email it sends
+at most one successfully accepted notice per authenticated release identity;
+installation always remains an explicit operator action.
 
 ## Documentation
 
@@ -71,6 +77,7 @@ KEY=VALUE`, and `qwsg config ...`.
 - [Troubleshooting](docs/release/TROUBLESHOOTING.md)
 - [Security and privacy](docs/release/SECURITY_AND_PRIVACY.md)
 - [CLI guide](docs/user/CLI_AND_SNAPSHOT_EXPLORER.en.md)
+- [Automatic release checking and notification](docs/user/AUTOMATIC_RELEASE_CHECKING.en.md)
 
 Run `qwsg help` for the command reference. Developer and architecture material
 lives under `docs/development/` and `docs/architecture/` rather than dominating

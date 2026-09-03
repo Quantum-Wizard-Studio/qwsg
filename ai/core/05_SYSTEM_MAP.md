@@ -202,7 +202,11 @@ separate Guardian-owned 24-hour due loop to the existing awareness manager
 after local startup publication. Persisted last-attempt time prevents duplicate
 restart retrieval; one bounded check runs at a time and its failure cannot
 enter Runtime, Health, Alert, Notification, acquisition, or installation
-flows. Task 080 notification remains unimplemented. The implemented contracts are
+flows. Task 080 adds a post-authentication Guardian-only branch through the
+configured Community SMTP transport, with successful-delivery identity stored
+atomically in awareness state and deduplicated across restarts. Failed or
+disabled delivery never enters Guardian health and cannot retry before the next
+release-check interval. The implemented contracts are
 `docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`,
 `docs/architecture/UPDATE_AWARENESS_STATE.md`, and
 `docs/release/RELEASE_INDEX_PUBLICATION.md`.

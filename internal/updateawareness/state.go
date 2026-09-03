@@ -85,23 +85,35 @@ type Observation struct {
 	ArtifactSize           int64                                 `json:"artifact_size,omitempty"`
 }
 
+// NotificationDelivery records only a successfully accepted notification for
+// an authenticated release identity. It contains no destination or credential.
+type NotificationDelivery struct {
+	Identity       string    `json:"identity"`
+	ReleaseVersion string    `json:"release_version"`
+	ArtifactSHA256 string    `json:"artifact_sha256"`
+	SigningKeyID   string    `json:"signing_key_id"`
+	DeliveredAt    time.Time `json:"delivered_at"`
+}
+
 type State struct {
-	Schema              string       `json:"schema"`
-	DigestScheme        string       `json:"digest_scheme"`
-	Digest              string       `json:"digest"`
-	SourceID            string       `json:"source_id"`
-	Channel             string       `json:"channel"`
-	Installed           Installed    `json:"installed"`
-	Status              Status       `json:"status"`
-	LastAttempt         Attempt      `json:"last_attempt"`
-	LastSuccess         *Observation `json:"last_success,omitempty"`
-	ConsecutiveFailures uint32       `json:"consecutive_failures"`
+	Schema              string                `json:"schema"`
+	DigestScheme        string                `json:"digest_scheme"`
+	Digest              string                `json:"digest"`
+	SourceID            string                `json:"source_id"`
+	Channel             string                `json:"channel"`
+	Installed           Installed             `json:"installed"`
+	Status              Status                `json:"status"`
+	LastAttempt         Attempt               `json:"last_attempt"`
+	LastSuccess         *Observation          `json:"last_success,omitempty"`
+	LastNotification    *NotificationDelivery `json:"last_notification,omitempty"`
+	ConsecutiveFailures uint32                `json:"consecutive_failures"`
 }
 
 func NewFailure(previous *State, sourceID, channel string, installed Installed, at time.Time, failure string) (State, error) {
 	value := State{Schema: Schema, DigestScheme: DigestScheme, SourceID: sourceID, Channel: channel, Installed: installed, Status: Unknown, LastAttempt: Attempt{At: at.UTC(), Outcome: AttemptFailure, Failure: failure}, ConsecutiveFailures: 1}
 	if previous != nil && Validate(*previous) == nil && previous.SourceID == sourceID && previous.Channel == channel && previous.Installed == installed {
 		value.LastSuccess = cloneObservation(previous.LastSuccess)
+		value.LastNotification = cloneNotification(previous.LastNotification)
 		value.Status = previous.Status
 		value.ConsecutiveFailures = previous.ConsecutiveFailures + 1
 	}
@@ -142,6 +154,9 @@ func NewSuccess(previous *State, result releasediscovery.CheckResult, sourceID, 
 		observation = Observation{ObservedAt: when, FreshUntil: when.Add(freshness), SourceID: result.Source.SourceID, Channel: channel, IndexGeneratedAt: result.IndexGeneratedAt, TransportAuthenticated: result.Source.TransportAuthenticated, Authenticity: e.Authenticity, Validators: result.Source.Validators, Installed: installed, Status: status, Relation: e.Relation, Compatibility: e.Compatibility, MigrationID: e.MigrationID, ReleaseVersion: e.Release.Version, ReleasePublishedAt: e.Release.PublishedAt, ReleaseStatus: e.Release.Status, ArtifactName: e.Artifact.Name, ArtifactSHA256: e.Artifact.SHA256, ArtifactSize: e.Artifact.Size}
 	}
 	value := State{Schema: Schema, DigestScheme: DigestScheme, SourceID: sourceID, Channel: channel, Installed: installed, Status: observation.Status, LastAttempt: Attempt{At: when, Outcome: AttemptSuccess}, LastSuccess: &observation}
+	if previous != nil && previous.SourceID == sourceID && previous.Channel == channel && previous.Installed == installed {
+		value.LastNotification = cloneNotification(previous.LastNotification)
+	}
 	return Normalize(value)
 }
 
@@ -157,7 +172,7 @@ func NewWithdrawn(previous State, result releasediscovery.CheckResult, installed
 	observation.Status, observation.ReleaseStatus, observation.TransportAuthenticated = Withdrawn, "withdrawn", result.Source.TransportAuthenticated
 	observation.Authenticity, observation.IndexGeneratedAt = result.Authenticity, result.IndexGeneratedAt
 	observation.Validators = result.Source.Validators
-	value := State{Schema: Schema, DigestScheme: DigestScheme, SourceID: previous.SourceID, Channel: previous.Channel, Installed: installed, Status: Withdrawn, LastAttempt: Attempt{At: at.UTC(), Outcome: AttemptSuccess}, LastSuccess: &observation}
+	value := State{Schema: Schema, DigestScheme: DigestScheme, SourceID: previous.SourceID, Channel: previous.Channel, Installed: installed, Status: Withdrawn, LastAttempt: Attempt{At: at.UTC(), Outcome: AttemptSuccess}, LastSuccess: &observation, LastNotification: cloneNotification(previous.LastNotification)}
 	return Normalize(value)
 }
 
@@ -243,7 +258,7 @@ func validateContent(value State) error {
 		return ErrCorrupt
 	}
 	if value.LastSuccess == nil {
-		return nilIf(value.Status != Unknown || value.LastAttempt.Outcome != AttemptFailure)
+		return nilIf(value.Status != Unknown || value.LastAttempt.Outcome != AttemptFailure || value.LastNotification != nil)
 	}
 	o := value.LastSuccess
 	if o.SourceID != value.SourceID || o.Channel != value.Channel || o.Installed != value.Installed || !utc(o.ObservedAt) || !utc(o.FreshUntil) || !o.FreshUntil.After(o.ObservedAt) || o.ObservedAt.After(value.LastAttempt.At) || !o.TransportAuthenticated || o.Authenticity.Scheme != "ed25519" || !safeToken(o.Authenticity.KeyID, 64) || !validVersion(o.Installed.Version) {
@@ -267,7 +282,23 @@ func validateContent(value State) error {
 	if o.Status == Current && o.Relation == update.Newer {
 		return ErrCorrupt
 	}
+	if n := value.LastNotification; n != nil {
+		if !lowerHex(n.Identity, 64) || !validVersion(n.ReleaseVersion) || !lowerHex(n.ArtifactSHA256, 64) || !safeToken(n.SigningKeyID, 64) || !utc(n.DeliveredAt) {
+			return ErrCorrupt
+		}
+		if n.Identity != NotificationIdentity(value.SourceID, value.Channel, n.ReleaseVersion, n.ArtifactSHA256, n.SigningKeyID) {
+			return ErrCorrupt
+		}
+	}
 	return nil
+}
+
+// NotificationIdentity binds deduplication to immutable authenticated release
+// provenance rather than time or transport validators.
+func NotificationIdentity(sourceID, channel, version, artifactSHA256, signingKeyID string) string {
+	document := strings.Join([]string{"qwsg.update-notification/1", sourceID, channel, version, artifactSHA256, signingKeyID}, "\n")
+	sum := sha256.Sum256([]byte(document))
+	return hex.EncodeToString(sum[:])
 }
 
 func nilIf(condition bool) error {
@@ -311,6 +342,13 @@ func safeToken(v string, n int) bool {
 }
 func utc(v time.Time) bool { return !v.IsZero() && v.Location() == time.UTC }
 func cloneObservation(v *Observation) *Observation {
+	if v == nil {
+		return nil
+	}
+	copy := *v
+	return &copy
+}
+func cloneNotification(v *NotificationDelivery) *NotificationDelivery {
 	if v == nil {
 		return nil
 	}

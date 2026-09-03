@@ -10,10 +10,11 @@ static HTTPS adapter, and pure installed-aware evaluation described in
 `docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`, and Task 077
 implements the separate private awareness state and explicit check/network-free
 status contract in `docs/architecture/UPDATE_AWARENESS_STATE.md`. Task 078
-activates the exact production endpoint and trust anchor. Task 079 adds only
-the isolated Guardian schedule described below; notification, installation
-automation, telemetry, registration, publication, and Pro behavior remain
-outside this implementation.
+activates the exact production endpoint and trust anchor. Task 079 adds the
+isolated Guardian schedule described below. Task 080 adds Guardian-only
+update-availability notification and durable successful-delivery
+deduplication; installation automation, telemetry, registration, publication,
+and Pro behavior remain outside this implementation.
 
 The default policy is:
 
@@ -266,10 +267,10 @@ transaction. Store only:
   compatibility result;
 - `last_attempt_at`, `last_success_at`, last bounded failure category and
   consecutive-failure count;
-- cache validators only when bound to the validated source/manifest.
-
-Notification identity and outcome remain outside Task 077 and belong to a
-later notification-transition task.
+- cache validators only when bound to the validated source/manifest;
+- one optional successful update-notification record containing the
+  deterministic authenticated release identity, release version, artifact
+  SHA-256, signing key ID, and accepted-at timestamp.
 
 Never persist raw responses, HTTP headers, IPs, credentials, tokens, hostnames,
 email addresses, full release notes, SMTP errors or Guardian findings. Writes
@@ -310,20 +311,26 @@ check is due at `last_attempt.at + 24h`; restart preserves that deadline and
 does not create another request. Unsafe awareness state suppresses the network
 attempt for the interval. The primary five-minute local monitoring cadence
 continues even if DNS, TLS, Forgejo, the static manifest host or a future
-release service is unavailable. Task 079 never creates a notification event;
-transition and deduplication remain reserved for Task 080.
+release service is unavailable. When the check succeeds, Task 080 may continue
+to the notification transition below without changing this cadence or Guardian
+health contract.
 
 ## Notification transition model
 
-Define a localized, privacy-bounded `update_available` lifecycle event with:
-installed version, available version, channel, release date, compatibility
-status, and `administrator_action_required=true`. It contains no artifact URL,
-hostname requirement, credentials, tokens, email address, inventory or server
-findings. Delivery uses the existing configured notification transport.
+Task 080 implements a localized, privacy-bounded update-available message with
+the installed and available versions, stable channel, authenticated-metadata
+statement, canonical source, explicit non-automatic-installation statement and
+one concise operator next step. It contains no hostname, credentials, tokens,
+email address, inventory or server findings. Delivery reuses the configured
+Community SMTP provider and protected credential path.
 
-The durable idempotency key is derived from product, channel, installed
-version, available version, manifest identity and transition kind. Notify only
-after an atomically published transition into a new actionable identity:
+The durable idempotency key is SHA-256 over a domain separator plus the
+authenticated source ID, stable channel, release version, artifact SHA-256 and
+trusted signing key ID. It intentionally excludes wall clock, index generation
+time and cache validators, so republishing an unchanged authenticated release
+does not create another identity. Notify only for a successfully persisted
+`update_available` observation whose active stable metadata and Ed25519
+authenticity remain valid:
 
 | Observation | State/notification behavior |
 | --- | --- |
@@ -333,13 +340,20 @@ after an atomically published transition into a new actionable identity:
 | Server is updated | Installed-version change reevaluates to `current` or a still-newer release; clear obsolete actionable identity without a “success” claim unless the updater supplied it. |
 | Source unavailable/malformed/untrusted | Preserve last validated release as stale, record bounded failure; no update-available replay and normally no outage email. |
 | Release withdrawn | Transition the matching candidate to `withdrawn`; do not install or keep advertising it. A separately designed security advisory may notify once, but Task 074 does not invent that event. |
-| Notification fails | Preserve update state and provider result. Existing provider retry policy may retry the same idempotency key; a later check does not create a new event. |
+| Notification fails | Do not write successful-delivery state. Guardian remains healthy; the next scheduled release check may retry after the full interval. |
 
-The existing lifecycle dispatcher is reusable for rendering/transport
-composition, but its memory-only `seen` map is insufficient across Guardian
-restart. The Update Awareness Store supplies durable transition/delivery
-identity; canonical Notification queue semantics remain the transport retry
-authority.
+`update.policy=notify` and enabled, valid Community SMTP configuration are both
+required. Disabled/manual policy performs no delivery and awareness still
+works. SMTP `accepted` or `delivered` is the established success boundary;
+only afterward does the Update Awareness Store atomically publish the delivery
+identity. A persistence failure after SMTP acceptance is reported as delivery
+state uncertainty and may conservatively permit a later scheduled duplicate;
+it is never falsely marked successful. One in-process mutex and the Guardian's
+single sequential side job prevent overlapping attempts. No queue or immediate
+retry loop was added.
+
+Manual `qwsg update check` refreshes awareness but never invokes notification.
+`qwsg update status` reads only local state and never sends a notification.
 
 ## Failure model
 
@@ -409,7 +423,8 @@ No item starts automatically after Task 074:
    preserving updater behavior;
 5. CLI check/status integration and compatibility/migration advisory;
 6. Guardian low-frequency isolated scheduling and resource/failure tests;
-7. persistent transition-to-notification integration and localization;
+7. persistent transition-to-notification integration and localization
+   (implemented by Task 080);
 8. safe SMTP diagnostic categories and optional external-delivery evidence as
    separate tasks;
 9. clean-host/privacy/outage/withdrawal/update/rollback acceptance before any

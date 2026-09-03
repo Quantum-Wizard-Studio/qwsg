@@ -303,5 +303,11 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   production Task 076–078 authentication/persistence core and adds no artifact,
   installation, notification, telemetry, registration or listener path. See
   `ai/history/079_2026-09-03_guardian-isolated-automatic-release-checking.md`.
+- `2026-09-03`: Task 080 integrated authenticated newer-stable-release
+  notifications into the isolated Guardian check, reused configured Community
+  SMTP, and added persistent successful-delivery deduplication across checks
+  and restarts with schedule-bounded failure retry. Manual check/status and
+  explicit operator installation boundaries remain unchanged. See
+  `ai/history/080_2026-09-03_update-notification-deduplication.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

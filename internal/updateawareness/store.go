@@ -7,7 +7,36 @@ import (
 	"os"
 	"path/filepath"
 	"syscall"
+	"time"
 )
+
+// RecordNotification atomically records a successful delivery only while the
+// current authenticated actionable release still matches expectedIdentity.
+func (s *Store) RecordNotification(expectedIdentity string, deliveredAt time.Time) error {
+	lock, err := s.Lock()
+	if err != nil {
+		return err
+	}
+	defer lock.Release()
+	value, err := s.Load()
+	if err != nil {
+		return err
+	}
+	if value.LastSuccess == nil || value.Status != UpdateAvailable {
+		return ErrCorrupt
+	}
+	o := value.LastSuccess
+	identity := NotificationIdentity(value.SourceID, value.Channel, o.ReleaseVersion, o.ArtifactSHA256, o.Authenticity.KeyID)
+	if identity != expectedIdentity {
+		return ErrCorrupt
+	}
+	value.LastNotification = &NotificationDelivery{Identity: identity, ReleaseVersion: o.ReleaseVersion, ArtifactSHA256: o.ArtifactSHA256, SigningKeyID: o.Authenticity.KeyID, DeliveredAt: deliveredAt.UTC()}
+	value, err = Normalize(value)
+	if err != nil {
+		return err
+	}
+	return s.Publish(value)
+}
 
 const fileName = "awareness.json"
 

@@ -16,6 +16,7 @@ import (
 const (
 	stateFileName = "scheduler-state.json"
 	lockFileName  = "scheduler.lock"
+	MaxStateBytes = 8 << 20
 )
 
 type stateEnvelope struct {
@@ -46,9 +47,26 @@ func OpenFileStore(directory string) (*FileStore, error) {
 }
 
 func (store *FileStore) Load() (State, error) {
-	data, err := os.ReadFile(filepath.Join(store.directory, stateFileName))
+	file, err := os.Open(filepath.Join(store.directory, stateFileName))
 	if err != nil {
 		return State{}, err
+	}
+	info, err := file.Stat()
+	if err != nil {
+		_ = file.Close()
+		return State{}, err
+	}
+	if info.Size() <= 0 || info.Size() > MaxStateBytes {
+		_ = file.Close()
+		return State{}, fmt.Errorf("scheduler state exceeds size limit")
+	}
+	data, readErr := io.ReadAll(io.LimitReader(file, MaxStateBytes+1))
+	closeErr := file.Close()
+	if readErr != nil {
+		return State{}, readErr
+	}
+	if closeErr != nil {
+		return State{}, closeErr
 	}
 	var envelope stateEnvelope
 	decoder := json.NewDecoder(bytes.NewReader(data))
@@ -90,6 +108,9 @@ func (store *FileStore) Save(state State) error {
 	data, err := json.Marshal(envelope)
 	if err != nil {
 		return err
+	}
+	if len(data) > MaxStateBytes {
+		return fmt.Errorf("scheduler state exceeds size limit")
 	}
 	temporary, err := os.CreateTemp(store.directory, ".scheduler-state-*")
 	if err != nil {

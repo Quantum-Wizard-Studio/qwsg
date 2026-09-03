@@ -53,6 +53,34 @@ func TestStateRoundTripIntegrityAndStrictDecoding(t *testing.T) {
 	}
 }
 
+func TestNotificationRecordIsPrivateAtomicAndPreserved(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "state")
+	if err := os.Mkdir(root, 0700); err != nil {
+		t.Fatal(err)
+	}
+	store, _ := Open(root)
+	value := validState(t)
+	if err := store.Publish(value); err != nil {
+		t.Fatal(err)
+	}
+	o := value.LastSuccess
+	identity := NotificationIdentity(value.SourceID, value.Channel, o.ReleaseVersion, o.ArtifactSHA256, o.Authenticity.KeyID)
+	if err := store.RecordNotification(identity, testTime.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	stored, err := store.Load()
+	if err != nil || stored.LastNotification == nil || stored.LastNotification.Identity != identity {
+		t.Fatalf("notification=%+v err=%v", stored.LastNotification, err)
+	}
+	failure, err := NewFailure(&stored, stored.SourceID, stored.Channel, stored.Installed, testTime.Add(time.Hour), "source_timeout")
+	if err != nil || failure.LastNotification == nil || failure.LastNotification.Identity != identity {
+		t.Fatalf("failure lost notification: %+v err=%v", failure.LastNotification, err)
+	}
+	if err = store.RecordNotification(strings.Repeat("f", 64), testTime.Add(2*time.Hour)); !errors.Is(err, ErrCorrupt) {
+		t.Fatalf("mismatched identity accepted: %v", err)
+	}
+}
+
 func TestFailurePreservesAuthenticatedSuccessButIdentityChangeDoesNot(t *testing.T) {
 	previous := validState(t)
 	failed, err := NewFailure(&previous, "community-release-index", "stable", installed("1.2.0"), testTime.Add(time.Hour), "source_timeout")

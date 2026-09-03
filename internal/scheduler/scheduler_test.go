@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -323,6 +324,40 @@ func TestStrictStateValidationAndCanonicalSerialization(t *testing.T) {
 	decoded.ConfigurationID = "tampered"
 	if ValidateState(decoded) == nil {
 		t.Fatal("tampered state accepted")
+	}
+}
+
+func TestSchedulerStateRetentionAndEncodedSizeAreBounded(t *testing.T) {
+	state := NewState("config:fixture")
+	for i := 0; i < MaxStateResults+10; i++ {
+		at := time.Date(2026, 9, 3, 0, i, 0, 0, time.UTC)
+		result := ExecutionResult{SchemaName: ResultSchema, SchemaVersion: SchemaVersion, RequestID: fmt.Sprintf("request-%d", i), ScheduleID: "schedule.fixture", OccurrenceID: fmt.Sprintf("occurrence-%d", i), ScheduledAt: at, Attempt: 1, Outcome: ExecutionSucceeded, StartedAt: at, CompletedAt: at, CommandComplete: true, StageContracts: []string{}, PolicyEvaluationIDs: []string{}, PolicyOutcomes: []string{}}
+		result.ID = resultID(result)
+		state.Results = append(state.Results, result)
+	}
+	sortState(&state)
+	if len(state.Results) != MaxStateResults || state.Results[0].RequestID != "request-10" {
+		t.Fatalf("retention=%d first=%q", len(state.Results), state.Results[0].RequestID)
+	}
+	root := t.TempDir()
+	store, err := OpenFileStore(root)
+	if err != nil || store.Save(state) != nil {
+		t.Fatalf("bounded state save failed: %v", err)
+	}
+	info, err := os.Stat(filepath.Join(root, stateFileName))
+	if err != nil || info.Size() > MaxStateBytes {
+		t.Fatalf("state size=%v err=%v", info, err)
+	}
+}
+
+func TestSchedulerStoreRejectsOversizedStateBeforeDecode(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, stateFileName), make([]byte, MaxStateBytes+1), 0600); err != nil {
+		t.Fatal(err)
+	}
+	store, _ := OpenFileStore(root)
+	if _, err := store.Load(); err == nil || !strings.Contains(err.Error(), "size limit") {
+		t.Fatalf("oversized state accepted: %v", err)
 	}
 }
 

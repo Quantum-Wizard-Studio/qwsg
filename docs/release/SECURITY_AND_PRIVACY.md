@@ -35,7 +35,17 @@ identical fixed anonymous request at most once per 24-hour interval when due.
 The check begins only after local startup work, is cancellation-aware and has a
 35-second deadline. Failures cannot change Guardian health or trigger a retry
 loop. It sends no new headers or payload and has no artifact, installation,
-notification, credential, listener, registration, or telemetry path.
+credential, listener, registration, or telemetry path. Task 080 can pass only
+an authenticated newer applicable stable observation to the already configured
+local Community SMTP transport. The concise message contains release versions,
+stable channel, authentication statement, canonical public source and operator
+guidance, but no hostname, inventory, finding, credential, destination, or
+installation identifier. Delivery is disabled unless both explicit notify
+policy and email configuration allow it. Its successful-delivery identity is
+stored in the same private awareness record using only authenticated source,
+version, artifact-digest and signing-key fields plus a timestamp; no SMTP
+secret, address, raw response, or error is persisted. Failure cannot affect
+Guardian health or trigger immediate retry.
 Production private keys and passphrases remain exclusively in the
 Owner's dedicated custody environments and are never accepted by QWSG runtime,
 CI, hosting, Forgejo, GitHub, or repository tooling. The separately built
@@ -46,6 +56,12 @@ Guided activation accepts only a new integrity-checked canonical evidence
 identity after service activation; a still-current preserved record cannot
 impersonate the newly started Guardian. Waiting is cancellable and bounded by
 validated configuration.
+
+Scheduler state is bounded both by 64 retained results and an 8 MiB encoded
+file limit. The file-size check occurs before JSON allocation. This prevents
+otherwise valid high-cardinality policy references from amplifying persistent
+history into a Guardian cgroup OOM; it does not weaken integrity validation or
+increase `MemoryMax`/`TasksMax`.
 
 Smart Install assessment is read-only. Direct evidence is preferred; external
 probes are compiled, absolute, allowlisted, fixed-argument, bounded, and

@@ -17,18 +17,21 @@ import (
 )
 
 const (
-	SchemaVersion       = "1.0"
-	EngineVersion       = "1.0"
-	TaxonomyVersion     = "1.0"
-	StateSchema         = "qwsg.scheduler-state"
-	EvaluationSchema    = "qwsg.scheduler-evaluation"
-	RequestSchema       = "qwsg.scheduler-execution-request"
-	ResultSchema        = "qwsg.scheduler-execution-result"
-	TraceSchema         = "qwsg.scheduler-execution-trace"
-	CycleResultSchema   = "qwsg.scheduler-cycle-result"
-	EventSchema         = "qwsg.scheduler-event"
-	MaxOccurrences      = 1024
-	MaxStateResults     = 4096
+	SchemaVersion     = "1.0"
+	EngineVersion     = "1.0"
+	TaxonomyVersion   = "1.0"
+	StateSchema       = "qwsg.scheduler-state"
+	EvaluationSchema  = "qwsg.scheduler-evaluation"
+	RequestSchema     = "qwsg.scheduler-execution-request"
+	ResultSchema      = "qwsg.scheduler-execution-result"
+	TraceSchema       = "qwsg.scheduler-execution-trace"
+	CycleResultSchema = "qwsg.scheduler-cycle-result"
+	EventSchema       = "qwsg.scheduler-event"
+	MaxOccurrences    = 1024
+	// State retains enough recent outcomes for bounded retry and operational
+	// continuity without allowing large policy result sets to exhaust Guardian's
+	// cgroup during repeated JSON validation/publication.
+	MaxStateResults     = 64
 	MaxPolicyReferences = 4096
 	MaxLookahead        = 366 * 24 * time.Hour
 	ClockTolerance      = 5 * time.Second

@@ -231,8 +231,21 @@ Task 079 adds `internal/guardian.ReleaseCheckService` as the sole automatic
 schedule owner. It starts after the first published local cycle, derives its
 24-hour due time from Update Awareness State, and invokes the same Task 078
 checker/manager path sequentially with bounded cancellation. Failure cannot
-alter Guardian health. Acquisition, installation, and Task 080 notification
-remain separate.
+alter Guardian health. Task 080 composes its successful authenticated
+`update_available` result with the existing Community SMTP provider only when
+explicit notify policy and email configuration allow it. The optional
+successful-delivery identity is atomically retained in Update Awareness State,
+deduplicates checks/restarts, and is never written on delivery failure.
+Notification errors remain isolated until the next scheduled check;
+acquisition and installation remain separate and operator-controlled.
+
+Scheduler persistence retains a small bounded operational result window (64
+results) and rejects state above 8 MiB before decoding. Full Pipeline policy
+evaluation identities are high-cardinality summaries; allowing the historical
+4096-result ceiling made repeated JSON cloning/publication exceed Guardian's
+fixed cgroup budget on a loaded host. The smaller bound preserves current retry
+semantics while preventing persistent-state amplification; the hard resource
+limits remain unchanged.
 
 ## Installed Package Classification
 
