@@ -4,11 +4,11 @@
 
 - Task ID: `079`
 - Task slug: `guardian-isolated-automatic-release-checking`
-- Status: `complete — implementation and production acceptance validated; canonical closure in progress`
+- Status: `complete — implementation and production acceptance validated; canonically closed`
 - Date generated: `2026-09-03` UTC
 - Human authority: Project Owner — explicitly authorized Task 079 and supplied the exact engineering scope with APPROVE on 2026-09-03 UTC.
 - Preferred owner communication language: English
-- Related prompt: `ai/prompts/079_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/079_2026-09-03_guardian-isolated-automatic-release-checking.md`
 
 ## Lifecycle state
 
@@ -67,10 +67,24 @@ Bounded production acceptance used isolated private state at `/tmp/qwsg-task079-
 - Isolated state contained only awareness, Guardian checkpoint/locks/scheduler, Current Operator State, and inventory evidence. No archive, sidecar, staging, transaction, notification queue, artifact download, installation, version mutation, restart, notification, or unrelated configuration change occurred.
 - Active production Guardian inspection after acceptance: `ActiveState=active`, `SubState=running`, `Result=success`, `TasksCurrent=8`, `MemoryCurrent=107466752`; no production service/configuration mutation was performed.
 
+Implementation commit `c673318070cac0fc2607c5ed2042cd471d0e067a`
+(`Implement Task 079 automatic release awareness`) passed targeted staging,
+staged-diff review, push dry-run, and clean fast-forward push to `origin/main`.
+
+Closure snapshot `/tmp/qwsg-task079-closure.b1hKHg`: mode `0700`, evidence
+mode `0600`; complete synchronized Git bundle SHA-256
+`174fde7f249a30ec2dd3a3dce093e2db96ddb3464750f3f5aaedc2e75d390e13`;
+active prompt SHA-256
+`1e72b60a03a59734a98be253676fda065dda10df6099f784714e543307aaec67`;
+pre-closure history SHA-256
+`959e75b2fc77932542d2240dfa558a7f11f63495e4b4d7d94c6dc6911a562349`.
+Bundle completeness, archive readability, modes, and archive-destination
+absence passed before lifecycle mutation.
+
 ## Rollback
 
 Verify the execution snapshot hashes and exact current target identities. Restore only enumerated Task 079 before-images from the target archive, and remove only Task 079-created paths after confirming their recorded prior absence. Preserve unrelated work and metadata. After a pushed commit, use a new exact-path revert commit rather than rewriting history. Never use broad reset, checkout, clean, wildcard removal, or extraction over the live worktree. Re-run focused/full/race/framework/lifecycle/Git/privacy and production-state checks after rollback.
 
 ## Completion state
 
-`complete — implementation and production acceptance validated; canonical closure in progress`
+`complete — implementation and production acceptance validated; canonically archived without starting Task 080`
