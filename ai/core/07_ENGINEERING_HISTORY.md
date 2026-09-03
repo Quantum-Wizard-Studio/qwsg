@@ -297,5 +297,11 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   preserved Task 075/076 trust, the existing updater and all Guardian,
   notification, installation, Pro and external boundaries. See
   `ai/history/077_2026-08-30_update-awareness-state-operator-check-status.md`.
+- `2026-09-03`: Task 079 added Guardian-owned isolated automatic release
+  awareness with a restart-safe 24-hour due interval, post-local-startup gate,
+  bounded cancellation, non-overlap and failure isolation. It reuses the
+  production Task 076–078 authentication/persistence core and adds no artifact,
+  installation, notification, telemetry, registration or listener path. See
+  `ai/history/079_2026-09-03_guardian-isolated-automatic-release-checking.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.

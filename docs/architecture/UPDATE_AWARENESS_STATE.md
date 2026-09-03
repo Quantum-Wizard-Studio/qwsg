@@ -54,7 +54,8 @@ identity is reported as `installed_identity_changed`. A `304` refresh requires
 a matching prior Ed25519-authenticated observation. An authenticated withdrawal
 makes the cached release non-actionable while retaining historic identity.
 
-`qwsg update check` is the sole explicit network refresh and never acquires or
-installs. `qwsg update status` opens no network source. Awareness never changes
-Guardian health/readiness. Notification transition/delivery identity and
-Guardian scheduling remain separate future approval boundaries.
+`qwsg update check` remains the explicit operator network refresh and never
+acquires or installs. Task 079 also lets the Guardian invoke the same Manager
+through a separate due-time scheduler. `qwsg update status` opens no network
+source. Awareness never changes Guardian health/readiness. Notification
+transition/delivery identity remains a separate Task 080 boundary.

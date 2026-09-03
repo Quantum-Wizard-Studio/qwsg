@@ -226,6 +226,13 @@ generation, packaging, and fail-closed verification. Production DNS, TLS,
 hosting, signing, first publication, acceptance, scheduling, notification,
 automatic installation, and Task 079 remain separate explicit gates.
 
+Task 079 implements the isolated Guardian-owned automatic awareness gate. One
+sequential bounded check becomes due 24 hours after the persisted last attempt,
+starts only after local Guardian startup publication, and reuses the Task
+076–078 authenticated manager. Failure cannot alter Guardian health; artifact
+acquisition, installation, Task 080 notification, and Community 1.3 release
+remain separate gates.
+
 ## Stream 4 — Provider Operations
 
 Provider outcomes build on verified Professional control-plane contracts:

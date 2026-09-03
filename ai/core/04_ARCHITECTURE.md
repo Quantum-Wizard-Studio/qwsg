@@ -227,6 +227,13 @@ preservation, explicit check and network-free status. Task 078 injects the
 approved production discoverer through its existing checker seam; awareness
 owns no Guardian, notification, acquisition or installation behavior.
 
+Task 079 adds `internal/guardian.ReleaseCheckService` as the sole automatic
+schedule owner. It starts after the first published local cycle, derives its
+24-hour due time from Update Awareness State, and invokes the same Task 078
+checker/manager path sequentially with bounded cancellation. Failure cannot
+alter Guardian health. Acquisition, installation, and Task 080 notification
+remain separate.
+
 ## Installed Package Classification
 
 Task 075 implements the local installed-identity prerequisite in

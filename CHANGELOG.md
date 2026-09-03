@@ -55,6 +55,12 @@ All notable changes to Quantum Wizard Server Guardian will be recorded here. Thi
 
 ## [Unreleased]
 
+### Added
+
+- Guardian-driven authenticated release awareness with a restart-safe 24-hour
+  due interval, bounded cancellation, failure isolation, and no artifact,
+  installation, notification, or telemetry side effects.
+
 ## [1.1.0] - 2026-08-26
 
 ### Fixed

@@ -35,6 +35,12 @@ func productionAwarenessChecker() updateawareness.Checker {
 	return checker
 }
 
+func updateAwarenessManager(store *updateawareness.Store) updateawareness.Manager {
+	return updateawareness.Manager{Store: store, Checker: updateAwarenessChecker, SourceID: releasediscovery.ProductionSourceID, Channel: "stable", Platform: "linux-amd64", Freshness: updateawareness.DefaultFresh, Classify: func() installation.Result {
+		return installation.Classify(installation.Options{Root: installedQWSGRoot})
+	}}
+}
+
 func runUpdate(args []string, out, errout io.Writer) int {
 	if len(args) > 0 && isHelp(args[0]) {
 		writeUpdateHelp(out)
@@ -85,9 +91,7 @@ func runUpdateCheck(out, errout io.Writer) int {
 		fmt.Fprintln(errout, "Update check failed: private awareness state unavailable.")
 		return 1
 	}
-	manager := updateawareness.Manager{Store: store, Checker: updateAwarenessChecker, SourceID: releasediscovery.ProductionSourceID, Channel: "stable", Platform: "linux-amd64", Freshness: updateawareness.DefaultFresh, Classify: func() installation.Result {
-		return installation.Classify(installation.Options{Root: installedQWSGRoot})
-	}}
+	manager := updateAwarenessManager(store)
 	ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
 	defer cancel()
 	state, err := manager.Check(ctx)

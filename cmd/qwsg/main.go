@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 	"unicode"
 
@@ -36,6 +38,7 @@ import (
 	"quantumwizard.hu/qwsg/internal/runtimeservice"
 	"quantumwizard.hu/qwsg/internal/scheduler"
 	"quantumwizard.hu/qwsg/internal/smtpnotification"
+	"quantumwizard.hu/qwsg/internal/updateawareness"
 )
 
 var (
@@ -403,8 +406,27 @@ func executeGuardian(options guardianOptions) error {
 		return err
 	}
 	seed := runtime.Input{Context: seedContext, Configuration: effective, PreviousState: checkpoint.RuntimeState, PreviousAlertState: checkpoint.AlertState, PreviousNotificationQueue: checkpoint.NotificationQueueState, AlertEvidenceTTLNS: int64(24 * time.Hour), Acknowledgements: []alert.Acknowledgement{}, Suppressions: []alert.SuppressionWindow{}, NotificationPolicy: policy}
-	service := runtimeservice.Service{Clock: runtimeservice.SystemClock{}, Waiter: runtimeservice.TimerWaiter{}, Runner: runner, Sink: guardian.Sink{Publisher: publisher}}
-	result, err := runtimeservice.RunWithSignals(context.Background(), service, runtimeservice.Input{Definition: definition, StartedAt: started, InitialState: runtimeservice.NewState(checkpoint.ServiceID), Seed: seed}, runtimeservice.OSSignalContext)
+	ready := make(chan struct{})
+	startupSink := &guardian.StartupSink{Next: guardian.Sink{Publisher: publisher}, Ready: ready}
+	service := runtimeservice.Service{Clock: runtimeservice.SystemClock{}, Waiter: runtimeservice.TimerWaiter{}, Runner: runner, Sink: startupSink}
+	awarenessStore, awarenessErr := updateawareness.Open(options.stateRoot)
+	if awarenessErr != nil {
+		return awarenessErr
+	}
+	awarenessManager := updateAwarenessManager(awarenessStore)
+	signalContext, stopSignals := runtimeservice.OSSignalContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	var releaseChecks sync.WaitGroup
+	releaseChecks.Add(1)
+	go func() {
+		defer releaseChecks.Done()
+		(guardian.ReleaseCheckService{Store: awarenessStore, Ready: ready, Interval: guardian.DefaultReleaseCheckInterval, Timeout: guardian.DefaultReleaseCheckTimeout, Check: func(ctx context.Context) error {
+			_, checkErr := awarenessManager.Check(ctx)
+			return checkErr
+		}}).Run(signalContext)
+	}()
+	result, err := service.Run(signalContext, runtimeservice.Input{Definition: definition, StartedAt: started, InitialState: runtimeservice.NewState(checkpoint.ServiceID), Seed: seed})
+	stopSignals()
+	releaseChecks.Wait()
 	checkpoint.Active = false
 	_ = checkpointStore.Save(checkpoint)
 	if err != nil || result.FinalState.Lifecycle == runtimeservice.Failed {

@@ -9,9 +9,11 @@ strict release-index, Ed25519 verification, source-neutral retrieval, bounded
 static HTTPS adapter, and pure installed-aware evaluation described in
 `docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`, and Task 077
 implements the separate private awareness state and explicit check/network-free
-status contract in `docs/architecture/UPDATE_AWARENESS_STATE.md`. No production
-endpoint/key, schedule, notification, installation automation, telemetry,
-registration, publication, or Pro feature is activated.
+status contract in `docs/architecture/UPDATE_AWARENESS_STATE.md`. Task 078
+activates the exact production endpoint and trust anchor. Task 079 adds only
+the isolated Guardian schedule described below; notification, installation
+automation, telemetry, registration, publication, and Pro behavior remain
+outside this implementation.
 
 The default policy is:
 
@@ -284,17 +286,17 @@ only by delegating to the identical updater.
 
 ## Guardian integration
 
-Guardian should add a separate optional update-discovery job, not another
-Runtime/Pipeline engineering stage. Recommended Community defaults:
+Guardian implements a separate update-discovery side job, not another
+Runtime/Pipeline engineering stage. Community behavior is:
 
-- enabled automatic checks with a 24-hour nominal interval and deterministic
-  per-installation jitter up to 60 minutes to avoid synchronized load;
-- minimum enforced interval of one hour and configurable interval/channel;
+- enabled automatic checks with a fixed 24-hour nominal interval; configuration
+  remains a later option because the existing canonical schedule collection
+  owns Command/Pipeline work and is not a safe fit for outbound discovery;
 - one in-flight check, 30-second HTTP client timeout, 35-second whole-operation
   deadline, 1 MiB metadata limit, 50 release limit and existing redirect/host
   constraints;
-- no retry loop inside a Guardian cycle. The next scheduled opportunity uses
-  bounded exponential failure spacing capped at the configured interval;
+- no retry loop inside a Guardian cycle. Every attempted check, including a
+  failure, is followed by the full 24-hour interval;
 - run only after local Guardian startup responsibilities and never hold the
   local observation lock or retain loaded Inventory graphs;
 - persist success/failure independently. Check errors are diagnostics and
@@ -302,8 +304,14 @@ Runtime/Pipeline engineering stage. Recommended Community defaults:
 - cancellation on shutdown and no inbound listener, remote shell, central root
   access, registration or mandatory telemetry.
 
-The primary five-minute local monitoring cadence continues even if DNS, TLS,
-Forgejo, the static manifest host or a future release service is unavailable.
+The first automatic check starts only after the first local Guardian cycle is
+published. A missing awareness record is then due immediately. Otherwise a
+check is due at `last_attempt.at + 24h`; restart preserves that deadline and
+does not create another request. Unsafe awareness state suppresses the network
+attempt for the interval. The primary five-minute local monitoring cadence
+continues even if DNS, TLS, Forgejo, the static manifest host or a future
+release service is unavailable. Task 079 never creates a notification event;
+transition and deduplication remain reserved for Task 080.
 
 ## Notification transition model
 

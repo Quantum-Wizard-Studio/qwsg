@@ -69,3 +69,21 @@ Alert records remain local with the default empty Notification policy. The
 absence of a transport never invents delivery. Abrupt termination may leave a
 claim only until correlated exit reporting or its fixed freshness deadline;
 after that the Console reports `unavailable`.
+
+The Guardian also owns one separate `ReleaseCheckService` side loop. It opens
+only after the first local Runtime cycle and Current Operator State publication
+complete, then consults the private Update Awareness State attempt timestamp.
+A missing record is due immediately; otherwise the next nominal attempt is 24
+hours after `last_attempt.at`. A restart before that instant waits for the
+remaining duration instead of repeating retrieval. Corrupt or unsafe awareness
+state suppresses network access for the interval.
+
+Exactly one check may run at a time. The loop gives the existing authenticated
+awareness manager a 35-second child context, waits a full interval after every
+attempt even when local preconditions fail, and exits with Guardian signal
+cancellation. Check errors are swallowed only at this scheduling boundary
+after the manager has recorded its privacy-bounded result; they never alter
+Guardian health, Runtime state, notification queues, process supervision, or
+the five-minute local monitoring cadence. The side loop has no acquisition,
+installation, notification, listener, credential, registration, or telemetry
+dependency.

@@ -28,6 +28,43 @@ func TestCapturingSchedulerTakeReleasesCycleTrace(t *testing.T) {
 	}
 }
 
+func TestStartupSinkOpensGateOnlyAfterPublishedCompletedCycle(t *testing.T) {
+	ready := make(chan struct{})
+	next := &recordingEvidenceSink{}
+	sink := &StartupSink{Next: next, Ready: ready}
+	for _, kind := range []runtimeservice.EvidenceKind{runtimeservice.EvidenceStartup, runtimeservice.EvidenceCycleStarted} {
+		if err := sink.Emit(runtimeservice.State{}, runtimeservice.Event{Kind: kind}, runtimeservice.Evidence{}); err != nil {
+			t.Fatal(err)
+		}
+		select {
+		case <-ready:
+			t.Fatal("startup gate opened before completed cycle")
+		default:
+		}
+	}
+	if err := sink.Emit(runtimeservice.State{}, runtimeservice.Event{Kind: runtimeservice.EvidenceCycleCompleted}, runtimeservice.Evidence{}); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-ready:
+	default:
+		t.Fatal("completed cycle did not open startup gate")
+	}
+	if err := sink.Emit(runtimeservice.State{}, runtimeservice.Event{Kind: runtimeservice.EvidenceCycleCompleted}, runtimeservice.Evidence{}); err != nil {
+		t.Fatal(err)
+	}
+	if next.calls != 4 {
+		t.Fatalf("downstream calls=%d", next.calls)
+	}
+}
+
+type recordingEvidenceSink struct{ calls int }
+
+func (s *recordingEvidenceSink) Emit(runtimeservice.State, runtimeservice.Event, runtimeservice.Evidence) error {
+	s.calls++
+	return nil
+}
+
 func TestCheckpointRoundTripIntegrityAndInstanceLock(t *testing.T) {
 	root := filepath.Join(t.TempDir(), "guardian")
 	store, err := OpenStore(root)

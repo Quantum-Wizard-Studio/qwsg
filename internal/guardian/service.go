@@ -174,6 +174,27 @@ func (v Sink) Emit(state runtimeservice.State, event runtimeservice.Event, evide
 	return v.Publisher.Publish(state, event)
 }
 
+// StartupSink opens a one-time gate only after the first completed local
+// Guardian cycle has been published and its retained engineering graph freed.
+type StartupSink struct {
+	Next  runtimeservice.EvidenceSink
+	Ready chan struct{}
+	once  sync.Once
+}
+
+func (v *StartupSink) Emit(state runtimeservice.State, event runtimeservice.Event, evidence runtimeservice.Evidence) error {
+	if v == nil || v.Next == nil {
+		return fmt.Errorf("guardian startup sink unavailable")
+	}
+	if err := v.Next.Emit(state, event, evidence); err != nil {
+		return err
+	}
+	if event.Kind == runtimeservice.EvidenceCycleCompleted && v.Ready != nil {
+		v.once.Do(func() { close(v.Ready) })
+	}
+	return nil
+}
+
 func ReportExit(checkpoints *Store, current *operatorstate.Store, generation, result string, at time.Time, freshFor time.Duration) error {
 	allowed := map[string]bool{"success": true, "protocol": true, "timeout": true, "exit-code": true, "signal": true, "core-dump": true, "watchdog": true, "resources": true, "oom-kill": true}
 	if checkpoints == nil || current == nil || !token(generation) || !allowed[result] || at.IsZero() || freshFor <= 0 || freshFor > presentationmodel.MaxFreshFor {

@@ -26,8 +26,9 @@ rollback-capable, operator-controlled update path. `qwsg update` verifies and
 applies a supported release only after explicit administrator invocation, and
 `qwsg update rollback` restores the integrity-verified previous package while
 preserving user configuration, credentials and state. QWSG 1.3 update
-discovery and local awareness work is under development; unattended
-installation remains disabled.
+discovery and local awareness work is under development. The Guardian performs
+one isolated authenticated release-awareness check every 24 hours when due;
+unattended download and installation remain disabled.
 
 ## Normal journey
 

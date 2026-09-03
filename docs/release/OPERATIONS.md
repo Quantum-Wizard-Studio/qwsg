@@ -17,6 +17,15 @@ failure. It neither downloads nor installs an artifact. `qwsg update status`
 remains network-free and preserves the last authenticated success separately
 from a later failed attempt.
 
+The running Guardian performs the same authenticated awareness operation when
+it is due, by default once every 24 hours. It waits until the first local
+Guardian cycle has completed. The due time is the last recorded attempt plus
+24 hours, so restarting Guardian shortly after a check does not repeat the
+request. A failed attempt is non-destructive and is not retried until the next
+interval; local monitoring continues. Automatic checking stores awareness
+only: it does not download, stage, install, restart, or notify. Update
+notification and deduplication are reserved for Task 080.
+
 Use `qwsg` for the current read-only operator view and `qwsg observe` for an explicit full observation. The supervised Guardian runs the same canonical Runtime Service; it does not duplicate engine decisions.
 
 Use `qwsg readiness` for the composite operational gate. Guardian core may be

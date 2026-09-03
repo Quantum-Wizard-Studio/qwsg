@@ -22,12 +22,11 @@ state are never package replacement targets or rollback payloads.
 
 QWSG 1.3's Task 076 foundation defines a source-neutral signed release index.
 Task 077 makes `update check` one bounded authenticated awareness refresh and
-`update status` a network-free local state read. No production endpoint or
-trust anchor is activated yet: check fails closed with
-`source_authority_refused`, never falls back to unsigned metadata, and
-preserves any prior authenticated result. Neither command acquires or installs
-an artifact. Once separately approved authority is supplied, authenticated
-artifact identity can enter this existing updater; no second updater is made.
+`update status` a network-free local state read. Task 078 activates the exact
+production endpoint and trust anchor, and Task 079 lets Guardian call that same
+authenticated core when its 24-hour awareness interval is due. Neither manual
+nor automatic awareness acquires or installs an artifact; explicit `qwsg
+update` remains the only installation entry point.
 
 ## Deterministic compatibility and migration contract
 

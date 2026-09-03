@@ -197,8 +197,12 @@ Task 076 implements the flow through installed-aware evaluation. Task 077 adds
 the independent strict atomic awareness state plus explicit check and
 network-free status. Task 078 fixes the single production endpoint and bundled
 public trust anchor, adds deterministic offline-signing/publication plumbing,
-and stops before infrastructure mutation or publication. Notification/schedule
-consumers remain future work. The implemented contracts are
+and stops before infrastructure mutation or publication. Task 079 connects a
+separate Guardian-owned 24-hour due loop to the existing awareness manager
+after local startup publication. Persisted last-attempt time prevents duplicate
+restart retrieval; one bounded check runs at a time and its failure cannot
+enter Runtime, Health, Alert, Notification, acquisition, or installation
+flows. Task 080 notification remains unimplemented. The implemented contracts are
 `docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`,
 `docs/architecture/UPDATE_AWARENESS_STATE.md`, and
 `docs/release/RELEASE_INDEX_PUBLICATION.md`.
