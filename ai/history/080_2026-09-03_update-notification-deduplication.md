@@ -4,11 +4,11 @@
 
 - Task ID: `080`
 - Task slug: `update-notification-deduplication`
-- Status: `active — Owner-authorized OOM remediation and Task 080 acceptance in progress`
+- Status: `complete — implementation, OOM remediation and production acceptance validated; canonically closed`
 - Date generated: `2026-09-03` UTC
 - Human authority: Project Owner — explicitly authorized Task 080 and supplied the exact engineering scope with APPROVE on 2026-09-03 UTC.
 - Preferred owner communication language: Hungarian
-- Related prompt: `ai/prompts/080_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/080_2026-09-04_update-notification-deduplication.md`
 
 ## Lifecycle state
 
@@ -47,7 +47,12 @@ Builder input, metadata, prompt/history identity, approval state, lifecycle inst
 - `make engineering-test`: PASS; checkout/export build provenance, Framework 25, diversion 36, lifecycle 29, and Builder 49 assertions passed after exact-path staging.
 - Release reproducibility and release-authority reproducibility: PASS. Protected final artifact SHA-256 remains `44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`; annotated `v1.2.0` tag object remains `ac395b568b8e1f83c0ef85c9aa02f98c15402af0` and peels to `348d927ffcf4c8cd4c9a50fc3eacad71d8bfe5c2`. `make release-check` refused at its intentional clean-output precondition because the immutable published artifact exists; classified `EXPECTED BEHAVIOR`.
 - Isolated official production-index check at `/tmp/qwsg-task080-production-acceptance.9IXy9N`: authenticated current `1.2.0` PASS; awareness mode `0600`, SHA-256 `8639f36ae7798f4f63cf059ca4c28c9b6ba5fb98b61263a8e6c0aee33f3deb03`; no `last_notification`, artifact, installation, SMTP or configuration state was created. Unrestricted `strace -f -e trace=network` around `update status` showed no network syscalls and status remained current.
-- Production Guardian health gate: FAIL. Read-only systemd evidence at 22:24–22:25 UTC showed repeated `oom-kill` exits, `MemoryPeak=MemoryMax=134217728`, restart counter `1839`, and transition from `active/running` to `activating/auto-restart` with `Result=oom-kill`. The production service was not restarted, reconfigured or otherwise mutated by Task 080. This is a material pre-existing production baseline variance outside update-notification scope; completion, commit, push and lifecycle closure stopped rather than misreporting health.
+- Initial production Guardian health gate exposed the Owner-authorized OOM blocker: `MemoryPeak=MemoryMax=134217728`, repeated `oom-kill`, and a restart counter that reached 1894. The production scheduler contained 984 retained results in a 22,503,382-byte envelope plus four abandoned multi-megabyte temporary writes. Root cause analysis and the bounded source correction are recorded above.
+- Implementation/remediation commit `accdf93de51adc944536e7ec0d53012d24aed318` (`Implement Task 080 update notifications and Guardian OOM fix`) was reviewed, committed and pushed fast-forward to `origin/main`. The Owner installed the corrected binary and its matching local hotfix provenance. Installed SHA-256 values are `dc86ba9eb19b83fccb3d1e233a3b21e482ec70d1041d53bc90fdb11d4ed96a93` for `/usr/local/bin/qwsg` and `19f2c49997d7b183ca080411ac9dfe7c16d2f238e5c86c0e40944b901a5fd82b` for `RELEASE.json`; both identify version `1.2.0`, commit `accdf93de51adc944536e7ec0d53012d24aed318`, build time `2026-09-03T22:57:15Z`.
+- Rollback-protected production remediation stopped only the Guardian, moved the inflated Scheduler directory aside, created a fresh private mode-`0700` directory, and restarted only `qwsg-guardian.service`. After the final provenance activation restart at `2026-09-03T23:18:48Z`, a 41-minute multi-cycle observation reached 10 retained results in 256,439 bytes. The unit remained `active/running`, `Result=success`, `NRestarts=0`, `TasksCurrent=8`; cgroup `memory.events` reported `oom=0`, `oom_kill=0`, and the observed `MemoryPeak=31,862,784` bytes remained below one quarter of `MemoryMax=134,217,728`. No busy loop, overlapping process, new temporary Scheduler file, notification loop, or new OOM appeared.
+- Live official-index acceptance authenticated stable `1.2.0` with trusted Ed25519 key `qwsg-community-release-2026-01` and classified installed `1.2.0` as `current/equal`. The private mode-`0600` awareness record has `last_notification=null`; no SMTP delivery was attempted. `strace -f -e trace=network` around `qwsg update status` contained no socket/connect/send/receive call. Configuration SHA-256 remained `c960ef12be721bb426ca661ec2eff7b5d11533c6cff70c0c5d70fdc0f68c2010`; the protected release artifact remained `44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11`. No artifact, staging, transaction, installation, SMTP credential, package, telemetry, registration or unrelated production mutation occurred.
+- Final focused notification/awareness/Guardian/Scheduler/CLI tests, `make fmt-check vet test`, and unrestricted `go test -race ./...` passed after activation. The restricted race attempt's loopback-listener denial was classified `ENVIRONMENTAL ISSUE`; the identical unrestricted suite passed. Deterministic fixtures prove authenticated newer first/same/restart/different release delivery and deduplication, failed-delivery retry bounding, disabled delivery, corruption and non-overlap without contacting production SMTP.
+- Closure snapshot `/tmp/qwsg-task080-closure.hg9Rth`: mode `0700`, evidence mode `0600`; complete synchronized Git bundle SHA-256 `ee181a737e6ea29e5ecde0dcde5df50f31e5111419b2667c069ee2c3306c9277`; active prompt SHA-256 `c6a7f50b90d76f8ccce531647f4afcb2a311c35008539b8959d858cbbd7ed9e6`; pre-closure history SHA-256 `7a21a811202c682776821db14f1534f11793b2e537ffdac1e2b0349c7fe434ee`. Bundle completeness, modes and archive-destination absence passed before lifecycle mutation.
 
 ## Rollback
 
@@ -55,4 +60,4 @@ Verify snapshot checksums and archive readability, extract only to an isolated d
 
 ## Completion state
 
-`active — Owner-authorized root-cause correction is implemented locally; production activation, stability acceptance, final integration and closure remain.`
+`complete — authenticated update notification/deduplication, Guardian OOM remediation and production acceptance validated; canonically archived without starting Task 081`

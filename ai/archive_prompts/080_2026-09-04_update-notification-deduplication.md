@@ -4,7 +4,7 @@
 
 - Task ID: `080`
 - Task slug: `update-notification-deduplication`
-- Status: `approved`
+- Status: `complete`
 - Date opened: `2026-09-03` UTC
 - Human authority: Project Owner — explicitly authorized Task 080 and supplied the exact engineering scope with APPROVE on 2026-09-03 UTC.
 - Owner or lead-developer communication language: Hungarian
