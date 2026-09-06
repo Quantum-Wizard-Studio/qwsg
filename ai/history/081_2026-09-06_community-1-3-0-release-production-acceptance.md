@@ -211,3 +211,47 @@ legacy file or invoking the pipeline. Privacy/security review confirms only
 version/packaging/documentation plus test changes after the one-line route
 backport; authentication, credentials, listeners and automatic installation
 boundaries remain unchanged.
+
+## Frozen 1.3.0 publication and signing checkpoint
+
+All local release gates passed, including repeated final documentation
+reproducibility. Final release source/implementation commit:
+`2e2b723f6f9a2bcea368fbbddc8449cdbaac7fab`.
+Annotated tag `v1.3.0`, tag object `75d00762f4db1cb08ead68eccf388549540d6ee7`.
+Commit and tag were pushed to canonical Forgejo after a successful dry-run.
+Build epoch `1788696490`, built `2026-09-06T12:08:10Z`.
+Two builds from an isolated Git archive of this exact source matched:
+- Artifact `qwsg-1.3.0-linux-amd64.tar.gz`.
+- Size `3598177` bytes.
+- SHA-256 `8e19f624ccd1a49f32f6127889390e3389aec6eda958c7fbaaaa657d7b7cf9a0`.
+- Sidecar size `96` bytes.
+
+The real-package clean-install/migration/rollback test passed again with the
+final frozen archive. Forgejo Release ID `4` is final/non-draft/non-prerelease,
+URL `https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/tag/v1.3.0`,
+published `2026-09-06T12:11:54Z`, with the exact archive and sidecar attached.
+Anonymous curl retrieval matches exact size/hash and original sidecar bytes.
+No official 1.2.0 object was modified. No GitHub Release was created.
+
+After the usage-limit interruption, actual local and fetched Git state was
+verified: clean, synchronized main at the release source, divergence 0/0,
+active Task 081. Publication records and external artifact retrieval agree.
+Canonical signing input generated twice identically:
+`release/production/qwsg-release-index-1.3.0-signing-input.json`, 733 bytes,
+SHA-256 `9e6a61ec6727ae3596283d8c204e1ed8b845f633f0e4a6dc09fe55f63959f0b9`.
+Generated-at `2026-09-06T16:38:50Z`; final byte `}` without newline.
+It identifies stable active 1.3.0, minimum source 1.2.0 and exact route
+`compat-1.2.0-to-1.3.0`, canonical Forgejo source and immutable artifact.
+
+Dell1 uses the already provisioned reviewed offline signer:
+`qwsg-release-sign-offline.exe`, 5118464 bytes, SHA-256
+`c3f7e9459a8fa23cf6f87daf46046d0cd9bd67c7682efd2a450bf2bf1f7c8b0d`.
+Local retained tool identity was verified; no private material was accessed.
+Awaiting only the Owner's detached 89-byte Base64 signature output. The
+production index remains signed 1.2.0; installed production remains the
+compatibility-remediated 1.2.0 baseline. Real newer discovery/notification,
+production 1.3.0 update and post-install acceptance are still pending.
+
+Independent anonymous wget retrieval also matched the final artifact SHA-256.
+Signing-checkpoint documentation updated; source tag and frozen archive remain
+unchanged by these subsequent audit/signing-input commits.

@@ -167,3 +167,25 @@ canonical signing input twice, compares the bytes, and verifies private output
 modes. Go tests cover trust identity, malformed candidates, unsafe Forgejo
 provenance, wrong key, wrong signature, encrypted OpenSSH Ed25519 signing, and
 existing Task 075–077 regressions using non-production keys.
+
+## Task 081: 1.3.0 offline signing checkpoint
+
+Task 081 explicitly authorizes the subsequent release publication workflow.
+The immutable Forgejo 1.3.0 artifact is published and externally verified.
+Sign only `release/production/qwsg-release-index-1.3.0-signing-input.json`:
+733 bytes, SHA-256
+`9e6a61ec6727ae3596283d8c204e1ed8b845f633f0e4a6dc09fe55f63959f0b9`.
+The exact approved Dell1 signer is unchanged: 5118464 bytes, SHA-256
+`c3f7e9459a8fa23cf6f87daf46046d0cd9bd67c7682efd2a450bf2bf1f7c8b0d`.
+In the existing private non-cloud custody working directory, verify both
+identities before running:
+
+```powershell
+.\qwsg-release-sign-offline.exe sign .\qwsg-release-index-1.3.0-signing-input.json .\qwsg-release-index-1.3.0-signature.base64
+```
+
+Return only the detached signature, its size/SHA-256, signing PASS and
+private-material-exposure NONE. A signature file is 89 bytes (88 Base64
+characters plus LF). Never return the private-key path, key, passphrase or
+console transcript. Production publication and acceptance remain pending until
+the returned signature verifies with the unchanged Community trust anchor.
