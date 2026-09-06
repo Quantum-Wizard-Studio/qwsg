@@ -198,3 +198,22 @@ frozen input under `release/production/`. Root publication is a single atomic
 object replacement with preserved hosting metadata and a private prior-object
 backup. Client anti-rollback remains enforced: recovery after a newer index is
 observed requires a later authenticated index, not disabling generated-at checks.
+
+## Task 081 corrective 1.3.1 signing checkpoint
+
+The Owner-authorized 1.3.1 corrective release is separately published on
+Forgejo (Release 5). Historical 1.3.0 publication bytes and metadata remain
+immutable. The new canonical input is
+`release/production/qwsg-release-index-1.3.1-signing-input.json`, 733 bytes,
+SHA-256 `7b1fac2eb0c05e98e4f6f3ddc9fe5aad91581722070d70cb763555e286ee1959`.
+Use the same reviewed Dell1 signer (5118464 bytes, SHA-256
+`c3f7e9459a8fa23cf6f87daf46046d0cd9bd67c7682efd2a450bf2bf1f7c8b0d`):
+
+```powershell
+.\qwsg-release-sign-offline.exe sign .\qwsg-release-index-1.3.1-signing-input.json .\qwsg-release-index-1.3.1-signature.base64
+```
+
+Verify input and executable identities first. Return only the 89-byte detached
+Base64 signature, its SHA-256 and non-secret signing/exposure results. No key
+material or passphrase leaves custody. Signed production publication and full
+1.3.1 production acceptance remain pending.

@@ -439,3 +439,53 @@ retains the correct equal relation. The public index remained the unchanged
 signed 1.3.0 index throughout; production state was not modified by this test.
 Scope/privacy review and staged whitespace checks PASS. No historical 1.3.0
 release notes, production signing objects, tags or artifact bytes are modified.
+
+## Canonical 1.3.1 release published; offline signing pending
+
+Final corrective source commit `45009fe6169bff00842a4c4e9561bf339a5db81e`,
+build epoch `1788735033`. Two deterministic builds from its isolated Git source
+archive matched byte-for-byte:
+`qwsg-1.3.1-linux-amd64.tar.gz`, `3600553` bytes, SHA-256
+`0ab726bcde36182232ff89e3ea33e2d5ab77d8cad2b94ce56c9534a8147d9cd7`.
+Final real-archive clean/migration/rollback acceptance PASS (explicit 1.3.0
+and 1.3.1 artifact inputs), with the immutable predecessor hash verified.
+
+Final binary's isolated Guardian ran under MemoryMax=128M, TasksMax=32,
+GOMEMLIMIT=64MiB and a 180-second runtime ceiling. Retained 63 successful
+executions plus one pipeline cancellation at the deliberate runtime-ceiling
+shutdown, 64 total results in 1612282 bytes, NRestarts=0. Unit Result=timeout
+and journal prove the intentional deadline shutdown, not a restart/OOM loop.
+The completed transient unit no longer exposed MemoryPeak, so no measured peak
+is claimed for this run; actual post-install production resource measurement
+remains required. Historical 1.3.0 measured resource evidence remains intact.
+
+A bounded recovery driver compiled from the final corrective source restored
+only the lost successful 1.3.0 notification record from the integrity-verified
+pre-upgrade awareness before-image, verifying its exact release/artifact/key
+identity. It then used the real production discoverer to repair current/equal
+installed/available 1.3.0 while preserving that delivery record. Both checks
+PASS; no SMTP delivery, installed binary or configuration mutation occurred.
+Pre-recovery awareness SHA-256
+`52702c856b82deabc3a20b3eced5aee51d6fff0e645a0491525e54ed824e2a1f`
+and exact before-image retained under `/tmp/qwsg-task081-131-driver`.
+This evidence-backed recovery does not fabricate delivery history.
+
+Annotated `v1.3.1` tag object `efb7afcac7bd65a3419f6bf3264892e09de631f6`
+points to the exact source commit. Commit and tag pushed after dry-run.
+Forgejo Release ID `5`, final/non-draft/non-prerelease, published
+`2026-09-06T22:56:55Z`, URL
+`https://git.quantumwizard.hu/Quantum_Wizard_Studio/qwsg/releases/tag/v1.3.1`.
+Exact artifact and sidecar attached. Independent anonymous curl and wget
+retrievals match final size/hash; downloaded sidecar matches original bytes.
+No 1.3.0 tag, artifact, Release metadata or signing/history object was mutated.
+
+Canonical 1.3.1 signing input generated twice identically:
+`release/production/qwsg-release-index-1.3.1-signing-input.json`, 733 bytes,
+SHA-256 `7b1fac2eb0c05e98e4f6f3ddc9fe5aad91581722070d70cb763555e286ee1959`.
+Generated-at `2026-09-06T22:58:30Z`; no trailing newline. It advertises exact
+Forgejo stable active 1.3.1, minimum source 1.3.0 and migration route
+`compat-1.3.0-to-1.3.1`. Offline signer remains exactly 5118464 bytes, SHA-256
+`c3f7e9459a8fa23cf6f87daf46046d0cd9bd67c7682efd2a450bf2bf1f7c8b0d`.
+Only the detached Owner signature is pending at this boundary. Production index
+and installed version remain 1.3.0. Task 081 remains IN PROGRESS; full signed
+1.3.1 publication and production upgrade acceptance are not yet claimed.
