@@ -4,11 +4,11 @@
 
 - Task ID: `081`
 - Task slug: `community-1-3-0-release-production-acceptance`
-- Status: `active — IN PROGRESS; Owner-authorized 1.3.1 correction and acceptance`
+- Status: `complete — corrective 1.3.1 released and production accepted`
 - Date generated: `2026-09-06` UTC
 - Human authority: Project Owner explicit Task 081 authorization and APPROVE in the current session
 - Preferred owner communication language: Hungarian
-- Related prompt: `ai/prompts/081_CURRENT_TASK.md`
+- Related prompt: `ai/archive_prompts/081_2026-09-06_community-1-3-0-release-production-acceptance.md`
 
 ## Starting state
 
@@ -542,3 +542,52 @@ verified immutable archives exactly. Native deterministic rollback already
 passed the final real-package acceptance; production rollback is reserved for
 actual failure via `qwsg update rollback` and native transaction backup.
 Operator update requiring interactive credentials is the next boundary.
+
+## Final corrected production acceptance and closure
+
+Owner native update: 1.3.0 → 1.3.1 PASS; rollback available and lifecycle admin
+notification ACCEPTED. Installed binary, RELEASE.json and service unit match the
+canonical 1.3.1 archive exactly. Source commit
+`45009fe6169bff00842a4c4e9561bf339a5db81e`, built `2026-09-06T22:50:33Z`.
+All previously captured private configuration/credential file hashes unchanged.
+Native update transaction identifies Installed=1.3.1, Previous=1.3.0 with backup
+reference; deterministic final real-package clean/migrate/exact-rollback test
+already PASS. No unnecessary rollback of healthy production was executed.
+
+F001 PASS: first post-install authenticated check reports current/equal 1.3.1.
+Two additional real HTTP 304 responses observed through the final checker each
+retain current/equal. F002 PASS: exact successful pre-install 1.3.1 delivery
+record survives native update/service restart, checks and fresh store/notifier
+instances; both post-install evaluations make zero delivery calls. This is
+separate from the earlier evidence-backed restoration of the historical lost
+1.3.0 record. Final installed identity supersedes both older production baselines.
+`update status` syscall trace contains only process signals, zero network calls.
+
+Production observed from service activation `2026-09-06T23:35:43Z` through
+`2026-09-06T23:48:56Z` (over 13 minutes). Same main process, active/running,
+Result=success, NRestarts=0. Final MemoryCurrent=32190464 bytes,
+MemoryPeak=60149760 bytes, safely below MemoryMax=134217728;
+TasksCurrent=8 below TasksMax=32; GOMEMLIMIT=64MiB confirmed.
+Cgroup low/high/max/oom/oom_kill/oom_group_kill all zero.
+Three post-install Scheduler results succeeded, retained total=64,
+active state=1636882 bytes below 8MiB. Historical oversized backup remains a
+separate inactive before-image. No panic/fatal/OOM journal events and no QWSG
+inbound listeners. No unrelated production configuration changes, telemetry,
+registration, automatic artifact download/install or credential disclosure.
+
+Public release/index, production signature/trust, source/tag, exact artifact
+and installed identity form one verified chain. Historical official 1.2.0 and
+1.3.0 artifact hashes reconfirmed unchanged. Forgejo 1.3.0 and 1.3.1 release
+metadata/assets match publication evidence; only ordinary download counters
+changed. EN/HU acceptance documentation added, immutable release notes untouched.
+All previously completed full/race/engineering/reproducibility/security gates
+remain applicable; no product code changed after the final validated release.
+Only documentation/lifecycle closure checks are required at this boundary.
+
+Task 081 completes with corrective 1.3.1 RELEASED / ACCEPTED. Initial 1.3.0
+remains an immutable published release whose post-install regressions motivated
+the authorized correction; it is not retrospectively relabeled fully accepted.
+Private snapshots/native rollback evidence retained through the rollback window.
+Archive Task 081 without creating Task 082. The closure commit is the Git commit
+containing this final record and prompt archival; final push/sync is verified
+in the Owner handoff rather than embedding a self-referential commit hash.

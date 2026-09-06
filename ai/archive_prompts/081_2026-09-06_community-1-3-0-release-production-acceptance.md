@@ -4,7 +4,7 @@
 
 - Task ID: `081`
 - Task slug: `community-1-3-0-release-production-acceptance`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-09-06` UTC
 - Human authority: Project Owner explicit Task 081 authorization and APPROVE in the current session
 - Owner or lead-developer communication language: Hungarian
@@ -126,3 +126,9 @@ not be rewritten. No Task 082 or unrelated feature work. Existing authority
 continues; only offline Dell1 signing, interactive sudo or genuinely new
 architectural/security decisions pause execution. Final completion uses the
 canonical 1.3.1 corrective release with explicit historical 1.3.0 failure record.
+
+## Final outcome
+
+Complete with Owner-authorized corrective 1.3.1 production acceptance.
+Historical 1.3.0 remains immutable; final evidence is in Task 081 history.
+No Task 082 created.
