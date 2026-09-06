@@ -81,7 +81,7 @@ func TestNotificationRecordIsPrivateAtomicAndPreserved(t *testing.T) {
 	}
 }
 
-func TestFailurePreservesAuthenticatedSuccessButIdentityChangeDoesNot(t *testing.T) {
+func TestFailurePreservesHistoryButInvalidatesClassificationOnIdentityChange(t *testing.T) {
 	previous := validState(t)
 	failed, err := NewFailure(&previous, "community-release-index", "stable", installed("1.2.0"), testTime.Add(time.Hour), "source_timeout")
 	if err != nil || failed.LastSuccess == nil || failed.ConsecutiveFailures != 1 {
@@ -92,7 +92,7 @@ func TestFailurePreservesAuthenticatedSuccessButIdentityChangeDoesNot(t *testing
 		t.Fatalf("again=%+v err=%v", again, err)
 	}
 	changed, err := NewFailure(&again, "community-release-index", "stable", installed("1.3.0"), testTime.Add(3*time.Hour), "installed_identity_changed")
-	if err != nil || changed.LastSuccess != nil || changed.Status != Unknown {
+	if err != nil || changed.LastSuccess == nil || changed.LastSuccess.Installed.Version != "1.2.0" || changed.Status != Unknown {
 		t.Fatalf("changed=%+v err=%v", changed, err)
 	}
 }

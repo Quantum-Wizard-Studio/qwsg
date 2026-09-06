@@ -81,3 +81,23 @@ compatibility-remediated installed 1.2.0 baseline. The historical official
 Keep an exact private backup and resolve oversized legacy state before healthy
 scheduling acceptance. Supported current state remains byte-preserved by the
 package transaction; subsequent normal Scheduler execution retains 64 results.
+
+## Corrective 1.3.0 to 1.3.1 update
+
+Use the verified 1.3.1 archive binary to orchestrate the existing transaction:
+
+```sh
+./bin/qwsg update --archive /absolute/path/qwsg-1.3.1-linux-amd64.tar.gz --version 1.3.1
+```
+
+The matching checksum sidecar must be adjacent. The installed historical 1.3.0
+updater has no compiled route to 1.3.1; the candidate updater independently
+classifies installed 1.3.0 and permits exactly `compat-1.3.0-to-1.3.1`. Its
+privileged helper repeats verification. Rollback restores the exact installed
+1.3.0 package. No configuration or state-schema conversion is required.
+
+After replacement, `qwsg update check` obtains a fresh authenticated evaluation
+when installed identity changed or the cached relation is stale. The successful
+update-notification identity is preserved, including if this refresh initially
+fails. Failed refresh reports unknown until a valid evaluation is available,
+while retaining historical authenticity/anti-rollback evidence.

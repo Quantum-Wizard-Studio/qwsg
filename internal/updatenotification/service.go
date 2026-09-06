@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"quantumwizard.hu/qwsg/internal/update"
 	"quantumwizard.hu/qwsg/internal/updateawareness"
 )
 
@@ -72,7 +73,7 @@ func Eligible(state updateawareness.State) (string, bool) {
 		return "", false
 	}
 	o := state.LastSuccess
-	if o.Channel != "stable" || !o.TransportAuthenticated || o.Authenticity.Scheme != "ed25519" || o.ReleaseStatus != "active" {
+	if update.Classify(state.Installed.Version, o.ReleaseVersion) != update.Newer || o.Channel != "stable" || !o.TransportAuthenticated || o.Authenticity.Scheme != "ed25519" || o.ReleaseStatus != "active" {
 		return "", false
 	}
 	return updateawareness.NotificationIdentity(state.SourceID, state.Channel, o.ReleaseVersion, o.ArtifactSHA256, o.Authenticity.KeyID), true

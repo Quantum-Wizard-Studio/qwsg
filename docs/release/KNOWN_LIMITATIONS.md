@@ -1,4 +1,4 @@
-# QWSG 1.3.0 Known Limitations
+# QWSG 1.3.1 Known Limitations
 
 The first native transition from QWSG 1.1.0 must be initiated with the fully
 verified newer archive binary because 1.1.0 predates the `update` command.
@@ -20,3 +20,5 @@ releases when Community SMTP is ready. Automatic installation is not implemented
 
 - Scheduler state over 8 MiB is rejected before decoding and retained for operator review. Monitoring cannot be declared healthy until invalid legacy state is resolved.
 - Update-availability notification deduplication is persistent; lifecycle-operation email deduplication has the narrower process scope described above.
+
+- The first 1.3.0 to 1.3.1 correction uses the fully verified 1.3.1 archive binary as the native updater because the installed 1.3.0 has no compiled route to its successor. No public 1.3.0 backport or replacement artifact is created.

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1] - 2026-09-06
+
+- Re-evaluate authenticated release metadata after installed-version changes instead of reusing a stale HTTP 304 classification; repair the stale relation saved by 1.3.0 with a full authenticated fetch.
+- Preserve successful update-notification deduplication through version transitions, failed checks and restarts, retaining the authenticated rollback watermark while a fresh evaluation is unavailable.
+- Add the explicit 1.3.0 to 1.3.1 compatibility route with unchanged configuration/state schemas and deterministic package rollback.
+- Keep the historical 1.3.0 release immutable; this corrective release addresses the two Task 081 post-install acceptance regressions.
+
 ## [1.3.0] - 2026-09-06
 
 - Authenticate official Community release metadata with the bundled Ed25519 trust anchor and strict installed-package provenance classification.

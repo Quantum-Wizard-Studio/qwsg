@@ -4,7 +4,7 @@
 
 - Task ID: `081`
 - Task slug: `community-1-3-0-release-production-acceptance`
-- Status: `active — 1.3.0 published and installed; post-install acceptance blocked by F001/F002`
+- Status: `active — IN PROGRESS; Owner-authorized 1.3.1 correction and acceptance`
 - Date generated: `2026-09-06` UTC
 - Human authority: Project Owner explicit Task 081 authorization and APPROVE in the current session
 - Preferred owner communication language: Hungarian
@@ -383,3 +383,59 @@ production rollback or awareness-state deletion has been performed. Production
 acceptance is incomplete, not PASS. Pre-update deduplication evidence and
 post-update defective awareness bytes are preserved privately for bounded
 recovery with the authorized correction.
+
+## Owner-approved corrective 1.3.1 scope — IN PROGRESS
+
+The Owner explicitly approved the corrective 1.3.1 release within Task 081;
+only F001/F002 and directly required validation, docs, metadata, migration and
+production acceptance are authorized. Immutable 1.3.0 tag/artifact/Release and
+production history remain unchanged. Actual installed 1.3.0 is the upgrade
+source; no Task 082 is opened. The former release-identity decision is resolved.
+
+Corrective baseline: fetched synchronized clean main
+`524b107fb237f3adb477ec26980f60a2006719b2`, valid active Task 081.
+Snapshot `/tmp/qwsg-task081-131-baseline.lrtkzh9p`: protected complete Git bundle,
+tracked-source archive, hashes and bounded RESTORE.md; bundle, checksums and
+archive readability PASS before changes. Retain through acceptance/rollback
+window. Production state/configuration snapshots from the 1.3.0 transition and
+post-install findings remain preserved privately.
+
+Correction omits HTTP validators for a changed installed identity or legacy
+inconsistent cached relation, refuses unsafe 304 reuse, and obtains a new fully
+authenticated evaluation. Failed refreshes retain historical authenticated
+observation and rollback watermark without claiming a valid current relation:
+status is unknown until fresh evaluation succeeds. Successful notification
+identity survives success/failure version transitions. Eligibility independently
+checks actual version ordering so a legacy stale equal record cannot notify.
+No network fallback, unsigned metadata, classification/provenance bypass or
+automatic acquisition/installation is added.
+
+New deterministic regressions cover changed identity, 1.3.0 legacy stale state,
+current/equal 304 reuse, unsolicited unsafe 304 refusal, failed-refresh restart,
+metadata rollback after identity change, dedup persistence through upgrade and
+rollback, and suppression of legacy equal-state notification. Existing focused
+awareness/notification/update tests plus new regressions PASS.
+The explicit sole new route is `compat-1.3.0-to-1.3.1`. The verified 1.3.1 archive
+binary will orchestrate the existing native transaction because immutable
+installed 1.3.0 lacks this route. Real-package acceptance now covers both
+historical 1.2.0 to 1.3.0 and corrective 1.3.0 to 1.3.1 with exact predecessor
+hashes, preservation, clean-install convergence and rollback. VERSION and
+current EN/HU packaging/docs aligned to 1.3.1; historical 1.3.0 notes unchanged.
+
+Corrective continuation after usage interruption verified staged scope, unchanged
+1.3.0 tag object and artifact hash, and existing preliminary 1.3.1 archive. The
+prior background sessions no longer exposed completion results; only those
+unproven gates were repeated with durable logs. Full `make fmt-check vet test
+engineering-test release-check release-authority-check` and `go test -race ./...`
+now completed exit 0. Logs retained under `/tmp/qwsg-task081-131-candidate`.
+Additional Framework v2 and bounded diagnostic tests had already passed.
+Real preliminary archive `TestRealRelease131CleanMigrationRollback` PASS.
+
+Using the preliminary 1.3.1 binary on an isolated copy of actual production
+1.3.0 stale awareness, real HTTPS checks at `2026-09-06T22:48:00Z` and
+`2026-09-06T22:48:58Z` both report current installed/available 1.3.0. The first
+refresh corrects the legacy stale relation; the subsequent conditional check
+retains the correct equal relation. The public index remained the unchanged
+signed 1.3.0 index throughout; production state was not modified by this test.
+Scope/privacy review and staged whitespace checks PASS. No historical 1.3.0
+release notes, production signing objects, tags or artifact bytes are modified.

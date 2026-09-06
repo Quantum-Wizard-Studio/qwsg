@@ -112,3 +112,17 @@ matching installed binary/RELEASE identity. Never mutate the historical official
 1.2.0 artifact/tag/Release. Document the remediated installed baseline separately.
 Interactive sudo remains Owner-executed; after deployment verification continue
 Task 081 automatically. Canonical 1.3.0 supersedes this temporary baseline.
+
+## Owner-authorized 1.3.1 corrective release
+
+The Owner explicitly approved QWSG Community 1.3.1 within Task 081 after
+post-install F001/F002. Status remains IN PROGRESS until full corrected
+production acceptance. Scope is only stale 304 installed/available relation,
+notification deduplication preservation across version changes, directly needed
+regressions, documentation, deterministic packaging/provenance, migration and
+authenticated release publication/acceptance. Production installed 1.3.0 is the
+real source. Immutable 1.3.0 artifact, tag, Release metadata and history must
+not be rewritten. No Task 082 or unrelated feature work. Existing authority
+continues; only offline Dell1 signing, interactive sudo or genuinely new
+architectural/security decisions pause execution. Final completion uses the
+canonical 1.3.1 corrective release with explicit historical 1.3.0 failure record.

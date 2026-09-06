@@ -53,7 +53,7 @@ func (m Manager) Check(ctx context.Context) (State, error) {
 	validators := releasediscovery.Validators{}
 	if loadErr == nil {
 		prior = &previous
-		if previous.SourceID == m.SourceID && previous.Channel == m.Channel && previous.LastSuccess != nil {
+		if previous.SourceID == m.SourceID && previous.Channel == m.Channel && reusableObservation(previous, installed) {
 			validators = previous.LastSuccess.Validators
 		}
 	}

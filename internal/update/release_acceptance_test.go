@@ -14,7 +14,16 @@ import (
 
 // Run against immutable pipeline outputs, not synthetic package fixtures.
 func TestRealRelease130CleanMigrationRollback(t *testing.T) {
-	newer, older := os.Getenv("QWSG_ACCEPTANCE_130_ARCHIVE"), os.Getenv("QWSG_ACCEPTANCE_120_ARCHIVE")
+	realReleaseAcceptance(t, "QWSG_ACCEPTANCE_130_ARCHIVE", "QWSG_ACCEPTANCE_120_ARCHIVE", "1.3.0", "1.2.0", "44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11")
+}
+
+func TestRealRelease131CleanMigrationRollback(t *testing.T) {
+	realReleaseAcceptance(t, "QWSG_ACCEPTANCE_131_ARCHIVE", "QWSG_ACCEPTANCE_130_ARCHIVE", "1.3.1", "1.3.0", "8e19f624ccd1a49f32f6127889390e3389aec6eda958c7fbaaaa657d7b7cf9a0")
+}
+
+func realReleaseAcceptance(t *testing.T, newEnv, oldEnv, target, source, oldHash string) {
+	t.Helper()
+	newer, older := os.Getenv(newEnv), os.Getenv(oldEnv)
 	if newer == "" || older == "" {
 		t.Skip("set both release archive paths for real-package acceptance")
 	}
@@ -32,10 +41,10 @@ func TestRealRelease130CleanMigrationRollback(t *testing.T) {
 		t.Fatal(err)
 	}
 	sum := sha256.Sum256(oldData)
-	if hex.EncodeToString(sum[:]) != "44768af20c8456cde09f940590b8c4446f605b2af02866e1553705a01d1a4c11" {
-		t.Fatal("protected 1.2.0 archive changed")
+	if hex.EncodeToString(sum[:]) != oldHash {
+		t.Fatal("protected source archive changed")
 	}
-	oldPkg, newPkg := verify(older, "1.2.0"), verify(newer, "1.3.0")
+	oldPkg, newPkg := verify(older, source), verify(newer, target)
 	install := func(pkg update.Package, root string) {
 		t.Helper()
 		cmd := exec.Command(filepath.Join(pkg.Root, "install.sh"), "--destdir", root)
@@ -89,19 +98,19 @@ func TestRealRelease130CleanMigrationRollback(t *testing.T) {
 			}
 		}
 	}
-	source := installation.Classify(installation.Options{Root: migrated, CandidateVersion: "1.3.0"})
-	if source.State != installation.SupportedUpgradeSource || source.MigrationID != "compat-1.2.0-to-1.3.0" {
-		t.Fatalf("source=%+v", source)
+	classification := installation.Classify(installation.Options{Root: migrated, CandidateVersion: target})
+	if classification.State != installation.SupportedUpgradeSource || classification.MigrationID != "compat-"+source+"-to-"+target {
+		t.Fatalf("source=%+v", classification)
 	}
 	backup := filepath.Join(t.TempDir(), "transaction")
-	tx, err := update.Apply(newPkg.Root, migrated, backup, "1.2.0")
+	tx, err := update.Apply(newPkg.Root, migrated, backup, source)
 	if err != nil || !tx.Complete || tx.ToCommit != newPkg.Provenance.Commit {
 		t.Fatalf("apply=%+v err=%v", tx, err)
 	}
 	checkPreserved()
 	for _, root := range []string{clean, migrated} {
 		identity := installation.Classify(installation.Options{Root: root})
-		if identity.State != installation.VerifiedSupported || identity.Version != "1.3.0" {
+		if identity.State != installation.VerifiedSupported || identity.Version != target {
 			t.Fatalf("identity=%+v", identity)
 		}
 	}
@@ -123,7 +132,7 @@ func TestRealRelease130CleanMigrationRollback(t *testing.T) {
 		}
 	}
 	identity := installation.Classify(installation.Options{Root: migrated})
-	if identity.State != installation.VerifiedSupported || identity.Version != "1.2.0" {
+	if identity.State != installation.VerifiedSupported || identity.Version != source {
 		t.Fatalf("rollback identity=%+v", identity)
 	}
 }

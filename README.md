@@ -21,7 +21,7 @@ with the dedicated [installation guide](docs/installation/INSTALL.md). A
 release archive exposes it as `INSTALL.md`; after installation it is at
 `/usr/local/share/doc/qwsg/INSTALL.md`.
 
-QWSG 1.3.0 includes authenticated release awareness and a native,
+QWSG 1.3.1 includes authenticated release awareness and a native,
 rollback-capable, operator-controlled update path. `qwsg update` verifies and
 applies a supported release only after explicit administrator invocation, and
 `qwsg update rollback` restores the integrity-verified previous package while

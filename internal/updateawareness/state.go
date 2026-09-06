@@ -109,12 +109,23 @@ type State struct {
 	ConsecutiveFailures uint32                `json:"consecutive_failures"`
 }
 
+// reusableObservation prevents a transport-level 304 from reusing an evaluation
+// made for another installed version, including legacy 1.3.0 stale relations.
+// A full authenticated fetch repairs that legacy state without deleting history.
+func reusableObservation(value State, installed Installed) bool {
+	o := value.LastSuccess
+	return o != nil && value.Installed == installed && o.Installed == installed &&
+		value.Status == o.Status && o.Relation == update.Classify(installed.Version, o.ReleaseVersion)
+}
+
 func NewFailure(previous *State, sourceID, channel string, installed Installed, at time.Time, failure string) (State, error) {
 	value := State{Schema: Schema, DigestScheme: DigestScheme, SourceID: sourceID, Channel: channel, Installed: installed, Status: Unknown, LastAttempt: Attempt{At: at.UTC(), Outcome: AttemptFailure, Failure: failure}, ConsecutiveFailures: 1}
-	if previous != nil && Validate(*previous) == nil && previous.SourceID == sourceID && previous.Channel == channel && previous.Installed == installed {
+	if previous != nil && Validate(*previous) == nil && previous.SourceID == sourceID && previous.Channel == channel {
 		value.LastSuccess = cloneObservation(previous.LastSuccess)
 		value.LastNotification = cloneNotification(previous.LastNotification)
-		value.Status = previous.Status
+		if reusableObservation(*previous, installed) {
+			value.Status = previous.Status
+		}
 		value.ConsecutiveFailures = previous.ConsecutiveFailures + 1
 	}
 	return Normalize(value)
@@ -127,7 +138,7 @@ func NewSuccess(previous *State, result releasediscovery.CheckResult, sourceID, 
 	when := at.UTC()
 	var observation Observation
 	if result.NotModified {
-		if previous == nil || previous.LastSuccess == nil || previous.SourceID != sourceID || previous.Channel != channel || result.Source.SourceID != sourceID || !result.Source.TransportAuthenticated || previous.LastSuccess.Authenticity.Scheme != "ed25519" {
+		if previous == nil || !reusableObservation(*previous, installed) || previous.SourceID != sourceID || previous.Channel != channel || result.Source.SourceID != sourceID || !result.Source.TransportAuthenticated || previous.LastSuccess.Authenticity.Scheme != "ed25519" {
 			return State{}, fmt.Errorf("%w: not-modified without authenticated cache", ErrCorrupt)
 		}
 		observation = *cloneObservation(previous.LastSuccess)
@@ -154,7 +165,7 @@ func NewSuccess(previous *State, result releasediscovery.CheckResult, sourceID, 
 		observation = Observation{ObservedAt: when, FreshUntil: when.Add(freshness), SourceID: result.Source.SourceID, Channel: channel, IndexGeneratedAt: result.IndexGeneratedAt, TransportAuthenticated: result.Source.TransportAuthenticated, Authenticity: e.Authenticity, Validators: result.Source.Validators, Installed: installed, Status: status, Relation: e.Relation, Compatibility: e.Compatibility, MigrationID: e.MigrationID, ReleaseVersion: e.Release.Version, ReleasePublishedAt: e.Release.PublishedAt, ReleaseStatus: e.Release.Status, ArtifactName: e.Artifact.Name, ArtifactSHA256: e.Artifact.SHA256, ArtifactSize: e.Artifact.Size}
 	}
 	value := State{Schema: Schema, DigestScheme: DigestScheme, SourceID: sourceID, Channel: channel, Installed: installed, Status: observation.Status, LastAttempt: Attempt{At: when, Outcome: AttemptSuccess}, LastSuccess: &observation}
-	if previous != nil && previous.SourceID == sourceID && previous.Channel == channel && previous.Installed == installed {
+	if previous != nil && previous.SourceID == sourceID && previous.Channel == channel {
 		value.LastNotification = cloneNotification(previous.LastNotification)
 	}
 	return Normalize(value)
@@ -261,10 +272,13 @@ func validateContent(value State) error {
 		return nilIf(value.Status != Unknown || value.LastAttempt.Outcome != AttemptFailure || value.LastNotification != nil)
 	}
 	o := value.LastSuccess
-	if o.SourceID != value.SourceID || o.Channel != value.Channel || o.Installed != value.Installed || !utc(o.ObservedAt) || !utc(o.FreshUntil) || !o.FreshUntil.After(o.ObservedAt) || o.ObservedAt.After(value.LastAttempt.At) || !o.TransportAuthenticated || o.Authenticity.Scheme != "ed25519" || !safeToken(o.Authenticity.KeyID, 64) || !validVersion(o.Installed.Version) {
+	// Failed re-evaluation retains authenticated historical evidence and its
+	// rollback watermark, but cannot claim a current installed classification.
+	historical := value.Status == Unknown && value.LastAttempt.Outcome == AttemptFailure
+	if o.SourceID != value.SourceID || o.Channel != value.Channel || (!historical && o.Installed != value.Installed) || !utc(o.ObservedAt) || !utc(o.FreshUntil) || !o.FreshUntil.After(o.ObservedAt) || o.ObservedAt.After(value.LastAttempt.At) || !o.TransportAuthenticated || o.Authenticity.Scheme != "ed25519" || !safeToken(o.Authenticity.KeyID, 64) || !validVersion(o.Installed.Version) {
 		return ErrCorrupt
 	}
-	if o.Status != value.Status || !validStatus(o.Status) || o.ReleaseVersion == "" || !validVersion(o.ReleaseVersion) || !canonicalTime(o.ReleasePublishedAt) || !canonicalTime(o.IndexGeneratedAt) || o.ArtifactName == "" || !lowerHex(o.ArtifactSHA256, 64) || o.ArtifactSize <= 0 || !safeValidator(o.Validators.ETag) || !safeValidator(o.Validators.LastModified) {
+	if (!historical && o.Status != value.Status) || !validStatus(o.Status) || o.ReleaseVersion == "" || !validVersion(o.ReleaseVersion) || !canonicalTime(o.ReleasePublishedAt) || !canonicalTime(o.IndexGeneratedAt) || o.ArtifactName == "" || !lowerHex(o.ArtifactSHA256, 64) || o.ArtifactSize <= 0 || !safeValidator(o.Validators.ETag) || !safeValidator(o.Validators.LastModified) {
 		return ErrCorrupt
 	}
 	if o.Status == Withdrawn {
