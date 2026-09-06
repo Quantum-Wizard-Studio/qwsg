@@ -4,7 +4,7 @@
 
 - Task ID: `081`
 - Task slug: `community-1-3-0-release-production-acceptance`
-- Status: `active — Owner-authorized compatibility backport in progress`
+- Status: `active — 1.3.0 published and installed; post-install acceptance blocked by F001/F002`
 - Date generated: `2026-09-06` UTC
 - Human authority: Project Owner explicit Task 081 authorization and APPROVE in the current session
 - Preferred owner communication language: Hungarian
@@ -331,3 +331,55 @@ acceptance and rollback-window closure. The next Owner command is the ordinary
 user's canonical `qwsg update --archive ... --version 1.3.0`; its existing narrow
 helper requests interactive sudo, verifies package/migration again, preserves
 service intent and records rollback. No further conceptual approval is needed.
+
+## Production migration PASS; post-install acceptance BLOCKED
+
+Owner ran the canonical explicit updater and reported:
+`QWSG updated safely: 1.2.0 -> 1.3.0`, native rollback available, lifecycle
+administrator notification ACCEPTED. Independent comparison proves installed
+binary, RELEASE.json and Guardian unit are byte-identical to the frozen official
+1.3.0 archive. Version/source/build all match release commit
+`2e2b723f6f9a2bcea368fbbddc8449cdbaac7fab`. Configuration and credential-file
+hashes match private before-images. Guardian active/running, Result=success,
+NRestarts=0, initial MemoryCurrent=27222016, MemoryPeak=33779712,
+TasksCurrent=8, unchanged MemoryMax/TasksMax; active since
+`2026-09-06T19:09:17Z`. Active Scheduler remains bounded at 64 results,
+approximately 1.64 MB; the separately retained legacy backup is not active state.
+Native update created current.json rollback metadata.
+
+At `2026-09-06T19:10:11Z`, the post-install real official-index check exposed
+QWSG-081-F001 (PRODUCT/FRAMEWORK DEFECT, release acceptance blocker): installed
+and available are both 1.3.0, but status remains update_available and relation
+newer. Manager.Check reuses HTTP validators across installed version changes;
+NewSuccess handles 304 by cloning the prior evaluation and replacing only its
+installed identity, without recomputing relation/compatibility. Therefore the
+required current/equal acceptance fails despite authentic metadata.
+
+QWSG-081-F002 (PRODUCT/FRAMEWORK DEFECT, release acceptance blocker): NewSuccess
+preserves LastNotification only when installed identity is unchanged. The
+pre-update successful persistent notification record was present in the private
+snapshot but absent after this check. Combined with stale newer classification,
+a subsequent notifier evaluation could duplicate an already delivered release
+notification. No second update-availability email was intentionally triggered.
+
+Both defects reproduce deterministically against the exact frozen release
+source in `/tmp/qwsg-task081-postinstall-finding/source`. The initial added
+notification regression had a temporary-directory mode mismatch (TEST OR
+ACCEPTANCE DEFECT); fixing the fixture to mode 0700 made both intended product
+regressions fail on original source. A minimal isolated correction rejects 304
+across identity changes, omits conditional validators after identity change,
+and preserves release-notification identity across the version transition.
+Both new regressions and existing awareness/notification suites pass with that
+local correction. It has not changed repository runtime code, the installed
+binary or any public artifact. Full successor validation remains necessary.
+
+The official v1.3.0 tag/archive/signature chain is already public and immutable.
+Replacing its bytes, retagging, or installing a private 1.3.0 correction would
+violate the requested final canonical provenance chain. Task 081 section 20
+therefore requires an Owner decision on a distinct corrective release identity
+(recommended 1.3.1) and revised completion scope. No Task 082 is started.
+The healthy monitoring service is left running; no unnecessary destructive
+production rollback or awareness-state deletion has been performed. Production
+acceptance is incomplete, not PASS. Pre-update deduplication evidence and
+post-update defective awareness bytes are preserved privately for bounded
+recovery with the authorized correction.
