@@ -511,3 +511,34 @@ fsync, retains exact before/after objects and recovery instructions under
 client observation remains fail-closed; normal recovery requires a later signed
 index. Historical releases and web-server configuration remain unchanged.
 Publication is pending Owner interactive root execution. Task remains IN PROGRESS.
+
+## Signed 1.3.1 publication and real pre-install acceptance PASS
+
+Owner executed root publication successfully. Independent public HTTPS retrieval
+matches signed index SHA-256
+`2eefd328c5ded8807101bdd69d5fcee0ed4f4f2e49b10cdd02b55da6e7aaf879`;
+canonical authority verification PASS. Required media type, no-cache,
+ETag/Last-Modified, empty conditional 304 without Expires and HTTP-to-HTTPS
+redirect PASS. No server configuration changes.
+
+Final-source 1.3.1 bounded acceptance driver used the actual installed 1.3.0,
+real production index, configuration, credential provider and persistent store.
+First supported newer 1.3.1 evaluation: SMTP calls=1, provider accepted.
+Second evaluation after one minute with a fresh notifier: SMTP calls=0.
+Persistent successful notification identity and unchanged configuration verified.
+No automatic artifact staging/download/installation; installed version remained
+1.3.0. This is the final corrective Guardian core running as a bounded driver,
+not a claim that immutable resident 1.3.0 supports the new compiled migration
+route or that its ordinary 24-hour timer fired. Existing updater is invoked from
+the verified canonical 1.3.1 archive for the operator-controlled migration.
+
+Production Guardian: active/running, Result=success, NRestarts=0,
+MemoryCurrent=46366720, MemoryPeak=70963200, TasksCurrent=9;
+cgroup max/oom/oom_kill/oom_group_kill all zero.
+Pre-update private configuration, binary, RELEASE, unit and hashes preserved at
+`/tmp/qwsg-task081-131-production-update`; awareness retained as an observation.
+Installed 1.3.0 and candidate 1.3.1 binary/RELEASE bytes match their respective
+verified immutable archives exactly. Native deterministic rollback already
+passed the final real-package acceptance; production rollback is reserved for
+actual failure via `qwsg update rollback` and native transaction backup.
+Operator update requiring interactive credentials is the next boundary.
