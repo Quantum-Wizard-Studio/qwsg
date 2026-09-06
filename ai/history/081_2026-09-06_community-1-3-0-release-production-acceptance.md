@@ -131,3 +131,26 @@ provenance contract, framework (25), diversion (36), lifecycle (29) and Builder
 migration-table entry. Production activation requires interactive sudo
 (`sudo -n true` returned password required); exact bounded deployment is being
 prepared from the committed source. No activation has occurred.
+
+Compatibility implementation committed and pushed after dry-run as
+`27f25ed11d9cb211571fabfd2abffddc0a806f38`; synchronized main divergence 0/0.
+Two local backport builds from this source reproduced identical bytes:
+- Version `1.2.0`, built `2026-09-06T11:13:16Z`.
+- Binary SHA-256 `161b952d83130b157a89560ce03caf1dc3165c276525b6029b85a650e7a914f5`.
+- Matching RELEASE.json SHA-256 `d76f9edb3c87cc8b4007bef0f511a2888954ad05217a7a2d536ba14a7db021ca`.
+- Independent fresh official 1.2.0 artifact retrieval still matches its protected hash.
+
+Owner activation script: `/tmp/qwsg-task081-backport.jzpwq1c7/activate.sh`,
+SHA-256 `a7356da74c9ac59715d8a1cc44828d3dfbc49aa5edfb2d27a9466e71d2b2ce79`.
+It checks exact old/new hashes and service health, captures root-private copies
+at `/var/lib/qwsg-task081-compatibility-backport`, stops only Guardian, replaces
+only binary and RELEASE.json with preserved ownership/modes, then restarts and
+checks health. Errors after the stop invoke the exact hash-guarded rollback.
+Explicit rollback, only if acceptance requires it:
+`sudo /var/lib/qwsg-task081-compatibility-backport/rollback.sh`.
+The rollback refuses identities outside the old/backported pair, so cannot
+silently overwrite a future canonical 1.3.0 installation. Both activation and
+extracted rollback scripts passed bash syntax checks. Configuration, credentials,
+index, unit file and user state are outside the mutation targets. Backups are
+retained through acceptance and rollback-window closure. Owner execution is
+pending; no production activation PASS is claimed.
