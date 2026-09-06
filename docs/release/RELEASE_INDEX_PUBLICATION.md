@@ -189,3 +189,12 @@ private-material-exposure NONE. A signature file is 89 bytes (88 Base64
 characters plus LF). Never return the private-key path, key, passphrase or
 console transcript. Production publication and acceptance remain pending until
 the returned signature verifies with the unchanged Community trust anchor.
+
+The Task 081 Owner signature has now passed verification. The resulting signed
+1.3.0 index is 913 bytes with SHA-256
+`71af8a7c3c31b342e6fa20cce1b70e50879cd25fa6649c55713a2d50cdb371f9`.
+The detached signature and verification checkpoint are retained alongside the
+frozen input under `release/production/`. Root publication is a single atomic
+object replacement with preserved hosting metadata and a private prior-object
+backup. Client anti-rollback remains enforced: recovery after a newer index is
+observed requires a later authenticated index, not disabling generated-at checks.

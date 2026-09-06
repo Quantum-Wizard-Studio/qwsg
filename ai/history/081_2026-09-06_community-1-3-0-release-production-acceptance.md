@@ -255,3 +255,32 @@ production 1.3.0 update and post-install acceptance are still pending.
 Independent anonymous wget retrieval also matched the final artifact SHA-256.
 Signing-checkpoint documentation updated; source tag and frozen archive remain
 unchanged by these subsequent audit/signing-input commits.
+
+## Owner offline signature verified; index publication prepared
+
+Owner returned signing PASS and private-material-exposure NONE, detached
+signature `dHglwHbrorZpjHGFMJrhBEGZpBN565mCAQYLkADvjf0UUomPMEmcvcxTWZ8ldt6+d0AB4N8CckJlkJdZmSG6CQ==`.
+The LF-terminated 89-byte signature file matches Owner SHA-256
+`9e797e6b52cfd167397ed1864c24e7a612cfa13690501db59561d525bdee5b40`.
+Assembly and production verification PASS against the frozen 733-byte input
+and unchanged bundled production anchor. Signed index: 913 bytes, SHA-256
+`71af8a7c3c31b342e6fa20cce1b70e50879cd25fa6649c55713a2d50cdb371f9`.
+Verification checkpoint: 433 bytes, SHA-256
+`3ac9c55d4ce24913211a1c5e79d8c8f087d4fada370224d7a68c688343403f12`.
+
+Current production filesystem object and fresh public HTTPS retrieval still
+match the prior signed 918-byte 1.2.0 index. Prepared exact root-only script
+`/tmp/qwsg-task081-index-publication/publish.py`, SHA-256
+`c073b3e4725edc7c42754884eafbb32e4d5321db24a61505f35316fdae2f799b`.
+Python syntax compilation PASS. It checks regular-file identities and exact
+old/new hashes, acquires a bounded publication lock, saves private old/new bytes
+under `/var/lib/qwsg-task081-release-index`, stages on the destination filesystem,
+preserves existing owner/group/mode, rechecks old identity, atomically replaces
+only release-index.json, fsyncs and verifies the installed object. No web config,
+reload, TLS, DNS, release artifact or installed QWSG mutation is included.
+
+Preserve both signed objects through the rollback window. Index rollback must
+not weaken client generated-at protections: after clients observe 1.3.0, normal
+recovery uses a newly generated/offline-signed later index. Restoring historical
+bytes would intentionally fail closed for those clients and is not represented
+as transparent recovery. Root execution remains Owner-required and pending.
