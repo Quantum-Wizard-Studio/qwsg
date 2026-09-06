@@ -489,3 +489,25 @@ Forgejo stable active 1.3.1, minimum source 1.3.0 and migration route
 Only the detached Owner signature is pending at this boundary. Production index
 and installed version remain 1.3.0. Task 081 remains IN PROGRESS; full signed
 1.3.1 publication and production upgrade acceptance are not yet claimed.
+
+## Owner offline 1.3.1 signature verified; root publication prepared
+
+Owner returned the detached public signature; no private material was handled.
+Signature file: 89 bytes, SHA-256
+`c2585b68312a63dd73e22c06353d44829b9e64acd5b2609fbdd6b13156ce2160`.
+Canonical authority assembly and Ed25519 verification PASS against the frozen
+signing input and accepted production trust anchor/key ID.
+Signed index: 913 bytes, SHA-256
+`2eefd328c5ded8807101bdd69d5fcee0ed4f4f2e49b10cdd02b55da6e7aaf879`.
+
+Bounded root publication script:
+`/tmp/qwsg-task081-131-index-publication/publish.py`, 2538 bytes, SHA-256
+`d7857aa378dfe89579bae3271d1b66f2e2a4be71bcb9f60c6e57961522cefc37`.
+Syntax validation PASS. Requires exact previous signed 1.3.0 index hash
+`71af8a7c3c31b342e6fa20cce1b70e50879cd25fa6649c55713a2d50cdb371f9`.
+Preserves ownership/mode, uses locked same-directory atomic replacement and
+fsync, retains exact before/after objects and recovery instructions under
+`/var/lib/qwsg-task081-131-release-index`. Restoring an older index after newer
+client observation remains fail-closed; normal recovery requires a later signed
+index. Historical releases and web-server configuration remain unchanged.
+Publication is pending Owner interactive root execution. Task remains IN PROGRESS.
