@@ -284,3 +284,50 @@ not weaken client generated-at protections: after clients observe 1.3.0, normal
 recovery uses a newly generated/offline-signed later index. Restoring historical
 bytes would intentionally fail closed for those clients and is not represented
 as transparent recovery. Root execution remains Owner-required and pending.
+
+## Published index and real pre-install acceptance PASS
+
+Owner executed the bounded root publication; reported publication PASS with
+index SHA-256 `71af8a7c3c31b342e6fa20cce1b70e50879cd25fa6649c55713a2d50cdb371f9`.
+Independent public HTTPS retrieval matches all 913 signed bytes; production
+verifier PASS. Required media type, no-cache, absent Expires, ETag,
+Last-Modified, both conditional 304 forms and HTTP-to-HTTPS redirect PASS.
+No hosting configuration was changed.
+
+The real pre-install acceptance driver was compiled from the exact installed
+backport source `27f25ed11d9cb211571fabfd2abffddc0a806f38` in a private isolated
+checkout. It invokes the unchanged Guardian ReleaseCheckService, production
+awareness manager, actual installed-package classifier and existing configured
+SMTP provider against the actual published production index and actual
+production awareness store. Only the driver interval is one minute, avoiding
+waiting for the resident Guardian's normal 24-hour due interval. Production
+configuration and resident interval remain unchanged. This is an explicit
+bounded production acceptance invocation of Guardian's real core, not evidence
+that the resident timer naturally became due or a fixture-index substitute.
+
+At `2026-09-06T19:05:01Z`, installed compatibility-remediated 1.2.0 discovered
+stable 1.3.0 as supported/newer/update_available with production key
+`qwsg-community-release-2026-01`. The configured notify policy and SMTP
+preflight passed. The real provider accepted the first update notification
+(one delivery call) and persistent LastNotification was saved. At
+`2026-09-06T19:06:01Z`, a new notifier instance plus repeated real authenticated
+check produced zero delivery calls and retained deduplication. SMTP acceptance
+is proven, not end-recipient mailbox receipt. Both bounded runs PASS.
+No artifact or transaction appeared and installed version remained 1.2.0.
+Configuration bytes were unchanged. `strace -f -e trace=network` confirms local
+`qwsg update status` performs no network syscalls and reports update_available.
+
+Resident Guardian after delivery: active/running, success, NRestarts=0,
+MemoryCurrent=50155520, MemoryPeak=69976064, TasksCurrent=9,
+MemoryMax=134217728, TasksMax=32; cgroup oom/oom_kill remain zero.
+
+Pre-update rollback checkpoint `/tmp/qwsg-task081-production-update` contains
+exact private binary/RELEASE/unit/config before-images and hashes, plus a live
+runtime-state observation explicitly not represented as a coherent automatic
+restore payload. Existing deterministic native package rollback is the supported
+recovery contract. Backport binary/RELEASE still match frozen hashes; 1.3.0
+archive reverified at its exact canonical hash. Retain all snapshots through
+acceptance and rollback-window closure. The next Owner command is the ordinary
+user's canonical `qwsg update --archive ... --version 1.3.0`; its existing narrow
+helper requests interactive sudo, verifies package/migration again, preserves
+service intent and records rollback. No further conceptual approval is needed.
