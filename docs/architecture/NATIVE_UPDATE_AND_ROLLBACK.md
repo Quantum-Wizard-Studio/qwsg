@@ -74,3 +74,17 @@ intent. Rollback refuses symlinks, unsafe ownership/modes, incomplete journals,
 tampering, foreign destinations, or incompatible persistent state. Retention is
 bounded; a newer successful transaction supersedes its predecessor only after
 validation.
+
+## Task 081 compatibility prerequisite
+
+The explicit `compat-1.2.0-to-1.3.0` route preserves the same configuration,
+credential and persistent-state schemas. It permits no other new source/target
+pair. The authenticated index must advertise this exact route, and the local
+installed-package classifier must independently verify the installed identity.
+
+For the first 1.3.0 acceptance, the Owner authorized this single route as a
+compatibility backport to the production Task 080-based 1.2.0 instance. Its
+binary and RELEASE.json share the remediation source commit and build date.
+This installed compatibility baseline is distinct from the immutable official
+1.2.0 archive, tag and Release, which remain unchanged. It is superseded by the
+canonical 1.3.0 installation. No alternate public 1.2.0 release is created.

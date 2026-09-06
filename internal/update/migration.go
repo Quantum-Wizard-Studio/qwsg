@@ -9,6 +9,7 @@ type Migration struct {
 }
 
 var migrationPaths = []Migration{
+	compatibilityPath("compat-1.2.0-to-1.3.0", "1.2.0", "1.3.0"),
 	compatibilityPath("compat-1.1.0-to-1.2.0-rc.1", "1.1.0", "1.2.0-rc.1"),
 	compatibilityPath("compat-1.1.0-to-1.2.0-rc.2", "1.1.0", "1.2.0-rc.2"),
 	compatibilityPath("compat-1.2.0-rc.1-to-1.2.0-rc.2", "1.2.0-rc.1", "1.2.0-rc.2"),
