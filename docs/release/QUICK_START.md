@@ -1,11 +1,11 @@
-# QWSG 1.0 Quick Start
+# QWSG 1.3.0 Quick Start
 
-QWSG 1.0 is a local, non-root Linux Server Guardian. Verify the downloaded archive checksum, unpack it, then install the fixed `/usr/local` artifact set:
+QWSG 1.3.0 is a local, non-root Linux Server Guardian. Verify the downloaded archive checksum, unpack it, then install the fixed `/usr/local` artifact set:
 
 ```sh
-sha256sum -c qwsg-1.0.0-linux-amd64.tar.gz.sha256
-tar -xzf qwsg-1.0.0-linux-amd64.tar.gz
-cd qwsg-1.0.0-linux-amd64
+sha256sum -c qwsg-1.3.0-linux-amd64.tar.gz.sha256
+tar -xzf qwsg-1.3.0-linux-amd64.tar.gz
+cd qwsg-1.3.0-linux-amd64
 ./bin/qwsg install --check
 sudo ./install.sh
 qwsg version

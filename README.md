@@ -21,12 +21,12 @@ with the dedicated [installation guide](docs/installation/INSTALL.md). A
 release archive exposes it as `INSTALL.md`; after installation it is at
 `/usr/local/share/doc/qwsg/INSTALL.md`.
 
-QWSG 1.2.0 is the current stable baseline and includes a native,
+QWSG 1.3.0 includes authenticated release awareness and a native,
 rollback-capable, operator-controlled update path. `qwsg update` verifies and
 applies a supported release only after explicit administrator invocation, and
 `qwsg update rollback` restores the integrity-verified previous package while
-preserving user configuration, credentials and state. QWSG 1.3 update
-discovery and local awareness work is under development. The Guardian performs
+preserving user configuration, credentials and state. Release discovery authenticates official metadata using the bundled Ed25519
+trust anchor; `qwsg update status` reads local awareness without network access. The Guardian performs
 one isolated authenticated release-awareness check every 24 hours when due;
 unattended download and installation remain disabled.
 

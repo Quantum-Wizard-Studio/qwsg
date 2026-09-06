@@ -154,3 +154,60 @@ extracted rollback scripts passed bash syntax checks. Configuration, credentials
 index, unit file and user state are outside the mutation targets. Backups are
 retained through acceptance and rollback-window closure. Owner execution is
 pending; no production activation PASS is claimed.
+
+## Backport production activation accepted
+
+The Owner ran the reviewed script and reported activation PASS. A separately
+pasted shell `&&` produced a syntax error but both checksum verification and
+the subsequent sudo script completed successfully. Independent installed
+inspection confirms exact new binary/RELEASE hashes and source
+`27f25ed11d9cb211571fabfd2abffddc0a806f38`. Guardian active/running,
+Result=success, NRestarts=0, MemoryCurrent=23941120, MemoryPeak=48963584,
+TasksCurrent=8, unchanged MemoryMax/TasksMax. Real official index check at
+`2026-09-06T11:29:54Z` succeeded current/equal installed/available 1.2.0.
+Activation PASS entails the script's exact backup hash checks and root-private
+rollback creation. Private pre-activation copies are also retained. This is the
+explicitly compatibility-remediated installed baseline, not the historical
+published 1.2.0 package. Task 081 release preparation resumed automatically.
+
+## 1.3.0 preparation
+
+VERSION, permitted deterministic release identity, current installation examples,
+README, changelog and EN/HU release notes aligned to 1.3.0. Added real-archive
+acceptance covering canonical old artifact hash, clean install, actual package
+verification/classification, migration transaction, exact rollback and preserved
+configuration/credential/awareness/inventory/oversized legacy state fixtures.
+Added a 50-cycle sparse oversized Scheduler regression: rejects before decode,
+retains the source, executes no pipeline work and releases the lock. This proves
+bounded fail-closed handling, not healthy scheduling of an oversized state;
+operator documentation requires resolution of unsupported legacy state before
+claiming scheduling health. Production Scheduler was already bounded by Task 080.
+
+Pre-publication validation: format, vet, all Go packages and full race PASS.
+Engineering/build-export/framework/diversion/lifecycle/Builder PASS; additional
+Framework v2 (15) and bounded diagnostic runner (11) assertions PASS. The old
+build-contract version assertion was a TEST OR ACCEPTANCE DEFECT and was
+updated to the authorized 1.3.0 identity; its full rerun passed. Release plumbing,
+umask/source-mode reproducibility and two-build release-authority/tool/input
+reproducibility PASS. Final documentation-only changes receive a further release
+reproducibility check before freezing.
+
+Real preliminary pipeline archive clean install, canonical official 1.2.0
+migration, exact old-package rollback, identity convergence and private-state
+preservation PASS through `TestRealRelease130CleanMigrationRollback` with both
+explicit archive inputs. The ordinary suite intentionally skips this test when
+real artifacts are not supplied; that skip is not acceptance evidence. Final
+frozen artifacts will be checked again with explicit inputs.
+
+Isolated real Guardian acceptance used separate private configuration/state,
+2-second Guardian interval, GOMEMLIMIT=64MiB, MemoryMax=128M, TasksMax=32 and a
+180-second runtime ceiling. Observed active/running Result=success, zero
+restarts, MemoryPeak=43503616 bytes; final Scheduler retained exactly 64 successful
+results in 1636952 bytes. The deliberate RuntimeMaxSec expiry later reports
+Result=timeout with zero restarts; it is the bounded test termination, not a
+product crash. No production config/state/service mutation occurred in this test.
+The 50-cycle oversized sparse-state regression also passes without deleting the
+legacy file or invoking the pipeline. Privacy/security review confirms only
+version/packaging/documentation plus test changes after the one-line route
+backport; authentication, credentials, listeners and automatic installation
+boundaries remain unchanged.

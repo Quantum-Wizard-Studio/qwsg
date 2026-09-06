@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.0] - 2026-09-06
+
+- Authenticate official Community release metadata with the bundled Ed25519 trust anchor and strict installed-package provenance classification.
+- Persist release awareness; provide explicit update check and network-free local status.
+- Check for official releases in an isolated Guardian task every 24 hours when due.
+- Notify through configured Community SMTP only for authenticated supported newer releases; persist successful-delivery deduplication across checks and restarts.
+- Preserve explicit operator control over artifact download and installation, with the deterministic 1.2.0 to 1.3.0 migration and package rollback.
+- Retain at most 64 Scheduler results and reject encoded state over 8 MiB before decoding, preserving Guardian memory and task limits.
+- Preserve local configuration, credentials and supported state without telemetry, registration, installation IDs or new listeners.
+
 ## [1.2.0] - 2026-08-29
 
 - Promote the externally accepted RC.7 implementation unchanged to final 1.2.0.
@@ -52,19 +62,6 @@
 - Added deterministic migration planning and explicit native rollback metadata/workflow.
 
 All notable changes to Quantum Wizard Server Guardian will be recorded here. This changelog currently tracks pre-alpha engineering milestones and will evolve during development; transient logs, secrets, and unverified work do not belong here.
-
-## [Unreleased]
-
-### Added
-
-- Guardian-driven authenticated release awareness with a restart-safe 24-hour
-  due interval, bounded cancellation, and failure isolation.
-- Guardian-only localized update availability through configured Community
-  SMTP, with persistent authenticated-release deduplication, restart safety,
-  bounded failure retry, and no artifact acquisition or automatic installation.
-- Bound persisted Scheduler history to 64 results and reject state larger than
-  8 MiB before decoding, preventing high-cardinality result history from
-  amplifying into recurring Guardian cgroup OOM kills.
 
 ## [1.1.0] - 2026-08-26
 
