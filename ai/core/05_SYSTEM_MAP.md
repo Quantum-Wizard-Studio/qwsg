@@ -223,3 +223,12 @@ canonical package layout + installed RELEASE.json + binary identity
 The classifier owns no installation mutation, remote release trust,
 configuration/readiness interpretation, Guardian state or rollback state. Its
 contract is `docs/architecture/INSTALLED_PACKAGE_CLASSIFICATION.md`.
+
+## Update authority boundary
+
+`releasediscovery -> updateauthority -> update` binds authenticated source,
+target, capability, artifact and provenance. Installation classification proves
+local identity; metadata can select only locally implemented behavior. The CLI
+retains preflight/service/post-validation orchestration and the privileged
+helper repeats verification. Awareness is read-only installation advice, never
+an authorization token. No Pro automatic execution is implemented.

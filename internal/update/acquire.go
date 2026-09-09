@@ -165,3 +165,32 @@ func fileSHA(path string) (string, error) {
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
+
+// AcquireDigest downloads only the exact signed artifact. The generated sidecar
+// is a local integrity record; authority remains the authenticated release index.
+func AcquireDigest(ctx context.Context, client *http.Client, asset Asset, version, digest, parent string) (Staged, error) {
+	if asset.Name != "qwsg-"+version+"-linux-amd64.tar.gz" || asset.Size <= 0 || asset.Size > 128<<20 || len(digest) != 64 || !lowerHex(digest) {
+		return Staged{}, fmt.Errorf("invalid authenticated artifact")
+	}
+	if err := requirePrivateDir(parent); err != nil {
+		return Staged{}, err
+	}
+	root, err := os.MkdirTemp(parent, "transaction-")
+	if err != nil {
+		return Staged{}, err
+	}
+	fail := func(err error) (Staged, error) { os.RemoveAll(root); return Staged{}, err }
+	archive := filepath.Join(root, asset.Name)
+	if err = download(ctx, client, asset, archive); err != nil {
+		return fail(err)
+	}
+	actual, err := fileSHA(archive)
+	if err != nil || actual != digest {
+		return fail(fmt.Errorf("authenticated digest mismatch"))
+	}
+	sidecar := archive + ".sha256"
+	if err = os.WriteFile(sidecar, []byte(digest+"  "+asset.Name+"\n"), 0600); err != nil {
+		return fail(err)
+	}
+	return Staged{Root: root, Archive: archive, Sidecar: sidecar, SHA256: actual, Release: Release{Version: version, Tag: "v" + version, Archive: asset}}, nil
+}

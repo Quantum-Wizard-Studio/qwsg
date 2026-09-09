@@ -45,3 +45,31 @@ func (m Migration) Validate() error {
 	}
 	return nil
 }
+
+// PreservePackageV1 is the existing bounded package replacement transaction.
+// It never interprets metadata as commands or changes configuration/state schemas.
+const PreservePackageV1 = "preserve-package-v1"
+const MigrationSchema = "qwsg.migration/1"
+
+type CompatibilityDeclaration struct {
+	Schema              string `json:"schema"`
+	SourceVersion       string `json:"source_version"`
+	TargetVersion       string `json:"target_version"`
+	Platform            string `json:"platform"`
+	Capability          string `json:"capability"`
+	ConfigurationSchema string `json:"configuration_schema"`
+	GuardianSchema      string `json:"guardian_schema"`
+	SchedulerSchema     string `json:"scheduler_schema"`
+	OperatorState       string `json:"operator_state"`
+}
+
+// PlanCapability validates local executable authority only. Callers must first
+// authenticate the containing release and bind its artifact and provenance.
+func PlanCapability(from, to, platform string, d CompatibilityDeclaration) (Migration, error) {
+	if d.Schema != MigrationSchema || d.Capability != PreservePackageV1 ||
+		d.SourceVersion != from || d.TargetVersion != to || d.Platform != platform || platform != "linux-amd64" ||
+		d.ConfigurationSchema != "1.0" || d.GuardianSchema != "1.0" || d.SchedulerSchema != "1.0" || d.OperatorState != "1.0-1.2" || Classify(from, to) != Newer {
+		return Migration{}, fmt.Errorf("unsupported migration authority or capability")
+	}
+	return compatibilityPath(PreservePackageV1, from, to), nil
+}

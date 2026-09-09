@@ -39,3 +39,15 @@ Use `qwsg update check` for an immediate authenticated manual refresh; it does
 not send update notifications. Use `qwsg update status` to read the persisted
 result without any network access or notification.
 Installation remains the separate explicit `qwsg update` operation.
+
+For clients containing Task 082, the signed release can authorize an update
+through a migration capability already built into the installed client. The
+client does not need to know the future target version in advance. An unknown
+capability leaves the result `update_available_unsupported_source`; installation
+refuses until an explicitly supported upgrade procedure is available.
+
+For offline `qwsg update --archive FILE --version VERSION`, keep both
+`FILE.sha256` and the full production-signed `FILE.release-index.json` adjacent.
+The signed index must select that exact target and authorize the source.
+A checksum alone is insufficient. Historical binaries predating Task 082 need
+a separately approved bootstrap installation. Checking still never installs.

@@ -1,4 +1,4 @@
-.PHONY: build build-contract-check install install-service release release-check release-authority-check release-authority-tools test vet fmt-check framework-check engineering-test
+.PHONY: forward-update-check build build-contract-check install install-service release release-check release-authority-check release-authority-tools test vet fmt-check framework-check engineering-test
 
 GOCACHE ?= /tmp/qwsg-go-cache
 GOMODCACHE ?= /tmp/qwsg-go-modcache
@@ -38,7 +38,7 @@ install-service: install
 release:
 	./scripts/build-release.sh
 
-release-check:
+release-check: forward-update-check
 	./scripts/test-release-plumbing.sh
 	./scripts/test-release-reproducibility.sh
 
@@ -67,3 +67,7 @@ engineering-test: framework-check build-contract-check
 	./ai/tests/test-divert-task-to-test.sh
 	./ai/tests/test-next-task.sh
 	./ai/tests/test-task-builder.sh
+
+# Mandatory architecture gate: the frozen old client performs the transaction.
+forward-update-check:
+	GOCACHE=$(GOCACHE) GOMODCACHE=$(GOMODCACHE) go test ./cmd/qwsg -run '^TestOldBinaryForwardAuthenticatedUpdate$$' -count=1

@@ -260,3 +260,13 @@ migration registry; legacy, unknown, incomplete and inconsistent evidence
 fails closed before mutation. Guided installation and native update
 orchestration share this classifier. Remote release authenticity remains an
 independent Update Discovery concern.
+
+## Authenticated migration authority
+
+Task 082 binds signed release-index/2 exact-source declarations to compiled
+`preserve-package-v1` capabilities. `internal/updateauthority` joins read-only
+release discovery with existing update package verification; the root helper
+independently reauthenticates before the existing transaction. Future target
+versions need no compiled route. Community installation stays explicit. See
+`docs/architecture/AUTHENTICATED_MIGRATION_AUTHORITY.md` for the contract,
+bootstrap boundary, offline authority, rollback and future Pro policy seam.

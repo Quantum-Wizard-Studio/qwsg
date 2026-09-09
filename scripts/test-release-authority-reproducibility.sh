@@ -19,10 +19,12 @@ done
 cmp "$work/one/qwsg-release-index" "$work/two/qwsg-release-index"
 cmp "$work/one/qwsg-release-sign-offline.exe" "$work/two/qwsg-release-sign-offline.exe"
 
-candidate="$repo/internal/releasepublication/testdata/unsigned-candidate.json"
-"$work/one/qwsg-release-index" generate "$candidate" "$work/one/signing-input.json"
-"$work/two/qwsg-release-index" generate "$candidate" "$work/two/signing-input.json"
-cmp "$work/one/signing-input.json" "$work/two/signing-input.json"
-test "$(stat -c %a "$work/one/signing-input.json")" = 600
+for fixture in unsigned-candidate unsigned-capability-candidate; do
+    candidate="$repo/internal/releasepublication/testdata/$fixture.json"
+    "$work/one/qwsg-release-index" generate "$candidate" "$work/one/$fixture-signing-input.json"
+    "$work/two/qwsg-release-index" generate "$candidate" "$work/two/$fixture-signing-input.json"
+    cmp "$work/one/$fixture-signing-input.json" "$work/two/$fixture-signing-input.json"
+    test "$(stat -c %a "$work/one/$fixture-signing-input.json")" = 600
+done
 
 printf '%s\n' 'PASS: release-authority tools and canonical signing input are reproducible'

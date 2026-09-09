@@ -108,6 +108,12 @@ type Evaluation struct {
 }
 
 func (e Evaluator) Evaluate(authenticated AuthenticatedIndex, channelName, platform string, allowPrerelease bool) (Evaluation, error) {
+	if e.classify == nil {
+		return Evaluation{}, fail(InstalledUnverified)
+	}
+	if authenticated.evidence.Scheme != "ed25519" || authenticated.evidence.KeyID == "" {
+		return Evaluation{}, fail(UnauthenticatedMetadata)
+	}
 	installed := e.classify("")
 	installedParsed, installedErr := update.ParseVersion(installed.Version)
 	if installed.State != installation.VerifiedSupported || installedErr != nil || installedParsed.Major != 1 {
@@ -154,6 +160,19 @@ func (e Evaluator) Evaluate(authenticated AuthenticatedIndex, channelName, platf
 	minimum, _ := update.ParseVersion(best.release.MinimumSourceVersion)
 	installedVersion, _ := update.ParseVersion(installed.Version)
 	if update.Compare(installedVersion, minimum) < 0 {
+		return result, nil
+	}
+	if index.Schema == CapabilitySchema {
+		for _, declaration := range best.release.Compatibility {
+			if declaration.SourceVersion != installed.Version || declaration.Platform != platform {
+				continue
+			}
+			plan, err := update.PlanCapability(installed.Version, best.release.Version, platform, declaration)
+			if err == nil && plan.Validate() == nil {
+				result.Compatibility = CompatibilitySupported
+				result.MigrationID = plan.ID
+			}
+		}
 		return result, nil
 	}
 	upgrade := e.classify(best.release.Version)

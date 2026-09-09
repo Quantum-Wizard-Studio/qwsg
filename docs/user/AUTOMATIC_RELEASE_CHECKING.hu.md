@@ -39,3 +39,17 @@ Azonnali hitelesített kézi ellenőrzéshez használja a `qwsg update check`
 parancsot; ez nem küld frissítési értesítést. A tárolt eredményt hálózati
 kapcsolat és értesítés nélkül a `qwsg update status` mutatja. A telepítés
 továbbra is a külön, kifejezetten indított `qwsg update` művelet.
+
+A Task 082-t tartalmazó kliensnél az aláírt kiadás a telepített programban már
+megvalósított migrációs képesség használatát engedélyezheti. A kliensnek nem
+kell előre ismernie a későbbi célverziót. Ismeretlen képesség esetén az állapot
+`update_available_unsupported_source`, a telepítés pedig elutasításra kerül.
+Ilyenkor kifejezetten támogatott frissítési eljárásra van szükség; a metadata
+kézi módosítása nem megoldás.
+
+Offline `qwsg update --archive FILE --version VERSION` művelethez a csomag
+mellett legyen ott a `FILE.sha256` és a teljes, hivatalosan aláírt
+`FILE.release-index.json` is. Az indexnek pontosan a kért célverziót kell
+kiválasztania, és engedélyeznie kell a telepített forrásverziót. Az ellenőrző
+összeg önmagában nem elegendő. A Task 082 előtti binárisokhoz külön jóváhagyott
+átállási telepítés szükséges. Az ellenőrzés továbbra sem telepít automatikusan.

@@ -1,8 +1,12 @@
 # Release Index and Release Source Contract
 
+Task 082 adds the forward-compatible `/2` contract documented in
+[Authenticated migration authority](AUTHENTICATED_MIGRATION_AUTHORITY.md).
+The `/1` contract and historical behavior below remain supported.
+
 Task 076 implements the read-only metadata foundation approved by Task 074.
 The canonical implementation is `internal/releasediscovery`. It is not an
-updater: it fetches bounded public metadata, parses one strict contract,
+updater: it fetches bounded public metadata, parses the versioned strict contract,
 authenticates that metadata, and evaluates it against Task 075 installed
 identity. It owns no artifact acquisition, state, notification, schedule,
 installation, privilege, migration execution, rollback, publication, key
@@ -65,10 +69,11 @@ Trust layers remain separate:
 4. Existing acquisition verifies the sidecar and archive bytes.
 5. Existing package verification validates `MANIFEST.sha256`, layout, modes,
    platform, and embedded `qwsg.release/1` provenance.
-6. The local declared migration registry determines executable compatibility.
+6. Local historical routes (`/1`) or compiled capabilities authorized by the
+   signed declaration (`/2`) determine executable compatibility.
 
 SHA-256 does not authenticate the publisher. HTTPS evidence is never reported
-as Ed25519 evidence, and manifest migration claims never create a local route.
+as Ed25519 evidence, and metadata never creates executable migration code.
 
 ## Source-neutral retrieval
 
@@ -104,7 +109,7 @@ bodies, credentials, URLs, host state, or raw transport diagnostics.
 it only when bound to a matching previously authenticated awareness observation;
 validators never become authenticity evidence.
 
-## Deterministic evaluation
+## Deterministic evaluation for historical `/1`
 
 `Discoverer.Check` enforces the only canonical order:
 

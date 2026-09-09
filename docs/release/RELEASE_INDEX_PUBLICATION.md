@@ -1,6 +1,8 @@
 # Release-index generation and publication runbook
 
-This runbook prepares QWSG's deterministic `qwsg.release-index/1` transaction.
+This runbook prepares QWSG's deterministic signed release-index transaction.
+Task 082 adds `/2` compatibility declarations; historical `/1` signing material
+remains immutable. See [the migration contract](../architecture/AUTHENTICATED_MIGRATION_AUTHORITY.md).
 It does not authorize DNS, TLS, hosting, signing, publication, or production
 acceptance. Every production execution requires the Task 078 gate recorded by
 the Project Owner.
@@ -34,7 +36,7 @@ Windows custody ACLs remain an independently verified prerequisite.
 
 ## Deterministic transaction
 
-1. Create a data-only unsigned candidate with exactly the Task 076 schema and
+1. Create a data-only unsigned candidate with the selected `/1` or `/2` schema and
    canonical Forgejo provenance. It contains an empty `signatures` array and no
    credentials or private paths.
 2. Run `qwsg-release-index generate CANDIDATE SIGNING_INPUT`. The tool strictly
@@ -217,3 +219,26 @@ Verify input and executable identities first. Return only the 89-byte detached
 Base64 signature, its SHA-256 and non-secret signing/exposure results. No key
 material or passphrase leaves custody. Signed production publication and full
 1.3.1 production acceptance remain pending.
+
+## Task 082 forward-compatible signing inputs
+
+For a future compatible release, use `qwsg.release-index/2`, empty
+`migration_routes`, and exact source declarations for `preserve-package-v1`
+with the documented schema constraints. Review target/platform/commit and
+artifact name/size/SHA-256 as one signed unit. The publisher must prove the
+future package actually preserves every declared state/configuration contract.
+Do not copy an unsupported capability name merely to make a release eligible.
+
+`generate`, `assemble` and offline signing use the same canonical typed JSON
+and existing key custody. The reproducibility gate now checks both explicit
+`unsigned-candidate.json` and `unsigned-capability-candidate.json` test fixtures.
+The latter is synthetic authority, not historical production evidence.
+`make release-check` also requires the frozen-old-client forward-update gate.
+
+Transfer the full signed index as `FILE.release-index.json` alongside `FILE`
+and `FILE.sha256` for an explicit offline archive update. The index must select
+that exact target. Never change existing production signing inputs, detached
+signatures, artifacts or tags to retrofit `/2`. Clients predating Task 082 need
+a separately approved bootstrap installation; an old `/1` parser cannot gain
+new executable capability from remote data. New publication/signing remains
+Owner-authorized separately; Task 082 publishes nothing.

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — Task 082
+
+- Authenticate installation authority with signed release-index/2 source and
+  capability declarations; future targets need no compiled version-pair entry.
+- Bind artifact identity, digest and provenance in both ordinary-user and
+  privileged verification, including signed metadata for local archive updates.
+- Preserve historical migration routes, operator control and package rollback;
+  add mandatory frozen-old-client forward-update release acceptance.
+
+
 ## [1.3.1] - 2026-09-06
 
 - Re-evaluate authenticated release metadata after installed-version changes instead of reusing a stale HTTP 304 classification; repair the stale relation saved by 1.3.0 with a full authenticated fetch.

@@ -14,11 +14,27 @@ and resulting version and rollback reports the installed and restored version.
 Operation success/failure and administrator-notification delivery are recorded
 separately; SMTP failure never rewrites the package transaction result.
 
-Update discovery and download use the anonymous canonical Forgejo Release
-source. QWSG verifies the sidecar, archive layout, manifest, required package
-files, platform and embedded `RELEASE.json` provenance before stopping the
-Guardian or requesting privilege. Configuration, credentials and persistent
-state are never package replacement targets or rollback payloads.
+For clients containing Task 082, update discovery uses the authenticated
+production release index. The signed declaration must match the installed
+source and a compiled migration capability. Artifact name, size, SHA-256,
+platform and source commit are bound to that authority, then normal archive,
+manifest and package checks run before stopping Guardian or requesting
+privilege. Configuration, credentials and persistent state remain outside
+package replacement. See
+[Authenticated migration authority](../architecture/AUTHENTICATED_MIGRATION_AUTHORITY.md).
+
+For an explicit offline update, place `FILE.sha256` and the full production-signed
+`FILE.release-index.json` beside the archive, then run:
+
+```sh
+qwsg update --archive FILE --version VERSION
+```
+
+The signed index must select `VERSION` and authorize the installed source and
+known capability. Missing authority, a forged checksum, unsupported constraints
+or any identity mismatch refuses. Awareness
+`update_available_unsupported_source` means the release cannot use the client's
+known capability; obtain an explicitly supported upgrade procedure.
 
 QWSG 1.3's Task 076 foundation defines a source-neutral signed release index.
 Task 077 makes `update check` one bounded authenticated awareness refresh and
@@ -35,7 +51,9 @@ installed package from its complete safe layout, strict installed
 `RELEASE.json` and exactly matching embedded binary identity. A binary or its
 version output alone is unverified. The candidate's independently verified
 `RELEASE.json` target must be newer, and one exact declared migration record
-must exist. The record identifies its source/target pair,
+must exist. Task 082 accepts a signed exact-source declaration for a locally
+known capability without a compiled future target. Historical `/1` metadata
+still requires the local route. The record identifies its source/target pair,
 configuration/Guardian/scheduler/operator-state schemas, whether schema
 mutation is required, preservation rules, and the managed Guardian-unit
 replacement boundary. Missing, malformed, partial, inconsistent, equal, older,
@@ -82,9 +100,11 @@ Keep an exact private backup and resolve oversized legacy state before healthy
 scheduling acceptance. Supported current state remains byte-preserved by the
 package transaction; subsequent normal Scheduler execution retains 64 results.
 
-## Corrective 1.3.0 to 1.3.1 update
+## Historical corrective 1.3.0 to 1.3.1 update
 
-Use the verified 1.3.1 archive binary to orchestrate the existing transaction:
+This historical procedure applies to the immutable 1.3.1 binary, which predates
+Task 082. It does not describe the new signed-companion requirement. Use the
+verified 1.3.1 archive binary to orchestrate the existing transaction:
 
 ```sh
 ./bin/qwsg update --archive /absolute/path/qwsg-1.3.1-linux-amd64.tar.gz --version 1.3.1

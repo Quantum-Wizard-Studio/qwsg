@@ -18,6 +18,7 @@ import (
 	"quantumwizard.hu/qwsg/internal/installation"
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
+	"quantumwizard.hu/qwsg/internal/updateauthority"
 	"quantumwizard.hu/qwsg/internal/updateawareness"
 )
 
@@ -26,6 +27,25 @@ type localUpdateRecord struct{ Schema, Installed, Previous, Backup, UpdatedAt st
 var installedQWSGBinary = "/usr/local/bin/qwsg"
 var installedQWSGRoot = "/"
 var updateAwarenessChecker = productionAwarenessChecker()
+
+// Dependencies remain fixed in production; isolated binary acceptance replaces
+// these only in test-linked executables, without production flags or environment overrides.
+var updateEffectiveUID = os.Geteuid
+var updateMetadataFetch = updateauthority.FetchProductionMetadata
+var updateVerifier = releasediscovery.ProductionVerifier
+var updateHTTPClient = updatecore.HTTPClient
+var updateSystemRoot = "/var/lib/qwsg"
+var updateRollbackRoot = "/var/lib/qwsg/rollback"
+var runSudo = realRunSudo
+var runSystemctl = realRunSystemctl
+var commandState = realCommandState
+
+func installedUpdateEvaluator() releasediscovery.Evaluator {
+	e, _ := releasediscovery.NewEvaluator(func(candidate string) installation.Result {
+		return installation.Classify(installation.Options{Root: installedQWSGRoot, CandidateVersion: candidate})
+	})
+	return e
+}
 
 func productionAwarenessChecker() updateawareness.Checker {
 	checker, err := releasediscovery.ProductionDiscoverer()
@@ -114,8 +134,14 @@ func parseUpdateArgs(args []string) (archive, target string, err error) {
 		}
 		switch args[i] {
 		case "--archive":
+			if archive != "" {
+				return "", "", fmt.Errorf("duplicate archive option")
+			}
 			archive = args[i+1]
 		case "--version":
+			if target != "" {
+				return "", "", fmt.Errorf("duplicate version option")
+			}
 			target = args[i+1]
 		default:
 			return "", "", fmt.Errorf("unknown update option: %s", safeText(args[i]))
@@ -129,7 +155,7 @@ func parseUpdateArgs(args []string) (archive, target string, err error) {
 }
 
 func executeUpdate(localArchive, target string, out, errout io.Writer) (code int) {
-	if os.Geteuid() == 0 {
+	if updateEffectiveUID() == 0 {
 		fmt.Fprintln(errout, "Update orchestration must run as the intended non-root QWSG user.")
 		return 1
 	}
@@ -160,41 +186,69 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 		return 1
 	}
 	previousRecord, _ := loadUpdateRecord(updateRoot)
-	var staged updatecore.Staged
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	var metadata []byte
 	if localArchive != "" {
-		if updatecore.Classify(installed, target) != updatecore.Newer {
-			fmt.Fprintln(errout, "Update refused: target is not a supported newer version.")
+		metadata, err = updateauthority.ReadMetadata(localArchive + ".release-index.json")
+	} else {
+		metadata, err = updateMetadataFetch(ctx)
+	}
+	verifier, verifierErr := updateVerifier()
+	if err != nil || verifierErr != nil {
+		fmt.Fprintln(errout, "Update refused: authenticated release metadata unavailable.")
+		return 1
+	}
+	candidate, err := updateauthority.Authorize(metadata, verifier, installedUpdateEvaluator(), "stable", "linux-amd64", target, time.Now().UTC())
+	if errors.Is(err, updateauthority.ErrNoUpdate) && localArchive == "" {
+		notify = false
+		e := candidate.Evaluation()
+		fmt.Fprintf(out, "QWSG is not updated: available release is %s (%s).\n", safeText(e.Release.Version), e.Relation)
+		return 0
+	}
+
+	if err != nil {
+		fmt.Fprintln(errout, "Update refused: authenticated compatible migration capability unavailable.")
+		return 1
+	}
+	store, storeErr := updateawareness.Open(state)
+	if storeErr != nil {
+		fmt.Fprintln(errout, "Update refused: awareness watermark unavailable.")
+		return 1
+	}
+	awareness, loadErr := store.Load()
+	if loadErr != nil && !errors.Is(loadErr, updateawareness.ErrMissing) {
+		fmt.Fprintln(errout, "Update refused: awareness watermark invalid.")
+		return 1
+	}
+	if loadErr == nil && awareness.LastSuccess != nil {
+		watermark, parseErr := time.Parse(time.RFC3339, awareness.LastSuccess.IndexGeneratedAt)
+		if parseErr != nil || candidate.CheckWatermark(watermark) != nil {
+			fmt.Fprintln(errout, "Update refused: release metadata predates authenticated awareness.")
 			return 1
 		}
+	}
+	evaluation := candidate.Evaluation()
+	var staged updatecore.Staged
+	if localArchive != "" {
 		staged, err = updatecore.StageLocal(localArchive, localArchive+".sha256", target, updateRoot)
 	} else {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-		defer cancel()
-		var release updatecore.Release
-		var relation updatecore.Relation
-		release, relation, err = updatecore.Discover(ctx, updatecore.HTTPClient(), "", installed)
-		if err == nil && relation != updatecore.Newer {
-			notify = false
-			fmt.Fprintf(out, "QWSG is not updated: available release is %s (%s).\n", safeText(release.Version), relation)
-			return 0
-		}
-		if err == nil {
-			staged, err = updatecore.Acquire(ctx, updatecore.HTTPClient(), release, updateRoot)
-		}
+		a := evaluation.Artifact
+		staged, err = updatecore.AcquireDigest(ctx, updateHTTPClient(), updatecore.Asset{Name: a.Name, URL: a.URL, Size: a.Size}, evaluation.Release.Version, a.SHA256, updateRoot)
 	}
 	if err != nil {
 		fmt.Fprintln(errout, "Update failed: candidate acquisition or integrity verification failed.")
 		return 1
 	}
 	defer os.RemoveAll(staged.Root)
-	pkg, err := updatecore.VerifyPackage(staged)
+	pkg, err := candidate.VerifyStaged(staged)
 	if err != nil {
-		fmt.Fprintln(errout, "Update failed: package verification failed.")
+		fmt.Fprintln(errout, "Update failed: authenticated package verification failed.")
 		return 1
 	}
-	migration, err := updatecore.PlanMigration(installed, pkg.Provenance.Version)
-	if err != nil || migration.Validate() != nil {
-		fmt.Fprintln(errout, "Update refused: no deterministic compatible migration path.")
+	authorityPath := filepath.Join(staged.Root, "release-index.json")
+	if err = os.WriteFile(authorityPath, candidate.Metadata(), 0600); err != nil {
 		return 1
 	}
 	if err = validateInstalledConfiguration(); err != nil {
@@ -211,8 +265,8 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 	}
 	uid := strconv.Itoa(os.Getuid())
 	txid := time.Now().UTC().Format("20060102T150405.000000000Z")
-	backup := filepath.Join("/var/lib/qwsg/rollback", uid, txid)
-	err = runSudo("privileged-apply", "--archive", staged.Archive, "--sidecar", staged.Sidecar, "--version", pkg.Provenance.Version, "--sha256", staged.SHA256, "--backup", backup, "--from", installed)
+	backup := filepath.Join(updateRollbackRoot, uid, txid)
+	err = runSudo("privileged-apply", "--archive", staged.Archive, "--sidecar", staged.Sidecar, "--version", pkg.Provenance.Version, "--sha256", staged.SHA256, "--backup", backup, "--from", installed, "--authority", authorityPath)
 	if err == nil {
 		err = runSystemctl("daemon-reload")
 	}
@@ -251,24 +305,24 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 }
 
 func runPrivilegedApply(args []string, errout io.Writer) int {
-	if os.Geteuid() != 0 {
+	if updateEffectiveUID() != 0 {
 		return usageError(errout, "privileged update helper requires root")
 	}
-	values, err := parsePairs(args, "--archive", "--sidecar", "--version", "--sha256", "--backup", "--from")
+	values, err := parsePairs(args, "--archive", "--sidecar", "--version", "--sha256", "--backup", "--from", "--authority")
 	if err != nil {
 		return usageError(errout, "%v", err)
 	}
 	if !validBackup(values["--backup"]) {
 		return usageError(errout, "unsafe rollback path")
 	}
-	if err = os.MkdirAll("/var/lib/qwsg", 0700); err != nil {
+	if err = os.MkdirAll(updateSystemRoot, 0700); err != nil {
 		return 1
 	}
-	rootInfo, rootErr := os.Lstat("/var/lib/qwsg")
+	rootInfo, rootErr := os.Lstat(updateSystemRoot)
 	if rootErr != nil || !rootInfo.IsDir() || rootInfo.Mode()&os.ModeSymlink != 0 {
 		return 1
 	}
-	stageParent, err := os.MkdirTemp("/var/lib/qwsg", ".verified-stage-")
+	stageParent, err := os.MkdirTemp(updateSystemRoot, ".verified-stage-")
 	if err != nil {
 		fmt.Fprintln(errout, "privileged update staging failed")
 		return 1
@@ -282,31 +336,42 @@ func runPrivilegedApply(args []string, errout io.Writer) int {
 		fmt.Fprintln(errout, "privileged candidate re-verification failed")
 		return 1
 	}
-	pkg, err := updatecore.VerifyPackage(staged)
+	metadata, err := updateauthority.ReadMetadata(values["--authority"])
+	verifier, verifyErr := updateVerifier()
+	if err != nil || verifyErr != nil {
+		fmt.Fprintln(errout, "privileged release authority unavailable")
+		return 1
+	}
+	actualSource, err := installedVersion()
+	if err != nil || actualSource != values["--from"] {
+		fmt.Fprintln(errout, "privileged installed source mismatch")
+		return 1
+	}
+	candidate, err := updateauthority.Authorize(metadata, verifier, installedUpdateEvaluator(), "stable", "linux-amd64", values["--version"], time.Now().UTC())
 	if err != nil {
-		fmt.Fprintln(errout, "privileged package re-verification failed")
+		fmt.Fprintln(errout, "privileged migration authority refused")
 		return 1
 	}
-	migration, err := updatecore.PlanMigration(values["--from"], pkg.Provenance.Version)
-	if err != nil || migration.Validate() != nil {
-		fmt.Fprintln(errout, "privileged migration compatibility verification failed")
+	pkg, err := candidate.VerifyStaged(staged)
+	if err != nil {
+		fmt.Fprintln(errout, "privileged authenticated package verification failed")
 		return 1
 	}
-	if _, err = updatecore.Apply(pkg.Root, "/", values["--backup"], values["--from"]); err != nil {
+	if _, err = updatecore.Apply(pkg.Root, installedQWSGRoot, values["--backup"], values["--from"]); err != nil {
 		fmt.Fprintln(errout, "privileged update transaction failed")
 		return 1
 	}
 	return 0
 }
 func runPrivilegedRollback(args []string, errout io.Writer) int {
-	if os.Geteuid() != 0 {
+	if updateEffectiveUID() != 0 {
 		return usageError(errout, "privileged rollback helper requires root")
 	}
 	values, err := parsePairs(args, "--backup")
 	if err != nil || !validBackup(values["--backup"]) {
 		return usageError(errout, "unsafe rollback request")
 	}
-	if err = updatecore.Rollback("/", values["--backup"]); err != nil {
+	if err = updatecore.Rollback(installedQWSGRoot, values["--backup"]); err != nil {
 		fmt.Fprintln(errout, "privileged rollback transaction failed")
 		return 1
 	}
@@ -318,7 +383,7 @@ func runPrivilegedRollback(args []string, errout io.Writer) int {
 }
 
 func runPrivilegedDiscard(args []string, errout io.Writer) int {
-	if os.Geteuid() != 0 {
+	if updateEffectiveUID() != 0 {
 		return usageError(errout, "privileged discard helper requires root")
 	}
 	values, err := parsePairs(args, "--backup")
@@ -376,7 +441,7 @@ func writeAwareness(out io.Writer, state updateawareness.State, now time.Time) {
 	}
 }
 func runUpdateRollback(out, errout io.Writer) (code int) {
-	if os.Geteuid() == 0 {
+	if updateEffectiveUID() == 0 {
 		fmt.Fprintln(errout, "Rollback orchestration must run as the intended non-root QWSG user.")
 		return 1
 	}
@@ -481,14 +546,14 @@ func loadUpdateRecord(root string) (localUpdateRecord, error) {
 	}
 	return r, nil
 }
-func commandState(action string) string {
+func realCommandState(action string) string {
 	cmd := exec.Command("/usr/bin/systemctl", "--user", action, "qwsg-guardian.service")
 	if cmd.Run() == nil {
 		return "yes"
 	}
 	return "no"
 }
-func runSystemctl(action string) error {
+func realRunSystemctl(action string) error {
 	args := []string{"--user", action}
 	if action != "daemon-reload" {
 		args = append(args, "qwsg-guardian.service")
@@ -515,7 +580,7 @@ func installedVersion() (string, error) {
 	}
 	return result.Version, nil
 }
-func runSudo(args ...string) error {
+func realRunSudo(args ...string) error {
 	executable, err := os.Executable()
 	if err != nil {
 		return err
@@ -547,7 +612,7 @@ func parsePairs(args []string, names ...string) (map[string]string, error) {
 	return result, nil
 }
 func validBackup(path string) bool {
-	return strings.HasPrefix(path, "/var/lib/qwsg/rollback/") && !strings.Contains(path, "..") && filepath.Clean(path) == path
+	return strings.HasPrefix(path, updateRollbackRoot+"/") && !strings.Contains(path, "..") && filepath.Clean(path) == path
 }
 func writeUpdateHelp(out io.Writer) {
 	fmt.Fprintln(out, "Usage:\n  qwsg update check\n  qwsg update\n  qwsg update --archive FILE --version VERSION\n  qwsg update status\n  qwsg update rollback")

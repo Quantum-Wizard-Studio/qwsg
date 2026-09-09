@@ -1,6 +1,7 @@
 package releasepublication
 
 import (
+	"bytes"
 	"crypto/ed25519"
 	"crypto/sha256"
 	"encoding/base64"
@@ -101,4 +102,32 @@ func fixture() []byte {
 	}
 	payload, _ := json.Marshal(value)
 	return payload
+}
+
+func TestCapabilitySigningInputDeterminism(t *testing.T) {
+	input, err := os.ReadFile("testdata/unsigned-capability-candidate.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, err := Generate(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := Generate(first)
+	if err != nil || !bytes.Equal(first, second) {
+		t.Fatalf("capability canonicalization: %v", err)
+	}
+	index, err := releasediscovery.Parse(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if index.Schema != releasediscovery.CapabilitySchema || len(index.Channels[0].Releases[0].Compatibility) != 1 {
+		t.Fatal("signing input lost migration authority")
+	}
+	changed := index
+	changed.Channels[0].Releases[0].Compatibility[0].Capability = "unknown-v9"
+	modified, err := releasediscovery.SigningBytes(changed)
+	if err != nil || bytes.Equal(first, modified) {
+		t.Fatal("capability is not signature-bound")
+	}
 }

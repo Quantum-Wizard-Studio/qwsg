@@ -28,23 +28,14 @@ payloads.
 
 ## Trust model
 
-Discovery is restricted to the public canonical Forgejo repository and exact
-version tags. QWSG accepts only strict semantic identities supported by its
-update policy and immutable linux-amd64 archive/sidecar names. HTTPS retrieval
-is bounded by time, redirects, response size, and private staging permissions.
-Before installation QWSG verifies the sidecar, archive size and SHA-256, unique
-single-root regular-file/directory-only layout, manifest, required files and
-modes, binary platform, and embedded version/source provenance. SHA-256 protects
-integrity after authoritative HTTPS discovery; signing remains a separate
-Owner decision.
-
-Task 076 adds the separate `qwsg.release-index/1` authenticity foundation in
-`internal/releasediscovery`: strict metadata, deterministic Ed25519 signature
-bytes, explicit trust anchors, and bounded source-neutral HTTPS retrieval. It
-does not activate a production endpoint or key and does not replace this
-updater. Artifact acquisition, package verification, privileged transaction,
-migration execution and rollback remain here. See
-`docs/architecture/RELEASE_INDEX_AND_SOURCE_CONTRACT.md`.
+Task 082 uses authenticated release-index discovery for both check and install.
+The production Ed25519 anchor authenticates the exact artifact digest, size,
+source commit and compatibility declaration. Local archives require the same
+signed authority. The privileged helper independently reauthenticates and
+binds package provenance before mutation. The compiled capability controls
+executable behavior; metadata cannot supply migration code. See
+[Authenticated migration authority](AUTHENTICATED_MIGRATION_AUTHORITY.md) for
+the `/2` contract, bootstrap boundary, offline archive procedure and acceptance.
 
 Task 077 adds `internal/updateawareness`, a separate integrity-checked private
 record for explicit read-only check transitions and network-free status. It
@@ -58,7 +49,9 @@ a final version is newer than its prereleases. Normal update accepts only a
 newer supported target and refuses equal, older, malformed, ambiguous, and
 unsupported-major identities.
 
-Migration plans are explicit `(from schema/version, to schema/version)` records.
+Historical `/1` migration plans are explicit source/target records. `/2` plans
+are derived from authenticated exact-source declarations and locally implemented
+`preserve-package-v1`; no future target is compiled into the client.
 Each plan is deterministic, validates before mutation, journals completion, and
 defines rollback behavior. The 1.1.0 to 1.2.0-rc.1 path preserves the existing
 Configuration Source 1.0, Guardian Checkpoint 1.0, Scheduler State 1.0, and

@@ -89,7 +89,7 @@ func TestStrictJSONAndSemanticBoundaries(t *testing.T) {
 		{"duplicate member", []byte(`{"schema":"qwsg.release-index/1","schema":"qwsg.release-index/1"}`), MalformedMetadata},
 		{"unknown member", append(valid[:len(valid)-1], []byte(`,"unexpected":true}`)...), MalformedMetadata},
 		{"trailing data", append(valid, []byte(` {}`)...), MalformedMetadata},
-		{"unsupported schema", mutateJSON(t, indexFixture(), func(index *Index) { index.Schema = "qwsg.release-index/2" }), UnsupportedContract},
+		{"unsupported schema", mutateJSON(t, indexFixture(), func(index *Index) { index.Schema = "qwsg.release-index/999" }), UnsupportedContract},
 		{"unsupported product", mutateJSON(t, indexFixture(), func(index *Index) { index.Product = "other" }), UnsupportedContract},
 		{"bad generated time", mutateJSON(t, indexFixture(), func(index *Index) { index.GeneratedAt = "2026-08-30T00:00:00+00:00" }), MalformedMetadata},
 		{"minimum newer than release", mutateJSON(t, indexFixture(), func(index *Index) { index.Channels[0].Releases[0].MinimumSourceVersion = "1.3.0" }), MalformedMetadata},

@@ -22,6 +22,7 @@ import (
 
 const (
 	Schema             = "qwsg.release-index/1"
+	CapabilitySchema   = "qwsg.release-index/2"
 	Product            = "qwsg"
 	MediaType          = "application/vnd.quantumwizard.qwsg-releases+json"
 	MaxIndexBytes      = 1 << 20
@@ -48,14 +49,15 @@ type Channel struct {
 }
 
 type Release struct {
-	Version              string     `json:"version"`
-	PublishedAt          string     `json:"published_at"`
-	Status               string     `json:"status"`
-	SourceCommit         string     `json:"source_commit"`
-	ReleaseNotesURL      string     `json:"release_notes_url"`
-	MinimumSourceVersion string     `json:"minimum_source_version"`
-	MigrationRoutes      []string   `json:"migration_routes"`
-	Artifacts            []Artifact `json:"artifacts"`
+	Version              string                            `json:"version"`
+	PublishedAt          string                            `json:"published_at"`
+	Status               string                            `json:"status"`
+	SourceCommit         string                            `json:"source_commit"`
+	ReleaseNotesURL      string                            `json:"release_notes_url"`
+	MinimumSourceVersion string                            `json:"minimum_source_version"`
+	Compatibility        []update.CompatibilityDeclaration `json:"compatibility,omitempty"`
+	MigrationRoutes      []string                          `json:"migration_routes"`
+	Artifacts            []Artifact                        `json:"artifacts"`
 }
 
 type Artifact struct {
@@ -199,7 +201,7 @@ func walkJSON(decoder *json.Decoder, depth int) error {
 }
 
 func validate(index Index) error {
-	if index.Schema != Schema || index.Product != Product {
+	if (index.Schema != Schema && index.Schema != CapabilitySchema) || index.Product != Product {
 		return fail(UnsupportedContract)
 	}
 	generated, ok := canonicalTime(index.GeneratedAt)
@@ -228,6 +230,23 @@ func validate(index Index) error {
 			}
 			if len(release.SourceCommit) != 40 || !lowerHex(release.SourceCommit) || !safeHTTPSURL(release.ReleaseNotesURL, "") {
 				return fail(MalformedMetadata)
+			}
+			if index.Schema == Schema && len(release.Compatibility) != 0 {
+				return fail(UnsupportedContract)
+			}
+			if index.Schema == CapabilitySchema {
+				if len(release.MigrationRoutes) != 0 || len(release.Compatibility) == 0 || len(release.Compatibility) > MaxMigrationRoutes {
+					return fail(MalformedMetadata)
+				}
+				seenSources := map[string]bool{}
+				for _, d := range release.Compatibility {
+					source, sourceErr := update.ParseVersion(d.SourceVersion)
+					key := d.SourceVersion + "/" + d.Platform
+					if sourceErr != nil || source.Major != 1 || update.Compare(source, parsed) >= 0 || update.Compare(source, minimum) < 0 || d.TargetVersion != release.Version || d.Platform != "linux-amd64" || seenSources[key] || !safeToken(d.Capability, 128) || d.Schema != update.MigrationSchema || d.ConfigurationSchema == "" || d.GuardianSchema == "" || d.SchedulerSchema == "" || d.OperatorState == "" {
+						return fail(MalformedMetadata)
+					}
+					seenSources[key] = true
+				}
 			}
 			if len(release.MigrationRoutes) > MaxMigrationRoutes || !uniqueTokens(release.MigrationRoutes) {
 				return fail(MalformedMetadata)
@@ -378,6 +397,7 @@ func cloneIndex(index Index) Index {
 		result.Channels[channelIndex].Releases = make([]Release, len(channel.Releases))
 		for releaseIndex, release := range channel.Releases {
 			result.Channels[channelIndex].Releases[releaseIndex] = release
+			result.Channels[channelIndex].Releases[releaseIndex].Compatibility = append([]update.CompatibilityDeclaration(nil), release.Compatibility...)
 			result.Channels[channelIndex].Releases[releaseIndex].MigrationRoutes = append([]string(nil), release.MigrationRoutes...)
 			result.Channels[channelIndex].Releases[releaseIndex].Artifacts = append([]Artifact(nil), release.Artifacts...)
 		}

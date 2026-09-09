@@ -311,3 +311,8 @@ The first milestone is the `0.0.1-prealpha` documented project bootstrap in `ai/
   `ai/history/080_2026-09-03_update-notification-deduplication.md`.
 
 Completed milestones, dates, outcomes, and links belong here. Detailed task evidence belongs in independent files under `ai/history/`; this index must not become a continuously growing general task log. Future claims, raw logs, credentials, and rewritten history do not. The index will evolve through concise milestone entries.
+
+- `2026-09-09`: Task 082 implements authenticated forward-compatible migration
+  capability authority and frozen-old-client acceptance. Detailed validation
+  and closure state are recorded in
+  `ai/history/082_2026-09-09_forward-compatible-authenticated-update-migration-authority.md`.
