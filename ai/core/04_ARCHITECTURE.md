@@ -270,3 +270,12 @@ independently reauthenticates before the existing transaction. Future target
 versions need no compiled route. Community installation stays explicit. See
 `docs/architecture/AUTHENTICATED_MIGRATION_AUTHORITY.md` for the contract,
 bootstrap boundary, offline authority, rollback and future Pro policy seam.
+
+## Product capability and update-policy foundation
+
+Task 083 establishes `internal/productcapability` and `internal/updatepolicy`
+above the common authenticated updater. Community defaults to manual; automatic
+policy requires explicit capability and has no execution behavior. Existing
+configuration/notify semantics are preserved. Production entitlement and Task
+084 orchestration remain future work. See
+`docs/architecture/PRODUCT_CAPABILITIES_AND_UPDATE_POLICY.md`.

@@ -16,10 +16,6 @@ func (s smtpUpdateSender) DeliverText(ctx context.Context, subject, body string)
 }
 
 func updateNotificationEnabled(effective configuration.Effective) bool {
-	for _, extension := range effective.Values.Extensions {
-		if extension.ID == "installer.update-policy" {
-			return extension.Fields["policy"] == "notify"
-		}
-	}
-	return false
+	request, err := configuration.UpdatePolicy(effective.Values)
+	return err == nil && request.Notify
 }

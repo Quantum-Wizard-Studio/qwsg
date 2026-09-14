@@ -9,8 +9,10 @@ import (
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/installation"
+	"quantumwizard.hu/qwsg/internal/productcapability"
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	"quantumwizard.hu/qwsg/internal/update"
+	"quantumwizard.hu/qwsg/internal/updatepolicy"
 )
 
 func capabilityFixture() releasediscovery.Index {
@@ -209,5 +211,58 @@ func TestCandidateCannotGrantAuthorityFromAwarenessOrNoUpdate(t *testing.T) {
 	}
 	if _, err = candidate.VerifyStaged(update.Staged{}); err == nil {
 		t.Fatal("non-upgrade candidate authorized package")
+	}
+}
+
+// Product eligibility is deliberately independent of authenticated migration
+// authority. Future Pro orchestration must pass both gates in this order.
+func TestProAutomaticPolicyCannotBypassReleaseAuthority(t *testing.T) {
+	capabilities, err := productcapability.Resolve(&productcapability.Declaration{Schema: productcapability.Schema, Product: productcapability.Pro, Grants: []productcapability.Capability{productcapability.UpdateManual, productcapability.UpdateAutomatic}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	state, err := updatepolicy.Evaluate(updatepolicy.Request{Mode: updatepolicy.Automatic}, capabilities)
+	if err != nil || !state.AutomaticAllowed {
+		t.Fatalf("Pro fixture ineligible: %+v %v", state, err)
+	}
+	now, _ := time.Parse(time.RFC3339, "2026-08-30T01:00:00Z")
+	evaluator, _ := releasediscovery.NewEvaluator(func(string) installation.Result {
+		return installation.Result{State: installation.VerifiedSupported, Version: "1.1.0"}
+	})
+	for _, name := range []string{"valid", "unsigned", "tampered", "unsupported", "source mismatch"} {
+		t.Run(name, func(t *testing.T) {
+			index := capabilityFixture()
+			if name == "unsupported" {
+				index.Channels[0].Releases[0].Compatibility[0].Capability = "future-code-v9"
+			}
+			if name == "source mismatch" {
+				index.Channels[0].Releases[0].Compatibility[0].SourceVersion = "1.1.1"
+			}
+			payload, verifier := signedCapability(t, index)
+			if name == "unsigned" {
+				payload, _ = json.Marshal(index)
+			}
+			if name == "tampered" {
+				payload = []byte(strings.Replace(string(payload), "preserve-package-v1", "preserve-package-v2", 1))
+			}
+			candidate, err := Authorize(payload, verifier, evaluator, "stable", "linux-amd64", "", now)
+			if name == "valid" {
+				if err != nil {
+					t.Fatal(err)
+				}
+				return
+			}
+			if err == nil {
+				t.Fatal("Pro policy bypassed release authority")
+			}
+			if name == "unsigned" || name == "tampered" {
+				if releasediscovery.FailureOf(err) != releasediscovery.UnauthenticatedMetadata {
+					t.Fatalf("wrong refusal gate: %v", err)
+				}
+			}
+			if candidate.Evaluation().MigrationID != "" {
+				t.Fatal("refused candidate retained migration authority")
+			}
+		})
 	}
 }

@@ -16,6 +16,7 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/changenotification"
 	"quantumwizard.hu/qwsg/internal/installation"
+	"quantumwizard.hu/qwsg/internal/productcapability"
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
 	"quantumwizard.hu/qwsg/internal/updateauthority"
@@ -155,6 +156,11 @@ func parseUpdateArgs(args []string) (archive, target string, err error) {
 }
 
 func executeUpdate(localArchive, target string, out, errout io.Writer) (code int) {
+	capabilities, capabilityErr := installationCapabilities()
+	if capabilityErr != nil || !capabilities.Has(productcapability.UpdateManual) {
+		fmt.Fprintln(errout, "Update refused: manual update capability unavailable.")
+		return 1
+	}
 	if updateEffectiveUID() == 0 {
 		fmt.Fprintln(errout, "Update orchestration must run as the intended non-root QWSG user.")
 		return 1
@@ -402,6 +408,9 @@ func runPrivilegedDiscard(args []string, errout io.Writer) int {
 }
 
 func runUpdateStatus(out, errout io.Writer) int {
+	if !writeUpdatePolicy(out, errout) {
+		return 1
+	}
 	root, err := localStateRoot()
 	if err != nil {
 		fmt.Fprintln(errout, "Update status unavailable: local state root unavailable.")

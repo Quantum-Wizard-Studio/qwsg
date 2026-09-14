@@ -9,8 +9,8 @@ import (
 func TestUpdateNotificationRequiresExplicitNotifyPolicy(t *testing.T) {
 	for name, effective := range map[string]configuration.Effective{
 		"absent": {},
-		"manual": {Values: configuration.Model{Extensions: []configuration.Extension{{ID: "installer.update-policy", Fields: map[string]string{"policy": "manual"}}}}},
-		"notify": {Values: configuration.Model{Extensions: []configuration.Extension{{ID: "installer.update-policy", Fields: map[string]string{"policy": "notify"}}}}},
+		"manual": {Values: configuration.Model{Extensions: []configuration.Extension{{ID: "installer.update-policy", Version: "1.0", Fields: map[string]string{"policy": "manual"}}}}},
+		"notify": {Values: configuration.Model{Extensions: []configuration.Extension{{ID: "installer.update-policy", Version: "1.0", Fields: map[string]string{"policy": "notify"}}}}},
 	} {
 		want := name == "notify"
 		if got := updateNotificationEnabled(effective); got != want {

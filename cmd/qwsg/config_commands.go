@@ -18,9 +18,11 @@ import (
 	"quantumwizard.hu/qwsg/internal/credentialstore"
 	"quantumwizard.hu/qwsg/internal/operatorstate"
 	"quantumwizard.hu/qwsg/internal/pipeline"
+	"quantumwizard.hu/qwsg/internal/productcapability"
 	"quantumwizard.hu/qwsg/internal/runtimeservice"
 	"quantumwizard.hu/qwsg/internal/setupflow"
 	"quantumwizard.hu/qwsg/internal/smtpnotification"
+	"quantumwizard.hu/qwsg/internal/updatepolicy"
 	"quantumwizard.hu/qwsg/internal/userservice"
 )
 
@@ -418,7 +420,14 @@ func resolveLocalConfiguration(source configuration.Source, found bool, temporar
 	if temporary != nil {
 		sources = append(sources, *temporary)
 	}
-	return configuration.Resolve(sources)
+	effective, err := configuration.Resolve(sources)
+	if err != nil {
+		return configuration.Effective{}, err
+	}
+	if _, err = effectiveUpdatePolicy(effective); err != nil {
+		return configuration.Effective{}, err
+	}
+	return effective, nil
 }
 
 func newLocalSource(effective configuration.Effective) configuration.Source {
@@ -460,16 +469,24 @@ func setConfigValue(source configuration.Source, found bool, effective configura
 	case "notification.email.enabled", "notification.lifecycle.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout", "update.policy":
 		extensions := append([]configuration.Extension{}, effective.Values.Extensions...)
 		if key == "update.policy" {
-			if value != "manual" && value != "notify" {
-				return source, fmt.Errorf("update.policy must be manual or notify")
+			request, err := updatepolicy.Parse(updatepolicy.Version, false, map[string]string{"policy": value})
+			if err != nil {
+				return source, err
+			}
+			capabilities, err := installationCapabilities()
+			if err != nil {
+				return source, err
+			}
+			if _, err = updatepolicy.Evaluate(request, capabilities); err != nil {
+				return source, err
 			}
 			for i := range extensions {
-				if extensions[i].ID == "installer.update-policy" {
+				if extensions[i].ID == updatepolicy.ExtensionID {
 					extensions = append(extensions[:i], extensions[i+1:]...)
 					break
 				}
 			}
-			extensions = append(extensions, configuration.Extension{ID: "installer.update-policy", Version: "1.0", Required: false, Fields: map[string]string{"policy": value}})
+			extensions = append(extensions, configuration.Extension{ID: updatepolicy.ExtensionID, Version: "1.0", Required: false, Fields: map[string]string{"policy": value}})
 			source.Patch.Extensions = &extensions
 			return configuration.NormalizeSource(source)
 		}
@@ -517,7 +534,7 @@ func getConfigValue(effective configuration.Effective, key string) (string, erro
 	case "notification.email.enabled", "notification.lifecycle.enabled", "notification.email.recipient", "notification.email.host", "notification.email.port", "notification.email.sender", "notification.email.security", "notification.email.auth", "notification.email.username", "notification.email.credential_ref", "notification.email.timeout", "update.policy":
 		if key == "update.policy" {
 			for _, x := range effective.Values.Extensions {
-				if x.ID == "installer.update-policy" {
+				if x.ID == updatepolicy.ExtensionID {
 					return x.Fields["policy"], nil
 				}
 			}
@@ -606,6 +623,12 @@ func temporaryGuardianSource(base configuration.Effective, interval, timeout *ti
 func configFailure(errout io.Writer, err error) int {
 	diagnostic := "configuration_failed"
 	switch {
+	case errors.Is(err, updatepolicy.ErrAutomaticUnavailable):
+		diagnostic = "automatic_update_policy_unavailable: update.automatic capability required"
+	case errors.Is(err, updatepolicy.ErrPolicy):
+		diagnostic = "update_policy_invalid"
+	case errors.Is(err, productcapability.ErrAuthority):
+		diagnostic = "product_capability_authority_invalid"
 	case errors.Is(err, configurationstore.ErrUnavailable):
 		diagnostic = "configuration_unavailable"
 	case errors.Is(err, configurationstore.ErrUnsafe):

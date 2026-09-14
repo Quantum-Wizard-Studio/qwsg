@@ -66,7 +66,10 @@ KEY=VALUE`, and `qwsg config ...`.
 Guardian performs authenticated release awareness on a restart-safe 24-hour
 schedule. With `update.policy=notify` and configured Community email it sends
 at most one successfully accepted notice per authenticated release identity;
-installation always remains an explicit operator action.
+installation always remains an explicit operator action. `qwsg update status`
+also shows effective policy and capability availability. Community defaults to
+manual; the [Pro policy foundation](docs/architecture/PRODUCT_CAPABILITIES_AND_UPDATE_POLICY.md)
+validates automatic eligibility only through test authority and executes no updates.
 
 ## Documentation
 

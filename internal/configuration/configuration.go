@@ -550,6 +550,9 @@ func validateSecrets(values []SecretReference) error {
 	return nil
 }
 func validateExtensions(values []Extension) error {
+	if _, err := UpdatePolicy(Model{Extensions: values}); err != nil {
+		return err
+	}
 	for i, value := range values {
 		if !idPattern.MatchString(value.ID) || !versionPattern.MatchString(value.Version) || value.Required || value.Fields == nil || len(value.Fields) > 16 || !validMap(value.Fields) || (i > 0 && values[i-1].ID >= value.ID) {
 			return fmt.Errorf("unsupported, invalid, or unordered extension")
