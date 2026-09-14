@@ -276,6 +276,15 @@ bootstrap boundary, offline authority, rollback and future Pro policy seam.
 Task 083 establishes `internal/productcapability` and `internal/updatepolicy`
 above the common authenticated updater. Community defaults to manual; automatic
 policy requires explicit capability and has no execution behavior. Existing
-configuration/notify semantics are preserved. Production entitlement and Task
-084 orchestration remain future work. See
+configuration/notify semantics are preserved. Production entitlement remains future work. See
 `docs/architecture/PRODUCT_CAPABILITIES_AND_UPDATE_POLICY.md`.
+
+
+## Automatic update orchestration core
+
+Task 084 adds explicitly callable `internal/automaticupdate.Run` above the same
+Task 082 engine, gated by Task 083 policy/capability. Structured helper receipts
+expose mutation and rollback outcomes; automatic conflict guards cover execution
+through recovery. The production adapter requires an inactive Guardian. No
+scheduler, background trigger or production Pro entitlement is added. See
+`docs/architecture/AUTOMATIC_UPDATE_ORCHESTRATION.md`.

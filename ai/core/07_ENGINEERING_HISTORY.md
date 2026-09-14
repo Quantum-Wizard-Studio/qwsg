@@ -316,3 +316,8 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   capability authority and frozen-old-client acceptance. Detailed validation
   and closure state are recorded in
   `ai/history/082_2026-09-09_forward-compatible-authenticated-update-migration-authority.md`.
+
+- `2026-09-14`: Task 084 adds explicitly callable automatic orchestration over
+  the common authenticated updater, with capability/policy gating, mutation and
+  rollback evidence, and conflict refusal. Scheduler/Guardian triggers remain
+  deferred. See `ai/history/084_2026-09-14_automatic-update-orchestration-core.md`.

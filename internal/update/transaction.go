@@ -2,6 +2,7 @@ package update
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -19,7 +20,9 @@ type InstalledFile struct {
 type Transaction struct {
 	Schema, FromVersion, ToVersion, ToCommit, Created string
 	Complete                                          bool
-	Files                                             []InstalledFile
+	// MutationStarted is conservative: a destination-changing operation was entered.
+	MutationStarted, RollbackAttempted, RollbackSucceeded bool
+	Files                                                 []InstalledFile
 }
 
 var packageDestinations = map[string]string{
@@ -67,8 +70,16 @@ func Apply(packageRoot, destRoot, backupRoot, fromVersion string) (tx Transactio
 		return tx, fmt.Errorf("package destination set incomplete")
 	}
 	defer func() {
-		if err != nil {
-			_ = restore(tx, destRoot, backupRoot)
+		if err != nil && tx.MutationStarted {
+			tx.RollbackAttempted = true
+			rollbackErr := restore(tx, destRoot, backupRoot)
+			if rollbackErr == nil {
+				rollbackErr = validateRestored(tx, destRoot)
+			}
+			tx.RollbackSucceeded = rollbackErr == nil
+			if rollbackErr != nil {
+				err = errors.Join(err, fmt.Errorf("rollback failed: %w", rollbackErr))
+			}
 		}
 	}()
 	for _, pair := range pairs {
@@ -94,6 +105,7 @@ func Apply(packageRoot, destRoot, backupRoot, fromVersion string) (tx Transactio
 			tx.Files = append(tx.Files, InstalledFile{Destination: pair[1], Backup: backup, SHA256: hash, Mode: uint32(info.Mode().Perm()), Existed: true})
 		} else {
 			tx.Files = append(tx.Files, InstalledFile{Destination: pair[1], Backup: backup, Mode: 0, Existed: false})
+			tx.MutationStarted = true
 			if e = os.MkdirAll(filepath.Dir(dst), 0755); e != nil {
 				return tx, e
 			}
@@ -105,6 +117,7 @@ func Apply(packageRoot, destRoot, backupRoot, fromVersion string) (tx Transactio
 		if pair[0] == "bin/qwsg" {
 			mode = 0755
 		}
+		tx.MutationStarted = true
 		if e = replaceFile(src, dst, mode); e != nil {
 			return tx, e
 		}
@@ -124,7 +137,10 @@ func Rollback(destRoot, backupRoot string) error {
 	if !tx.Complete {
 		return fmt.Errorf("rollback transaction incomplete")
 	}
-	return restore(tx, destRoot, backupRoot)
+	if err = restore(tx, destRoot, backupRoot); err != nil {
+		return err
+	}
+	return validateRestored(tx, destRoot)
 }
 func ReadTransaction(root string) (Transaction, error) {
 	info, err := os.Lstat(root)
@@ -249,4 +265,26 @@ func manifestSet(root string) map[string]bool {
 		}
 	}
 	return result
+}
+
+// validateRestored checks the complete recorded write set, not only the binary.
+func validateRestored(tx Transaction, destRoot string) error {
+	for _, f := range tx.Files {
+		path := filepath.Join(destRoot, f.Destination)
+		info, err := os.Lstat(path)
+		if !f.Existed {
+			if !os.IsNotExist(err) {
+				return fmt.Errorf("rollback removal validation failed")
+			}
+			continue
+		}
+		if err != nil || !info.Mode().IsRegular() || uint32(info.Mode().Perm()) != f.Mode {
+			return fmt.Errorf("rollback destination validation failed")
+		}
+		hash, err := fileSHA(path)
+		if err != nil || hash != f.SHA256 {
+			return fmt.Errorf("rollback restored integrity mismatch")
+		}
+	}
+	return nil
 }

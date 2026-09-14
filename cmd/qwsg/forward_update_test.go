@@ -21,10 +21,12 @@ import (
 	"testing"
 	"time"
 
+	"quantumwizard.hu/qwsg/internal/automaticupdate"
 	"quantumwizard.hu/qwsg/internal/installation"
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	"quantumwizard.hu/qwsg/internal/update"
 	"quantumwizard.hu/qwsg/internal/updateauthority"
+	"quantumwizard.hu/qwsg/internal/updatepolicy"
 )
 
 // TestMain is present only in test-linked binaries. The acceptance executable
@@ -51,8 +53,10 @@ func TestMain(m *testing.M) {
 			return &http.Client{Transport: forwardTransport{directory: os.Getenv("QWSG_FORWARD_ARTIFACTS")}}
 		}
 		commandState = func(string) string { return "yes" }
+		postFailureInjected := false
 		runSystemctl = func(action string) error {
-			if action == "daemon-reload" && os.Getenv("QWSG_FORWARD_FAIL_POST") == "1" {
+			if action == "daemon-reload" && os.Getenv("QWSG_FORWARD_FAIL_POST") == "1" && !postFailureInjected {
+				postFailureInjected = true
 				return fmt.Errorf("injected post-apply failure")
 			}
 			return nil
@@ -91,6 +95,34 @@ func TestMain(m *testing.M) {
 				return fmt.Errorf("helper exit %d", code)
 			}
 			return nil
+		}
+
+		automaticGuardianInactive = func(context.Context) error { return nil }
+		runAutomaticApply = func(ctx context.Context, args ...string) (automaticupdate.ApplyResult, error) {
+			old := updateEffectiveUID
+			updateEffectiveUID = func() int { return 0 }
+			defer func() { updateEffectiveUID = old }()
+			if os.Getenv("QWSG_FORWARD_HELPER_TAMPER") == "1" {
+				for i := 1; i+1 < len(args); i += 2 {
+					if args[i] == "--authority" {
+						_ = os.WriteFile(args[i+1], []byte(`{}`), 0600)
+					}
+				}
+			}
+			_ = os.WriteFile(filepath.Join(root, "helper-old-client"), []byte(version), 0600)
+			var out, diagnostic bytes.Buffer
+			code := runUpdate(args, &out, &diagnostic)
+			var err error
+			if code != 0 {
+				err = fmt.Errorf("helper refused")
+			}
+			return decodeApplyReceipt(out.Bytes(), err)
+		}
+		runAutomaticRollback = func(ctx context.Context, backup string) error {
+			return runSudo("privileged-rollback", "--backup", backup)
+		}
+		if len(os.Args) > 1 && os.Args[1] == "automatic-fixture" {
+			os.Exit(runForwardAutomatic())
 		}
 		verifier, err := updateVerifier()
 		if err != nil {
@@ -165,7 +197,7 @@ func TestOldBinaryForwardAuthenticatedUpdate(t *testing.T) {
 	now := time.Now().UTC().Truncate(time.Second).Format(time.RFC3339)
 	declaration := update.CompatibilityDeclaration{Schema: update.MigrationSchema, SourceVersion: "1.3.1", TargetVersion: target, Platform: "linux-amd64", Capability: update.PreservePackageV1, ConfigurationSchema: "1.0", GuardianSchema: "1.0", SchedulerSchema: "1.0", OperatorState: "1.0-1.2"}
 	index := releasediscovery.Index{Schema: releasediscovery.CapabilitySchema, Product: "qwsg", GeneratedAt: now, Channels: []releasediscovery.Channel{{Name: "stable", Releases: []releasediscovery.Release{{Version: target, PublishedAt: now, Status: "active", SourceCommit: targetCommit, ReleaseNotesURL: "https://example.invalid/notes", MinimumSourceVersion: "1.3.1", Compatibility: []update.CompatibilityDeclaration{declaration}, Artifacts: []releasediscovery.Artifact{{Platform: "linux-amd64", Name: filepath.Base(archive), URL: "https://example.invalid/" + filepath.Base(archive), Size: info.Size(), SHA256: digest}}}}}}}
-	for _, scenario := range []string{"online", "archive", "rollback-after-failure", "unknown-capability", "unsigned", "source-mismatch", "provenance-mismatch", "digest-mismatch", "archive-missing-authority", "helper-reauthentication", "archive-forged-sidecar"} {
+	for _, scenario := range []string{"online", "archive", "rollback-after-failure", "unknown-capability", "unsigned", "source-mismatch", "provenance-mismatch", "digest-mismatch", "archive-missing-authority", "helper-reauthentication", "archive-forged-sidecar", "automatic-success", "automatic-rollback", "automatic-helper-rejection"} {
 		t.Run(scenario, func(t *testing.T) {
 			root := filepath.Join(t.TempDir(), "root")
 			if err := os.Mkdir(root, 0700); err != nil {
@@ -249,28 +281,33 @@ func TestOldBinaryForwardAuthenticatedUpdate(t *testing.T) {
 				}
 				args = append(args, "--archive", local, "--version", target)
 			}
-			if scenario == "helper-reauthentication" {
+			if scenario == "helper-reauthentication" || scenario == "automatic-helper-rejection" {
 				env = append(env, "QWSG_FORWARD_HELPER_TAMPER=1")
 			}
-			if scenario == "rollback-after-failure" {
+			if scenario == "rollback-after-failure" || scenario == "automatic-rollback" {
 				env = append(env, "QWSG_FORWARD_FAIL_POST=1")
 			}
+			if strings.HasPrefix(scenario, "automatic-") {
+				args = []string{"automatic-fixture"}
+			}
 			out, err := runOld(args...)
-			success := scenario == "online" || scenario == "archive"
+			success := scenario == "online" || scenario == "archive" || scenario == "automatic-success"
 			if success != (err == nil) {
 				t.Fatalf("update err=%v output=%s", err, out)
 			}
 			if !success {
 				expected := map[string]string{
-					"unknown-capability":        "authenticated compatible migration capability unavailable",
-					"unsigned":                  "authenticated compatible migration capability unavailable",
-					"source-mismatch":           "authenticated compatible migration capability unavailable",
-					"provenance-mismatch":       "authenticated package verification failed",
-					"digest-mismatch":           "candidate acquisition or integrity verification failed",
-					"archive-missing-authority": "authenticated release metadata unavailable",
-					"helper-reauthentication":   "privileged migration authority refused",
-					"archive-forged-sidecar":    "authenticated package verification failed",
-					"rollback-after-failure":    "automatic package rollback was attempted",
+					"automatic-rollback":         "rollback_success",
+					"automatic-helper-rejection": "apply_failed",
+					"unknown-capability":         "authenticated compatible migration capability unavailable",
+					"unsigned":                   "authenticated compatible migration capability unavailable",
+					"source-mismatch":            "authenticated compatible migration capability unavailable",
+					"provenance-mismatch":        "authenticated package verification failed",
+					"digest-mismatch":            "candidate acquisition or integrity verification failed",
+					"archive-missing-authority":  "authenticated release metadata unavailable",
+					"helper-reauthentication":    "privileged migration authority refused",
+					"archive-forged-sidecar":     "authenticated package verification failed",
+					"rollback-after-failure":     "automatic package rollback was attempted",
 				}[scenario]
 				if expected == "" || !bytes.Contains(out, []byte(expected)) {
 					t.Fatalf("wrong refusal gate for %s: %s", scenario, out)
@@ -282,7 +319,7 @@ func TestOldBinaryForwardAuthenticatedUpdate(t *testing.T) {
 				t.Fatal(readErr)
 			}
 			if success {
-				if !bytes.Equal(got, targetBytes) || !bytes.Contains(out, []byte("updated safely")) {
+				if !bytes.Equal(got, targetBytes) || !(bytes.Contains(out, []byte("updated safely")) || scenario == "automatic-success" && bytes.Contains(out, []byte(`"state":"success"`))) {
 					t.Fatalf("not installed: %s", out)
 				}
 				helper, _ := os.ReadFile(filepath.Join(root, "helper-old-client"))
@@ -406,4 +443,42 @@ func forwardSign(t *testing.T, i releasediscovery.Index, sign bool) []byte {
 		t.Fatal(err)
 	}
 	return b
+}
+
+// Explicit test-only entry exercises the real automatic adapter, canonical
+// installed/config validation, structured root helper, and local commit record.
+func runForwardAutomatic() int {
+	ctx := context.Background()
+	caps, err := proTestAuthority()
+	if err != nil {
+		return 1
+	}
+	metadata, err := updateMetadataFetch(ctx)
+	if err != nil {
+		return 1
+	}
+	verifier, err := updateVerifier()
+	if err != nil {
+		return 1
+	}
+	source, err := installedVersion()
+	if err != nil {
+		return 1
+	}
+	state, err := localStateRoot()
+	if err != nil {
+		return 1
+	}
+	root := filepath.Join(state, "update")
+	if ensureUpdateRoot(root) != nil {
+		return 1
+	}
+	req := automaticupdate.Request{Capabilities: caps, Policy: updatepolicy.Request{Mode: updatepolicy.Automatic}, Metadata: metadata, Verifier: verifier, Evaluator: installedUpdateEvaluator(), Now: time.Now().UTC(), SourceVersion: source, Platform: "linux-amd64", StageParent: root, Client: updateHTTPClient()}
+	host := &automaticHost{root: root, backup: filepath.Join(updateRollbackRoot, "fixture", "automatic")}
+	result, err := automaticupdate.Run(ctx, req, host)
+	_ = json.NewEncoder(os.Stdout).Encode(result)
+	if err != nil {
+		return 1
+	}
+	return 0
 }

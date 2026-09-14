@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"quantumwizard.hu/qwsg/internal/automaticupdate"
 	"quantumwizard.hu/qwsg/internal/changenotification"
 	"quantumwizard.hu/qwsg/internal/installation"
 	"quantumwizard.hu/qwsg/internal/productcapability"
@@ -66,6 +67,9 @@ func runUpdate(args []string, out, errout io.Writer) int {
 	if len(args) > 0 && isHelp(args[0]) {
 		writeUpdateHelp(out)
 		return 0
+	}
+	if len(args) > 0 && args[0] == "privileged-apply-report" {
+		return runPrivilegedApplyReport(args[1:], out, errout)
 	}
 	if len(args) > 0 && args[0] == "privileged-apply" {
 		return runPrivilegedApply(args[1:], errout)
@@ -311,6 +315,18 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 }
 
 func runPrivilegedApply(args []string, errout io.Writer) int {
+	return runPrivilegedApplyReport(args, io.Discard, errout)
+}
+
+// Both manual and automatic callers use this exact helper authority chain.
+func runPrivilegedApplyReport(args []string, out, errout io.Writer) (code int) {
+	receipt := automaticupdate.ApplyResult{Known: true}
+	defer func() {
+		if json.NewEncoder(out).Encode(receipt) != nil {
+			code = 1
+		}
+	}()
+
 	if updateEffectiveUID() != 0 {
 		return usageError(errout, "privileged update helper requires root")
 	}
@@ -363,7 +379,11 @@ func runPrivilegedApply(args []string, errout io.Writer) int {
 		fmt.Fprintln(errout, "privileged authenticated package verification failed")
 		return 1
 	}
-	if _, err = updatecore.Apply(pkg.Root, installedQWSGRoot, values["--backup"], values["--from"]); err != nil {
+	tx, err := updatecore.Apply(pkg.Root, installedQWSGRoot, values["--backup"], values["--from"])
+	receipt.MutationStarted = tx.MutationStarted
+	receipt.RollbackAttempted = tx.RollbackAttempted
+	receipt.RollbackSucceeded = tx.RollbackSucceeded
+	if err != nil {
 		fmt.Fprintln(errout, "privileged update transaction failed")
 		return 1
 	}

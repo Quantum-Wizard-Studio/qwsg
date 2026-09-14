@@ -1,7 +1,7 @@
 # Product capabilities and update policy
 
-Task 083 establishes policy eligibility only. No automatic update execution,
-new scheduler, Guardian installation action or production Pro licensing exists.
+Task 083 establishes policy eligibility only. Task 084 adds an explicitly callable
+orchestration core; no scheduler, Guardian trigger or production Pro licensing exists.
 Community remains the complete local toolkit: observation, understanding,
 comparison, reporting, discovery, authenticated verification and explicit update.
 Pro adds automation eligibility around the same core.
@@ -72,9 +72,9 @@ rollback remain mandatory and unchanged. Both editions use this same engine.
 Tests validate Pro policy then present unsigned, tampered, unsupported and
 source-mismatched candidates to that common authority gate; all refuse.
 
-Task 084 is responsible for separately authorized automatic orchestration. It
-must consume fresh capability/policy eligibility and invoke the same validated
-update path with all service, configuration and rollback safeguards. A policy
-State is not an execution token. This task adds no unattended apply entry point,
-schedules, windows, channels, reboot or automatic rollback orchestration.
-Task 084 has not been started. No release is published by Task 083.
+Task 084 consumes this capability/policy foundation through the explicitly
+callable common-engine coordinator documented in
+`AUTOMATIC_UPDATE_ORCHESTRATION.md`. A policy State is not an execution token.
+Policy evaluation and configuration loading never invoke it. Production remains
+Community/manual; scheduling, Guardian triggers and licensing remain deferred.
+Neither Task 083 nor Task 084 publishes a release.
