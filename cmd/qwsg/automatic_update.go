@@ -22,10 +22,14 @@ import (
 	"quantumwizard.hu/qwsg/internal/updatepolicy"
 )
 
-// executeAutomaticUpdate is an explicit code entry point, deliberately absent
-// from command dispatch and Guardian startup. Production currently resolves
-// Community authority and therefore refuses before fetching or staging.
+// executeAutomaticUpdate retains the Task 084 synchronous composition entry.
 func executeAutomaticUpdate(ctx context.Context) (automaticupdate.Result, error) {
+	return prepareAutomaticUpdate(ctx, automaticupdate.Run)
+}
+
+// Preparation rechecks current capability, policy, installed identity and authority
+// in the handoff process; Guardian observations cannot grant mutation authority.
+func prepareAutomaticUpdate(ctx context.Context, run func(context.Context, automaticupdate.Request, automaticupdate.Host) (automaticupdate.Result, error)) (automaticupdate.Result, error) {
 	req := automaticupdate.Request{Platform: "linux-amd64", Now: time.Now().UTC()}
 	capabilities, err := installationCapabilities()
 	if err != nil {
@@ -95,7 +99,7 @@ func executeAutomaticUpdate(ctx context.Context) (automaticupdate.Result, error)
 	req.Evaluator = installedUpdateEvaluator()
 	req.Client = updateHTTPClient()
 	host := &automaticHost{root: req.StageParent, backup: filepath.Join(updateRollbackRoot, strconv.Itoa(os.Getuid()), time.Now().UTC().Format("20060102T150405.000000000Z"))}
-	return automaticupdate.Run(ctx, req, host)
+	return run(ctx, req, host)
 }
 
 func automaticPreparationFailure(req automaticupdate.Request, category string) (automaticupdate.Result, error) {

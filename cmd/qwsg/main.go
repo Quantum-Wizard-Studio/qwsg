@@ -184,6 +184,9 @@ func runGuardian(args []string, out, errout io.Writer) int {
 		fmt.Fprintln(out, "Usage: qwsg guardian run [--state-dir DIR] [--store DIR] [--config FILE] [--interval DURATION] [--cycle-timeout DURATION]")
 		return 0
 	}
+	if args[0] == "automatic-handoff" {
+		return runAutomaticHandoff(args[1:], errout)
+	}
 	if args[0] == "report-exit" {
 		return runGuardianExit(args[1:], errout)
 	}
@@ -429,6 +432,7 @@ func executeGuardian(options guardianOptions) error {
 		defer releaseChecks.Done()
 		(guardian.ReleaseCheckService{Store: awarenessStore, Ready: ready, Interval: guardian.DefaultReleaseCheckInterval, Timeout: guardian.DefaultReleaseCheckTimeout, Check: func(ctx context.Context) error {
 			state, checkErr := awarenessManager.Check(ctx)
+			_ = guardianAutomaticCheck(ctx, options, effective, awarenessStore, state, checkErr)
 			if checkErr != nil {
 				return checkErr
 			}

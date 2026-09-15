@@ -288,3 +288,16 @@ expose mutation and rollback outcomes; automatic conflict guards cover execution
 through recovery. The production adapter requires an inactive Guardian. No
 scheduler, background trigger or production Pro entitlement is added. See
 `docs/architecture/AUTOMATIC_UPDATE_ORCHESTRATION.md`.
+
+## Guardian automatic update trigger
+
+Task 085 reuses the existing 24-hour Guardian release-check lifecycle. Community
+remains discovery/notification/manual-only. Pro capability plus automatic policy
+permits an authenticated supported candidate to request a finite transient
+user-manager handoff outside Guardian's cgroup/NoNewPrivileges boundary. The
+handoff stops the verified Guardian generation, holds its instance lock, calls
+Task 084 with the inactive check intact, releases the lock and resumes Guardian.
+Private atomic decision and terminal receipts compose Task 084 results; severe
+rollback and incomplete receipts inhibit unattended retry. No new cadence or
+production entitlement source is introduced. See
+`docs/architecture/AUTOMATIC_UPDATE_TRIGGER.md`.

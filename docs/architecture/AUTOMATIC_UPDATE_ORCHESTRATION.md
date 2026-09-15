@@ -1,12 +1,13 @@
 # Automatic update orchestration core
 
-Task 084 adds synchronous `internal/automaticupdate.Run`. It is invoked explicitly
-by trusted code, never by startup, configuration loading, a scheduler or Guardian.
-`cmd/qwsg.executeAutomaticUpdate` supplies canonical configuration, capability,
-installed identity, awareness watermark, verifier and transport dependencies.
-It has no CLI dispatch. Production still resolves Community authority and refuses
-automatic invocation before fetching metadata. Pro remains an isolated test
-capability source; no licensing backend or production entitlement is introduced.
+Task 084 provides synchronous `internal/automaticupdate.Run`. Task 085 adds
+Guardian triggering and a finite service handoff; see
+[AUTOMATIC_UPDATE_TRIGGER.md](AUTOMATIC_UPDATE_TRIGGER.md).
+The common core still owns the transaction. `cmd/qwsg` supplies canonical
+configuration, capability, installed identity, awareness watermark, verifier and
+transport dependencies. Production resolves Community authority; Pro remains a
+trusted test composition source until a separately authorized entitlement adapter
+exists. Configuration alone cannot grant automatic capability.
 
 ## One authenticated engine
 
@@ -102,6 +103,7 @@ installed result. Future service coordination must hold the appropriate service
 ownership boundary when invoking this core. Tests substitute systemd/sudo only
 inside test-linked executables; shipped code has no root/key override flags.
 
-Automatic authorization does not cause automatic triggering. Scheduler/Guardian
-triggers, maintenance windows, reboot handling, delayed health observation,
-commercial entitlement and Task 085 remain deferred. No release is published.
+Task 085 connects automatic authorization to the existing Guardian release-check
+cadence through a separate decision/handoff layer. Maintenance windows, reboot
+handling, delayed health observation and commercial entitlement remain deferred.
+No release is published.

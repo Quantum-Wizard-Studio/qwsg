@@ -321,3 +321,9 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   the common authenticated updater, with capability/policy gating, mutation and
   rollback evidence, and conflict refusal. Scheduler/Guardian triggers remain
   deferred. See `ai/history/084_2026-09-14_automatic-update-orchestration-core.md`.
+
+- `2026-09-15`: Task 085 integrates the Pro-gated automatic trigger into the
+  existing Guardian release cadence, with generation-checked transient handoff,
+  unchanged Task 084 transaction security, separate decision/terminal evidence
+  and isolated Community/Pro acceptance. See
+  `ai/history/085_2026-09-15_pro-automatic-update-trigger.md`.

@@ -286,3 +286,36 @@ func TestManagerRejectsMetadataRollbackAndFutureGeneration(t *testing.T) {
 		t.Fatalf("future state=%+v err=%v", state, err)
 	}
 }
+
+func TestAutomaticEvidenceUsesPrivateAtomicBoundary(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "state")
+	if err := os.Mkdir(root, 0700); err != nil {
+		t.Fatal(err)
+	}
+	store, _ := Open(root)
+	if err := store.RecordAutomation([]byte(`{"outcome":"success"}`), true); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(root, "update", "automatic-result.json")
+	info, err := os.Stat(path)
+	if err != nil || info.Mode().Perm() != 0600 {
+		t.Fatal("unsafe receipt")
+	}
+	if err := store.RecordAutomation([]byte(`invalid`), true); !errors.Is(err, ErrCorrupt) {
+		t.Fatal("invalid evidence accepted")
+	}
+	outside := filepath.Join(root, "outside")
+	if err := os.WriteFile(outside, []byte("preserved"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, filepath.Join(root, "update", "automatic-trigger.json")); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.RecordAutomation([]byte(`{}`), false); err == nil {
+		t.Fatal("symlink evidence accepted")
+	}
+	data, _ := os.ReadFile(outside)
+	if string(data) != "preserved" {
+		t.Fatal("symlink target changed")
+	}
+}

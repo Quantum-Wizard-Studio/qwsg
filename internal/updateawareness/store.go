@@ -1,6 +1,7 @@
 package updateawareness
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"io/fs"
@@ -61,10 +62,28 @@ func (s *Store) Publish(value State) error {
 	if err != nil {
 		return err
 	}
+	return s.publishDocument(fileName, document)
+}
+
+// RecordAutomation uses the same private, atomic, fsynced evidence boundary as
+// release awareness. A later no-op never overwrites the last handoff receipt.
+func (s *Store) RecordAutomation(document []byte, terminal bool) error {
+	if len(document) == 0 || len(document) > MaxEncodedSize || !json.Valid(document) {
+		return ErrCorrupt
+	}
+	name := "automatic-trigger.json"
+	if terminal {
+		name = "automatic-result.json"
+	}
+	return s.publishDocument(name, document)
+}
+
+func (s *Store) publishDocument(recordName string, document []byte) error {
+	var err error
 	if err = ensureDirectory(s.root); err != nil {
 		return err
 	}
-	target := filepath.Join(s.root, fileName)
+	target := filepath.Join(s.root, recordName)
 	if err = validateTarget(target, true); err != nil {
 		return err
 	}
@@ -283,4 +302,29 @@ func classify(err error) error {
 		return ErrPermission
 	}
 	return err
+}
+
+// LoadAutomation reads the last handoff receipt with the same path, ownership
+// and size checks as awareness. It can only restrict future automatic work.
+func (s *Store) LoadAutomation() ([]byte, error) {
+	if err := privateDirectory(s.root); err != nil {
+		return nil, err
+	}
+	path := filepath.Join(s.root, "automatic-result.json")
+	if err := validateTarget(path, false); err != nil {
+		return nil, err
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	data, err := io.ReadAll(io.LimitReader(f, MaxEncodedSize+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(data) == 0 || len(data) > MaxEncodedSize || !json.Valid(data) {
+		return nil, ErrCorrupt
+	}
+	return data, nil
 }
