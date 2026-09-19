@@ -21,6 +21,7 @@ type AutomaticResult struct {
 	Policy            updatepolicy.State      `json:"policy"`
 	CandidateVersion  string                  `json:"candidate_version,omitempty"`
 	Invoked           bool                    `json:"orchestration_invoked"`
+	Recovery          Recovery                `json:"recovery"`
 	RestartFailed     bool                    `json:"restart_failed,omitempty"`
 	Transaction       *automaticupdate.Result `json:"transaction,omitempty"`
 }
@@ -54,16 +55,25 @@ func AutomaticDecision(ctx context.Context, caps productcapability.Set, request 
 	return r
 }
 
-// HandoffControl belongs to the trusted local service adapter. Stop must verify
-// the intended running generation, wait for full inactivity and hold Guardian's
-// instance lock until Resume. Resume also runs when stopping failed midway.
-type HandoffControl interface {
-	Stop(context.Context) error
-	Resume(context.Context) error
+// Recovery distinguishes preserved intent from package transaction success.
+// Unknown/incomplete evidence never authorizes a service start.
+type Recovery struct {
+	Intent        string `json:"intent"`
+	State         string `json:"state"`
+	StopRequested bool   `json:"stop_requested"`
 }
 
-func AutomaticHandoff(ctx context.Context, req automaticupdate.Request, host automaticupdate.Host, control HandoffControl) AutomaticResult {
-	r := AutomaticResult{At: time.Now().UTC(), Outcome: "not_authorized", CapabilityAllowed: req.Capabilities.Has(productcapability.UpdateAutomatic)}
+// HandoffControl belongs to the trusted local service adapter. Stop must verify
+// the intended running generation, wait for full inactivity and hold Guardian's
+// instance lock until Recover. Recover checks preserved intent and package safety;
+// it also runs when stopping failed midway, and verifies any resulting restart.
+type HandoffControl interface {
+	Stop(context.Context) error
+	Recover(context.Context, bool) (Recovery, error)
+}
+
+func AutomaticHandoff(ctx context.Context, req automaticupdate.Request, host automaticupdate.Host, control HandoffControl, persist ...func(AutomaticResult) error) AutomaticResult {
+	r := AutomaticResult{At: time.Now().UTC(), Outcome: "not_authorized", CapabilityAllowed: req.Capabilities.Has(productcapability.UpdateAutomatic), Recovery: Recovery{Intent: "unchanged", State: "not_changed"}}
 	var err error
 	r.Policy, err = updatepolicy.Evaluate(req.Policy, req.Capabilities)
 	if err != nil || !r.CapabilityAllowed || r.Policy.Effective != updatepolicy.Automatic {
@@ -83,27 +93,72 @@ func AutomaticHandoff(ctx context.Context, req automaticupdate.Request, host aut
 		return r
 	}
 	r.Outcome = "handoff_failed"
-	if control == nil {
+	if control == nil || host == nil {
 		return r
 	}
-	if err = control.Stop(ctx); err == nil {
-		r.Invoked = true
-		result, runErr := automaticupdate.Run(ctx, req, host)
-		r.Transaction = &result
+	h := &handoffHost{Host: host, control: control}
+	h.finish = func(ctx context.Context, transaction automaticupdate.Result) error {
+		r.Transaction = &transaction
 		r.Outcome = "orchestration_failed"
-		if result.State == automaticupdate.RollbackFailure {
+		if h.stopFailed {
+			r.Outcome = "handoff_failed"
+		}
+		switch transaction.State {
+		case automaticupdate.RollbackFailure:
 			r.Outcome = "rollback_failed"
-		} else if result.State == automaticupdate.RollbackSuccess {
+		case automaticupdate.RollbackSuccess:
 			r.Outcome = "orchestration_rolled_back"
-		} else if runErr == nil && result.State == automaticupdate.Success {
+		case automaticupdate.Success:
 			r.Outcome = "success"
 		}
+		recovery, cancel := context.WithTimeout(ctx, 30*time.Second)
+		defer cancel()
+		var recoveryErr error
+		safe := transaction.State == automaticupdate.Success || transaction.State == automaticupdate.RollbackSuccess ||
+			transaction.State == automaticupdate.Failure && transaction.MutationKnown && !transaction.MutationStarted
+		if !safe && transaction.State != automaticupdate.RollbackFailure {
+			r.Outcome = "handoff_incomplete"
+		}
+		r.Recovery, recoveryErr = control.Recover(recovery, safe)
+		r.RestartFailed = recoveryErr != nil
+		if recoveryErr != nil && r.Outcome != "rollback_failed" {
+			r.Outcome = "recovery_failed"
+		}
+		for _, save := range persist {
+			if err := save(r); err != nil {
+				r.Outcome = "evidence_failed"
+				return err
+			}
+		}
+		return recoveryErr
 	}
-	recovery, cancel := context.WithTimeout(context.WithoutCancel(ctx), 3*time.Minute)
-	defer cancel()
-	r.RestartFailed = control.Resume(recovery) != nil
-	if r.RestartFailed && r.Outcome != "rollback_failed" {
-		r.Outcome = "handoff_failed"
+	r.Invoked = true
+	transaction, _ := automaticupdate.Run(ctx, req, h)
+	if !h.finalized {
+		r.Outcome = "orchestration_failed"
+		r.Transaction = &transaction
+		r.Recovery = Recovery{Intent: "unchanged", State: "not_changed"}
 	}
 	return r
+}
+
+// Stop, transaction, recovery and evidence share Run's mutation lease. Staging
+// and authentication failures occur before Stop and cannot change service intent.
+type handoffHost struct {
+	automaticupdate.Host
+	control               HandoffControl
+	stopFailed, finalized bool
+	finish                func(context.Context, automaticupdate.Result) error
+}
+
+func (h *handoffHost) Preflight(ctx context.Context, from, to string) error {
+	if err := h.control.Stop(ctx); err != nil {
+		h.stopFailed = true
+		return err
+	}
+	return h.Host.Preflight(ctx, from, to)
+}
+func (h *handoffHost) Finalize(ctx context.Context, r automaticupdate.Result) error {
+	h.finalized = true
+	return h.finish(ctx, r)
 }

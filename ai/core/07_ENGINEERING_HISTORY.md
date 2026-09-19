@@ -333,3 +333,8 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   preserving authorization gates and read-only awareness. Deterministic contention,
   recovery/re-entry and race validation recorded in
   `ai/history/086_2026-09-19_common-update-mutation-exclusion.md`.
+
+- `2026-09-19`: Task 087 makes Go the sole Guardian update recovery owner,
+  extends common mutation exclusion through handoff/recovery/evidence, verifies
+  service recovery and records manual rollback package/recovery outcomes.
+  See `ai/history/087_2026-09-19_guardian-handoff-rollback-recovery-hardening.md`.

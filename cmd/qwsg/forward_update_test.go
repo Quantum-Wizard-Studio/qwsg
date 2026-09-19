@@ -53,6 +53,23 @@ func TestMain(m *testing.M) {
 			return &http.Client{Transport: forwardTransport{directory: os.Getenv("QWSG_FORWARD_ARTIFACTS")}}
 		}
 		commandState = func(string) string { return "yes" }
+		guardianServiceState = func(context.Context) (string, error) { return "active", nil }
+		automaticSystemctl = func(_ context.Context, args ...string) ([]byte, error) {
+			if args[0] != "show" {
+				return nil, nil
+			}
+			switch args[2] {
+			case "--property=ActiveState":
+				return []byte("active"), nil
+			case "--property=SubState":
+				return []byte("running"), nil
+			case "--property=Result":
+				return []byte("success"), nil
+			case "--property=MainPID":
+				return []byte("42"), nil
+			}
+			return nil, fmt.Errorf("unexpected service query")
+		}
 		postFailureInjected := false
 		runSystemctl = func(action string) error {
 			if action == "daemon-reload" && os.Getenv("QWSG_FORWARD_FAIL_POST") == "1" && !postFailureInjected {

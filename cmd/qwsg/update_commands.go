@@ -16,6 +16,7 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/automaticupdate"
 	"quantumwizard.hu/qwsg/internal/changenotification"
+	"quantumwizard.hu/qwsg/internal/guardian"
 	"quantumwizard.hu/qwsg/internal/installation"
 	"quantumwizard.hu/qwsg/internal/productcapability"
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
@@ -481,6 +482,7 @@ func writeAwareness(out io.Writer, state updateawareness.State, now time.Time) {
 	}
 }
 func runUpdateRollback(out, errout io.Writer) (code int) {
+	code = 1 // Abnormal exit must never run a success-reporting defer.
 	if updateEffectiveUID() == 0 {
 		fmt.Fprintln(errout, "Rollback orchestration must run as the intended non-root QWSG user.")
 		return 1
@@ -512,30 +514,90 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 		}
 		managedChangeDelivery(managedEvent(changenotification.Rollback, outcome, operationID, record.Installed, record.Previous, reason), errout)
 	}()
-	active := commandState("is-active")
-	enabled := commandState("is-enabled")
-	if active == "yes" {
-		if err = runSystemctl("stop"); err != nil {
+	receipt := rollbackEvidence{Schema: "qwsg.rollback-result/1", At: time.Now().UTC().Format(time.RFC3339Nano), Source: record.Installed, Target: record.Previous, Outcome: "incomplete", Package: "not_attempted", Recovery: guardian.Recovery{Intent: "unknown", State: "not_changed"}}
+	// Write intent before any service or package change. Worker loss leaves an
+	// incomplete receipt, never a fabricated successful rollback.
+	if err = saveLocalEvidence(updateRoot, "rollback-result.json", receipt); err != nil {
+		return 1
+	}
+	stopAttempted := false
+	defer func() {
+		if code != 0 && receipt.Package == "not_attempted" && stopAttempted {
+			recovery, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			var recoveryErr error
+			receipt.Recovery, recoveryErr = recoverGuardian(recovery, receipt.Recovery, true)
+			if recoveryErr != nil {
+				receipt.Outcome = "recovery_failed"
+			}
+		}
+		if code != 0 && receipt.Outcome == "incomplete" {
+			receipt.Outcome = "rollback_failed"
+		}
+		if err := saveLocalEvidence(updateRoot, "rollback-result.json", receipt); err != nil {
+			code = 1
+			outcome = changenotification.Failed
+			fmt.Fprintln(errout, "Rollback terminal evidence failed.")
+		}
+		if code == 0 {
+			fmt.Fprintf(out, "QWSG rolled back safely: %s -> %s\n", safeText(record.Installed), safeText(record.Previous))
+		}
+	}()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	active, err := guardianServiceState(ctx)
+	if err != nil {
+		return 1
+	}
+	receipt.Recovery.Intent = active
+	receipt.Recovery.StopRequested = active == "active"
+	receipt.Recovery.State = "pending"
+	if err = saveLocalEvidence(updateRoot, "rollback-result.json", receipt); err != nil {
+		return 1
+	}
+	if active == "active" {
+		stopAttempted = true
+		if _, err = automaticSystemctl(ctx, "stop", "qwsg-guardian.service"); err != nil {
+			receipt.Recovery.State = "failed"
 			return 1
 		}
+	}
+	if err = automaticGuardianInactive(ctx); err != nil {
+		receipt.Recovery.State = "failed"
+		return 1
+	}
+	receipt.Package = "attempted"
+	if err = saveLocalEvidence(updateRoot, "rollback-result.json", receipt); err != nil {
+		receipt.Package = "not_attempted"
+		return 1
 	}
 	if err = runSudo("privileged-rollback", "--backup", record.Backup); err == nil {
 		err = runSystemctl("daemon-reload")
 	}
-	if err == nil && enabled == "yes" {
-		err = runSystemctl("enable")
-	}
-	if err == nil && active == "yes" {
-		err = runSystemctl("start")
+	if err == nil {
+		err = validateInstalledVersion(record.Previous)
 	}
 	if err != nil {
+		receipt.Package = "failed"
+		receipt.Recovery.State = "blocked"
 		fmt.Fprintln(errout, "Rollback failed; Guardian was not reported ready.")
 		return 1
 	}
-	if err = os.Remove(filepath.Join(root, "update", "current.json")); err != nil {
+	receipt.Package = "validated"
+	// Package restoration and Guardian recovery are independent evidence.
+	recovery, cancelRecovery := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancelRecovery()
+	receipt.Recovery, err = recoverGuardian(recovery, receipt.Recovery, true)
+	if err != nil {
+		receipt.Recovery.State = "failed"
+		receipt.Outcome = "recovery_failed"
 		return 1
 	}
-	fmt.Fprintf(out, "QWSG rolled back safely: %s -> %s\n", safeText(record.Installed), safeText(record.Previous))
+	if err = os.Remove(filepath.Join(updateRoot, "current.json")); err != nil {
+		receipt.Outcome = "finalization_failed"
+		return 1
+	}
+	receipt.Outcome = "success"
 	outcome = changenotification.Success
 	return 0
 }
@@ -560,7 +622,21 @@ func ensureUpdateRoot(path string) error {
 	}
 	return nil
 }
+
+type rollbackEvidence struct {
+	Schema   string            `json:"schema"`
+	At       string            `json:"at"`
+	Source   string            `json:"source_version"`
+	Target   string            `json:"target_version"`
+	Outcome  string            `json:"outcome"`
+	Package  string            `json:"package"`
+	Recovery guardian.Recovery `json:"recovery"`
+}
+
 func saveUpdateRecord(root string, r localUpdateRecord) error {
+	return saveLocalEvidence(root, "current.json", r)
+}
+func saveLocalEvidence(root, target string, r any) error {
 	data, err := json.Marshal(r)
 	if err != nil {
 		return err
@@ -584,7 +660,15 @@ func saveUpdateRecord(root string, r localUpdateRecord) error {
 	if err != nil {
 		return err
 	}
-	return os.Rename(name, filepath.Join(root, "current.json"))
+	if err = os.Rename(name, filepath.Join(root, target)); err != nil {
+		return err
+	}
+	dir, err := os.Open(root)
+	if err != nil {
+		return err
+	}
+	defer dir.Close()
+	return dir.Sync()
 }
 func loadUpdateRecord(root string) (localUpdateRecord, error) {
 	path := filepath.Join(root, "current.json")

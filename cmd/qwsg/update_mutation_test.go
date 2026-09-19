@@ -22,6 +22,16 @@ func mutationCommandFixture(t *testing.T) string {
 	t.Helper()
 	state := t.TempDir()
 	t.Setenv("QWSG_STATE_DIR", state)
+	oldAutomatic, oldGuardianState := automaticSystemctl, guardianServiceState
+	t.Cleanup(func() { automaticSystemctl, guardianServiceState = oldAutomatic, oldGuardianState })
+	automaticSystemctl = func(context.Context, ...string) ([]byte, error) {
+		t.Fatal("contender reached automatic service control")
+		return nil, nil
+	}
+	guardianServiceState = func(context.Context) (string, error) {
+		t.Fatal("contender reached Guardian state query")
+		return "", nil
+	}
 	root := filepath.Join(state, "update")
 	if err := ensureUpdateRoot(root); err != nil {
 		t.Fatal(err)
@@ -117,7 +127,9 @@ func TestManualOwnersExcludeAllMutationPathsAndReleaseOnFailure(t *testing.T) {
 					t.Fatal(err)
 				}
 				commandState = func(string) string { return "yes" }
-				runSystemctl = func(string) error { compete(); return errors.New("injected stop failure") }
+				service := recoveryService(t, true)
+				service.stopFailure = true
+				service.onCommand = func(string) { compete() }
 				if runUpdateRollback(io.Discard, &diagnostic) != 1 {
 					t.Fatal("failure not reported")
 				}
@@ -170,6 +182,7 @@ func TestManualMutationOwnershipThroughHelperAndRecovery(t *testing.T) {
 			forwardWrite(t, req.LocalArchive+".release-index.json", forwardSign(t, index, true), 0600)
 			commandState = func(string) string { return "yes" }
 			runSystemctl = func(string) error { return nil }
+			recoveryService(t, true)
 			calls := []string{}
 			runSudo = func(args ...string) error {
 				calls = append(calls, args[0])

@@ -34,14 +34,21 @@ root is passed explicitly. The private pending receipt must be persisted before
 handoff. The internal `guardian automatic-handoff` entry requires the transient
 unit's cgroup and rechecks authority; it is not an operator automatic-update CLI.
 
-The worker verifies the running Guardian InvocationID, requests a synchronous
-stop and verifies inactivity. It acquires Guardian's existing instance lock to
-exclude a second local Guardian during the transaction. Task 084's inactive check
-is unchanged. After the transaction finishes, the worker releases the instance
-lock and requests start using an independent recovery context, including stop
-failure and rollback cases. The transient unit also has an ExecStopPost start
-request as a service-manager fallback. Ordinary transaction failures do not kill
-the Guardian scheduler; restart failure is explicit in evidence.
+Task 087 makes the Go handoff the sole recovery owner. The transient unit has
+no ExecStopPost/start fallback. The common mutation lease covers staging,
+service stop, package transaction, evaluated recovery and terminal evidence.
+The worker observes active/inactive state; active intent additionally requires
+the expected InvocationID. It durably records intent before requesting stop,
+verifies inactivity and holds Guardian's instance lock during package work.
+An already inactive Guardian remains stopped. Unknown state refuses mutation.
+
+Recovery releases the instance lock and restores running intent only after a
+known non-mutating failure, validated update or validated rollback. Failed or
+incomplete rollback and interrupted apply never authorize restart. Recovery uses
+an independent 30-second context and requires ActiveState=active,
+SubState=running, Result=success and a positive MainPID after start. This proves
+immediate service recovery, not long-duration health. No service enablement
+policy is changed. Stop failures preserve explicit intent for bounded recovery.
 
 ## Repetition, evidence and failures
 
@@ -57,19 +64,23 @@ under the canonical update state directory:
 - `automatic-trigger.json`: latest trigger time, capability/policy decision,
   candidate version and handoff/no-action outcome.
 - `automatic-result.json`: last handoff receipt, including whether Task 084 was
-  invoked and its unmodified transaction result. That result carries mutation
-  knowledge and rollback outcome. A later no-op cannot erase this receipt.
+  invoked, its package transaction result, and recovery intent/state/stop request.
+  Package success alone is not overall recovery success. A later no-op or
+  contender cannot erase this receipt; terminal writes occur under mutation exclusion.
 
 Outcomes distinguish `not_authorized`, `no_update`, `candidate_rejected`,
 `handoff_pending`, `handoff_requested`, `handoff_failed`, `orchestration_failed`,
-`orchestration_rolled_back`, `rollback_failed` and `success`. Rollback success is
+`orchestration_rolled_back`, `rollback_failed`, `recovery_failed`,
+`evidence_failed`, `handoff_incomplete` and `success`. Package rollback success is
 still a failed update. `restart_failed` is separate; it cannot turn a failed
 rollback into success. No raw command errors, metadata or secrets are stored.
 Failed evidence persistence prevents admission; post-transaction persistence
 failure returns a nonzero worker result and an explicit journal diagnostic.
 
 A prior `rollback_failed` receipt inhibits unattended retries (`rollback_blocked`);
-an unfinished pending receipt inhibits them as `handoff_incomplete`. Malformed or
+an unfinished pending receipt or failed recovery inhibits them as
+`handoff_incomplete`. Worker death leaves explicit incomplete evidence and no
+service-manager recovery side effect. Malformed or
 unsafe evidence fails closed (`evidence_invalid`). These decisions preserve the
 original terminal receipt. After repairing and verifying the installation, an
 operator may archive that exact receipt outside the active path before explicitly
@@ -91,4 +102,16 @@ do not claim a live systemd or production entitlement deployment.
 
 Maintenance/weekday/blackout/timezone rules, fleet/staged/canary rollout, reboot,
 remote orchestration, licensing, persistent crash recovery and long health windows
-remain deferred. No release is published and Task 086 is not started.
+remain deferred. No release is published.
+
+## Manual rollback evidence
+
+Task 087 reuses the bounded intent-based recovery and service verification for
+manual rollback. `rollback-result.json` records source/target, package phase,
+overall outcome and recovery state. Intent and attempted rollback are persisted
+before their side effects; terminal evidence uses an atomic file+directory-fsynced
+write under the common mutation lease. Helper success must be followed by the
+installed package identity/configuration validation, then required recovery.
+A failed helper/validation blocks restart. Failed recovery retains rollback
+metadata and never prints success. Unknown or incomplete state is not success;
+no record grants release, migration, privilege or rollback authority.

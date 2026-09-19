@@ -77,6 +77,9 @@ type PackageInput struct {
 // metadata atomically and must not discard previous rollback material on error.
 // Run owns the common mutation lease across every Host call. Host implementations
 // must not call another coordinator or acquire the mutation lease recursively.
+// An optional Finalize(context.Context, Result) error method runs under the same
+// lease on every admitted exit, including interrupted/nonterminal transactions;
+// it must fail closed and use bounded contexts for recovery.
 type Host interface {
 	Preflight(context.Context, string, string) error
 	Apply(context.Context, PackageInput) (ApplyResult, error)
@@ -107,8 +110,8 @@ var running atomic.Bool
 // Run is synchronous and explicitly invoked. The process guard also rejects
 // recursive invocation across different Runner/Host instances. The nonblocking
 // file lock covers independent processes sharing the canonical update directory.
-func Run(ctx context.Context, req Request, host Host) (Result, error) {
-	r := Result{SourceVersion: req.SourceVersion, TargetVersion: req.TargetVersion, RollbackResult: "not_required", MutationKnown: true}
+func Run(ctx context.Context, req Request, host Host) (r Result, runErr error) {
+	r = Result{SourceVersion: req.SourceVersion, TargetVersion: req.TargetVersion, RollbackResult: "not_required", MutationKnown: true}
 	enter := func(s State) { r.State = s; r.Stages = append(r.Stages, s) }
 	enter(Idle)
 	fail := func(category string) (Result, error) {
@@ -143,6 +146,22 @@ func Run(ctx context.Context, req Request, host Host) (Result, error) {
 		return fail("transaction_lock_unavailable")
 	}
 	defer lock.Close() // Closing the descriptor releases flock; never unlink it.
+	// Finalize runs before releasing exclusion, including service recovery and
+	// durable terminal evidence. It cannot grant package authority.
+	defer func() {
+		// An abnormal exit during a mutable phase has no terminal helper
+		// receipt. Preserve uncertainty rather than the initial no-mutation flag.
+		switch r.State {
+		case Backup, Apply, PostUpdateValidation, Rollback:
+			r.MutationKnown = false
+			r.MutationStarted = true
+		}
+		if finalizer, ok := host.(interface {
+			Finalize(context.Context, Result) error
+		}); ok {
+			runErr = errors.Join(runErr, finalizer.Finalize(context.WithoutCancel(ctx), r))
+		}
+	}()
 	if ctx.Err() != nil {
 		return fail("cancelled")
 	}

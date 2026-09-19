@@ -52,7 +52,8 @@ are outside the write set.
 ordered stages, original failure stage/category, mutation knowledge, conservative
 mutation boundary and rollback attempted/result. Categories and booleans are
 bounded audit data: no raw helper output, metadata, paths or secrets are stored.
-`rollback_success` is a failed update with successful restoration, never success.
+`rollback_success` proves package restoration, never successful update or Guardian
+recovery. The handoff must independently confirm required service recovery.
 `rollback_failure` is an explicit degraded terminal outcome requiring attention;
 callers must not hide it or automatically retry it as an ordinary refusal.
 
@@ -119,10 +120,11 @@ capability/policy authorization, privileged helper validation and rollback check
 remain mandatory. No caller-controlled “already locked” flag or authorization
 shortcut is introduced. Community remains manual by default.
 
-This scope excludes Guardian handoff/restart redesign, cross-user/different-state
-installation management and persistent recovery after coordinator/host loss.
-The existing Task 085 handoff still stops/resumes around `Run`; this lease covers
-the package transaction, not the entire service handoff. Existing older manual
+Task 087 places handoff stop in the wrapped preflight and recovery/evidence in
+a trusted host finalizer executed before `Run` releases the common lease. This
+covers the full service handoff without nested lock acquisition or alternate
+authority. Cross-user/different-state installation management and persistent
+recovery after coordinator/host loss remain excluded. Existing older manual
 clients do not acquire this lock; deploy consistent client code before relying
 on common exclusion. Root administrative actions are outside cooperative locking.
 

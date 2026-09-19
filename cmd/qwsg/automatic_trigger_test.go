@@ -56,15 +56,18 @@ func (c *triggerControl) Stop(context.Context) error {
 	}
 	return nil
 }
-func (c *triggerControl) Resume(context.Context) error {
+func (c *triggerControl) Recover(_ context.Context, safe bool) (guardian.Recovery, error) {
+	if !safe {
+		return guardian.Recovery{Intent: "active", State: "blocked", StopRequested: true}, nil
+	}
 	c.resume++
 	if c.afterResume != nil {
 		c.afterResume()
 	}
 	if c.resumeError {
-		return errors.New("restart failed")
+		return guardian.Recovery{Intent: "active", State: "failed", StopRequested: true}, errors.New("restart failed")
 	}
-	return nil
+	return guardian.Recovery{Intent: "active", State: "verified_running", StopRequested: true}, nil
 }
 
 func TestAutomaticTriggerGatesAndNoOp(t *testing.T) {
@@ -178,6 +181,7 @@ func TestAutomaticHandoffSecurityResultsAndRecovery(t *testing.T) {
 				}
 				want = "orchestration_failed"
 				wantApply = 0
+				wantStop = 0
 			case "rollback":
 				host.postError = true
 				want = "orchestration_rolled_back"
@@ -187,7 +191,7 @@ func TestAutomaticHandoffSecurityResultsAndRecovery(t *testing.T) {
 				want = "rollback_failed"
 			case "restart failure":
 				control.resumeError = true
-				want = "handoff_failed"
+				want = "recovery_failed"
 			}
 			host.onPreflight = func() {
 				if control.stop != 1 || control.resume != 0 {
@@ -195,7 +199,12 @@ func TestAutomaticHandoffSecurityResultsAndRecovery(t *testing.T) {
 				}
 			}
 			r := guardian.AutomaticHandoff(context.Background(), req, host, control)
-			if r.Outcome != want || host.applyCalls != wantApply || control.stop != wantStop || control.resume != wantStop {
+			if r.Outcome != want || host.applyCalls != wantApply || control.stop != wantStop || control.resume != func() int {
+				if scenario == "rollback failure" {
+					return 0
+				}
+				return wantStop
+			}() {
 				t.Fatalf("%+v apply=%d stop/resume=%d/%d", r, host.applyCalls, control.stop, control.resume)
 			}
 			if wantApply == 0 || scenario == "rollback" {
@@ -346,8 +355,13 @@ func TestAutomaticGuardianBlackBox(t *testing.T) {
 }
 
 func TestAutomaticServiceHandoffGenerationAndLock(t *testing.T) {
-	originalCommand, originalInactive := automaticSystemctl, automaticGuardianInactive
-	defer func() { automaticSystemctl = originalCommand; automaticGuardianInactive = originalInactive }()
+	originalCommand, originalInactive, originalState := automaticSystemctl, automaticGuardianInactive, guardianServiceState
+	defer func() {
+		automaticSystemctl = originalCommand
+		automaticGuardianInactive = originalInactive
+		guardianServiceState = originalState
+	}()
+	guardianServiceState = func(context.Context) (string, error) { return "active", nil }
 	generation := strings.Repeat("a", 32)
 	for _, scenario := range []string{"normal", "changed generation", "stop failure", "still active"} {
 		t.Run(scenario, func(t *testing.T) {
@@ -358,6 +372,16 @@ func TestAutomaticServiceHandoffGenerationAndLock(t *testing.T) {
 				operations = append(operations, args[0])
 				switch args[0] {
 				case "show":
+					switch args[2] {
+					case "--property=ActiveState":
+						return []byte("active"), nil
+					case "--property=SubState":
+						return []byte("running"), nil
+					case "--property=Result":
+						return []byte("success"), nil
+					case "--property=MainPID":
+						return []byte("123"), nil
+					}
 					if scenario == "changed generation" {
 						return []byte(strings.Repeat("b", 32)), nil
 					}
@@ -393,7 +417,7 @@ func TestAutomaticServiceHandoffGenerationAndLock(t *testing.T) {
 					t.Fatalf("Guardian could enter during transaction: %v", err)
 				}
 			}
-			if err := control.Resume(context.Background()); err != nil {
+			if _, err := control.Recover(context.Background(), true); err != nil {
 				t.Fatal(err)
 			}
 			if inactive {
