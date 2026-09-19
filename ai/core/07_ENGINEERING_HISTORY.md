@@ -327,3 +327,9 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   unchanged Task 084 transaction security, separate decision/terminal evidence
   and isolated Community/Pro acceptance. See
   `ai/history/085_2026-09-15_pro-automatic-update-trigger.md`.
+
+- `2026-09-19`: Task 086 shares the existing nonblocking process-safe update lock
+  across manual authenticated update, automatic orchestration and manual rollback,
+  preserving authorization gates and read-only awareness. Deterministic contention,
+  recovery/re-entry and race validation recorded in
+  `ai/history/086_2026-09-19_common-update-mutation-exclusion.md`.

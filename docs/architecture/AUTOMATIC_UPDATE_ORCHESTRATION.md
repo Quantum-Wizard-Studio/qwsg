@@ -86,14 +86,45 @@ long-duration health monitoring.
 
 ## Invocation safety and service boundary
 
-A process-wide atomic guard rejects recursive/concurrent automatic calls even
-with separate host instances. A nonblocking `flock` on the canonical private
-update directory's `automatic.lock` rejects other processes using that same
-installation identity. The descriptor remains held through commit or rollback;
-its file is not unlinked. Unsafe directory ownership/mode and symlink lock files
-refuse. All callers must use the canonical installation directory. This guard
-covers automatic transactions; it is not distributed locking or a new global
-manual-operation scheduling system.
+Task 086 shares `internal/updatemutation.Acquire` between manual authenticated
+update, automatic `Run`, and manual rollback. It reuses the existing nonblocking
+`flock` and retains the canonical private update directory's `automatic.lock`
+name so existing automatic clients still coordinate on the same inode. Each
+installed instance must use its canonical user/state directory consistently.
+Directory/lock ownership and private modes are checked; symlinks are refused.
+The file is never unlinked. Failure closes the descriptor just as success does.
+
+The top-level coordinator owns a lease through synchronous helper completion,
+post-update validation, rollback/recovery validation and rollback-record changes.
+Manual acquisition precedes installed identity/rollback-record reads and Guardian
+service changes. Automatic acquisition remains after capability/policy admission,
+before candidate authorization/staging; production preflight rechecks source
+identity under the lease. A process-wide atomic guard additionally preserves
+automatic recursive/concurrent-call rejection across distinct host instances.
+Separate file opens also reject same-process manual re-entry without waiting.
+
+Contention returns `transaction_conflict` without package mutation: manual CLI
+exit 3 includes guidance to retry after the active transaction finishes; automatic
+results retain `MutationStarted=false`. Unsafe/unavailable locks fail closed with
+ordinary manual failure or automatic `transaction_lock_unavailable`. There is no
+retry loop. Update check, status and release awareness require no mutation lease;
+the existing awareness-state lock remains independent.
+
+The privileged apply/rollback/discard functions are root-only internal transaction
+steps called synchronously by the owning coordinator, not independent public
+orchestrators. They must not acquire recursively or call a top-level coordinator.
+The common `update.Apply`/`Rollback` engine likewise executes inside that scope.
+Lease ownership is coordination only: release authentication, migration authority,
+capability/policy authorization, privileged helper validation and rollback checks
+remain mandatory. No caller-controlled “already locked” flag or authorization
+shortcut is introduced. Community remains manual by default.
+
+This scope excludes Guardian handoff/restart redesign, cross-user/different-state
+installation management and persistent recovery after coordinator/host loss.
+The existing Task 085 handoff still stops/resumes around `Run`; this lease covers
+the package transaction, not the entire service handoff. Existing older manual
+clients do not acquire this lock; deploy consistent client code before relying
+on common exclusion. Root administrative actions are outside cooperative locking.
 
 The production adapter requires a verified inactive Guardian service and valid
 installed configuration. Active, failed or unknown service state refuses before

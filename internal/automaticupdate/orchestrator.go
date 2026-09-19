@@ -9,13 +9,13 @@ import (
 	"os"
 	"path/filepath"
 	"sync/atomic"
-	"syscall"
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/productcapability"
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	"quantumwizard.hu/qwsg/internal/update"
 	"quantumwizard.hu/qwsg/internal/updateauthority"
+	"quantumwizard.hu/qwsg/internal/updatemutation"
 	"quantumwizard.hu/qwsg/internal/updatepolicy"
 )
 
@@ -75,6 +75,8 @@ type PackageInput struct {
 // Preflight cannot mutate the installation. Rollback and Validate must work even
 // when the caller's context has been cancelled. Commit records local rollback
 // metadata atomically and must not discard previous rollback material on error.
+// Run owns the common mutation lease across every Host call. Host implementations
+// must not call another coordinator or acquire the mutation lease recursively.
 type Host interface {
 	Preflight(context.Context, string, string) error
 	Apply(context.Context, PackageInput) (ApplyResult, error)
@@ -133,9 +135,12 @@ func Run(ctx context.Context, req Request, host Host) (Result, error) {
 		return fail("transaction_conflict")
 	}
 	defer running.Store(false)
-	lock, err := acquire(req.StageParent)
-	if err != nil {
+	lock, err := updatemutation.Acquire(req.StageParent)
+	if errors.Is(err, updatemutation.ErrContended) {
 		return fail("transaction_conflict")
+	}
+	if err != nil {
+		return fail("transaction_lock_unavailable")
 	}
 	defer lock.Close() // Closing the descriptor releases flock; never unlink it.
 	if ctx.Err() != nil {
@@ -238,26 +243,4 @@ func Run(ctx context.Context, req Request, host Host) (Result, error) {
 	r.RollbackResult = "succeeded"
 	enter(RollbackSuccess)
 	return r, errors.New(category)
-}
-
-func acquire(root string) (*os.File, error) {
-	info, err := os.Lstat(root)
-	if err != nil || !info.IsDir() || info.Mode().Perm() != 0700 || int(info.Sys().(*syscall.Stat_t).Uid) != os.Getuid() {
-		return nil, errors.New("unsafe update directory")
-	}
-	fd, err := syscall.Open(filepath.Join(root, "automatic.lock"), syscall.O_CREAT|syscall.O_RDWR|syscall.O_CLOEXEC|syscall.O_NOFOLLOW, 0600)
-	if err != nil {
-		return nil, err
-	}
-	f := os.NewFile(uintptr(fd), "automatic.lock")
-	info, err = f.Stat()
-	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm() != 0600 || int(info.Sys().(*syscall.Stat_t).Uid) != os.Getuid() {
-		f.Close()
-		return nil, errors.New("unsafe update lock")
-	}
-	if err = syscall.Flock(fd, syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
-		f.Close()
-		return nil, err
-	}
-	return f, nil
 }

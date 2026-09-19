@@ -22,6 +22,7 @@ import (
 	updatecore "quantumwizard.hu/qwsg/internal/update"
 	"quantumwizard.hu/qwsg/internal/updateauthority"
 	"quantumwizard.hu/qwsg/internal/updateawareness"
+	"quantumwizard.hu/qwsg/internal/updatemutation"
 )
 
 type localUpdateRecord struct{ Schema, Installed, Previous, Backup, UpdatedAt string }
@@ -169,6 +170,22 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 		fmt.Fprintln(errout, "Update orchestration must run as the intended non-root QWSG user.")
 		return 1
 	}
+	state, err := localStateRoot()
+	if err != nil {
+		fmt.Fprintln(errout, "Update failed: local state unavailable.")
+		return 1
+	}
+	updateRoot := filepath.Join(state, "update")
+	if err = ensureUpdateRoot(updateRoot); err != nil {
+		fmt.Fprintln(errout, "Update failed: private update state unavailable.")
+		return 1
+	}
+	mutation, err := updatemutation.Acquire(updateRoot)
+	if err != nil {
+		return mutationRefused(errout, err)
+	}
+	defer mutation.Close()
+
 	installed, err := installedVersion()
 	if err != nil {
 		fmt.Fprintln(errout, "Update failed: installed QWSG identity unavailable.")
@@ -185,16 +202,6 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 			managedChangeDelivery(managedEvent(changenotification.Update, outcome, operationID, installed, resulting, reason), errout)
 		}
 	}()
-	state, err := localStateRoot()
-	if err != nil {
-		fmt.Fprintln(errout, "Update failed: local state unavailable.")
-		return 1
-	}
-	updateRoot := filepath.Join(state, "update")
-	if err = ensureUpdateRoot(updateRoot); err != nil {
-		fmt.Fprintln(errout, "Update failed: private update state unavailable.")
-		return 1
-	}
 	previousRecord, _ := loadUpdateRecord(updateRoot)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
@@ -319,6 +326,10 @@ func runPrivilegedApply(args []string, errout io.Writer) int {
 }
 
 // Both manual and automatic callers use this exact helper authority chain.
+// These root-only helpers are internal transaction steps: their synchronous
+// coordinator owns the common mutation lease through apply, validation, recovery
+// and finalization. They must not recursively acquire that lease. Root privilege
+// and all independent authentication/rollback checks remain mandatory.
 func runPrivilegedApplyReport(args []string, out, errout io.Writer) (code int) {
 	receipt := automaticupdate.ApplyResult{Known: true}
 	defer func() {
@@ -478,6 +489,15 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 	if err != nil {
 		return 1
 	}
+	updateRoot := filepath.Join(root, "update")
+	if err = ensureUpdateRoot(updateRoot); err != nil {
+		return mutationRefused(errout, err)
+	}
+	mutation, err := updatemutation.Acquire(updateRoot)
+	if err != nil {
+		return mutationRefused(errout, err)
+	}
+	defer mutation.Close()
 	record, err := loadUpdateRecord(filepath.Join(root, "update"))
 	if err != nil {
 		fmt.Fprintln(errout, "Rollback unavailable: local metadata missing or invalid.")
@@ -518,6 +538,16 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 	fmt.Fprintf(out, "QWSG rolled back safely: %s -> %s\n", safeText(record.Installed), safeText(record.Previous))
 	outcome = changenotification.Success
 	return 0
+}
+
+// Exit 3 distinguishes nonblocking contention from ordinary update failures.
+func mutationRefused(out io.Writer, err error) int {
+	if errors.Is(err, updatemutation.ErrContended) {
+		fmt.Fprintln(out, "Mutation refused: transaction_conflict; another update or rollback is active. Retry after it finishes.")
+		return 3
+	}
+	fmt.Fprintln(out, "Mutation refused: safe update transaction lock unavailable.")
+	return 1
 }
 
 func ensureUpdateRoot(path string) error {

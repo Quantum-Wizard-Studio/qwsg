@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"quantumwizard.hu/qwsg/internal/productcapability"
+	"quantumwizard.hu/qwsg/internal/updatemutation"
 	"quantumwizard.hu/qwsg/internal/updatepolicy"
 )
 
@@ -30,7 +31,7 @@ func TestIndependentFileLockAndUnsafeLockRefuse(t *testing.T) {
 			}
 			switch scenario {
 			case "held descriptor":
-				f, err := acquire(root)
+				f, err := updatemutation.Acquire(root)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -45,7 +46,11 @@ func TestIndependentFileLockAndUnsafeLockRefuse(t *testing.T) {
 				}
 			}
 			r, err := Run(context.Background(), Request{Capabilities: caps, Policy: updatepolicy.Request{Mode: updatepolicy.Automatic}, StageParent: root}, unusedHost{})
-			if err == nil || r.FailureCategory != "transaction_conflict" || r.MutationStarted {
+			category := "transaction_lock_unavailable"
+			if scenario == "held descriptor" {
+				category = "transaction_conflict"
+			}
+			if err == nil || r.FailureCategory != category || r.MutationStarted {
 				t.Fatalf("lock bypassed: %+v %v", r, err)
 			}
 		})

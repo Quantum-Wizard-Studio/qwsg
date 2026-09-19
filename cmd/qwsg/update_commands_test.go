@@ -11,6 +11,7 @@ import (
 	"quantumwizard.hu/qwsg/internal/releasediscovery"
 	updatecore "quantumwizard.hu/qwsg/internal/update"
 	"quantumwizard.hu/qwsg/internal/updateawareness"
+	"quantumwizard.hu/qwsg/internal/updatemutation"
 )
 
 type commandAwarenessChecker struct {
@@ -125,6 +126,16 @@ func TestUpdateCheckPublishesAuthenticatedAwarenessAndStatusIsNetworkFree(t *tes
 	installedPackageFixture(t, root, "1.2.0", true)
 	stateRoot := filepath.Join(t.TempDir(), "state")
 	t.Setenv("QWSG_STATE_DIR", stateRoot)
+	// Awareness/check/status use their own state protection, never mutation authority.
+	if err := os.MkdirAll(filepath.Join(stateRoot, "update"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	lease, err := updatemutation.Acquire(filepath.Join(stateRoot, "update"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer lease.Close()
+
 	checker := &commandAwarenessChecker{result: releasediscovery.CheckResult{
 		Source:           releasediscovery.SourceEvidence{SourceID: "community-release-index", TransportAuthenticated: true, Validators: releasediscovery.Validators{ETag: "\"one\""}},
 		IndexGeneratedAt: "2026-08-30T11:00:00Z",
