@@ -2,10 +2,14 @@
 
 ## Version 1.0 release boundary
 
-Version 1.0 is the local Ubuntu 24.04/systemd 255+/linux-amd64 Guardian in the
-release support matrix. It provides truthful local evaluation and continuous
-supervision without a network Console, provider transport, fleet, remediation,
-cloud dependency or AI. Broader direction is not a shipped-behavior claim.
+The Owner-approved [Community 1.0 / Pro 1.0 scope freeze](PRODUCT_1_0_SCOPE_FREEZE.md)
+governs product completion and supersedes older broader release obligations
+below. Community is the supported local Ubuntu 24.04/systemd 255+/linux-amd64
+Guardian with qualified local evaluation, continuous supervision, optional
+administrator SMTP, authenticated release awareness and explicit update/rollback.
+Pro adds production-authorized bounded unattended automation through its
+additional gates. Broader direction is not a shipped-behavior claim or a 1.0
+blocker. These maturity boundaries do not renumber historical releases.
 
 ## Document purpose
 

@@ -1,5 +1,16 @@
 # QWSG Product & System Blueprint
 
+## Community 1.0 / Pro 1.0 completion authority
+
+The Owner-approved [scope freeze and release gates](PRODUCT_1_0_SCOPE_FREEZE.md)
+supersede this blueprint's earlier first-release/MVP completion requirements.
+In particular, broader threshold monitoring, HTTP/TLS endpoint checks,
+backup-age monitoring and daily reporting are POST-1.0, not current release
+blockers. The supported platform is the accepted Ubuntu boundary; broader
+distribution support is POST-1.0. The requirements below preserve product
+direction, not a second active 1.0 gate list. Existing safety, privacy and
+operator-authority principles remain binding.
+
 ## 1. Document Purpose and Authority
 
 This document is the authoritative product-level blueprint for Quantum Wizard Server Guardian (QWSG). It translates the Project Philosophy, Product Definition, and original comprehensive planning material into durable boundaries and high-level system direction for later specification, architecture, implementation, validation, packaging, deployment, and roadmap work.
@@ -19,7 +30,10 @@ QWSG is an independent, modular Linux server guardian for small-server operators
 
 The product has three major parts. The **Agent** is the useful standalone guardian on each server. The **Installer** performs transparent, consent-based privileged lifecycle operations. The optional **Console** provides secure administration, history, and visualization without becoming a hidden root shell. Shared product responsibilities cover detection, execution coordination, checks, state, alerts, reporting, configuration, secrets, storage, audit, diagnostics, dependencies, updates, and removal.
 
-The first usable release targets Ubuntu and Debian and focuses on system detection; disk, inode, memory, swap, load, systemd, HTTP/HTTPS, SSL, and existing-backup checks; e-mail alerts driven by state transitions; recovery and bounded emergency reminders; daily reporting; local state; lifecycle tooling; diagnostics; and a secure standalone Console direction. Broader checks, channels, platforms, automation, central fleet management, and convenience extensions follow after the core is trustworthy.
+The earlier first-release direction targeted Ubuntu and Debian and the broad
+monitoring/reporting set retained in Section 31. Its release-completion effect
+is superseded by the scope freeze above; it is not a claim that all those checks
+exist or must ship for Community 1.0 or Pro 1.0.
 
 ## 3. Product Origin
 
@@ -227,7 +241,9 @@ Suggested installation presets include Minimal, Web Server, Mail Server, Full, a
 
 ## 31. MVP Definition
 
-The first usable release must provide a coherent, operable slice rather than every planned feature:
+Historical MVP requirement set, retained for later product work. For current
+Community 1.0 and Pro 1.0 completion, only the canonical scope-freeze gates
+apply; deferred items in this list are not additional blockers:
 
 - verified Ubuntu and Debian support boundaries;
 - environment and capability detection;

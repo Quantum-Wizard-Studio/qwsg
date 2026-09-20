@@ -2,10 +2,20 @@
 
 ## Version 1.0 frozen product
 
+The Owner-approved [Community 1.0 / Pro 1.0 scope freeze and release gates](PRODUCT_1_0_SCOPE_FREEZE.md)
+are authoritative for current product completion. They supersede older release
+gate implications in this target architecture, including the historical local
+1.0 description below. Community includes accepted SMTP and authenticated
+release/update behavior; Pro requires only the defined production authority and
+bounded automation additions. Broader Professional/Provider capability families
+remain POST-1.0 or FUTURE as dispositioned there. No new 1.0 blocker may be
+inferred from an edition capability family without explicit Owner approval.
+
 The 1.0 release is the implemented local Linux Server Guardian: canonical
 evaluation, bounded operator state, local Terminal Console, and continuously
 supervised non-root Runtime Service. Dashboard, API, provider/fleet,
-remediation, AI and commercial sections are direction, not 1.0 release gates.
+remediation, AI and broader commercial sections are direction, not 1.0 release
+gates; minimum production Pro authority is governed by P1 in the scope freeze.
 
 Canonical Current Operator State is the single-record process-boundary handoff between typed projection and replaceable interfaces. It provides current observation continuity, not general history or monitoring persistence.
 

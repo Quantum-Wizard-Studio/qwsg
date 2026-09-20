@@ -338,3 +338,8 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   extends common mutation exclusion through handoff/recovery/evidence, verifies
   service recovery and records manual rollback package/recovery outcomes.
   See `ai/history/087_2026-09-19_guardian-handoff-rollback-recovery-hardening.md`.
+
+- `2026-09-20`: Task 088 records the Owner-approved Community/Pro 1.0 maturity
+  scope freeze in `docs/PRODUCT_1_0_SCOPE_FREEZE.md`: C1-C9 and P1-P5, explicit
+  deferred families, no silent scope expansion, and minimal reconciliation of
+  older release obligations. Documentation only; no runtime or release change.

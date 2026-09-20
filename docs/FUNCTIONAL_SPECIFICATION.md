@@ -1,5 +1,29 @@
 # QWSG Core Alpha Functional Specification
 
+## Community 1.0 / Pro 1.0 release-completion disposition
+
+The Owner-approved [scope freeze and release gates](PRODUCT_1_0_SCOPE_FREEZE.md)
+supersede older broader release-completion obligations in this specification.
+FR/AC identifiers and their design requirements remain preserved; they do not
+form a second 1.0 gate register. Specifically:
+
+- Broad threshold/check families in Sections 7.3 and 9, including HTTP/TLS and
+  backup-age checks, are POST-1.0 beyond the implemented canonical evidence
+  coverage. AC-AGENT-003 does not require those deferred families for 1.0.
+- Scheduled daily reporting in FR-REPORT-001, its Section 13 requirements and
+  its dependencies in FR-ALERT-006, FR-DATA-003 and AC-AGENT-001 are POST-1.0.
+  Existing local on-demand canonical reporting remains in C5.
+- General history, network Console/API, broader platforms and other families
+  dispositioned by the freeze are not 1.0 blockers. Their safety/acceptance
+  requirements apply when those capabilities are separately authorized.
+- Sections 22 and 24 retain historical release/acceptance context. Current
+  Community/Pro completion uses C1-C9 and P1-P5 exclusively; applicable safety,
+  privacy, evidence truthfulness and authority requirements remain binding.
+
+“Healthy” describes only implemented evidence coverage, never universal server
+health. SMTP is supported but optional to configure. Authenticated releases and
+safe update/rollback are now required despite earlier deferral text below.
+
 ## Current operator state
 
 A successful eligible `check` atomically publishes limited Inventory/Snapshot coverage. A separate bare process validates and displays it, ages it at the exclusive freshness deadline, and fails closed for missing, corrupt, incompatible, unsafe, or unreadable state. Inventory success is not Health.
@@ -32,7 +56,7 @@ The Project Constitution is supreme. The Product Definition defines parent produ
 - Scope: the first coherent Agent, Installer, optional Console, monitoring, notification, reporting, diagnostics, and lifecycle behavior
 - Engineering language: English; every user-visible interface is localization-ready
 
-The terms **MUST**, **MUST NOT**, **SHOULD**, and **MAY** express mandatory, forbidden, recommended, and optional behavior. A requirement identified as `FR-*` is mandatory unless explicitly marked as a release gate or post-Alpha item.
+The terms **MUST**, **MUST NOT**, **SHOULD**, and **MAY** express mandatory, forbidden, recommended, and optional behavior. A requirement identified as `FR-*` is mandatory unless explicitly marked as a release gate or post-Alpha item, subject to the Owner-approved 1.0 release-completion disposition above.
 
 ## 3. Product boundary
 
@@ -420,6 +444,11 @@ The following are not Core Alpha requirements: automatic remediation; backup cre
 A later feature MUST preserve this specification's authority, safety, state, audit, localization, and failure-isolation principles unless an explicitly approved change supersedes them.
 
 ## 22. Release gates and unresolved owner decisions
+
+Historical Task 038 resolution, retained for traceability. Current Community
+and Pro maturity completion is governed solely by the linked scope freeze;
+notification transport and signing deferrals below no longer describe their
+current gate disposition.
 
 Task 038 resolves these historical Core Alpha gates for the narrow Version 1.0
 local product as follows. Future families remain explicit rather than silently

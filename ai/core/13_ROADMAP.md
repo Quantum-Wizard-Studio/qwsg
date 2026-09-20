@@ -1,11 +1,23 @@
 # Roadmap
 
+## Frozen Community 1.0 / Pro 1.0 completion boundary
+
+The Owner-approved [scope freeze and release gates](../../docs/PRODUCT_1_0_SCOPE_FREEZE.md)
+are the sole current product-completion register. Progress MUST be expressed
+primarily by those gates, not estimated future task numbers. New capabilities
+default to POST-1.0 or FUTURE and cannot become 1.0 blockers without an explicit
+future Owner scope decision. The streams below retain longer-term direction;
+earlier task-stage statements are historical context, not additional gates.
+SMTP and authenticated releases are now accepted Community capabilities;
+minimum production Pro authority is required, but broad licensing/backend,
+Dashboard/API and fleet families do not block the frozen first products.
+
 - Task 035: Canonical Operator Evaluation — additive `observe` profile composes the complete existing live pipeline, truthfully bootstraps missing baseline evidence, and publishes a qualified Overview for a later Console process.
 - Task 036: Operator Projection Hardening — bounded severity-first attention, validated Rule/Policy correlation, explicit overflow disclosure, and differentiated observation diagnostics make large valid evaluations publishable.
 
-- Task 034: Canonical Current Operator State — single-record process continuity implemented; general persistence, monitoring, and operational history remain separate Version 1.0 gates.
+- Task 034: Canonical Current Operator State — single-record process continuity implemented; broader persistence, monitoring and history were separate concerns at that milestone; their current disposition is defined by the scope freeze.
 
-- Task 033: Interactive Operator Console — local read-only interface implemented; persistence/recovery, monitoring, providers, installation/supervision, REST API, and Dashboard remain independent Version 1.0 gates.
+- Task 033: Interactive Operator Console — local read-only interface implemented; persistence/recovery, monitoring, providers, installation/supervision, REST API and Dashboard were separate concerns at that milestone; they are not an additional current 1.0 gate list.
 
 ## Purpose and authority
 
@@ -64,16 +76,19 @@ The Foundation Phase is complete:
   injected-provider adapter without production transports, durable persistence,
   daemon operation, monitoring, or upstream re-evaluation.
 
-The prepared final repository identity is `1.0.0`. The implemented product is a user-installable
+At the historical Task 038–044 milestone, the prepared final identity was
+`1.0.0`. That local product baseline was a user-installable
 local Inventory, Snapshot Explorer, Comparison, full operator evaluation,
 Current Operator State, Terminal Console, and continuously supervised Guardian,
 composing the canonical Drift, Health, Rule, Policy, Report, Command,
 Configuration, Scheduler, Alert, Notification, Runtime and Runtime Service
-boundaries. Production notification transports, Dashboard/API, license enforcement,
-remote agents, fleet/provider operations, remediation and AI are not implemented
-and are post-1.0 rather than hidden release gates.
+boundaries. The transport and licensing deferrals at that milestone do not
+override current C6/P1: SMTP now exists and minimum production Pro authority
+remains required. Dashboard/API, remote/fleet, remediation and AI retain their
+explicit deferred disposition in the scope freeze.
 
-Version 1.0 release-gate classification at Task 038:
+Historical Version 1.0 classification at Task 038 (superseded for current
+completion by the scope-freeze register):
 
 - **MUST:** satisfied by Tasks 038–043, including the Owner-run clean-host physical reboot and uninstall evidence. Task 044 owns final source, license, identity and reproducibility reconciliation.
 - **SHOULD:** concrete notification transport and durable delivery continuity, unless the Project Owner makes off-console notification a Version 1.0 release requirement.
@@ -164,8 +179,8 @@ The Operational Guardian Service now composes Runtime Service as one
 unprivileged foreground process under systemd user supervision, with canonical
 configuration, bounded exact-state restart handoff, single-writer protection,
 truthful lifecycle freshness, and cross-process Console evidence. Release
-hardening remains the sole Version 1.0 MUST gate; production transports and
-broader automation remain optional or later.
+hardening was the Version 1.0 MUST focus at that milestone. Current completion
+uses the scope-freeze register, including accepted SMTP and bounded Pro automation.
 
 1. scheduler and daemon architecture, including locking, recovery, missed runs,
    bounded retries, self-observability, and lifecycle;
