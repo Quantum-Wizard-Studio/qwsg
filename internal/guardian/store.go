@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"quantumwizard.hu/qwsg/internal/alert"
+	"quantumwizard.hu/qwsg/internal/evidenceio"
 	"quantumwizard.hu/qwsg/internal/notification"
 	"quantumwizard.hu/qwsg/internal/runtime"
 )
@@ -73,8 +74,14 @@ func OpenStore(directory string) (*Store, error) {
 }
 
 func (s *Store) Load() (Checkpoint, error) {
-	document, err := os.ReadFile(filepath.Join(s.directory, "checkpoint.json"))
+	document, err := evidenceio.ReadFile(filepath.Join(s.directory, "checkpoint.json"), MaxSize)
 	if err != nil {
+		if errors.Is(err, evidenceio.ErrSize) {
+			return Checkpoint{}, ErrCheckpoint
+		}
+		if errors.Is(err, evidenceio.ErrUnsafe) {
+			return Checkpoint{}, ErrUnsafePath
+		}
 		return Checkpoint{}, err
 	}
 	if len(document) == 0 || len(document) > MaxSize {

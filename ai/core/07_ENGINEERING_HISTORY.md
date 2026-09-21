@@ -349,3 +349,10 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   exact comparison of retained ordinal identities without rewriting evidence.
   Seven focused acceptance cases close only frozen gate C2; no monitoring,
   release, production or next-task scope is added.
+
+- `2026-09-21`: Task 090 closes only frozen C3 with kernel-owned inventory
+  exclusion, explicit legacy-lock recovery, bounded deterministic interrupted
+  retention/write recovery, preserved installed evidence on durability failure
+  and bounded checkpoint/evidence reads. Nine acceptance cases, race and full
+  local validation pass; C7/C8/C9 remain unchanged. See the independent Task 090
+  history for the exact supported interruption contract.

@@ -58,5 +58,13 @@ merely to hide a partial result.
 Stored data is rejected on unsafe permissions or paths, unsupported versions,
 malformed JSON, duplicate keys, integrity mismatch, or Inventory validation
 failure. The checksum detects corruption but is not a cryptographic signature.
-Do not manually delete stale lock or transaction files without reviewing the
-store. Schema migration and authenticated storage are future capabilities.
+The next save/list/load recovers recognized interrupted temporary/retirement
+states under a kernel lock; incomplete temporary data is never promoted.
+An active writer returns a busy error. Unknown or conflicting artifacts are
+preserved and rejected. For an explicit legacy `.write.lock` ownership error,
+stop and verify all older QWSG writers are inactive, preserve a private copy of
+the store, then move that legacy lock outside the store and retry. Never remove
+`.write.flock` or the versioned lock guard to bypass an active writer. Other
+integrity errors require offline inspection, not deletion or reset. See the
+[persistence recovery contract](../architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md#interruption-recovery-task-090-c3).
+Schema migration and authenticated storage are future capabilities.

@@ -60,7 +60,7 @@ certificate, backup or application concern.
 | --- | --- | --- |
 | C1 — Supported installation, non-root operation and privacy boundary | PASS | Preserve the supported local Linux boundary, guided installation/setup/removal, ordinary-user Guardian, private local state, privacy/redaction and explicit operator authority. |
 | C2 — Reliable inventory and meaningful change identity | PASS | Task 089 establishes deterministic protected systemd unit identity, canonical ordering and exact running-set appearance/disappearance/replacement evidence. Ordinal historical snapshots remain readable; exact comparison involving their nonempty service sets is explicitly refused. See the Task 089 evidence below. |
-| C3 — Local evidence interruption integrity and recovery | PARTIAL | Bound interrupted inventory persistence. Stale locks and interrupted retention artifacts must not silently corrupt or permanently block normal evidence operation. Uncertainty remains visible and safe recovery exists. No general historical database or autonomous crash-replay engine is required. |
+| C3 — Local evidence interruption integrity and recovery | PASS | Task 090 proves kernel-owned writer exclusion, explicit legacy-lock recovery, deterministic pre/post-commit retention recovery, preservation on durability errors and bounded evidence/checkpoint input. Unknown or conflicting states preserve evidence and fail closed. See Task 090 and the supported filesystem contract below. |
 | C4 — Continuous Guardian and bounded resource behavior | PASS | Preserve accepted Guardian, resource, Scheduler and restart behavior. Existing accepted evidence remains authoritative; do not recreate completed work merely for task-number progression. |
 | C5 — Honest Health / Rule / Policy and local reporting | PASS | Preserve deterministic evaluation and local reporting limited to actual evidence/check coverage. No universal-health claim is permitted. |
 | C6 — Administrator SMTP notification and authenticated release awareness | PASS | Preserve security, TLS, privacy, bounded retry/deduplication and authenticated release boundaries. SMTP is operator-configurable and need not be configured on every Community installation. |
@@ -89,6 +89,15 @@ retained ordinal evidence remains readable and unmodified with an explicit
 comparison boundary. See the [identity/privacy contract](architecture/CANONICAL_SYSTEM_INVENTORY_V1.md#stable-protected-service-identity-task-089)
 and [historical compatibility behavior](architecture/SNAPSHOT_COMPARISON_ENGINE.md#service-identity-compatibility).
 No other gate status changes; C8's later readiness/recovery review remains PARTIAL.
+
+[Task 090](../ai/history/090_2026-09-21_local-evidence-interruption-integrity-recovery.md)
+closes C3 with nine interruption/integrity/recovery cases, including abrupt
+pre-commit process exit, durable post-commit cleanup recovery, active/legacy
+lock cases, limit+1 input measurement and repeated recovery. The
+[persistence contract](architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md#interruption-recovery-task-090-c3)
+defines the commit boundary, artifact classification and operator steps for
+ambiguous legacy locks. Existing evidence bytes remain compatible. C7 updater
+recovery, C8 general documentation closure and C9 release acceptance are unchanged.
 
 Current operational boundaries that documentation must preserve:
 
@@ -133,11 +142,11 @@ existing security/policy boundary, not production Pro availability.
 
 | Boundary | Total | PASS | PARTIAL | MISSING |
 | --- | --- | --- | --- | --- |
-| Community: C1–C9 | 9 | 5 | 3 | 1 |
+| Community: C1–C9 | 9 | 6 | 2 | 1 |
 | Additional Pro: P1–P5 | 5 | 1 | 2 | 2 |
-| Pro including inherited Community gates | 14 | 6 | 5 | 3 |
+| Pro including inherited Community gates | 14 | 7 | 4 | 3 |
 
-Task 089 advances only C2 from PARTIAL to PASS. The Task 088 baseline was
+Task 089 advances only C2 and Task 090 only C3 from PARTIAL to PASS. The Task 088 baseline was
 Community 4/4/1 and inherited Pro 5/6/3 (PASS/PARTIAL/MISSING). Subsequent
 governed work updates this register with evidence; completed task counts and
 estimated future task numbers are not product-completion measures.

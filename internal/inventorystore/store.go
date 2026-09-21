@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"quantumwizard.hu/qwsg/internal/evidenceio"
 	"quantumwizard.hu/qwsg/internal/inventory"
 )
 
@@ -55,9 +56,10 @@ type Envelope struct {
 }
 
 type Store struct {
-	root          string
-	retention     int
-	beforeInstall func() error
+	root                string
+	retention           int
+	beforeInstall       func() error
+	beforeDirectorySync func() error
 }
 
 func Open(root string, retention int) (*Store, error) {
@@ -79,7 +81,7 @@ func (s *Store) Save(snapshot inventory.Snapshot) (string, error) {
 	if err := validateSnapshot(snapshot); err != nil {
 		return "", fmt.Errorf("refusing to persist invalid inventory: %w", err)
 	}
-	if err := s.ensureLayout(); err != nil {
+	if err := ensurePrivateDir(s.root); err != nil {
 		return "", err
 	}
 	unlock, err := s.lock()
@@ -87,6 +89,12 @@ func (s *Store) Save(snapshot inventory.Snapshot) (string, error) {
 		return "", err
 	}
 	defer unlock()
+	if err := s.ensureLayout(); err != nil {
+		return "", err
+	}
+	if err := s.recoverUnlocked(); err != nil {
+		return "", err
+	}
 
 	names, err := s.listUnlocked()
 	if err != nil {
@@ -126,6 +134,9 @@ func (s *Store) Save(snapshot inventory.Snapshot) (string, error) {
 
 	var retired, retiredOriginal string
 	if len(names) == s.retention {
+		if _, err := s.loadUnlocked(names[0], names[0]); err != nil {
+			return "", err
+		}
 		retiredOriginal = filepath.Join(s.root, snapshotsDir, names[0])
 		retired = filepath.Join(s.root, snapshotsDir, ".retire-"+names[0])
 		if _, err := os.Lstat(retired); !errors.Is(err, os.ErrNotExist) {
@@ -138,29 +149,17 @@ func (s *Store) Save(snapshot inventory.Snapshot) (string, error) {
 			return "", fmt.Errorf("prepare retention transaction: %w", err)
 		}
 		if err := syncDir(filepath.Dir(retired)); err != nil {
-			_ = os.Rename(retired, retiredOriginal)
 			return "", fmt.Errorf("sync retention transaction: %w", err)
 		}
 	}
-	restoreRetired := func() {
-		if retired != "" {
-			_ = os.Rename(retired, retiredOriginal)
-			_ = syncDir(filepath.Dir(retired))
-		}
-	}
-
-	if err := atomicInstall(target, document, s.beforeInstall); err != nil {
-		restoreRetired()
+	if err := atomicInstall(target, document, s.beforeInstall, s.beforeDirectorySync); err != nil {
+		// Keep the transition intact. Recovery classifies the installed names;
+		// a cleanup or durability error must never undo a possibly committed object.
 		return "", err
 	}
 	if retired != "" {
 		if err := os.Remove(retired); err != nil {
-			removeErr := os.Remove(target)
-			restoreRetired()
-			if removeErr != nil {
-				return "", fmt.Errorf("finalize retention: %v; rollback new snapshot: %v", err, removeErr)
-			}
-			return "", fmt.Errorf("finalize retention: %w", err)
+			return "", fmt.Errorf("finalize retention (new snapshot preserved): %w", err)
 		}
 		if err := syncDir(filepath.Dir(retired)); err != nil {
 			return "", fmt.Errorf("sync completed retention: %w", err)
@@ -169,15 +168,41 @@ func (s *Store) Save(snapshot inventory.Snapshot) (string, error) {
 	return name, nil
 }
 
-func (s *Store) List() ([]string, error) {
-	if err := s.validateLayout(); err != nil {
+func (s *Store) beginRead() (func(), error) {
+	if err := validatePrivateDir(s.root); err != nil {
 		return nil, err
 	}
+	unlock, err := s.lock()
+	if err != nil {
+		return nil, err
+	}
+	if err := s.validateLayout(); err != nil {
+		unlock()
+		return nil, err
+	}
+	if err := s.recoverUnlocked(); err != nil {
+		unlock()
+		return nil, err
+	}
+	return unlock, nil
+}
+
+func (s *Store) List() ([]string, error) {
+	unlock, err := s.beginRead()
+	if err != nil {
+		return nil, err
+	}
+	defer unlock()
 	return s.listUnlocked()
 }
 
 func (s *Store) LoadLatest() (inventory.Snapshot, string, error) {
-	names, err := s.List()
+	unlock, err := s.beginRead()
+	if err != nil {
+		return inventory.Snapshot{}, "", err
+	}
+	defer unlock()
+	names, err := s.listUnlocked()
 	if err != nil {
 		return inventory.Snapshot{}, "", err
 	}
@@ -185,7 +210,7 @@ func (s *Store) LoadLatest() (inventory.Snapshot, string, error) {
 		return inventory.Snapshot{}, "", os.ErrNotExist
 	}
 	name := names[len(names)-1]
-	snapshot, err := s.Load(name)
+	snapshot, err := s.loadUnlocked(name, name)
 	return snapshot, name, err
 }
 
@@ -193,10 +218,16 @@ func (s *Store) Load(name string) (inventory.Snapshot, error) {
 	if filepath.Base(name) != name || !strings.HasSuffix(name, ".json") || strings.HasPrefix(name, ".") {
 		return inventory.Snapshot{}, fmt.Errorf("%w: invalid snapshot name", ErrUnsafePath)
 	}
-	if err := s.validateLayout(); err != nil {
+	unlock, err := s.beginRead()
+	if err != nil {
 		return inventory.Snapshot{}, err
 	}
-	path := filepath.Join(s.root, snapshotsDir, name)
+	defer unlock()
+	return s.loadUnlocked(name, name)
+}
+
+func (s *Store) loadUnlocked(diskName, name string) (inventory.Snapshot, error) {
+	path := filepath.Join(s.root, snapshotsDir, diskName)
 	info, err := os.Lstat(path)
 	if err != nil {
 		return inventory.Snapshot{}, err
@@ -204,7 +235,7 @@ func (s *Store) Load(name string) (inventory.Snapshot, error) {
 	if !info.Mode().IsRegular() || info.Mode().Perm()&0o077 != 0 || info.Size() > MaxDocumentSize {
 		return inventory.Snapshot{}, fmt.Errorf("%w: invalid snapshot file", ErrUnsafePath)
 	}
-	document, err := os.ReadFile(path)
+	document, err := evidenceio.ReadFile(path, MaxDocumentSize)
 	if err != nil {
 		return inventory.Snapshot{}, fmt.Errorf("read snapshot: %w", err)
 	}
@@ -282,7 +313,14 @@ func (s *Store) ensureLayout() error {
 	}
 	document = append(document, '\n')
 	if _, err := os.Lstat(metadataPath); errors.Is(err, os.ErrNotExist) {
-		if err := atomicInstall(metadataPath, document, nil); err != nil {
+		entries, err := boundedEntries(filepath.Join(s.root, snapshotsDir), MaxRetention+2)
+		if err != nil {
+			return err
+		}
+		if len(entries) != 0 {
+			return fmt.Errorf("%w: metadata missing with existing evidence; preserve store for inspection", ErrCorrupt)
+		}
+		if err := atomicInstall(metadataPath, document, nil, nil); err != nil {
 			return fmt.Errorf("install store metadata: %w", err)
 		}
 	} else if err != nil {
@@ -306,7 +344,7 @@ func (s *Store) validateLayout() error {
 	if !info.Mode().IsRegular() || info.Mode().Perm()&0o077 != 0 || info.Size() > 4096 {
 		return fmt.Errorf("%w: invalid store metadata file", ErrUnsafePath)
 	}
-	document, err := os.ReadFile(path)
+	document, err := evidenceio.ReadFile(path, 4096)
 	if err != nil {
 		return err
 	}
@@ -332,7 +370,7 @@ func (s *Store) validateLayout() error {
 }
 
 func (s *Store) listUnlocked() ([]string, error) {
-	entries, err := os.ReadDir(filepath.Join(s.root, snapshotsDir))
+	entries, err := boundedEntries(filepath.Join(s.root, snapshotsDir), MaxRetention+2)
 	if err != nil {
 		return nil, err
 	}
@@ -356,22 +394,6 @@ func (s *Store) listUnlocked() ([]string, error) {
 	}
 	sort.Strings(names)
 	return names, nil
-}
-
-func (s *Store) lock() (func(), error) {
-	path := filepath.Join(s.root, lockName)
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
-	if err != nil {
-		return nil, fmt.Errorf("acquire inventory store lock: %w", err)
-	}
-	if err := file.Close(); err != nil {
-		_ = os.Remove(path)
-		return nil, err
-	}
-	return func() {
-		_ = os.Remove(path)
-		_ = syncDir(s.root)
-	}, nil
 }
 
 func ensurePrivateDir(path string) error {
@@ -419,7 +441,7 @@ func rejectSymlinkComponents(path string) error {
 	}
 }
 
-func atomicInstall(target string, document []byte, beforeInstall func() error) error {
+func atomicInstall(target string, document []byte, beforeInstall, beforeDirectorySync func() error) error {
 	dir := filepath.Dir(target)
 	file, err := os.CreateTemp(dir, ".tmp-inventory-*")
 	if err != nil {
@@ -453,9 +475,13 @@ func atomicInstall(target string, document []byte, beforeInstall func() error) e
 		}
 		return fmt.Errorf("install inventory: %w", err)
 	}
+	if beforeDirectorySync != nil {
+		if err := beforeDirectorySync(); err != nil {
+			return fmt.Errorf("installed inventory durability uncertain (object preserved): %w", err)
+		}
+	}
 	if err := syncDir(dir); err != nil {
-		_ = os.Remove(target)
-		return fmt.Errorf("sync installed inventory: %w", err)
+		return fmt.Errorf("sync installed inventory (object preserved; retry recovery): %w", err)
 	}
 	return nil
 }

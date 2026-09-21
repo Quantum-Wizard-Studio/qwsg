@@ -60,6 +60,15 @@ futtasd rootként pusztán a részleges eredmény elfedéséhez.
 A store elutasítja a nem biztonságos jogosultságot vagy útvonalat, a nem
 támogatott verziót, a hibás JSON-t, a duplikált kulcsot, az integritási eltérést
 és az érvénytelen Inventory objektumot. A checksum korrupciót észlel, de nem
-kriptográfiai aláírás. Elakadt lock vagy tranzakciós fájlt ne törölj kézzel a
-store ellenőrzése nélkül. A sémamigráció és a hitelesített tárolás későbbi
+kriptográfiai aláírás. A következő save/list/load kernelzár alatt helyreállítja a
+felismert megszakadt ideiglenes/retirement állapotokat; a hiányos ideiglenes
+adat soha nem válik érvényes bizonyítékká. Aktív író esetén foglaltsági hibát ad.
+Az ismeretlen vagy ütköző állapotot megőrzi és elutasítja. Ha a hiba kifejezetten
+a régi `.write.lock` ismeretlen tulajdonosát jelzi, állítsd le és ellenőrizd az
+összes régi QWSG írót, őrizz meg privát másolatot a store-ról, majd mozgasd ezt
+a régi zárat a store-on kívülre, és próbáld újra. Aktív író megkerüléséhez soha
+ne töröld a `.write.flock` fájlt vagy a verziózott zárjelölőt. Más integritási
+hiba offline vizsgálatot igényel, nem törlést vagy alaphelyzetbe állítást. A
+[persistence recovery contract](../architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md#interruption-recovery-task-090-c3)
+rögzíti a pontos határokat. A sémamigráció és a hitelesített tárolás későbbi
 képesség.
