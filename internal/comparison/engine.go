@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -11,6 +12,10 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/inventory"
 )
+
+// ErrServiceIdentityUnavailable is an explicit boundary for retained ordinal or
+// unknown service identities. Reading snapshots does not require comparison.
+var ErrServiceIdentityUnavailable = errors.New("service identity comparison unavailable: legacy or unsupported service identifiers; collect two snapshots with stable service identities")
 
 const (
 	SchemaName    = "qwsg.comparison"
@@ -251,6 +256,19 @@ func validateSource(snapshot inventory.Snapshot) error {
 	if snapshot.Canonical.SchemaName != inventory.CanonicalSchemaName || snapshot.Canonical.SchemaVersion != inventory.SchemaVersion ||
 		snapshot.Canonical.Profile == "" || snapshot.Canonical.SubjectID == "" {
 		return fmt.Errorf("canonical inventory is required")
+	}
+	for _, layer := range snapshot.Canonical.Layers {
+		if layer.LayerID != "services" {
+			continue
+		}
+		for _, resource := range layer.Resources {
+			prefix := "services:" + inventory.ServiceIdentityPrefix
+			digest := strings.TrimPrefix(resource.ResourceID, prefix)
+			decoded, err := hex.DecodeString(digest)
+			if !strings.HasPrefix(resource.ResourceID, prefix) || err != nil || len(decoded) != 16 || strings.ToLower(digest) != digest {
+				return ErrServiceIdentityUnavailable
+			}
+		}
 	}
 	return nil
 }

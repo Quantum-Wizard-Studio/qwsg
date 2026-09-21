@@ -79,3 +79,34 @@ checksum, strict-decoding, and Inventory validation controls. Complexity is
 bounded by the already bounded Inventory documents plus sorted unions; no
 external dependency, daemon, scheduler, database, or network communication is
 introduced.
+
+## Service identity compatibility
+
+Task 089 corrects service identity without changing the Inventory/Store envelope
+or rewriting retained snapshots. A nonempty `services` layer is comparable only
+when every resource ID has the supported `services:systemd-unit-v1:` prefix and
+exactly 32 lowercase hexadecimal digest characters. Ordinal and unknown identity
+representations return `ErrServiceIdentityUnavailable`, with the explicit safe
+message `service identity comparison unavailable` and guidance to collect two
+snapshots with stable service identities. This applies in either direction and
+also to old-versus-old comparisons: equal ordinal positions cannot prove equal
+services. The entire comparison is refused, so no misleading resource additions,
+removals, unchanged identity, Drift or downstream successful Report is emitted.
+The existing pipeline stops at Compare and retains the diagnostic; the direct
+Compare CLI exits 1 under its existing source-incompatibility contract.
+
+Reads and inventory-only inspection remain supported. The first comparison
+against a nonempty ordinal baseline can therefore fail after upgrade. Collect
+two corrected snapshots and compare those (explicit selectors may be used);
+normal comparison/reporting resumes without deleting historical evidence. Empty
+service layers contain no ambiguous identities and are comparable. This boundary
+does not reinterpret unavailable collection as proof of service state or extend
+the existing availability-status comparison contract.
+
+For two corrected snapshots, repeated observations and enumeration reorder have
+no service presence changes. Disappearance and appearance retain the exact
+protected resource reference. Same-count replacement produces a removed old
+resource and an added new resource through the existing Change/Drift contracts;
+no service-health rule or new monitoring capability is added. Identity is the
+[protected systemd unit token](CANONICAL_SYSTEM_INVENTORY_V1.md#stable-protected-service-identity-task-089),
+not a raw name or positional index.

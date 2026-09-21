@@ -59,7 +59,7 @@ certificate, backup or application concern.
 | Gate | Current state | Required completion boundary / remaining work |
 | --- | --- | --- |
 | C1 — Supported installation, non-root operation and privacy boundary | PASS | Preserve the supported local Linux boundary, guided installation/setup/removal, ordinary-user Guardian, private local state, privacy/redaction and explicit operator authority. |
-| C2 — Reliable inventory and meaningful change identity | PARTIAL | Establish stable privacy-preserving service identity. Service replacement, disappearance and reordering must be meaningfully detectable without positional identity artifacts; retained/older snapshot compatibility must be handled safely. |
+| C2 — Reliable inventory and meaningful change identity | PASS | Task 089 establishes deterministic protected systemd unit identity, canonical ordering and exact running-set appearance/disappearance/replacement evidence. Ordinal historical snapshots remain readable; exact comparison involving their nonempty service sets is explicitly refused. See the Task 089 evidence below. |
 | C3 — Local evidence interruption integrity and recovery | PARTIAL | Bound interrupted inventory persistence. Stale locks and interrupted retention artifacts must not silently corrupt or permanently block normal evidence operation. Uncertainty remains visible and safe recovery exists. No general historical database or autonomous crash-replay engine is required. |
 | C4 — Continuous Guardian and bounded resource behavior | PASS | Preserve accepted Guardian, resource, Scheduler and restart behavior. Existing accepted evidence remains authoritative; do not recreate completed work merely for task-number progression. |
 | C5 — Honest Health / Rule / Policy and local reporting | PASS | Preserve deterministic evaluation and local reporting limited to actual evidence/check coverage. No universal-health claim is permitted. |
@@ -80,6 +80,15 @@ Task 088 closes the scope-authority and obsolete-requirement disposition portion
 of C8. C8 remains PARTIAL: operator recovery/readiness guidance must still be
 checked against the eventual C2/C3/C7 fixes and C9 supported upgrade procedure.
 No runtime gate is advanced by this documentation-only task.
+
+[Task 089](../ai/history/089_2026-09-21_stable-privacy-preserving-service-identity.md)
+closes C2 with collector-to-canonical-to-comparison/Drift/Report acceptance:
+repeat and reorder preserve identity; disappearance, appearance and same-count
+replacement preserve protected change references; raw names remain redacted;
+retained ordinal evidence remains readable and unmodified with an explicit
+comparison boundary. See the [identity/privacy contract](architecture/CANONICAL_SYSTEM_INVENTORY_V1.md#stable-protected-service-identity-task-089)
+and [historical compatibility behavior](architecture/SNAPSHOT_COMPARISON_ENGINE.md#service-identity-compatibility).
+No other gate status changes; C8's later readiness/recovery review remains PARTIAL.
 
 Current operational boundaries that documentation must preserve:
 
@@ -120,17 +129,18 @@ engineering foundations. Production still resolves Community authority;
 test-injected Pro does not satisfy P1 or P5. The PASS for P2 describes its
 existing security/policy boundary, not production Pro availability.
 
-## Gate totals at the Task 088 baseline
+## Current gate totals after Task 089
 
 | Boundary | Total | PASS | PARTIAL | MISSING |
 | --- | --- | --- | --- | --- |
-| Community: C1–C9 | 9 | 4 | 4 | 1 |
+| Community: C1–C9 | 9 | 5 | 3 | 1 |
 | Additional Pro: P1–P5 | 5 | 1 | 2 | 2 |
-| Pro including inherited Community gates | 14 | 5 | 6 | 3 |
+| Pro including inherited Community gates | 14 | 6 | 5 | 3 |
 
-These are the initial Owner-approved statuses, retained at Task 088 closure.
-Subsequent governed work updates this register with evidence; completed task
-counts and estimated future task numbers are not product-completion measures.
+Task 089 advances only C2 from PARTIAL to PASS. The Task 088 baseline was
+Community 4/4/1 and inherited Pro 5/6/3 (PASS/PARTIAL/MISSING). Subsequent
+governed work updates this register with evidence; completed task counts and
+estimated future task numbers are not product-completion measures.
 
 ## POST-1.0
 

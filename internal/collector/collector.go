@@ -440,18 +440,29 @@ func detectVirtualization() (string, string, []string) {
 }
 func collectServices(r runner.Runner) func(context.Context) ([]inventory.Item, []string, error) {
 	return func(ctx context.Context) ([]inventory.Item, []string, error) {
-		res, e := r.Run(ctx, "systemctl", "list-units", "--type=service", "--state=running", "--no-legend", "--plain")
+		res, e := r.Run(ctx, "systemctl", "list-units", "--type=service", "--state=running", "--no-legend", "--plain", "--full")
 		if e != nil {
 			return nil, nil, e
 		}
 		lines := strings.Split(strings.TrimSpace(string(res.Stdout)), "\n")
 		out := []inventory.Item{}
-		for i, l := range lines {
-			if strings.TrimSpace(l) == "" {
+		seen := map[string]bool{}
+		for _, l := range lines {
+			if err := ctx.Err(); err != nil {
+				return nil, nil, err
+			}
+			fields := strings.Fields(l)
+			if len(fields) == 0 {
 				continue
 			}
-			out = append(out, item(strconv.Itoa(i+1), "service", map[string]inventory.Fact{"service_identity": redactedFact("operational", "service_identity_hidden", "service_manager", "systemd unit metadata"), "active": fact(true, "systemd unit metadata")}))
+			if len(fields) < 4 || !strings.HasSuffix(fields[0], ".service") || fields[2] != "active" || fields[3] != "running" || seen[fields[0]] {
+				return nil, nil, ErrInvalidEvidence
+			}
+			seen[fields[0]] = true
+			id := inventory.ServiceIdentityPrefix + privacyID("systemd-unit", fields[0])
+			out = append(out, item(id, "service", map[string]inventory.Fact{"service_identity": redactedFact("operational", "service_identity_hidden", "service_manager", "systemd unit metadata"), "active": fact(true, "systemd unit metadata")}))
 		}
+		sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 		return out, []string{"systemd running-unit metadata; names redacted"}, nil
 	}
 }

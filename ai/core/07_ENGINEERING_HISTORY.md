@@ -343,3 +343,9 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   scope freeze in `docs/PRODUCT_1_0_SCOPE_FREEZE.md`: C1-C9 and P1-P5, explicit
   deferred families, no silent scope expansion, and minimal reconciliation of
   older release obligations. Documentation only; no runtime or release change.
+
+- `2026-09-21`: Task 089 replaces positional running-service IDs with stable
+  protected systemd unit pseudonyms, preserves canonical ordering and rejects
+  exact comparison of retained ordinal identities without rewriting evidence.
+  Seven focused acceptance cases close only frozen gate C2; no monitoring,
+  release, production or next-task scope is added.

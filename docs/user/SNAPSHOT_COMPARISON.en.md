@@ -29,3 +29,18 @@ incompatible snapshots, or an output failure.
 
 The report describes observed differences only. It is not a health verdict,
 drift decision, alert, score, recommendation, or proof of current host state.
+
+## Protected service identity and older snapshots
+
+Running services now have stable protected IDs. Reordering leaves their identity
+unchanged; a service appearing, disappearing or replacing another remains visible
+even when the count stays equal. Names stay redacted. These deterministic IDs are
+pseudonymous, not anonymous: candidate names can be guessed and hashed, and equal
+names can be correlated. Keep snapshots private.
+
+A comparison involving an older, nonempty ordinal service list stops with
+`service identity comparison unavailable` (exit `1`), rather than claiming exact
+identity changes. Reports requiring that comparison also stop. Older snapshots
+remain readable and are not migrated or rewritten. With the corrected collector,
+run the two `qwsg inventory save` commands above and compare those new snapshots;
+use explicit selectors if needed. No historical evidence needs deletion.

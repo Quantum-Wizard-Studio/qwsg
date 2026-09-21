@@ -10,6 +10,10 @@ import (
 const CanonicalSchemaName = "qwsg.inventory"
 const ContractVersionForLayer = "1.0"
 
+// ServiceIdentityPrefix identifies namespaced SHA-256/128 systemd unit pseudonyms.
+// Historical ordinal IDs do not satisfy this identity contract.
+const ServiceIdentityPrefix = "systemd-unit-v1:"
+
 type CollectorExecution struct {
 	CollectorName      string             `json:"collector_name"`
 	Version            string             `json:"version"`

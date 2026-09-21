@@ -64,3 +64,35 @@ The top-level schema remains `1.0`; existing `categories`, status calculation, e
 ## Verification boundary
 
 Tests cover every registered collector contract, required collector set, parser fixtures, privacy IDs, dependencies, deterministic Registry and canonical ordering, cancellation, timeout, panic and output-limit isolation, partial/fatal aggregation, secret rejection, relationship integrity, legacy compatibility, and end-to-end canonical assembly. A live Linux run verifies all nine Task 014 collectors as available in the implementation environment; unrelated legacy service discovery may truthfully leave the overall snapshot partial when systemd access is unavailable.
+
+## Stable protected service identity (Task 089)
+
+The running systemd service collector uses the exact unit token (first column)
+from bounded `systemctl list-units --type=service --state=running
+--no-legend --plain --full` observation. `--full` prevents display ellipsization
+from truncating the identity input. Case, instance suffixes and systemd escaping
+are preserved; descriptions and enumeration positions are not identity inputs.
+Malformed, duplicate or non-running rows fail collection without publishing raw
+evidence. Service coverage remains running units of the system manager only.
+
+The item ID is `systemd-unit-v1:` followed by the first 128 bits of
+`SHA-256("qwsg:systemd-unit:v1:" + unitToken)` in lowercase hexadecimal, reusing
+the existing collector `privacyID` primitive. The canonical resource ID adds
+`services:`. Items and canonical resources are sorted by protected ID. The
+`service_identity` fact remains redacted with no value. Identical unit tokens
+retain identity across independent runs; ordering and description changes do
+not replace a service. A renamed unit is a different identity, not a claim
+about the identity of its executable or workload. Presence changes refer only
+to the observed running set, not installation/removal of unit files.
+
+These unkeyed deterministic identifiers are **pseudonyms, not anonymous IDs**.
+They allow correlation, including across hosts for the same unit token, and
+candidate-name dictionary guessing. This preserves the existing deterministic
+privacy primitive's semantics; it is not encryption or resistance to guessing.
+There is no new secret, registry, key lifecycle, persistence or network lookup.
+Host, network, mount, device and service-name redactions remain intact.
+
+Historical nonempty ordinal service inventories remain readable, unchanged,
+under Inventory/Store 1.0. They cannot prove stable service identity. The
+[Comparison compatibility boundary](SNAPSHOT_COMPARISON_ENGINE.md#service-identity-compatibility)
+refuses exact comparison involving such evidence. No bulk migration occurs.
