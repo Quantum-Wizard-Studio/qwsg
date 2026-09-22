@@ -20,6 +20,11 @@ import (
 
 func mutationCommandFixture(t *testing.T) string {
 	t.Helper()
+	oldManual := manualApply
+	t.Cleanup(func() { manualApply = oldManual })
+	manualApply = func(args ...string) (automaticupdate.ApplyResult, error) {
+		return automaticupdate.ApplyResult{}, runSudo(args...)
+	}
 	state := t.TempDir()
 	t.Setenv("QWSG_STATE_DIR", state)
 	oldAutomatic, oldGuardianState := automaticSystemctl, guardianServiceState
@@ -198,7 +203,7 @@ func TestManualMutationOwnershipThroughHelperAndRecovery(t *testing.T) {
 				if code := executeUpdate(req.LocalArchive, req.TargetVersion, io.Discard, &diagnostic); code != 1 {
 					t.Fatalf("code %d", code)
 				}
-				if !reflect.DeepEqual(calls, []string{"privileged-apply", "privileged-rollback"}) {
+				if !reflect.DeepEqual(calls, []string{"privileged-apply-report", "privileged-rollback"}) {
 					t.Fatalf("helper chain %v: %s", calls, diagnostic.String())
 				}
 			} else {

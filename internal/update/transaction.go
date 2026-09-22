@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"quantumwizard.hu/qwsg/internal/evidenceio"
 	"sort"
 	"strings"
 	"time"
@@ -20,6 +21,7 @@ type InstalledFile struct {
 type Transaction struct {
 	Schema, FromVersion, ToVersion, ToCommit, Created string
 	Complete                                          bool
+	Prepared                                          bool // Complete rollback set durably recorded before any destination change.
 	// MutationStarted is conservative: a destination-changing operation was entered.
 	MutationStarted, RollbackAttempted, RollbackSucceeded bool
 	Files                                                 []InstalledFile
@@ -77,13 +79,18 @@ func Apply(packageRoot, destRoot, backupRoot, fromVersion string) (tx Transactio
 				rollbackErr = validateRestored(tx, destRoot)
 			}
 			tx.RollbackSucceeded = rollbackErr == nil
+			if journalErr := writeTransaction(backupRoot, tx); journalErr != nil {
+				err = errors.Join(err, journalErr)
+			}
 			if rollbackErr != nil {
 				err = errors.Join(err, fmt.Errorf("rollback failed: %w", rollbackErr))
 			}
 		}
 	}()
 	for _, pair := range pairs {
-		src := filepath.Join(packageRoot, pair[0])
+		if err = safeArtifactPath(destRoot, pair[1]); err != nil {
+			return tx, err
+		}
 		dst := filepath.Join(destRoot, pair[1])
 		info, e := os.Lstat(dst)
 		backup, hash := filepath.Join("files", pair[1]), ""
@@ -105,12 +112,31 @@ func Apply(packageRoot, destRoot, backupRoot, fromVersion string) (tx Transactio
 			tx.Files = append(tx.Files, InstalledFile{Destination: pair[1], Backup: backup, SHA256: hash, Mode: uint32(info.Mode().Perm()), Existed: true})
 		} else {
 			tx.Files = append(tx.Files, InstalledFile{Destination: pair[1], Backup: backup, Mode: 0, Existed: false})
+		}
+	}
+	if err = validateRollbackSource(tx, destRoot, backupRoot); err != nil {
+		return tx, err
+	}
+	tx.Prepared = true
+	if err = writeTransaction(backupRoot, tx); err != nil {
+		return tx, err
+	}
+	if err = syncTreeDirectories(backupRoot); err != nil {
+		return tx, err
+	}
+	if err = beforeMutation(tx); err != nil {
+		return tx, err
+	}
+	for _, pair := range pairs {
+		src := filepath.Join(packageRoot, pair[0])
+		dst := filepath.Join(destRoot, pair[1])
+		if _, e := os.Lstat(dst); os.IsNotExist(e) {
 			tx.MutationStarted = true
-			if e = os.MkdirAll(filepath.Dir(dst), 0755); e != nil {
-				return tx, e
+			if err = os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+				return tx, err
 			}
-			if e = os.WriteFile(dst, []byte{}, 0600); e != nil {
-				return tx, e
+			if err = os.WriteFile(dst, nil, 0600); err != nil {
+				return tx, err
 			}
 		}
 		mode := os.FileMode(0644)
@@ -118,9 +144,10 @@ func Apply(packageRoot, destRoot, backupRoot, fromVersion string) (tx Transactio
 			mode = 0755
 		}
 		tx.MutationStarted = true
-		if e = replaceFile(src, dst, mode); e != nil {
-			return tx, e
+		if err = replaceFile(src, dst, mode); err != nil {
+			return tx, err
 		}
+		afterMutation()
 	}
 	tx.Complete = true
 	if err = writeTransaction(backupRoot, tx); err != nil {
@@ -134,7 +161,7 @@ func Rollback(destRoot, backupRoot string) error {
 	if err != nil {
 		return err
 	}
-	if !tx.Complete {
+	if !tx.Complete && !tx.Prepared {
 		return fmt.Errorf("rollback transaction incomplete")
 	}
 	if err = restore(tx, destRoot, backupRoot); err != nil {
@@ -147,7 +174,7 @@ func ReadTransaction(root string) (Transaction, error) {
 	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm() != 0700 {
 		return Transaction{}, fmt.Errorf("unsafe rollback root")
 	}
-	data, err := os.ReadFile(filepath.Join(root, "transaction.json"))
+	data, err := evidenceio.ReadFile(filepath.Join(root, "transaction.json"), 1<<20)
 	if err != nil {
 		return Transaction{}, err
 	}
@@ -158,12 +185,18 @@ func ReadTransaction(root string) (Transaction, error) {
 	return tx, nil
 }
 func restore(tx Transaction, destRoot, backupRoot string) error {
+	if err := validateRollbackSource(tx, destRoot, backupRoot); err != nil {
+		return err
+	}
 	for _, f := range tx.Files {
 		if filepath.IsAbs(f.Destination) || filepath.IsAbs(f.Backup) || filepath.Clean(f.Destination) != f.Destination || filepath.Clean(f.Backup) != f.Backup {
 			return fmt.Errorf("unsafe rollback metadata")
 		}
 		if !f.Existed {
 			if err := os.Remove(filepath.Join(destRoot, f.Destination)); err != nil && !os.IsNotExist(err) {
+				return err
+			}
+			if err := syncDirectory(filepath.Dir(filepath.Join(destRoot, f.Destination))); err != nil {
 				return err
 			}
 			continue
@@ -202,6 +235,9 @@ func copyExclusive(src, dst string, mode os.FileMode) error {
 		return err
 	}
 	_, copyErr := io.Copy(out, in)
+	if copyErr == nil {
+		copyErr = out.Sync()
+	}
 	closeErr := out.Close()
 	if copyErr != nil {
 		return copyErr
@@ -241,7 +277,10 @@ func replaceFile(src, dst string, mode os.FileMode) error {
 	if e != nil {
 		return e
 	}
-	return os.Rename(name, dst)
+	if err = os.Rename(name, dst); err != nil {
+		return err
+	}
+	return syncDirectory(filepath.Dir(dst))
 }
 func writeTransaction(root string, tx Transaction) error {
 	data, err := json.MarshalIndent(tx, "", "  ")
@@ -250,7 +289,24 @@ func writeTransaction(root string, tx Transaction) error {
 	}
 	data = append(data, '\n')
 	path := filepath.Join(root, "transaction.json")
-	return os.WriteFile(path, data, 0600)
+	tmp, err := os.CreateTemp(root, ".transaction-")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmp.Name())
+	if _, err = tmp.Write(data); err == nil {
+		err = tmp.Sync()
+	}
+	if ce := tmp.Close(); err == nil {
+		err = ce
+	}
+	if err != nil {
+		return err
+	}
+	if err = os.Rename(tmp.Name(), path); err != nil {
+		return err
+	}
+	return syncDirectory(root)
 }
 func manifestSet(root string) map[string]bool {
 	result := map[string]bool{}
@@ -284,6 +340,145 @@ func validateRestored(tx Transaction, destRoot string) error {
 		hash, err := fileSHA(path)
 		if err != nil || hash != f.SHA256 {
 			return fmt.Errorf("rollback restored integrity mismatch")
+		}
+	}
+	return nil
+}
+
+// Test seam at the actual durable prepare boundary; no runtime fault controls.
+var beforeMutation = func(Transaction) error { return nil }
+var afterMutation = func() {}
+var syncDirectory = func(path string) error {
+	d, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	return d.Sync()
+}
+
+func syncTreeDirectories(root string) error {
+	var dirs []string
+	err := filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			dirs = append(dirs, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	for i := len(dirs) - 1; i >= 0; i-- {
+		if err = syncDirectory(dirs[i]); err != nil {
+			return err
+		}
+	}
+	// MkdirAll may have created rollback/user ancestors too.
+	for p := filepath.Dir(root); ; p = filepath.Dir(p) {
+		if err = syncDirectory(p); err != nil {
+			return err
+		}
+		if p == filepath.Dir(p) {
+			break
+		}
+	}
+	return nil
+}
+
+func safeArtifactPath(root, rel string) error {
+	if filepath.IsAbs(rel) || filepath.Clean(rel) != rel || rel == ".." || strings.HasPrefix(rel, "../") {
+		return fmt.Errorf("unsafe rollback path")
+	}
+	p := root
+	for _, part := range strings.Split(rel, string(filepath.Separator)) {
+		p = filepath.Join(p, part)
+		info, err := os.Lstat(p)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return fmt.Errorf("symlink in rollback path")
+		}
+	}
+	return nil
+}
+
+// Check the WHOLE source before the first restore; a later corrupt member must
+// never replace an earlier valid installed artifact.
+func validateRollbackSource(tx Transaction, destRoot, backupRoot string) error {
+	seen := map[string]bool{}
+	for _, f := range tx.Files {
+		allowed := false
+		for _, d := range packageDestinations {
+			if f.Destination == d {
+				allowed = true
+			}
+		}
+		if strings.HasPrefix(f.Destination, "usr/local/share/doc/qwsg/") {
+			base := strings.TrimPrefix(f.Destination, "usr/local/share/doc/qwsg/")
+			d, ok := destination(base)
+			if !ok {
+				d, ok = destination("docs/" + base)
+			}
+			allowed = ok && d == f.Destination
+		}
+		if !allowed || seen[f.Destination] || f.Backup != "files/"+f.Destination || f.Mode > 0777 {
+			return fmt.Errorf("invalid rollback write set")
+		}
+		seen[f.Destination] = true
+		if err := safeArtifactPath(destRoot, f.Destination); err != nil {
+			return err
+		}
+		if err := safeArtifactPath(backupRoot, f.Backup); err != nil {
+			return err
+		}
+		if f.Existed {
+			info, err := os.Lstat(filepath.Join(backupRoot, f.Backup))
+			if err != nil || !info.Mode().IsRegular() {
+				return fmt.Errorf("invalid rollback source")
+			}
+			hash, err := fileSHA(filepath.Join(backupRoot, f.Backup))
+			if err != nil || hash != f.SHA256 {
+				return fmt.Errorf("rollback integrity mismatch")
+			}
+		}
+	}
+	return nil
+}
+
+// ValidateApplied verifies every installed package destination against the
+// authenticated staged package before the coordinator starts Guardian.
+func ValidateApplied(packageRoot, destRoot string) error {
+	for rel := range manifestSet(packageRoot) {
+		d, ok := destination(rel)
+		if !ok {
+			continue
+		}
+		if err := safeArtifactPath(destRoot, d); err != nil {
+			return err
+		}
+		path := filepath.Join(destRoot, d)
+		info, err := os.Lstat(path)
+		mode := os.FileMode(0644)
+		if rel == "bin/qwsg" {
+			mode = 0755
+		}
+		if err != nil || !info.Mode().IsRegular() || info.Mode().Perm() != mode {
+			return fmt.Errorf("installed package mode mismatch")
+		}
+		want, err := fileSHA(filepath.Join(packageRoot, rel))
+		if err != nil {
+			return err
+		}
+		got, err := fileSHA(path)
+		if err != nil || got != want {
+			return fmt.Errorf("installed package integrity mismatch")
 		}
 	}
 	return nil

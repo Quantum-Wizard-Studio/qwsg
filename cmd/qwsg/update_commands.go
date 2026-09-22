@@ -16,6 +16,7 @@ import (
 
 	"quantumwizard.hu/qwsg/internal/automaticupdate"
 	"quantumwizard.hu/qwsg/internal/changenotification"
+	"quantumwizard.hu/qwsg/internal/evidenceio"
 	"quantumwizard.hu/qwsg/internal/guardian"
 	"quantumwizard.hu/qwsg/internal/installation"
 	"quantumwizard.hu/qwsg/internal/productcapability"
@@ -162,6 +163,7 @@ func parseUpdateArgs(args []string) (archive, target string, err error) {
 }
 
 func executeUpdate(localArchive, target string, out, errout io.Writer) (code int) {
+	code = 1
 	capabilities, capabilityErr := installationCapabilities()
 	if capabilityErr != nil || !capabilities.Has(productcapability.UpdateManual) {
 		fmt.Fprintln(errout, "Update refused: manual update capability unavailable.")
@@ -203,10 +205,39 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 			managedChangeDelivery(managedEvent(changenotification.Update, outcome, operationID, installed, resulting, reason), errout)
 		}
 	}()
-	previousRecord, _ := loadUpdateRecord(updateRoot)
+	if err := manualTransactionReady(updateRoot); err != nil {
+		fmt.Fprintln(errout, "Update refused: incomplete recovery; inspect qwsg update status, then qwsg update rollback.")
+		return 1
+	}
+	attempt := struct {
+		Schema string `json:"schema"`
+		At     string `json:"at"`
+		Phase  string `json:"phase"`
+		Exit   int    `json:"exit"`
+	}{Schema: "qwsg.manual-attempt/1", At: time.Now().UTC().Format(time.RFC3339Nano), Phase: "prepare", Exit: 1}
+	if err := saveLocalEvidence(updateRoot, "manual-attempt.json", attempt); err != nil {
+		return 1
+	}
+	defer func() {
+		attempt.Exit = code
+		if err := saveLocalEvidence(updateRoot, "manual-attempt.json", attempt); err != nil {
+			code = 1
+			outcome = changenotification.Failed
+			fmt.Fprintln(errout, "Update attempt evidence failed.")
+		}
+		if code == 0 && outcome == changenotification.Success {
+			fmt.Fprintf(out, "QWSG updated safely: %s -> %s\nRollback available: qwsg update rollback\n", safeText(installed), safeText(resulting))
+		}
+	}()
+	previousRecord, recordErr := loadUpdateRecord(updateRoot)
+	if recordErr != nil && !os.IsNotExist(recordErr) {
+		fmt.Fprintln(errout, "Update refused: rollback metadata invalid.")
+		return 1
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
+	attempt.Phase = "authenticate"
 	var metadata []byte
 	if localArchive != "" {
 		metadata, err = updateauthority.ReadMetadata(localArchive + ".release-index.json")
@@ -221,6 +252,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 	candidate, err := updateauthority.Authorize(metadata, verifier, installedUpdateEvaluator(), "stable", "linux-amd64", target, time.Now().UTC())
 	if errors.Is(err, updateauthority.ErrNoUpdate) && localArchive == "" {
 		notify = false
+		attempt.Phase = "no_update"
 		e := candidate.Evaluation()
 		fmt.Fprintf(out, "QWSG is not updated: available release is %s (%s).\n", safeText(e.Release.Version), e.Relation)
 		return 0
@@ -248,6 +280,7 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 		}
 	}
 	evaluation := candidate.Evaluation()
+	attempt.Phase = "acquire_verify"
 	var staged updatecore.Staged
 	if localArchive != "" {
 		staged, err = updatecore.StageLocal(localArchive, localArchive+".sha256", target, updateRoot)
@@ -269,55 +302,19 @@ func executeUpdate(localArchive, target string, out, errout io.Writer) (code int
 	if err = os.WriteFile(authorityPath, candidate.Metadata(), 0600); err != nil {
 		return 1
 	}
+	attempt.Phase = "preflight"
 	if err = validateInstalledConfiguration(); err != nil {
 		fmt.Fprintln(errout, "Update failed: installed configuration preflight failed.")
 		return 1
 	}
-	enabled := commandState("is-enabled")
-	active := commandState("is-active")
-	if active == "yes" {
-		if err = runSystemctl("stop"); err != nil {
-			fmt.Fprintln(errout, "Update failed: Guardian could not be stopped.")
-			return 1
-		}
-	}
-	uid := strconv.Itoa(os.Getuid())
-	txid := time.Now().UTC().Format("20060102T150405.000000000Z")
-	backup := filepath.Join(updateRollbackRoot, uid, txid)
-	err = runSudo("privileged-apply", "--archive", staged.Archive, "--sidecar", staged.Sidecar, "--version", pkg.Provenance.Version, "--sha256", staged.SHA256, "--backup", backup, "--from", installed, "--authority", authorityPath)
-	if err == nil {
-		err = runSystemctl("daemon-reload")
-	}
-	if err == nil && enabled == "yes" {
-		err = runSystemctl("enable")
-	}
-	if err == nil && active == "yes" {
-		err = runSystemctl("start")
-	}
-	if err == nil {
-		err = validateInstalledVersion(pkg.Provenance.Version)
-	}
-	if err != nil {
-		_ = runSudo("privileged-rollback", "--backup", backup)
-		_ = runSystemctl("daemon-reload")
-		if enabled == "yes" {
-			_ = runSystemctl("enable")
-		}
-		if active == "yes" {
-			_ = runSystemctl("start")
-		}
-		fmt.Fprintln(errout, "Update failed after mutation; automatic package rollback was attempted.")
-		return 1
-	}
-	record := localUpdateRecord{Schema: "qwsg.update-local/1", Installed: pkg.Provenance.Version, Previous: installed, Backup: backup, UpdatedAt: time.Now().UTC().Format(time.RFC3339Nano)}
-	if err = saveUpdateRecord(updateRoot, record); err != nil {
-		fmt.Fprintln(errout, "Update installed but local rollback metadata could not be recorded.")
+	attempt.Phase = "transaction"
+	backup := filepath.Join(updateRollbackRoot, strconv.Itoa(os.Getuid()), time.Now().UTC().Format("20060102T150405.000000000Z"))
+	if !executeManualTransaction(updateRoot, installed, pkg, staged, authorityPath, backup, errout) {
 		return 1
 	}
 	if previousRecord.Backup != "" && previousRecord.Backup != backup {
 		_ = runSudo("privileged-discard", "--backup", previousRecord.Backup)
 	}
-	fmt.Fprintf(out, "QWSG updated safely: %s -> %s\nRollback available: qwsg update rollback\n", safeText(installed), safeText(pkg.Provenance.Version))
 	outcome, resulting = changenotification.Success, pkg.Provenance.Version
 	return 0
 }
@@ -413,10 +410,6 @@ func runPrivilegedRollback(args []string, errout io.Writer) int {
 		fmt.Fprintln(errout, "privileged rollback transaction failed")
 		return 1
 	}
-	if err = os.RemoveAll(values["--backup"]); err != nil {
-		fmt.Fprintln(errout, "privileged rollback cleanup failed")
-		return 1
-	}
 	return 0
 }
 
@@ -446,6 +439,14 @@ func runUpdateStatus(out, errout io.Writer) int {
 	root, err := localStateRoot()
 	if err != nil {
 		fmt.Fprintln(errout, "Update status unavailable: local state root unavailable.")
+		return 1
+	}
+	if err := writeManualEvidenceStatus(filepath.Join(root, "update"), out); err != nil {
+		fmt.Fprintln(errout, "Update transaction evidence invalid.")
+		return 1
+	}
+	if err := writeRollbackEvidenceStatus(filepath.Join(root, "update"), out); err != nil {
+		fmt.Fprintln(errout, "Rollback evidence invalid.")
 		return 1
 	}
 	store, err := updateawareness.Open(root)
@@ -500,7 +501,19 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 		return mutationRefused(errout, err)
 	}
 	defer mutation.Close()
-	record, err := loadUpdateRecord(filepath.Join(root, "update"))
+	record, err := loadUpdateRecord(updateRoot)
+	priorRecord := record
+	pending, pendingErr := loadManualEvidence(updateRoot)
+	if pendingErr != nil && !os.IsNotExist(pendingErr) {
+		fmt.Fprintln(errout, "Rollback refused: manual transaction evidence invalid.")
+		return 1
+	}
+	resume := pendingErr == nil && pending.Intervention
+	packageUnchanged := resume && (pending.Phase == "prepare" || pending.Failure == "guardian_stop_failed" || pending.Failure == "guardian_state_unknown")
+	if resume {
+		record = localUpdateRecord{Schema: "qwsg.update-local/1", Installed: pending.Target, Previous: pending.Source, Backup: pending.Backup, UpdatedAt: pending.At}
+		err = nil
+	}
 	if err != nil {
 		fmt.Fprintln(errout, "Rollback unavailable: local metadata missing or invalid.")
 		return 1
@@ -514,7 +527,22 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 		}
 		managedChangeDelivery(managedEvent(changenotification.Rollback, outcome, operationID, record.Installed, record.Previous, reason), errout)
 	}()
-	receipt := rollbackEvidence{Schema: "qwsg.rollback-result/1", At: time.Now().UTC().Format(time.RFC3339Nano), Source: record.Installed, Target: record.Previous, Outcome: "incomplete", Package: "not_attempted", Recovery: guardian.Recovery{Intent: "unknown", State: "not_changed"}}
+	receipt := rollbackEvidence{Backup: record.Backup, Schema: "qwsg.rollback-result/1", At: time.Now().UTC().Format(time.RFC3339Nano), Source: record.Installed, Target: record.Previous, Outcome: "incomplete", Package: "not_attempted", Recovery: guardian.Recovery{Intent: "unknown", State: "not_changed"}}
+	var priorRecovery *guardian.Recovery
+	data, readErr := evidenceio.ReadFile(filepath.Join(updateRoot, "rollback-result.json"), 16384)
+	if readErr == nil {
+		var prior rollbackEvidence
+		if json.Unmarshal(data, &prior) != nil || prior.Schema != "qwsg.rollback-result/1" {
+			fmt.Fprintln(errout, "Rollback refused: prior recovery evidence invalid.")
+			return 1
+		}
+		if prior.Backup == record.Backup && prior.Outcome != "success" && (prior.Recovery.Intent == "active" || prior.Recovery.Intent == "inactive") {
+			priorRecovery = &prior.Recovery
+		}
+	} else if !os.IsNotExist(readErr) {
+		fmt.Fprintln(errout, "Rollback refused: prior recovery evidence unavailable.")
+		return 1
+	}
 	// Write intent before any service or package change. Worker loss leaves an
 	// incomplete receipt, never a fabricated successful rollback.
 	if err = saveLocalEvidence(updateRoot, "rollback-result.json", receipt); err != nil {
@@ -539,6 +567,9 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 			outcome = changenotification.Failed
 			fmt.Fprintln(errout, "Rollback terminal evidence failed.")
 		}
+		if code != 0 {
+			fmt.Fprintf(errout, "Rollback FAILED: %s; package=%s; Guardian=%s. Inspect qwsg update status; preserve evidence and retry qwsg update rollback after correcting the failure.\n", receipt.Outcome, receipt.Package, receipt.Recovery.State)
+		}
 		if code == 0 {
 			fmt.Fprintf(out, "QWSG rolled back safely: %s -> %s\n", safeText(record.Installed), safeText(record.Previous))
 		}
@@ -551,6 +582,14 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 	}
 	receipt.Recovery.Intent = active
 	receipt.Recovery.StopRequested = active == "active"
+	if priorRecovery != nil {
+		receipt.Recovery.Intent = priorRecovery.Intent
+		receipt.Recovery.StopRequested = priorRecovery.StopRequested
+	}
+	if resume && (pending.Recovery.Intent == "active" || pending.Recovery.Intent == "inactive") {
+		receipt.Recovery.Intent = pending.Recovery.Intent
+		receipt.Recovery.StopRequested = pending.Recovery.StopRequested
+	}
 	receipt.Recovery.State = "pending"
 	if err = saveLocalEvidence(updateRoot, "rollback-result.json", receipt); err != nil {
 		return 1
@@ -571,7 +610,10 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 		receipt.Package = "not_attempted"
 		return 1
 	}
-	if err = runSudo("privileged-rollback", "--backup", record.Backup); err == nil {
+	if !packageUnchanged {
+		err = runSudo("privileged-rollback", "--backup", record.Backup)
+	}
+	if err == nil {
 		err = runSystemctl("daemon-reload")
 	}
 	if err == nil {
@@ -593,9 +635,24 @@ func runUpdateRollback(out, errout io.Writer) (code int) {
 		receipt.Outcome = "recovery_failed"
 		return 1
 	}
-	if err = os.Remove(filepath.Join(updateRoot, "current.json")); err != nil {
+	if priorRecord.Backup == record.Backup {
+		err = removeUpdateRecord(updateRoot)
+	}
+	if err != nil {
 		receipt.Outcome = "finalization_failed"
 		return 1
+	}
+	if resume {
+		pending.Outcome = "resolved_by_rollback"
+		pending.Phase = "finished"
+		pending.Intervention = false
+		pending.Rollback = "succeeded"
+		pending.RollbackValidation = "passed"
+		pending.Recovery = receipt.Recovery
+		if err = saveLocalEvidence(updateRoot, "update-result.json", pending); err != nil {
+			receipt.Outcome = "finalization_failed"
+			return 1
+		}
 	}
 	receipt.Outcome = "success"
 	outcome = changenotification.Success
@@ -620,10 +677,16 @@ func ensureUpdateRoot(path string) error {
 	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm() != 0700 || int(info.Sys().(*syscall.Stat_t).Uid) != os.Getuid() {
 		return fmt.Errorf("unsafe update root")
 	}
-	return nil
+	d, err := os.Open(filepath.Dir(path))
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	return d.Sync()
 }
 
 type rollbackEvidence struct {
+	Backup   string            `json:"backup,omitempty"`
 	Schema   string            `json:"schema"`
 	At       string            `json:"at"`
 	Source   string            `json:"source_version"`
@@ -679,7 +742,7 @@ func loadUpdateRecord(root string) (localUpdateRecord, error) {
 	if !info.Mode().IsRegular() || info.Mode().Perm() != 0600 {
 		return localUpdateRecord{}, fmt.Errorf("unsafe update metadata")
 	}
-	data, err := os.ReadFile(path)
+	data, err := evidenceio.ReadFile(path, 16384)
 	if err != nil {
 		return localUpdateRecord{}, err
 	}
@@ -759,4 +822,16 @@ func validBackup(path string) bool {
 }
 func writeUpdateHelp(out io.Writer) {
 	fmt.Fprintln(out, "Usage:\n  qwsg update check\n  qwsg update\n  qwsg update --archive FILE --version VERSION\n  qwsg update status\n  qwsg update rollback")
+}
+
+func removeUpdateRecord(root string) error {
+	if err := os.Remove(filepath.Join(root, "current.json")); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	d, err := os.Open(root)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	return d.Sync()
 }

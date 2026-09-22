@@ -9,6 +9,20 @@ enabled/active service intent and validates installed identity and
 configuration. Inspect rollback availability with `qwsg update status`; use
 `qwsg update rollback` to restore the prior verified package artifacts.
 
+
+Task 091 explicit-update recovery: success requires package validation before
+Guardian recovery and verified final service state. A failed update that rolls
+back successfully still exits nonzero (`update_failed_recovered`). Inspect
+`qwsg update status`: rollback execution, rollback validation and Guardian recovery
+are separate results. Incomplete evidence blocks another manual update.
+After an interruption, ensure the coordinator and privileged helper have exited,
+preserve the private update evidence and rollback backup, then run
+`qwsg update rollback`. Retry preserves the original running/stopped intent.
+Do not delete evidence or start Guardian to bypass failed package validation.
+If the rollback source is missing/corrupt, preserve the current installation and
+use an independently verified recovery source; the command will fail closed.
+See [the transaction contract](../architecture/NATIVE_UPDATE_AND_ROLLBACK.md).
+
 `qwsg update check` contacts only
 `https://releases.quantumwizard.hu/qwsg/v1/release-index.json`, requires the
 bundled `qwsg-community-release-2026-01` Ed25519 public identity, and fails

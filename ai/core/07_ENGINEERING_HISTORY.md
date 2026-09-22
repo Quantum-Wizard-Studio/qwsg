@@ -356,3 +356,9 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   and bounded checkpoint/evidence reads. Nine acceptance cases, race and full
   local validation pass; C7/C8/C9 remain unchanged. See the independent Task 090
   history for the exact supported interruption contract.
+
+- `2026-09-22`: Task 091 closes only frozen C7 with authenticated explicit
+  update validation before Guardian recovery, independent rollback/runtime
+  outcomes, durable prepared rollback journals and preserved recovery sources.
+  Twelve cases and full local/race/engineering validation pass. No release,
+  production mutation, C8/C9 closure or additional Pro gate change.

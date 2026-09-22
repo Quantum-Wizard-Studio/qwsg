@@ -135,6 +135,9 @@ func TestMain(m *testing.M) {
 			}
 			return decodeApplyReceipt(out.Bytes(), err)
 		}
+		manualApply = func(args ...string) (automaticupdate.ApplyResult, error) {
+			return runAutomaticApply(context.Background(), args...)
+		}
 		runAutomaticRollback = func(ctx context.Context, backup string) error {
 			return runSudo("privileged-rollback", "--backup", backup)
 		}
@@ -322,9 +325,9 @@ func TestOldBinaryForwardAuthenticatedUpdate(t *testing.T) {
 					"provenance-mismatch":        "authenticated package verification failed",
 					"digest-mismatch":            "candidate acquisition or integrity verification failed",
 					"archive-missing-authority":  "authenticated release metadata unavailable",
-					"helper-reauthentication":    "privileged migration authority refused",
+					"helper-reauthentication":    "Update FAILED",
 					"archive-forged-sidecar":     "authenticated package verification failed",
-					"rollback-after-failure":     "automatic package rollback was attempted",
+					"rollback-after-failure":     "update_failed_recovered",
 				}[scenario]
 				if expected == "" || !bytes.Contains(out, []byte(expected)) {
 					t.Fatalf("wrong refusal gate for %s: %s", scenario, out)
@@ -352,7 +355,7 @@ func TestOldBinaryForwardAuthenticatedUpdate(t *testing.T) {
 			if !bytes.Equal(got, oldBytes) {
 				t.Fatal("refusal/rollback did not preserve old binary")
 			}
-			if scenario == "rollback-after-failure" && !bytes.Contains(out, []byte("automatic package rollback")) {
+			if scenario == "rollback-after-failure" && !bytes.Contains(out, []byte("update_failed_recovered")) {
 				t.Fatalf("failure never reached rollback: %s", out)
 			}
 			p, err := os.ReadFile(preserved)

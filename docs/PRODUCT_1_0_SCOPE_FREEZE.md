@@ -64,7 +64,7 @@ certificate, backup or application concern.
 | C4 — Continuous Guardian and bounded resource behavior | PASS | Preserve accepted Guardian, resource, Scheduler and restart behavior. Existing accepted evidence remains authoritative; do not recreate completed work merely for task-number progression. |
 | C5 — Honest Health / Rule / Policy and local reporting | PASS | Preserve deterministic evaluation and local reporting limited to actual evidence/check coverage. No universal-health claim is permitted. |
 | C6 — Administrator SMTP notification and authenticated release awareness | PASS | Preserve security, TLS, privacy, bounded retry/deduplication and authenticated release boundaries. SMTP is operator-configurable and need not be configured on every Community installation. |
-| C7 — Safe explicit update / rollback / recovery | PARTIAL | Bring manual update failure recovery to the established fail-closed standard. Do not discard rollback results. Required Guardian restart depends on verified recovery/package state. Rollback/backup/journal evidence remains sufficiently durable and actionable after failure/interruption. No entire-updater redesign is required. |
+| C7 — Safe explicit update / rollback / recovery | PASS | Task 091 proves authenticated explicit update with full package validation before verified Guardian recovery, distinct failed-update/rollback/runtime outcomes, durable pre-mutation rollback journal and actionable interruption evidence. All twelve C7 cases and mandatory local validation pass; see Task 091 and the native transaction contract. |
 | C8 — Canonical scope, readiness and recovery documentation | PARTIAL | Authoritative documentation must reflect this freeze and disposition obsolete broader MUSTs. Supported coverage, optional SMTP, update bootstrap and recovery boundaries must be accurate and usable. See the Task 088 documentation disposition below. |
 | C9 — Distinct signed release and real upgrade acceptance | MISSING | Give post-1.3.1 source a distinct identity, produce a reproducible artifact and authenticated release metadata/index, prove supported upgrade/bootstrap from released 1.3.1 and config/state preservation, and accept rollback plus Guardian recovery on a real supported system. |
 
@@ -99,6 +99,16 @@ defines the commit boundary, artifact classification and operator steps for
 ambiguous legacy locks. Existing evidence bytes remain compatible. C7 updater
 recovery, C8 general documentation closure and C9 release acceptance are unchanged.
 
+[Task 091](../ai/history/091_2026-09-22_safe-explicit-update-rollback-recovery.md)
+closes C7 with twelve explicit update/rollback/recovery acceptance cases, prepared
+rollback-journal interruption and fsync fault tests, authenticated old-client
+regressions and full local/race/engineering validation. The
+[native transaction contract](architecture/NATIVE_UPDATE_AND_ROLLBACK.md)
+defines exact package validation before Guardian start, independent recovery
+outcomes, preserved retry sources and operator-controlled interrupted recovery.
+C8 general documentation closure, C9 release/real upgrade acceptance and all
+additional Pro gate states remain unchanged.
+
 Current operational boundaries that documentation must preserve:
 
 - Optional SMTP being unconfigured may produce overall readiness PARTIAL while
@@ -108,7 +118,7 @@ Current operational boundaries that documentation must preserve:
   client; the frozen-old-client fixture is not proof of that real-host upgrade.
 - Task 087 verifies automatic handoff and separate manual rollback recovery
   within its scope. It does not close the manual update failure-path or journal
-  durability work in C7. Package rollback and Guardian recovery are separate
+  durability work subsequently closed by Task 091 in C7. Package rollback and Guardian recovery are separate
   outcomes; uncertain recovery cannot be reported as success.
 - Interrupted automatic work may retain incomplete evidence and leave Guardian
   stopped for operator review. Safe evidence, refusal and actionable recovery
@@ -138,15 +148,15 @@ engineering foundations. Production still resolves Community authority;
 test-injected Pro does not satisfy P1 or P5. The PASS for P2 describes its
 existing security/policy boundary, not production Pro availability.
 
-## Current gate totals after Task 089
+## Current gate totals after Task 091
 
 | Boundary | Total | PASS | PARTIAL | MISSING |
 | --- | --- | --- | --- | --- |
-| Community: C1–C9 | 9 | 6 | 2 | 1 |
+| Community: C1–C9 | 9 | 7 | 1 | 1 |
 | Additional Pro: P1–P5 | 5 | 1 | 2 | 2 |
-| Pro including inherited Community gates | 14 | 7 | 4 | 3 |
+| Pro including inherited Community gates | 14 | 8 | 3 | 3 |
 
-Task 089 advances only C2 and Task 090 only C3 from PARTIAL to PASS. The Task 088 baseline was
+Task 089 advances only C2, Task 090 only C3 and Task 091 only C7 from PARTIAL to PASS. The Task 088 baseline was
 Community 4/4/1 and inherited Pro 5/6/3 (PASS/PARTIAL/MISSING). Subsequent
 governed work updates this register with evidence; completed task counts and
 estimated future task numbers are not product-completion measures.

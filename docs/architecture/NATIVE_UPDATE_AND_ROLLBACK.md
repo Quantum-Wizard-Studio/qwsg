@@ -17,14 +17,29 @@ qwsg update status
 qwsg update rollback
 ```
 
-`check` and staging are unprivileged and non-mutating. `update` records current
-package identity and Guardian enabled/active intent, verifies compatibility,
-stops the Guardian only at the replacement boundary, applies fixed allowlisted
-artifacts, reloads the user manager, restores service intent, and validates the
-installed identity. An eligible post-mutation failure restores the exact prior
-package transaction before returning failure. Configuration, credentials, and
-persistent Guardian/operator state are user-owned and are never package backup
-payloads.
+`check` and staging do not change installed package artifacts. Explicit update
+holds the common nonblocking mutation lease through authentication, Guardian
+handoff, helper execution, validation, recovery and final evidence. An equal
+online candidate is a no-op; an explicit equal archive remains refused.
+Configuration, credentials and persistent Guardian/operator state remain outside
+the package write set. Guardian enablement is unchanged.
+
+The success order is PREPARE → MUTATE → VALIDATE → RECOVER GUARDIAN → COMMIT.
+The privileged helper reauthenticates the exact source, signed authority and
+staged package. The coordinator verifies every installed allowlisted artifact
+against the authenticated staged package, then installed identity/configuration
+and manager reload, before starting Guardian. Recovery requires active/running,
+successful unit result and a nonzero MainPID. Previously inactive Guardian must
+remain verified inactive. A successful start command alone is not success.
+
+A failed update always exits nonzero, including `update_failed_recovered`.
+Rollback execution, rollback validation and Guardian recovery are separate facts.
+The helper's structured apply/rollback receipt is retained; an unknown receipt
+cannot prove absence of mutation. Failed rollback or validation blocks restart.
+`recovery_failed` means package restoration validated but runtime recovery failed.
+`rollback_failed`, `rollback_validation_failed`, `recovery_incomplete` and
+`evidence_failed` require operator intervention. Mutation contention retains
+exit 3; other refusals/failures retain exit 1. Only fully verified success exits 0.
 
 ## Trust model
 
@@ -60,13 +75,44 @@ no-op compatibility decision. Unknown schemas fail closed.
 
 ## Rollback state
 
-Rollback metadata and prior package artifacts live in a private local root,
-are integrity-bound, contain no credentials or user state, and identify the
-from/to versions, artifact hashes, transaction state, and captured service
-intent. Rollback refuses symlinks, unsafe ownership/modes, incomplete journals,
-tampering, foreign destinations, or incompatible persistent state. Retention is
-bounded; a newer successful transaction supersedes its predecessor only after
-validation.
+Before the first destination change, Apply copies and fsyncs the complete
+allowlisted rollback set, verifies all copies, atomically writes/fsyncs the
+`Prepared` transaction journal, and syncs backup directories and their ancestors.
+Replacement files and destination directories are synced. A prepared journal
+is rollback-capable even when application was interrupted before `Complete`.
+Legacy complete journals remain readable; unprepared/incomplete journals refuse.
+Package completion is not operator-visible transaction success.
+
+Restore validates the entire source set, hashes, paths and types before changing
+any destination. It then restores and validates all recorded bytes/modes or
+required absence. Journal reads are bounded and reject unsafe file types.
+The root helper retains the backup after rollback, including through validation
+or Guardian failures, so repeated recovery remains possible. Only a fully
+successful later update may discard the previous successful update's backup.
+There is no new automatic retention policy; P4 is unchanged.
+
+Private `update/update-result.json` records source/target, backup, phase, apply
+receipt, package validation, rollback execution/validation, Guardian intent/result
+and intervention requirement. Intent is durable before stop and mutation. An
+interruption leaves incomplete evidence, which blocks another manual update.
+`manual-attempt.json` records pre-mutation refusal/no-op phase and exit result;
+`rollback-result.json` independently records explicit rollback. Atomic replacement
+uses file fsync, rename and directory fsync; a write/sync failure cannot produce a
+successful command. `current.json` becomes the normal rollback pointer only after
+validation and verified Guardian recovery. Pending evidence supplies the pointer
+if interrupted before that point. No autonomous crash replay is introduced.
+
+`qwsg update status` displays update and rollback evidence without network access.
+After an interruption, first ensure the original coordinator and any privileged
+helper have exited; preserve private evidence and backup files. Then use
+`qwsg update rollback`. It revalidates the source and installation, preserves the
+original Guardian intent across retries, and verifies recovery independently.
+An interruption before mutation can recover Guardian without package rollback.
+Missing/corrupt rollback material fails closed; do not manually start Guardian or
+delete evidence to bypass the refusal. Correct the reported storage/service
+failure or restore an independently verified package through the supported
+operator procedure before retrying. No arbitrary-disk-repair or power-loss
+survival beyond supported local filesystem fsync guarantees is claimed.
 
 ## Task 081 compatibility prerequisite
 
