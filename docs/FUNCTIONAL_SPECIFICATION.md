@@ -22,7 +22,10 @@ form a second 1.0 gate register. Specifically:
 
 “Healthy” describes only implemented evidence coverage, never universal server
 health. SMTP is supported but optional to configure. Authenticated releases and
-safe update/rollback are now required despite earlier deferral text below.
+safe update/rollback are implemented within the accepted contracts. Historical
+deferrals below do not override [Community SMTP](architecture/COMMUNITY_EMAIL_NOTIFICATIONS.md),
+[authenticated migration](architecture/AUTHENTICATED_MIGRATION_AUTHORITY.md), or
+the [current operator recovery procedure](release/UPGRADE_ROLLBACK_UNINSTALL.md).
 
 ## Current operator state
 
@@ -278,13 +281,17 @@ configuration/secret integration, or CLI/Console workflows.
 
 `FR-ALERT-003`: Every notification MUST identify instance, subject, old and new state, incident ID, evidence summary, event and observation times, policy basis, recommended next step, acknowledgement status, maintenance context, and whether remediation was attempted. Core Alpha always states that remediation was not attempted.
 
-`FR-ALERT-004`: E-mail is a post-1.0 delivery capability. Version 1.0 ships
-provider-neutral Notification contracts and locally visible Alert evidence;
-it MUST NOT claim or require a concrete transport. A later transport release
-must select, specify, and verify its supported local-submission or authenticated
-SMTP boundary.
+`FR-ALERT-004`: Community supports optional operator-configured SMTP for one
+administrator recipient, with mandatory TLS verification and the accepted
+Community Email Notifications contract. The earlier transport deferral is
+superseded. Additional transports and recipients remain POST-1.0.
 
-`FR-ALERT-005`: Delivery attempts MUST have finite timeouts and bounded retries with backoff. Default policy is three total attempts within 15 minutes. Failure after retries becomes a visible notification-health incident.
+`FR-ALERT-005`: Delivery attempts MUST have finite timeouts and bounded retries
+with backoff. The accepted Community Alert transport uses three attempts within
+one hour, with one-minute and five-minute retry eligibility. Failure is recorded
+as delivery evidence and does not change monitoring truth. Lifecycle and release
+awareness notification retain their separately documented retry/deduplication
+boundaries.
 
 `FR-ALERT-006`: A delivery failure MUST NOT recursively use the same failed channel without limit. It MUST be visible in CLI, Console if present, daily reports, diagnostics, and audit/operational history.
 
@@ -349,7 +356,14 @@ The normative command name is `qwsg`. Packaging MAY additionally expose a privil
 
 `FR-LIFE-006`: Optional dependencies MUST be individually attributable to selected capabilities and require consent. Declining one MUST disable only dependent capability where a coherent installation remains possible.
 
-`FR-LIFE-007`: Installation verification MUST confirm installed version, active valid configuration, required state access, enabled check execution, scheduler health, and configured notification transport test result. A failed verification means installation is incomplete.
+`FR-LIFE-007`: Installation/readiness verification distinguishes installed
+identity, valid configuration, required state access, Guardian evidence and
+optional notification. Missing mandatory evidence prevents core readiness.
+An unconfigured or unverified SMTP integration may leave overall readiness
+PARTIAL while Guardian core is ready; it is not a universal installation failure.
+Enabled email must satisfy its configuration and TLS/authentication requirements;
+configuration alone does not establish SMTP acceptance; an explicit controlled
+test checks the transport without promising mailbox delivery.
 
 ### 15.3 Update and migration
 

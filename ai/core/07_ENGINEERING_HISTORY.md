@@ -362,3 +362,9 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   outcomes, durable prepared rollback journals and preserved recovery sources.
   Twelve cases and full local/race/engineering validation pass. No release,
   production mutation, C8/C9 closure or additional Pro gate change.
+
+- `2026-09-23`: Task 092 closes only C8 through active Community readiness,
+  Health, optional SMTP, authenticated update and recovery documentation
+  reconciliation. Immutable 1.3.1, unpublished main and pending C9 remain explicit;
+  Community totals 8/0/1 and inherited Pro 9/2/3. No runtime/release change. See
+  `ai/history/092_2026-09-23_community-readiness-recovery-documentation-closure.md`.

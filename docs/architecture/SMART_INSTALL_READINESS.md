@@ -98,7 +98,12 @@ from its explicit assessment timestamp and is suitable for future GUI use.
 
 Setup remains responsible for operator values. Addresses, SMTP choices,
 credentials, API keys, and VPS purpose cannot be invented. Notification uses
-Task 046 preflight; only explicit `notification test` verifies SMTP acceptance.
+Task 046 preflight; explicit `notification test` checks SMTP acceptance, not mailbox delivery.
+Composite readiness reads canonical Guardian checkpoint delivery evidence; a
+separate successful manual test does not itself mark that evidence ready.
+Disabled/unconfigured SMTP is optional, while invalid enabled notification
+configuration can fail the required configuration check. See the
+[installation guide](../installation/INSTALL.md#guided-setup-and-notification).
 Unit installed/enabled/active, lingering, and Guardian monitoring are distinct.
 Only fresh integrity-checked Current Operator State proves Guardian readiness.
 

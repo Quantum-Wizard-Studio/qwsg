@@ -2,6 +2,11 @@
 
 ## Status and interpretation
 
+This historical pre-implementation audit is retained for traceability, not as a
+current capability or release-readiness inventory. Current completion uses the
+[frozen Community/Pro gates](../PRODUCT_1_0_SCOPE_FREEZE.md); its POST-1.0/FUTURE
+dispositions supersede broader obligations in this matrix.
+
 This audit-time matrix maps product promises to their architectural home and repository evidence. Every implementation status is evidence-based. `docs/FUNCTIONAL_SPECIFICATION.md` supplies the functional IDs; `docs/PRODUCT_SYSTEM_BLUEPRINT.md` supplies conceptual components. There is no approved detailed architecture or product implementation.
 
 | Feature group | Philosophy/product reason | Blueprint | Functional requirements | Architecture element | Repository path/status | Test coverage | Gap |

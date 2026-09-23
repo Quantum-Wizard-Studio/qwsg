@@ -12,6 +12,11 @@ binary needs no Go runtime. Verification needs `sha256sum`; installation uses
 the archive's deterministic `install.sh`. Unsupported hosts receive no guessed
 commands.
 
+The archive example below refers to immutable released 1.3.1. Current main
+contains later accepted source behavior; it is not a published replacement.
+Community 1.0 maturity and the pending C9 release/upgrade acceptance are defined
+by the [scope freeze](../PRODUCT_1_0_SCOPE_FREEZE.md).
+
 ## Verify, assess, and install
 
 For published releases, obtain the archive and sidecar through the immutable
@@ -53,7 +58,11 @@ qwsg install --guided
 qwsg readiness
 ```
 
-Setup resumes from valid existing evidence. Community supports one recipient.
+SMTP is optional for local Community operation. Setup resumes from valid
+existing evidence. If email is enabled, Community supports one recipient and
+requires valid sender/server/port, verified implicit TLS or required STARTTLS,
+and the selected authentication method (a protected credential for password
+authentication). A local mail server is not universally required.
 For password automation use a private current-user mode-0600 input file:
 
 ```sh
@@ -62,7 +71,14 @@ qwsg notification preflight
 qwsg notification test
 ```
 
-A controlled test—not configuration acceptance—verifies notification.
+Preflight is read-only and does not contact SMTP; a controlled explicit test
+verifies SMTP acceptance, not delivery to the recipient mailbox. Missing or
+unverified notification can leave overall readiness PARTIAL while Guardian
+core is ready; it is not a universal installation failure. Invalid enabled
+notification configuration must still be corrected before configuration validates.
+A successful manual test does not itself publish Guardian checkpoint delivery
+evidence; composite readiness can remain PARTIAL until its canonical evidence
+qualifies notification. Do not repeat installation to clear that advisory.
 
 ## Guardian activation and readiness
 
@@ -82,6 +98,14 @@ systemctl --user daemon-reload
 systemctl --user enable --now qwsg-guardian.service
 qwsg readiness
 ```
+
+Platform incompatibility, unsafe private paths/permissions, invalid configuration,
+or unavailable required user-manager capability block the affected installation
+or activation step. Unit placement, enablement, activity and fresh canonical
+evidence are distinct Guardian readiness requirements. Unknown mandatory evidence
+prevents a ready claim. Lingering is an advisory for boot before login; filesystem
+verification findings need operator review and do not waive the supported local
+filesystem contract. See the [readiness classifications](../architecture/SMART_INSTALL_READINESS.md).
 
 READY requires fresh integrity-checked Guardian evidence. Allow the bounded
 first cycle to complete and rerun readiness when instructed. Working core with
@@ -107,7 +131,9 @@ sudo ./uninstall.sh
 
 The uninstaller removes only unchanged release-owned artifacts and preserves
 user configuration, credentials, and state. Keep the verified archive for
-uninstall/rollback. Replacement uses the documented `--replace` with a new
+uninstall/rollback. For native update or recovery, follow the
+[authoritative procedure](../release/UPGRADE_ROLLBACK_UNINSTALL.md).
+Explicit archive installation replacement uses `--replace` with a new
 private `--backup-dir`; never recursively delete `/usr/local` or user data.
 
 ## Troubleshooting and instruction locations

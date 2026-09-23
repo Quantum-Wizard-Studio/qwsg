@@ -7,7 +7,7 @@
 <p align="center"><strong>QWSG</strong> — trustworthy, privacy-preserving Linux server monitoring for operators.</p>
 
 QWSG is a local Linux Server Guardian that provides trustworthy,
-privacy-preserving evidence about server health and change. The Community
+privacy-preserving evidence about observed server state and change. The Community
 edition runs as an ordinary user, keeps evidence locally, and supports one
 administrator email recipient through operator-controlled SMTP without a QWS
 account.
@@ -21,7 +21,7 @@ with the dedicated [installation guide](docs/installation/INSTALL.md). A
 release archive exposes it as `INSTALL.md`; after installation it is at
 `/usr/local/share/doc/qwsg/INSTALL.md`.
 
-QWSG 1.3.1 includes authenticated release awareness and a native,
+The current Community source includes authenticated release awareness and a native,
 rollback-capable, operator-controlled update path. `qwsg update` verifies and
 applies a supported release only after explicit administrator invocation, and
 `qwsg update rollback` restores the integrity-verified previous package while
@@ -29,6 +29,17 @@ preserving user configuration, credentials and state. Release discovery authenti
 trust anchor; `qwsg update status` reads local awareness without network access. The Guardian performs
 one isolated authenticated release-awareness check every 24 hours when due;
 unattended download and installation remain disabled.
+
+Community 1.0 is the frozen [product maturity boundary](docs/PRODUCT_1_0_SCOPE_FREEZE.md),
+not a change to historical version numbering. Released 1.3.1 is immutable and
+predates the current authenticated migration and recovery improvements. Current
+main is not a published release. C9 still requires a distinct new signed release
+and real 1.3.1 → next-release acceptance; no next version is selected here.
+See the [update and recovery procedure](docs/release/UPGRADE_ROLLBACK_UNINSTALL.md).
+
+Health evaluates canonical change evidence; `healthy` for unchanged represented
+state does not certify every aspect of the server. Rule and Policy evaluate
+that bounded evidence; unobserved checks are not silently healthy.
 
 ## Normal journey
 
@@ -69,7 +80,9 @@ at most one successfully accepted notice per authenticated release identity;
 installation always remains an explicit operator action. `qwsg update status`
 also shows effective policy and capability availability. Community defaults to
 manual; the [Pro policy foundation](docs/architecture/PRODUCT_CAPABILITIES_AND_UPDATE_POLICY.md)
-validates automatic eligibility only through test authority and executes no updates.
+includes a Guardian trigger and verified handoff/recovery, exercised with trusted
+Pro test authority. Production resolves Community authority; this does not
+provide production Pro entitlement or unattended installation.
 
 ## Documentation
 

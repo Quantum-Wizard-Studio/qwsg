@@ -1,14 +1,22 @@
-# QWSG 1.3.1 Known Limitations
+# QWSG Community Known Limitations
+
+Current source follows the [frozen Community scope](../PRODUCT_1_0_SCOPE_FREEZE.md).
+Historical version-specific transitions below do not claim that immutable 1.3.1
+contains later changes. C9 publication and real 1.3.1 upgrade acceptance remain
+uncompleted; see the [current recovery and bootstrap boundary](UPGRADE_ROLLBACK_UNINSTALL.md).
 
 The first native transition from QWSG 1.1.0 must be initiated with the fully
 verified newer archive binary because 1.1.0 predates the `update` command.
-Future supported updates use the installed command directly.
+Clients containing Task 082 can use signed future migration declarations;
+released 1.3.1 requires a separately accepted bootstrap to such a client.
 
 The guided installer currently explains the SMTP values and protected
 credential workflow, but provider-specific values are entered through the
 existing `qwsg config` and `qwsg notification credential` commands. The
 `notify` policy enables Guardian notification for authenticated supported newer
-releases when Community SMTP is ready. Automatic installation is not implemented.
+releases when Community SMTP is ready. Community never installs automatically.
+The Pro trigger/orchestration foundation exists in source with test authority;
+production Pro authority, privilege readiness and end-to-end acceptance remain open.
 
 - The supported production contract is limited to Ubuntu 24.04 LTS, systemd 255+, and linux-amd64.
 - The Console is local terminal output; there is no Web Dashboard, REST API, listener, fleet or remote management.

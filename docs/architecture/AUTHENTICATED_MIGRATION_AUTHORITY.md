@@ -2,7 +2,9 @@
 
 Task 082 replaces future-target enumeration with authenticated authorization of
 one locally implemented capability. Community installation remains an explicit
-operator action. No Pro scheduling or automatic installation is implemented.
+operator action. Later Tasks 084–087 add the capability-gated
+[automatic foundation](AUTOMATIC_UPDATE_TRIGGER.md) over the same authority;
+production still resolves Community capability.
 
 ## Problem and upgrade boundary
 

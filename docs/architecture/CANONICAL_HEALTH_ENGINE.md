@@ -11,7 +11,7 @@ Inventory -> Snapshot Store -> Comparison Engine -> Drift Engine -> Health Engin
                                                                     |
                                    +--------------------------------+----------+
                                    |                   |                       |
-                           future Rule Engine  future Policy Engine  future Report Engine
+                                  Rule Engine         Policy Engine         Report Engine
 ```
 
 Inventory describes the system. Snapshots preserve observations. Comparison
@@ -47,6 +47,10 @@ byte-identical canonical JSON and does not mutate the input.
 
 Health evaluates the supplied evidence only. It does not claim that a one-shot
 record is fresh, continuously observed, policy-compliant, safe, or remediated.
+In particular, unchanged means unchanged within the represented canonical
+evidence, not that every aspect of the server is healthy. Rule/Policy and local
+reports preserve this coverage boundary. Broader threshold, HTTP/TLS and
+backup-age monitoring remain [POST-1.0](../PRODUCT_1_0_SCOPE_FREEZE.md#post-10).
 
 ## Canonical Health Record 1.0
 

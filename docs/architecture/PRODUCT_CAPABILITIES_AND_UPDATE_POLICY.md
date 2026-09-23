@@ -1,7 +1,8 @@
 # Product capabilities and update policy
 
-Task 083 establishes policy eligibility only. Task 084 adds an explicitly callable
-orchestration core; no scheduler, Guardian trigger or production Pro licensing exists.
+Task 083 establishes policy eligibility. Task 084 adds the common orchestration
+core; Tasks 085–087 implement Guardian triggering, common mutation exclusion and
+verified handoff/recovery. Production Pro authority remains absent.
 Community remains the complete local toolkit: observation, understanding,
 comparison, reporting, discovery, authenticated verification and explicit update.
 Pro adds automation eligibility around the same core.
@@ -61,7 +62,7 @@ errors use bounded diagnostics and never print declaration/credential content.
 An injected Pro authority lost while configured automatic causes validation to
 refuse; it never silently enables automatic behavior or rewrites configuration.
 
-## Shared update security and future orchestration
+## Shared update security and orchestration
 
 The explicit update entry checks manual capability. Product policy does not
 construct or substitute an `updateauthority.Candidate`. Task 082's authenticated
@@ -76,5 +77,8 @@ Task 084 consumes this capability/policy foundation through the explicitly
 callable common-engine coordinator documented in
 `AUTOMATIC_UPDATE_ORCHESTRATION.md`. A policy State is not an execution token.
 Policy evaluation and configuration loading never invoke it. Production remains
-Community/manual; scheduling, Guardian triggers and licensing remain deferred.
-Neither Task 083 nor Task 084 publishes a release.
+Community/manual. The implemented [Guardian trigger](AUTOMATIC_UPDATE_TRIGGER.md)
+uses the existing release-check cadence and requires explicit automatic policy
+and trusted Pro capability; configuration alone never grants it. Production
+entitlement, unattended privilege readiness and real Pro acceptance remain
+separate frozen gates. No release is implied by these source capabilities.

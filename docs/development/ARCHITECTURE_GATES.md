@@ -1,5 +1,9 @@
 # Core Alpha Architecture Gate Register
 
+Current Community/Pro completion uses only the [frozen release gates](../PRODUCT_1_0_SCOPE_FREEZE.md).
+SMTP and authenticated release/update authority are implemented; the historical
+AG-002/AG-005 deferrals below are not current blockers.
+
 Historical Core Alpha gates are retained for traceability. Task 038 disposition
 for Version 1.0 is authoritative: `AG-001`, `003`, `004`, `006`, `007`, `008`,
 and `011` are resolved by the narrow supported local implementation; `AG-002`

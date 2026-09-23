@@ -22,8 +22,8 @@ composition dependencies, never release-supplied code. Historical manual routes
 remain available to the manual engine.
 
 The production `automaticHost` invokes `privileged-apply-report`. This is the
-same function as manual `privileged-apply`, with a bounded structured receipt
-instead of discarded output. The helper independently re-stages under its own
+same authenticated transaction used by manual update, which also consumes the
+bounded structured receipt since Task 091. The helper independently re-stages under its own
 private root, authenticates signatures and migration authority, reclassifies the
 actual installed source, and verifies artifact digest, size and provenance before
 calling the single `update.Apply`. Pro grants invocation permission only. It
@@ -40,11 +40,11 @@ idle -> policy_check -> candidate_check -> eligibility_check -> staging
      -> preflight -> backup -> apply -> post_update_validation -> success
 ```
 
-Backup and apply are a single existing helper transaction: each allowlisted
-managed destination's prior bytes, mode and hash are captured before changing
-that destination. The coordinator does not introduce a second backup/installer.
-Its `backup` and `apply` stages mark entry to that common transaction, not a claim
-that all backups have completed before any write. Package configuration samples
+Backup and apply use the single common helper transaction. Since Task 091,
+the complete allowlisted before-image set is copied, verified and fsynced, and
+a durable prepared journal precedes the first destination change. Its `backup`
+and `apply` stages mark entry to that transaction; there is no second installer.
+See [native transaction durability](NATIVE_UPDATE_AND_ROLLBACK.md). Package configuration samples
 are managed artifacts; private user configuration, credentials and runtime state
 are outside the write set.
 

@@ -1,27 +1,15 @@
-# QWSG 1.2 Operations
+# QWSG Community Operations
 
 ## Native updates
 
-Run `qwsg update check` without privilege. `qwsg update` performs anonymous
-discovery, private staging and full verification before it stops Guardian or
-invokes the narrow privileged helper. After replacement QWSG restores previous
-enabled/active service intent and validates installed identity and
-configuration. Inspect rollback availability with `qwsg update status`; use
-`qwsg update rollback` to restore the prior verified package artifacts.
-
-
-Task 091 explicit-update recovery: success requires package validation before
-Guardian recovery and verified final service state. A failed update that rolls
-back successfully still exits nonzero (`update_failed_recovered`). Inspect
-`qwsg update status`: rollback execution, rollback validation and Guardian recovery
-are separate results. Incomplete evidence blocks another manual update.
-After an interruption, ensure the coordinator and privileged helper have exited,
-preserve the private update evidence and rollback backup, then run
-`qwsg update rollback`. Retry preserves the original running/stopped intent.
-Do not delete evidence or start Guardian to bypass failed package validation.
-If the rollback source is missing/corrupt, preserve the current installation and
-use an independently verified recovery source; the command will fail closed.
-See [the transaction contract](../architecture/NATIVE_UPDATE_AND_ROLLBACK.md).
+Community update is explicitly operator invoked. Use the authoritative
+[update, rollback and interrupted-recovery procedure](UPGRADE_ROLLBACK_UNINSTALL.md)
+for authenticated migration, common mutation exclusion, package validation before
+Guardian recovery, separate failure outcomes and the helper-exit precondition.
+`qwsg update status` reads local evidence; successful rollback never makes the
+failed update successful. Previously inactive Guardian remains inactive.
+Current source and historical 1.3.1 have different capabilities; the linked
+procedure also defines the pending C9 bootstrap/release boundary.
 
 `qwsg update check` contacts only
 `https://releases.quantumwizard.hu/qwsg/v1/release-index.json`, requires the
@@ -43,8 +31,14 @@ acceptance is persistently deduplicated by authenticated release identity
 across checks and restarts. Failure is not marked successful and can retry only
 on a later 24-hour check; Guardian health is unaffected. Manual `qwsg update
 check` never sends this notification, and `qwsg update status` remains
-network-free and notification-free. No automatic path downloads, stages,
+network-free and notification-free. No Community automatic path downloads, stages,
 installs, or restarts for an available release.
+
+Health describes the engineering condition of represented canonical change
+evidence, not universal server health: unchanged evidence can be `healthy`
+without proving resource thresholds, endpoints, certificates or backups. Rule
+and Policy interpret that bounded coverage; missing/stale/unsupported evidence
+must remain qualified. See the [Health contract](../architecture/CANONICAL_HEALTH_ENGINE.md).
 
 Use `qwsg` for the current read-only operator view and `qwsg observe` for an explicit full observation. The supervised Guardian runs the same canonical Runtime Service; it does not duplicate engine decisions.
 

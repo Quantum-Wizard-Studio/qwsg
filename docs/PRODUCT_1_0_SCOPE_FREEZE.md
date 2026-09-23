@@ -65,7 +65,7 @@ certificate, backup or application concern.
 | C5 — Honest Health / Rule / Policy and local reporting | PASS | Preserve deterministic evaluation and local reporting limited to actual evidence/check coverage. No universal-health claim is permitted. |
 | C6 — Administrator SMTP notification and authenticated release awareness | PASS | Preserve security, TLS, privacy, bounded retry/deduplication and authenticated release boundaries. SMTP is operator-configurable and need not be configured on every Community installation. |
 | C7 — Safe explicit update / rollback / recovery | PASS | Task 091 proves authenticated explicit update with full package validation before verified Guardian recovery, distinct failed-update/rollback/runtime outcomes, durable pre-mutation rollback journal and actionable interruption evidence. All twelve C7 cases and mandatory local validation pass; see Task 091 and the native transaction contract. |
-| C8 — Canonical scope, readiness and recovery documentation | PARTIAL | Authoritative documentation must reflect this freeze and disposition obsolete broader MUSTs. Supported coverage, optional SMTP, update bootstrap and recovery boundaries must be accurate and usable. See the Task 088 documentation disposition below. |
+| C8 — Canonical scope, readiness and recovery documentation | PASS | Task 092 reconciles active scope, Health coverage, optional SMTP/readiness, authenticated update, rollback/recovery, Guardian intent and immutable-version/bootstrap boundaries against accepted runtime/tests. See the Task 092 evidence and authoritative operator procedure below. |
 | C9 — Distinct signed release and real upgrade acceptance | MISSING | Give post-1.3.1 source a distinct identity, produce a reproducible artifact and authenticated release metadata/index, prove supported upgrade/bootstrap from released 1.3.1 and config/state preservation, and accept rollback plus Guardian recovery on a real supported system. |
 
 ### Evidence and documentation disposition
@@ -77,9 +77,10 @@ and [common mutation exclusion and recovery contracts](architecture/AUTOMATIC_UP
 These records prove their stated scope, not completion of remaining gates.
 
 Task 088 closes the scope-authority and obsolete-requirement disposition portion
-of C8. C8 remains PARTIAL: operator recovery/readiness guidance must still be
-checked against the eventual C2/C3/C7 fixes and C9 supported upgrade procedure.
-No runtime gate is advanced by this documentation-only task.
+of C8. At that milestone C8 remained PARTIAL pending operator recovery/readiness
+reconciliation. Task 092 closes that documentation review against accepted
+C2/C3/C7 behavior; the actual future release-specific bootstrap procedure and
+real upgrade acceptance remain C9, not evidence manufactured by documentation.
 
 [Task 089](../ai/history/089_2026-09-21_stable-privacy-preserving-service-identity.md)
 closes C2 with collector-to-canonical-to-comparison/Drift/Report acceptance:
@@ -88,7 +89,7 @@ replacement preserve protected change references; raw names remain redacted;
 retained ordinal evidence remains readable and unmodified with an explicit
 comparison boundary. See the [identity/privacy contract](architecture/CANONICAL_SYSTEM_INVENTORY_V1.md#stable-protected-service-identity-task-089)
 and [historical compatibility behavior](architecture/SNAPSHOT_COMPARISON_ENGINE.md#service-identity-compatibility).
-No other gate status changes; C8's later readiness/recovery review remains PARTIAL.
+Task 089 changed no other gate; C8 was still PARTIAL at that milestone.
 
 [Task 090](../ai/history/090_2026-09-21_local-evidence-interruption-integrity-recovery.md)
 closes C3 with nine interruption/integrity/recovery cases, including abrupt
@@ -106,8 +107,20 @@ regressions and full local/race/engineering validation. The
 [native transaction contract](architecture/NATIVE_UPDATE_AND_ROLLBACK.md)
 defines exact package validation before Guardian start, independent recovery
 outcomes, preserved retry sources and operator-controlled interrupted recovery.
-C8 general documentation closure, C9 release/real upgrade acceptance and all
-additional Pro gate states remain unchanged.
+Task 091 left C8, C9 and all additional Pro gate states unchanged.
+
+[Task 092](../ai/history/092_2026-09-23_community-readiness-recovery-documentation-closure.md)
+closes only C8 through focused active-document reconciliation and source/test
+inspection. The [installation guide](installation/INSTALL.md) distinguishes
+mandatory readiness from optional SMTP; the [operator recovery procedure](release/UPGRADE_ROLLBACK_UNINSTALL.md)
+defines authenticated explicit update, mutation exclusion, validation before
+Guardian recovery, distinct failure outcomes, preserved inactive intent, helper
+exit before interrupted recovery and deterministic local evidence limits.
+README and active capability/security references now distinguish accepted source
+from immutable 1.3.1. Older broad MUSTs remain POST-1.0/FUTURE. Current main after
+Tasks 082–092 is not a published release; real 1.3.1 → next-release acceptance
+has not happened. C9 remains MISSING and requires a distinct new signed release;
+Task 092 selects no version and changes no Pro gate.
 
 Current operational boundaries that documentation must preserve:
 
@@ -148,15 +161,16 @@ engineering foundations. Production still resolves Community authority;
 test-injected Pro does not satisfy P1 or P5. The PASS for P2 describes its
 existing security/policy boundary, not production Pro availability.
 
-## Current gate totals after Task 091
+## Current gate totals after Task 092
 
 | Boundary | Total | PASS | PARTIAL | MISSING |
 | --- | --- | --- | --- | --- |
-| Community: C1–C9 | 9 | 7 | 1 | 1 |
+| Community: C1–C9 | 9 | 8 | 0 | 1 |
 | Additional Pro: P1–P5 | 5 | 1 | 2 | 2 |
-| Pro including inherited Community gates | 14 | 8 | 3 | 3 |
+| Pro including inherited Community gates | 14 | 9 | 2 | 3 |
 
-Task 089 advances only C2, Task 090 only C3 and Task 091 only C7 from PARTIAL to PASS. The Task 088 baseline was
+Task 089 advances only C2, Task 090 only C3, Task 091 only C7 and Task 092 only C8
+from PARTIAL to PASS. The Task 088 baseline was
 Community 4/4/1 and inherited Pro 5/6/3 (PASS/PARTIAL/MISSING). Subsequent
 governed work updates this register with evidence; completed task counts and
 estimated future task numbers are not product-completion measures.

@@ -1,6 +1,22 @@
 # QWSG Upgrade, Rollback, and Uninstall
 
-## Native workflow (QWSG 1.2 and later)
+## Current source and release boundary
+
+This is the authoritative Community operator procedure for accepted current
+source through Task 091. [Community 1.0](../PRODUCT_1_0_SCOPE_FREEZE.md) is a
+product maturity boundary, not retroactive version numbering. Released 1.3.1
+remains immutable and does not contain Tasks 082–091. Current main is not a
+published release. C9 requires a distinct new signed release and real supported
+1.3.1 → next-release upgrade/bootstrap acceptance, including preservation,
+rollback and Guardian recovery. That acceptance has not happened; no next
+version or ready-to-run bootstrap command is selected here.
+
+The old binary cannot acquire a new metadata parser through documentation or a
+signed declaration. Obtain the separately authorized, authenticated bootstrap
+procedure supplied with the future release. Do not bypass verification, edit
+migration authority, or apply historical commands below to an unknown target.
+
+## Explicit Community update
 
 ```sh
 qwsg update check
@@ -42,7 +58,8 @@ Task 077 makes `update check` one bounded authenticated awareness refresh and
 production endpoint and trust anchor, and Task 079 lets Guardian call that same
 authenticated core when its 24-hour awareness interval is due. Neither manual
 nor automatic awareness acquires or installs an artifact; explicit `qwsg
-update` remains the only installation entry point.
+update` remains the only Community installation entry point. The Pro automatic foundation uses the same
+authenticated engine but production Pro authority is not available.
 
 ## Deterministic compatibility and migration contract
 
@@ -62,9 +79,93 @@ path or silently overwrites unknown artifacts.
 
 QWSG 1.3.0 declares `compat-1.2.0-to-1.3.0`. Both sides use compatible Configuration 1.0, Guardian 1.0, Scheduler 1.0 and Operator State 1.0–1.2 contracts, so this path performs no configuration or state-schema transformation. Existing user configuration, protected notification credentials and persistent QWSG state remain byte-preserved outside package destinations. Only the verified binary, Guardian user unit and release-owned documentation are replaced.
 
-Preflight requires installed identity, candidate integrity/provenance, the exact migration record and successful installed-configuration validation. The privileged helper independently repeats package and migration validation. Post-update orchestration reloads systemd, restores previous enabled/active semantics, verifies the resulting binary identity and validates configuration. Readiness remains an explicit acceptance check.
+## Validation and Guardian intent
 
-The private rollback transaction records source/target versions, target commit, every managed destination, prior existence/mode and SHA-256-protected before-image. A post-mutation failure attempts package rollback and restores prior service semantics. Explicit `qwsg update rollback` restores the recorded predecessor package, reloads the user manager and restores enabled/active behavior; configuration, credentials and persistent state remain untouched. Integrity or metadata failure is visible and fails safely.
+Preflight requires authenticated source/target/migration authority, verified
+package integrity/provenance and valid installed configuration. A common
+nonblocking mutation lease excludes conflicting manual update, automatic work
+and explicit rollback through handoff, helper execution, validation, recovery
+and final evidence. Contention refuses without mutation (exit 3); it does not
+queue or grant authority. The privileged helper independently reauthenticates.
+
+Before any destination change, QWSG preserves and verifies the complete package
+before-image set and durably records its prepared rollback journal. Success
+requires installed package bytes/modes and identity/configuration validation,
+then user-manager reload and verified Guardian recovery, then committed local
+evidence. Guardian start alone proves neither update success nor long-term
+server health. Run `qwsg config validate` and `qwsg readiness` afterward for
+current configuration/readiness; optional SMTP can still be PARTIAL.
+
+The previous Guardian running/stopped intent is preserved. A previously active
+Guardian is stopped for mutation and must recover to verified active/running
+state; a previously inactive Guardian stays inactive. Update and rollback do
+not change enablement policy. Package validation and runtime recovery are
+separate facts; failed package recovery never authorizes starting Guardian.
+
+## Rollback and interrupted recovery
+
+Inspect `qwsg update status` first. It reads local awareness and transaction
+results without networking. Update success, rollback execution/validation and
+Guardian recovery must be read separately:
+
+| Observed outcome | Meaning and next action |
+| --- | --- |
+| `success` | The requested transaction validated and required Guardian intent was verified. Check current readiness; success is not a universal server-health certificate. |
+| `update_failed_recovered` | Update failed and exits nonzero even though the prior package and Guardian intent recovered. Review the original failure before choosing another explicit update; do not report the attempted target as installed successfully. |
+| `rollback_failed` / `rollback_validation_failed` | Restoration failed or did not validate. Preserve evidence and backup, leave Guardian stopped, correct the reported cause or obtain an independently verified recovery source, then retry explicit rollback. |
+| `recovery_failed` | Package rollback validated but Guardian recovery failed. Preserve the backup and original intent, resolve the user-manager/runtime finding and retry `qwsg update rollback`; do not repeat package installation merely to hide this result. |
+| Incomplete, ambiguous or invalid evidence; `recovery_incomplete` / `evidence_failed` | No completed recovery is proven. Preserve private evidence and installation, establish that prior processes have exited and inspect the reported cause before explicit recovery. Another manual update is blocked by unresolved transaction evidence. |
+
+Before recovery after an interrupted privileged operation, the operator MUST
+ensure that the previous privileged helper is no longer running, as well as
+the coordinator. A lost terminal or coordinator exit is not proof of helper
+exit. If this cannot be established, stop and obtain administrator assistance;
+do not race recovery against it. QWSG does not automate privileged-process
+termination or crash replay.
+
+Preserve a private copy of local update evidence and the referenced rollback
+backup. Once the previous operation is inactive and the cause is understood,
+run `qwsg update rollback`. It can use the prepared transaction after interrupted
+mutation even if normal completion was not recorded. Interrupted pre-mutation
+handoff can recover original Guardian intent without a nonexistent package
+backup. Recovery retry preserves original intent, including after a failed
+Guardian start. Configuration, credentials and persistent operator state are
+outside the package replacement/rollback write set.
+
+Rollback prevalidates the entire backup source before restoring package-owned
+artifacts and verifies restored bytes/modes or absence. Missing/corrupt sources
+fail closed and require a separately verified recovery source; arbitrary state
+or filesystem corruption is not automatically repairable. Backups remain
+available through failed validation/recovery. A consumed successful explicit
+rollback cannot silently select a different prior transaction on repetition.
+Never delete evidence, guess a backup or manually start Guardian to bypass
+failed package validation. If the restored binary rejects retained state,
+leave it stopped and retain the data for review.
+
+See [native transaction details](../architecture/NATIVE_UPDATE_AND_ROLLBACK.md).
+SMTP notification delivery is a separate result and cannot turn a failed
+transaction into success or a successful transaction into failure.
+
+## Local observation evidence recovery
+
+Inventory snapshots and Guardian checkpoints are separate from update rollback
+backups. Recognized interrupted snapshot writes/retention recover deterministically
+under writer exclusion; unknown, conflicting, unsafe or corrupt evidence is
+preserved and rejected explicitly. For a legacy inventory-lock error, verify
+all older writers have stopped and preserve a private store copy before moving
+only the legacy lock outside the store. Never remove the permanent writer lock
+to bypass an active writer. Follow the exact
+[local-evidence recovery contract](../architecture/INVENTORY_PERSISTENCE_AND_DIGITAL_TWIN.md#interruption-recovery-task-090-c3)
+for classification; do not reset the store or guess an authoritative snapshot.
+These guarantees require the supported local filesystem's ownership, locking,
+atomic rename and file/directory fsync semantics. They do not promise recovery
+from arbitrary hardware or filesystem corruption.
+
+## Historical compatibility and installation replacement
+
+The following version-specific examples retain their historical scope. They
+are not the pending C9 bootstrap procedure or commands for a Task 082 client,
+which requires signed companion authority for offline update.
 
 QWSG 1.1.0 has no native update command. For the single transition from 1.1.0,
 run the verified newer archive binary with its own archive identity:
@@ -88,7 +189,8 @@ Run `qwsg install --check` against a new archive before replacement and
 `qwsg readiness` after upgrade or rollback. Neither command executes
 remediation or changes a service.
 
-Rollback restores only the recorded old binary and unit after stopping the Guardian. Preserve state. If the old binary rejects newer state, leave the service stopped and retain the data for review.
+Current native rollback covers the complete recorded package-owned write set,
+including release-owned documentation; use the recovery procedure above.
 
 Before uninstall, explicitly run `systemctl --user disable --now qwsg-guardian.service` and remove only the copied per-user unit. Run the matching verified release archive's `sudo ./uninstall.sh`; it refuses modified artifacts. Configuration and private state are preserved. QWSG 1.0 provides no automatic purge command.
 
