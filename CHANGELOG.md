@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — Task 082
+## [1.4.0] — Unpublished release candidate (Task 093)
 
 - Authenticate installation authority with signed release-index/2 source and
   capability declarations; future targets need no compiled version-pair entry.
@@ -9,6 +9,14 @@
 - Preserve historical migration routes, operator control and package rollback;
   add mandatory frozen-old-client forward-update release acceptance.
 
+- Include accepted capability/policy and bounded automatic orchestration foundations
+  (Tasks 083–087); production Community capability still prohibits automatic install.
+- Stabilize privacy-preserving service identity and recover recognized interrupted
+  local evidence transactions (Tasks 089–090).
+- Preserve explicit update/rollback outcomes, durable recovery and Guardian intent
+  with common mutation exclusion (Task 091).
+- Reconcile frozen Community scope and operator readiness/recovery guidance
+  (Tasks 088 and 092). C9 remains MISSING pending signed publication and real acceptance.
 
 ## [1.3.1] - 2026-09-06
 
