@@ -4,7 +4,7 @@
 
 - Task ID: `093`
 - Task slug: `community-c9-release-candidate-preparation`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-09-25` UTC
 - Human authority: Project Owner explicitly authorizes Task 093 in this session: release candidate preparation, lifecycle, source commit and push; no signing, publication or VPS mutation.
 - Owner or lead-developer communication language: Hungarian

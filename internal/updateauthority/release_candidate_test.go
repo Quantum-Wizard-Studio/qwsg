@@ -125,7 +125,11 @@ func TestReleaseCandidateBootstrapPackage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	staged, err := update.StageLocal(archive, archive+".sha256", r.Version, t.TempDir())
+	stageParent := t.TempDir()
+	if err := os.Chmod(stageParent, 0700); err != nil {
+		t.Fatal(err)
+	}
+	staged, err := update.StageLocal(archive, archive+".sha256", r.Version, stageParent)
 	if err != nil {
 		t.Fatal(err)
 	}

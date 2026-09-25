@@ -368,3 +368,10 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   reconciliation. Immutable 1.3.1, unpublished main and pending C9 remain explicit;
   Community totals 8/0/1 and inherited Pro 9/2/3. No runtime/release change. See
   `ai/history/092_2026-09-23_community-readiness-recovery-documentation-closure.md`.
+
+- `2026-09-25`: Task 093 prepares the unsigned, unpublished Community 1.4.0
+  candidate from source `996fb90d0f53d4ae6088cd884a654d9d0a32fff9`, with reproducible
+  artifact, authenticated bootstrap declaration and exact Dell1 signing input.
+  Full local/release checks and isolated official-1.3.1 package proof pass.
+  C9 remains MISSING; Community 8/0/1, Pro 9/2/3. No signing/publication/VPS work.
+  See `release/candidates/1.4.0/HANDOFF.md` and the independent Task 093 history.
