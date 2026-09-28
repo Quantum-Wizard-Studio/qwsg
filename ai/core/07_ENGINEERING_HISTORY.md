@@ -375,3 +375,11 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   Full local/release checks and isolated official-1.3.1 package proof pass.
   C9 remains MISSING; Community 8/0/1, Pro 9/2/3. No signing/publication/VPS work.
   See `release/candidates/1.4.0/HANDOFF.md` and the independent Task 093 history.
+
+- `2026-09-28`: Task 094 independently verifies the exact Owner-signed 1.4.0
+  candidate and publishes immutable v1.4.0 / Forgejo Release 6 with externally
+  verified assets. Canonical atomic index replacement awaits Owner root
+  execution; task remains active and overall publication is not yet PASS.
+  Historical 1.3.1 remains unchanged. No real-system acceptance; C9 MISSING,
+  Community 8/0/1 and Pro 9/2/3. See the Task 094 history and
+  `release/candidates/1.4.0/PUBLICATION.md`.
