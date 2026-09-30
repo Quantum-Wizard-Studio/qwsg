@@ -4,7 +4,7 @@
 
 - Task ID: `095`
 - Task slug: `community-1-4-0-real-system-clean-install-acceptance`
-- Status: `active`
+- Status: `complete`
 - Date generated: `2026-09-30` UTC
 - Human authority: Owner-supplied Task 095 specification in the current session.
 - Preferred owner communication language: Hungarian (validated project configuration).
@@ -80,3 +80,77 @@ Using preserved moves avoids the historical uninstaller's narrower removal list 
 The resulting baseline has no installed package, enabled/running QWSG, discoverable prior configuration, state, inventory, scheduler, awareness, operator evidence or identity. Quarantined backups and explicitly preserved inactive release/source remnants cannot seed the new install. All unrelated services, packages, users, SSH, firewall, mail, database/network settings and existing lingering remain untouched.
 
 PARTIAL at mandatory Owner destructive/reset checkpoint. No remote mutation, reset, stop, installation, upgrade or rollback performed. Await explicit approval of exact script before any such action. Task 095 remains active; C9 remains MISSING and Community totals unchanged.
+
+
+## Exact Owner-approved reset executed (2026-09-30)
+
+Owner explicitly approved the presented script identity and bounded actions, then authorized continuation after independent baseline PASS. Immediately before execution SHA256 independently matched 19d4f1dace7b9a25e143db22f2a0cc3b233fc4064105ce5b81f8cdfa9a1dc127. Exact unchanged script executed through strict SSH using the existing noninteractive sudo. No credentials requested or privilege settings changed.
+
+Reset PASS: QWSG stopped; only its enablement symlink removed; five fixed active paths moved to root-private preservation; no private data deleted. Archive SHA256 1b6644967d6adeda658c3fab7c873184c02e84551c01b06135ab07a12c598095. Independent archive-to-relocated-object comparison verified all 49 files byte-for-byte, modes and owners/groups. Full archive/readability/hash checks pass. Backup directory root-private 0700, archive/checksum 0600. Historical scheduler and temporary files preserved. Guardian LoadState=not-found, ActiveState=inactive; no installed PATH binary, private configuration/state or enablement symlink remained. Existing unrelated timer and historical 1.3.1 archive/hash and earlier root backups remained present. No unrelated mutation command executed. reset-failed reported not-loaded after removal (expected); independent absence checks PASS.
+
+## Target public acquisition and production authentication
+
+New ordinary-user private task acquisition directory created. Independently hash-verified frozen release-index verifier supplied separately according to HANDOFF's supported trust chain; target verifier SHA256 d95604f9fb60a047300761fefa7dbbeded5b1ccb3afdb0386b3fb86f1cb3671d. This is an independent authentication tool, not the installed release binary. Target itself anonymously downloaded official 1.4.0 archive/sidecar via curl from immutable Forgejo release URLs and full signed index from canonical HTTPS endpoint.
+
+Target production verifier PASS before extraction/install. Exact index length/hash, stable active version/source/platform/artifact authority and archive length/hash match Phase 1. Artifact hash/size obtained from authenticated release semantics, not trusted only from development-supplied values. Sidecar PASS; archive safety PASS; every extracted manifest entry PASS; binary release identity exact. Migration declaration inspected but never exercised.
+
+Target official install assessment PASS: supported Ubuntu24.04/amd64, local filesystem, glibc2.39, ordinary user, systemd255 and working user manager all satisfied. Expert documented path used, under explicit Owner continuation authority: authenticated install.sh inspected, sudo -n ./install.sh without --replace, then ordinary-user qwsg setup --accept-defaults. Shell installed only immutable /usr/local artifact set; service remained disabled/stopped until explicitly activated. Default setup created fresh configuration with locale en, UTC, interval5m, cycle-timeout2m and notification disabled. Config validate PASS. No artificial accelerated cadence or service limit relaxation.
+
+Installed version 1.4.0/source996fb90d0f53d4ae6088cd884a654d9d0a32fff9/build2026-09-25T17:25:47Z exact. All20 installed immutable binary/unit/docs/config-template/trust/provenance artifacts byte-identical to authenticated archive, root ownership and 0755 binary/0644 files verified. Private configuration current-user0700/0600; initialized evidence private0700/0600. Two explicit observe calls completed successfully and established baseline/comparison before separately authorized QWSG enable/start. Service activation 2026-09-30T17:46:57Z, MainPID832049. No unrelated unit activated or modified; lingering was already enabled.
+
+## Initial real-system acceptance and classified observations
+
+OS/CPU/memory/storage/network/systemd-services/host/kernel/filesystem/virtualization/capabilities collectors available, no errors in required collectors. Optional components collector unavailable because fixed allowlisted /usr/local/go/bin/go is absent; QWSG prebuilt runtime requires no Go. This yields documented exit2 partial-but-usable Inventory; do not install Go merely to manufacture complete coverage. Collector issues remain disclosed. No privileged collector used. Two initial snapshots contained19 stable privacy-preserving service IDs, identical set digest; active names redacted in stored facts. Final continuity comparison awaits stability completion.
+
+Native inventory list/info/load with explicit private store path verifies integrity (info Integrity:verified; load exit2 reflects original partial collection). Read-only qwsg overview exits0 and validates Current Operator State. One-shot observe while Guardian owns lock refuses with guardian_active, without competing publication. Guardian and scheduler envelope digests independently verified repeatedly; private state modes checked.
+
+Documented command is qwsg version, which passes exact identity. --version is unsupported by immutable1.4.0 and help declares version; no CLI alias patch introduced. update check accepts no --format option; corrected invocation succeeds. inventory list requires --store; corrected invocation succeeds. These command-assumption errors are acceptance invocation corrections, not published product defects.
+
+Manual installed qwsg update check PASS, canonical HTTPS/Ed25519 production key authenticated, installed classification verified_supported_installation, status current/relation equal, installed/available1.4.0, exact artifact hash/size. Guardian also records authenticated awareness after first local cycle. No artifact download/install/update mutation from awareness.
+
+Readiness installation/environment/configuration/guardian_service domains ready; fresh canonical Guardian running evidence present. Notification missing_optional/disabled, overall partial per documented optional SMTP contract. Notification preflight exits0, no external message sent, queue remains empty. Community automatic update policy unavailable as documented; default manual retained.
+
+Unit confirms NoNewPrivileges=yes, ProtectSystem=strict, ProtectHome=read-only, MemoryMax134217728, TasksMax32, CPUQuota250ms/sec, packaged GOMEMLIMIT64MiB. No QWSG listening socket detected. Ongoing observation uses same PID, zero restarts and repeated valid checkpoint/scheduler digests; original limits remain unchanged. Stability required before final PASS.
+
+
+## Final stability and acceptance (2026-09-30)
+
+PASS: activation17:46:57UTC through sampled18:07:11UTC (1213.56seconds, over20minutes), with15 samples, fixed MainPID832049 and zero restarts. Three Scheduler execution results succeeded within this window; final18:13:54UTC verification found four succeeded/command_complete results and six native integrity-verified snapshots. Original5m cadence/2m timeout unchanged. Final scheduler state91146bytes, far below8MiB, retained4 results below64 maximum. Sampled peak24653824bytes below134217728; maximum8tasks below32. Cgroup low/high/max/oom/oom_kill/oom_group_kill all zero. Final journal scan found no panic/fatal/OOM/failure; no QWSG listener. Four distinct sampled completed cycles and Current Operator State IDs prove continued publication, independently of process liveness.
+
+All19 original systemd service pseudonyms remain identical through every retained snapshot, namespaced systemd-unit-v1 and ordinary-user provenance. One snapshot added transient fwupd.service; it later stopped, explaining a real service-set change without renumbering any original identity. No agent command started/stopped/modified it. Native info returns documented partial collection exit2 while reporting Integrity:verified; final validator corrected its initial exit0-only assumption. Earlier validator guessed identity prefix and whole-set equality; corrected from authoritative identity contract and actual system-service lifecycle. No product changes or false weakening of evidence checks.
+
+Final readiness installation/environment/configuration/guardian_service ready, notification partial because disabled/missing_optional; overall partial exactly per optional Community SMTP contract. Canonical running evidence fresh. Operator read-only startup exits0; checkpoint/scheduler digests and filesystem private modes remain valid. Awareness current/equal1.4.0, production authentication, zero consecutive failures. Notification queue empty throughout; no external spam or unconfigured delivery claim. Existing privilege/security limits remain enforced. Preservation archive hash verified again after install; prior bytes remain safe. No unexpected privileged or unrelated mutation observed or introduced by the bounded commands and reviewed official installer.
+
+## Acceptance matrix disposition
+
+| Owner items | Result and evidence |
+| --- | --- |
+| 1 | PASS: expected repository/lifecycle baseline, then preserved checkpoint chain |
+| 2 | PASS: independent public immutable release authority and production signature |
+| 3-5 | PASS: Owner target, strict pre-existing host-key trust, supported platform, full relevant prior-state inventory |
+| 6 | PASS: exactly approved reset and independent archive/relocation/absence verification |
+| 7-9 | PASS: target public acquisition, separate trusted pinned verifier, authenticated exact artifact size/hash |
+| 10-13 | PASS: official clean install, exact source/build identity, fresh config/state,20artifact byte/permission checks |
+| 14 | PASS: required collectors and capability/ordinary-user provenance; optional absent Go disclosed |
+| 15-16 | PASS: native integrity on all six snapshots, continued Guardian publication,19stable service pseudonyms |
+| 17-18 | PASS: fresh active/enabled Guardian and four successful internal Scheduler executions; no separate timer required |
+| 19-20 | PASS: canonical production authentication, verified installed1.4.0 current/equal, zero failures |
+| 21-22 | PASS: mandatory readiness/core health and >20minute sampled resource/stability evidence |
+| 23-24 | PASS: bounded mutation, preserved unrelated configuration, clean-install record |
+| 25 | Completed prompt/history archived without successor; canonical idle validation required before integration |
+| 26-29 | Task-scoped closure commit/dry-run/push/final equal-head0/0/clean verification reported in final delivery |
+| 30 | PASS: C9 remains MISSING; Community8PASS/0PARTIAL/1MISSING |
+
+## Actual deferred finding
+
+Prior historical scheduler main state24873413bytes exceeds current8MiB bound; all bytes and temporary historical artifacts preserved in approved private archive/quarantine. No investigation/remediation/migration claim. Optional Go-component absence, unsupported --version alias and disabled SMTP follow documented contracts; no published1.4.0 defect discovered.
+
+## Documentation and repository integration
+
+Task095 history and prompt updated; docs/release/ACCEPTANCE_1.4.0_CLEAN_INSTALL.md records clean-install proof only; concise chronological milestone added. No runtime/source/release/tag/index/artifact edits. Before final record mutation, verified readable git archive checkpoint SHA25671c67d9b9043314df6b78c49b58ab845efd7cb1c709054a3a85b619506e8cb84 retained outside Git. Full prior target state stays root-private on target; new acquisition/acceptance captures stay private outside Git. Retain until Owner acceptance and recovery/audit dependencies expire; no payload deletion authorized.
+
+Validation: exact approved script syntax/hash, target authentication/manifest/platform, installation and real-system evidence above PASS. Product source untouched, so no redundant full source/release rebuild or regression suite claimed. Framework/lifecycle checks and diff/privacy/targeted-staging review precede closure integration. Exact integration commit is returned separately to avoid self-reference; earlier checkpoints28c2df6205a1363b7d9fbbf72461acf791225902 and7d0a7b4ffeeb4d0b53a9663722bf12f346f00434 remain preserved.
+
+## Final completion state
+
+PASS / COMPLETE / CLOSED for Task095 clean-install scope, subject to final Git delivery verification. Guardian left enabled/active on authenticated official1.4.0 with default safe limits. No production mutation, unrelated configuration change, historical release rewrite, upgrade/bootstrap acceptance, rollback acceptance, C9 closure or Task096. Community8PASS/0PARTIAL/1MISSING; C9 remainsMISSING pending fresh later official historical1.3.1 authenticated bootstrap/migration, configuration/state preservation, rollback/recovery, Guardian behavior and final health/readiness acceptance. Stop after delivery.

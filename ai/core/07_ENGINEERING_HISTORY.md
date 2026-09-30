@@ -383,3 +383,5 @@ Completed milestones, dates, outcomes, and links belong here. Detailed task evid
   2026-09-28 audit checkpoint; no new task or real-system acceptance.
   C9 remains MISSING; Community 8/0/1, Pro 9/2/3. See the Task 094 history
   and `release/candidates/1.4.0/PUBLICATION.md`.
+
+- `2026-09-30`: Task 095 proved official production-signed Community 1.4.0 public acquisition, authentication, clean installation and supported OVH Ubuntu operation after an exactly approved preserved reset; >20-minute stability, collector/evidence/service identity/Guardian/scheduler/current-release checks pass. Optional SMTP remains disabled. C9 remains MISSING; no historical upgrade/rollback or successor work.

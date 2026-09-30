@@ -4,7 +4,7 @@
 
 - Task ID: `095`
 - Task slug: `community-1-4-0-real-system-clean-install-acceptance`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-09-30` UTC
 - Human authority: Project Owner explicitly authorizes Task 095 in the current session under the supplied eight-phase specification and thirty-item acceptance matrix.
 - Owner or lead-developer communication language: Hungarian
@@ -100,3 +100,14 @@ PASS/COMPLETE/CLOSED only with every required check, push, HEAD==origin/main, di
 Approved by Project Owner explicitly authorizes Task 095 in the current session under the supplied eight-phase specification and thirty-item acceptance matrix. through the Engineering Task Builder on 2026-09-30 UTC.
 
 The structured task definition and Authority Envelope have been explicitly approved. Framework 2.0 Standard Execution Authority permits iterative, reversible in-scope engineering without another Owner gate. Further scope changes, exceptional external actions, and Owner-reserved decisions require explicit Project Owner approval.
+
+
+## Task 095 completion
+
+Clean-install acceptance PASS on 2026-09-30 after exact Owner-approved reset,
+independent clean-baseline/preservation verification, target public acquisition
+and production authentication, official clean installation and >20minute
+stability evidence. See matching history and clean-install acceptance record.
+No historical migration/rollback acceptance or C9 closure. Archive without
+successor into canonical idle lifecycle; final integration verification before
+delivery. All prior bytes retained privately, Guardian left healthy/active.
