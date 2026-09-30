@@ -51,3 +51,32 @@ No production VPS, unrelated infrastructure, historical release or signed metada
 ## Completion state
 
 PARTIAL; Phase 1 complete, awaiting explicit target identification. Prompt remains active for deterministic continuation. No closure/idle claim. Targeted evidence checkpoint commit/push is authorized; final Git identity is reported separately to avoid a self-referential commit hash.
+
+
+## Owner-identified target and Phase 2 preflight (2026-09-30)
+
+Owner explicitly identified the OVH playground and ordinary runtime account in this session. Private target details are retained in the Owner conversation and protected local plan; not published in Git. Repository resumed from 28c2df6205a1363b7d9fbbf72461acf791225902 with matching origin/main, 0/0 divergence and clean worktree. Existing Task 095 lifecycle preserved.
+
+Initial strict hostname host-key verification refused because no hostname entry existed. DNS resolves to the already trusted IP entry; independently scanned ED25519 key exactly matches that existing entry. SSH uses HostKeyAlias for that existing identity with StrictHostKeyChecking=yes, without accepting a new key or modifying known_hosts. Connectivity and hostname verification PASS. No private key or credentials read, copied or printed.
+
+Supported platform: Ubuntu 24.04.4 LTS, x86_64/amd64, kernel 6.8.0-138-generic, systemd 255 (255.4-1ubuntu8.17), ordinary UID 1000 runtime account, working systemd user bus, existing lingering, ext4 local filesystem, 34 GiB available on a 38 GiB root filesystem. Existing noninteractive sudo works; no privilege exceptions added.
+
+Existing installed QWSG is official 1.3.1, source 45009fe6169bff00842a4c4e9561bf339a5db81e, build 2026-09-06T22:50:33Z. Installed binary is byte-identical to preserved authenticated historical archive binary (SHA256 278a80119013f8bfc1ec908a410b9905d747fce4c1d35356cc38605d5267ed1a). Target historical archive hash equals official 0ab726bcde36182232ff89e3ea33e2d5ab77d8cad2b94ce56c9534a8147d9cd7; all extracted package manifest entries PASS. Historical binary supports `version`; `--version` is refused as unknown, not a 1.4.0 finding.
+
+Guardian user unit active/running/enabled since 2026-09-07, zero restarts, ExecMainStatus 0. Instantaneous memory approximately 5.3 MiB, peak 7.5 MiB, 9 tasks. Packaged unit has GOMEMLIMIT=64MiB, MemoryMax=128M, TasksMax=32, CPUQuota=25%, NoNewPrivileges and private state. No separate QWSG system timer/unit; Guardian owns internal scheduling. Unrelated cache-clean timer exists and is excluded from reset.
+
+Active installation paths: /usr/local/bin/qwsg (root 0755), /usr/local/lib/systemd/user/qwsg-guardian.service (root 0644), /usr/local/share/doc/qwsg (root 0755). Private configuration and state are current-user 0700 directories; records 0600. Configuration model 1.0 contains locale/time-zone/extensions patch only; no credential file discovered. State includes ten snapshots, store metadata, operator state model 1.2, Guardian checkpoint and locks, scheduler state and temporary scheduler files, authenticated update-awareness evidence. Awareness reports historical current; this is not fresh 1.4.0 authentication evidence.
+
+Private state uses approximately 74 MiB. Scheduler main JSON is 24873413 bytes, beyond current 8 MiB accepted bound, with several partial temporary files. Preserve all as historical evidence; do not load or claim valid current scheduler continuity. Current clean-install scope resets this legacy state after explicit approval, rather than attempting migration or rollback acceptance.
+
+Additional inactive remnants: several 1.2.0 RC extracted packages/archives, 1.3.0 and 1.3.1 packages/archives/sidecars, a historical source tree, two root-private pre-upgrade backup directories. Preserve these unchanged: they are outside installed/PATH/configuration/state discovery paths. No additional QWSG /etc, /var/lib or /var/log runtime directory, per-user cache/share directory, or user-unit override found. Enabled user-unit symlink points exactly to packaged global user unit. Active PrivateTmp runtime directory belongs to systemd and must be retired by normal unit stop, never broad filesystem removal.
+
+## Phase 3 proposed checkpoint (NOT EXECUTED)
+
+Exact bounded proposed script is prepared in protected local task evidence and presented to Owner. It guards target hostname/account, exact installed binary hash, non-symlink fixed paths and absent backup destination. It stops only QWSG Guardian; requires inactivity and no QWSG process; creates a new root-private 0700 backup directory; archives the five active QWSG paths plus exact enablement symlink; hashes/verifies archive readability before reset; disables only QWSG unit; moves binary, packaged unit, entire QWSG docs directory, private configuration and entire private state into separately named backup objects; reloads only current user manager; verifies every runtime target absent, no PATH binary/process/active unit, and unchanged archive digest. No deletion of private state or backup payload.
+
+Using preserved moves avoids the historical uninstaller's narrower removal list leaving older release documentation/trust files behind. All existing bytes and ownership remain recoverable, with full archive and relocated objects. Recovery is a separately approved exact-path restore after digest/readability validation and collision checks; restore saved unit/enablement/config/state/artifacts, reload/start only the prior unit and reverify. This is recovery planning, not rollback acceptance.
+
+The resulting baseline has no installed package, enabled/running QWSG, discoverable prior configuration, state, inventory, scheduler, awareness, operator evidence or identity. Quarantined backups and explicitly preserved inactive release/source remnants cannot seed the new install. All unrelated services, packages, users, SSH, firewall, mail, database/network settings and existing lingering remain untouched.
+
+PARTIAL at mandatory Owner destructive/reset checkpoint. No remote mutation, reset, stop, installation, upgrade or rollback performed. Await explicit approval of exact script before any such action. Task 095 remains active; C9 remains MISSING and Community totals unchanged.
