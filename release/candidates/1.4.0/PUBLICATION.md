@@ -7,9 +7,10 @@ canonical signing input and returned offline signature after all independent
 prepublication checks pass. No changed signed fields, artifact rebuild, different
 version, trust weakening or real-system acceptance is authorized.
 
-Prepublication verification: PASS on 2026-09-28 UTC. Forgejo tag/Release/assets and their independent
-external verification pass. Canonical index publication and its external proof
-remain pending Owner root execution. Overall completion is not claimed.
+Prepublication verification: PASS on 2026-09-28 UTC. Exact tag/Forgejo assets
+and Owner-completed atomic canonical index publication pass. Independent
+post-publication verification on 2026-09-30 UTC: PASS. Task 094 publication
+is complete; real-system acceptance remains outside this result.
 The original cryptographic checkpoint remains byte-identical with
 `publication_authorized=false`. The existing runbook separates cryptographic
 verification from Owner authority and publication evidence; it does not define a
@@ -117,5 +118,34 @@ Full external archive manifest/provenance/notes/embedded identity and signed
 companion production verification pass. Public body matches prepared metadata.
 Historical Release 5 body/publication fields and asset IDs/bytes remain unchanged.
 
-Canonical index replacement and post-publication signature/awareness verification
-are pending; do not interpret Forgejo success as complete publication.
+## Canonical production proof and completed publication
+
+The Owner executed the exact reviewed 5014-byte root operation and returned
+`release_index.publication=PASS` with signed-index SHA256
+`fbb39b52e240ff3691090a48a1e7915e516da6fb2f6a1faa9ed5fc069b633c41`.
+The operation's successful path verifies root-private prior/new backup bytes
+before atomic replacement. Its identity remains unchanged. Backup-content
+verification relies on this Owner-confirmed reviewed execution; the unprivileged
+agent independently confirmed the 0700 backup directory and installed object.
+No second root mutation or rollback was performed.
+
+On 2026-09-30 UTC, independent anonymous curl and wget retrieval from
+`https://releases.quantumwizard.hu/qwsg/v1/release-index.json` matches all 1153
+authorized bytes and the signed-index digest above. Trusted production verification
+reproduces the exact checkpoint and pinned key/fingerprint. Current-clock and
+prior-watermark checks pass. All source/version/platform/artifact/compatibility
+fields match the frozen contract. Last-Modified is 2026-09-28T18:15:31Z; signed
+generated/published timestamps remain unchanged. Media type, no-cache, absent
+Expires, ETag/Last-Modified and conditional 304 checks pass.
+
+All six assets were freshly retrieved and rechecked, including archive length/hash,
+every manifest member, exact provenance/notes and embedded identity. Public
+1.4.0 source/tag and Release 6 metadata remain exact. Historical 1.3.1 archive,
+source/tag, Release 5 body/publication fields and asset identities remain unchanged.
+
+Safe discovery uses the actual production HTTPS source and pinned verifier with
+an isolated synthetic verified-1.3.1 classifier; it identifies newer compatible
+1.4.0. Unknown migration, a newer watermark and test-key signature fail closed.
+No installed state is accessed for mutation and no real upgrade is attempted.
+See the independent Task 094 history for the complete external verification and
+closure record. Publication is PASS; C9 is still MISSING.

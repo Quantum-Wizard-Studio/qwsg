@@ -4,7 +4,7 @@
 
 - Task ID: `094`
 - Task slug: `signed-release-prepublication-verification-and-controlled-publication`
-- Status: `active`
+- Status: `complete`
 - Date opened: `2026-09-28` UTC
 - Human authority: Project Owner explicitly authorizes Task 094 in this session: independently verify the exact frozen signed 1.4.0 candidate, publish only if every release-authority check passes, record evidence and deterministic lifecycle/commit/push. No real-system acceptance.
 - Owner or lead-developer communication language: Hungarian
@@ -102,3 +102,12 @@ PASS only after all prepublication and external publication checks, atomicity an
 Approved by Project Owner explicitly authorizes Task 094 in this session: independently verify the exact frozen signed 1.4.0 candidate, publish only if every release-authority check passes, record evidence and deterministic lifecycle/commit/push. No real-system acceptance. through the Engineering Task Builder on 2026-09-28 UTC.
 
 The structured task definition and Authority Envelope have been explicitly approved. Framework 2.0 Standard Execution Authority permits iterative, reversible in-scope engineering without another Owner gate. Further scope changes, exceptional external actions, and Owner-reserved decisions require explicit Project Owner approval.
+
+## Task 094 completion
+
+Completed 2026-09-30 after Owner-confirmed execution of the credential-bound
+root publication operation. Independent canonical external index/signature,
+artifact/provenance/tag/compatibility/history and safe isolated discovery checks
+pass. See matching history and release/candidates/1.4.0/PUBLICATION.md.
+No real-system acceptance, C9 closure or successor task. Archived into the
+canonical idle state; final integration checks precede Owner delivery.
